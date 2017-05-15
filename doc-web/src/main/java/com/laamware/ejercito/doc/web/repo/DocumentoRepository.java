@@ -71,6 +71,11 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 	 * para que no presente los documentos asignados que se encuentren en la
 	 * bandeja de apoyo y consulta. Mejora codificación y formato de sentencias
 	 * SQL.
+	 * 
+	 * 2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
+	 * hotfix-81 -> Corrección en la consulta SQL de la bandeja de entrada para
+	 * que no presente los documentos del proceso externo enviados por el mismo
+	 * usuario en sesión.
 	 */
 	@Query(nativeQuery = true, value = ""
 			+ " SELECT                                                                           "
@@ -91,6 +96,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 			+ " AND DOCUMENTO.DOC_ASUNTO       IS NOT NULL                                       "
 			+ " AND PROCESO_INSTANCIA.PES_ID   NOT IN (48,52,83,101,102)                         "
 			+ " AND USUARIO_ASIGNADO.USU_LOGIN = :login                                          "
+			+ " AND NOT (PROCESO_INSTANCIA.PRO_ID = 41 AND PROCESO_INSTANCIA.PES_ID = 49)        "
 			+ " UNION                                                                            "
 			+ " SELECT                                                                           "
 			+ " DOCUMENTO_DEP_DESTINO.DOC_ID                                                     "
@@ -113,7 +119,8 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 			+ " )                                                                                "
 			+ " AND                                                                              "
 			+ " (DOCUMENTO_EN_CONSULTA.DEC_ID IS NULL OR (DOCUMENTO_EN_CONSULTA.ACTIVO = 0))     "
-			+ " ORDER BY DOCUMENTO.CUANDO_MOD DESC                                               ")
+			+ " ORDER BY DOCUMENTO.CUANDO_MOD DESC                                               "
+			+ " ;                                                                                ")
 	List<Documento> findBandejaEntrada(@Param("login") String login);
 
 	@Query(nativeQuery = true, value = "select doc.*                "
