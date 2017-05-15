@@ -84,7 +84,6 @@ import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaAdicionalRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
-import com.laamware.ejercito.doc.web.repo.DocumentoEnConsultaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoObservacionRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
@@ -104,6 +103,7 @@ import com.laamware.ejercito.doc.web.serv.JasperService;
 import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
+import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 
@@ -175,6 +175,11 @@ public class DocumentoController extends UtilController {
 	// 2017-04-20 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
 	@Autowired
 	DocumentoEnConsultaService documentoEnConsultaService;
+
+	// 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+	// feature-78
+	@Autowired
+	UsuarioService usuarioService;
 
 	/* ---------------------- públicos ------------------------------- */
 
@@ -1607,9 +1612,14 @@ public class DocumentoController extends UtilController {
 				doc.setUsuarioUltimaAccion(getUsuario(principal));
 				documentRepository.saveAndFlush(doc);
 
-				// Issue #118
+				/*
+				 * Issue #118
+				 * 
+				 * 2017-05-15 jgarcia@controltechcg.com Issue #78
+				 * (SICDI-Controltech) feature-78
+				 */
 				redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-						buildAsignadosText(documentoDependenciaAdicionalRepository, i, "Asignado a "));
+						buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 				return redirectToInstancia(i);
 			} else {
 				if (did != null) {
@@ -2381,9 +2391,14 @@ public class DocumentoController extends UtilController {
 			return "redirect:/";
 		}
 
-		// Issue #118
+		/*
+		 * Issue #118
+		 * 
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78
+		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2431,9 +2446,14 @@ public class DocumentoController extends UtilController {
 		doc.setUsuarioUltimaAccion(getUsuario(principal));
 		documentRepository.saveAndFlush(doc);
 
-		// Issue #118
+		/*
+		 * Issue #118
+		 * 
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78
+		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2475,9 +2495,14 @@ public class DocumentoController extends UtilController {
 		// Cambia a solo lectura
 		i.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_SOLO_LECTURA);
 
-		// Issue #118
+		/*
+		 * Issue #118
+		 * 
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78
+		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2731,9 +2756,14 @@ public class DocumentoController extends UtilController {
 		 */
 		archivoAutomaticoService.archivarAutomaticamente(doc);
 
-		// Issue #118
+		/*
+		 * Issue #118
+		 * 
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78
+		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 		return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
 	}
@@ -2780,9 +2810,14 @@ public class DocumentoController extends UtilController {
 		// Cambia a solo lectura
 		i.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_SOLO_LECTURA);
 
-		// Issue #118
+		/*
+		 * Issue #118
+		 * 
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78
+		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3597,6 +3632,8 @@ public class DocumentoController extends UtilController {
 	 * 
 	 * @param repository
 	 *            Repositorio de persistencia para las dependencias adicionales.
+	 * @param usuarioService
+	 *            Servicio para usuarios.
 	 * @param instancia
 	 *            Instancia del proceso.
 	 * @param textoInicial
@@ -3607,14 +3644,24 @@ public class DocumentoController extends UtilController {
 	 *         dependencias destino, presentará en el mismo texto (separado por
 	 *         comas) los jefes de cada dependencia.
 	 */
-	// 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de
-	// dependencias adicionales a un documento.
-	public static String buildAsignadosText(DocumentoDependenciaAdicionalRepository repository, Instancia instancia,
-			String textoInicial) {
+	/*
+	 * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de
+	 * dependencias adicionales a un documento.
+	 * 
+	 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+	 * feature-78
+	 */
+	public static String buildAsignadosText(DocumentoDependenciaAdicionalRepository repository,
+			UsuarioService usuarioService, Instancia instancia, String textoInicial) {
 		final String documentoID = instancia.getVariable(Documento.DOC_ID);
 
 		String text = (textoInicial == null || textoInicial.trim().isEmpty()) ? "" : textoInicial;
-		text += instancia.getAsignado();
+		/*
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78: Presentar información básica de los usuarios asignadores
+		 * y asignados en las bandejas del sistema.
+		 */
+		text += usuarioService.mostrarInformacionBasica(instancia.getAsignado());
 
 		// 2017-02-08 jgarcia@controltechcg.com Issue #118 Modificación para que
 		// los jefes de dependencia destino únicamente se presenten cuando el
@@ -3643,11 +3690,18 @@ public class DocumentoController extends UtilController {
 				 */
 				Usuario jefe = getJefeActivoDependencia(dependencia);
 				if (jefe != null) {
-					// 2017-03-08 jgarcia@controltechcg.com Issue #6
-					// (SIGDI-Incidencias01): Corrección en presentación de
-					// información de destinatarios, para que salga el rango del
-					// jefe de la dependencia.
-					text += ", " + jefe;
+					/*
+					 * 2017-03-08 jgarcia@controltechcg.com Issue #6
+					 * (SIGDI-Incidencias01): Corrección en presentación de
+					 * información de destinatarios, para que salga el rango del
+					 * jefe de la dependencia.
+					 * 
+					 * 2017-05-15 jgarcia@controltechcg.com Issue #78
+					 * (SICDI-Controltech) feature-78: Presentar información
+					 * básica de los usuarios asignadores y asignados en las
+					 * bandejas del sistema.
+					 */
+					text += ", " + usuarioService.mostrarInformacionBasica(jefe);
 				}
 			}
 		}

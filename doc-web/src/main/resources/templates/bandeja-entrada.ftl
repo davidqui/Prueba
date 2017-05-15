@@ -48,11 +48,22 @@
       						<strong>Fecha de creación:</strong>&nbsp;${x.cuando?string('yyyy-MM-dd hh:mm a')}<#if (x.plazo)?? > <strong>Plazo:&nbsp;</strong><span class="label label-${x.semaforo}">${x.plazo?string('yyyy-MM-dd')}</span></#if> 
       					</div>
       					<div class="col-sm-4">
-      						<#if (x.instancia.asignado)??><strong>Asignado a: </strong>${(x.instancia.asignado)!"&lt;No asignado&gt;"}</#if>
+      						<#--
+      							2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
+      							Presentar información básica de los usuarios asignadores y asignados en las
+      							bandejas del sistema.
+      						-->      						
+      						<#if (x.instancia.asignado)??><strong>Asignado a: </strong>${(usuarioService.mostrarInformacionBasica(x.instancia.asignado))!"&lt;No asignado&gt;"}</#if>
       					</div>
       					<div class="col-sm-4">
-      						<strong>Asignado por: </strong><#if (x.usuarioUltimaAccion)?? > ${x.usuarioUltimaAccion} <#else> ${x.instancia.asignado.nombre} </#if>
+      						<strong>Asignado por: </strong><#if (x.usuarioUltimaAccion)?? > ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)} <#else> ${usuarioService.mostrarInformacionBasica(x.instancia.asignado)} </#if>
       					</div>
+					<#--
+						2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
+						Corrección presentación acciones en las bandejas.
+					-->        					
+      				</div>
+      				<div class="row">	
 	            		<div class="col-sm-4">
 	            			<#--
 	            				2017-05-11 jgarcia@controltechcg.com Issue #77 (SICDI-Controltech):

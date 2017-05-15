@@ -18,6 +18,7 @@ import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaAdicionalRepositor
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaBandejaRepository;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
+import com.laamware.ejercito.doc.web.serv.UsuarioService;
 
 @Controller
 @RequestMapping(value = BandejaController.PATH)
@@ -33,6 +34,11 @@ public class BandejaController extends UtilController {
 
 	@Autowired
 	InstanciaBandejaRepository instanciaBandejaR;
+
+	// 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+	// feature-78
+	@Autowired
+	UsuarioService usuarioService;
 
 	// 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de
 	// dependencias adicionales a un documento.
@@ -62,6 +68,14 @@ public class BandejaController extends UtilController {
 			d.getInstancia().setService(procesoService);
 		}
 		model.addAttribute("documentos", docs);
+
+		/*
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78: Presentar información básica de los usuarios asignadores
+		 * y asignados en las bandejas del sistema.
+		 */
+		model.addAttribute("usuarioService", usuarioService);
+
 		return "bandeja-entrada";
 	}
 
@@ -77,13 +91,25 @@ public class BandejaController extends UtilController {
 			/*
 			 * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de
 			 * jefes de dependencias adicionales a un documento.
+			 * 
+			 * 2017-05-15 jgarcia@controltechcg.com Issue #78
+			 * (SICDI-Controltech) feature-78: Presentar información básica de
+			 * los usuarios asignadores y asignados en las bandejas del sistema.
 			 */
 			String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
-					d.getInstancia(), null);
+					usuarioService, d.getInstancia(), null);
 			d.setTextoAsignado(asignadosText);
 
 		}
 		model.addAttribute("documentos", docs);
+
+		/*
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78: Presentar información básica de los usuarios asignadores
+		 * y asignados en las bandejas del sistema.
+		 */
+		model.addAttribute("usuarioService", usuarioService);
+
 		return "bandeja-enviados";
 	}
 
@@ -97,6 +123,14 @@ public class BandejaController extends UtilController {
 			d.getInstancia().setService(procesoService);
 		}
 		model.addAttribute("documentos", docs);
+
+		/*
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78: Presentar información básica de los usuarios asignadores
+		 * y asignados en las bandejas del sistema.
+		 */
+		model.addAttribute("usuarioService", usuarioService);
+
 		return "bandeja-tramite";
 	}
 
@@ -124,13 +158,21 @@ public class BandejaController extends UtilController {
 	public String apoyoConsulta(Model model, Principal principal) {
 		final String login = principal.getName();
 		final List<Documento> documentos = docR.findBandejaConsulta(login);
-		
+
 		for (Documento documento : documentos) {
 			documento.getInstancia().getCuando();
 			documento.getInstancia().setService(procesoService);
 		}
-		
-		model.addAttribute("documentos", documentos	);
+
+		model.addAttribute("documentos", documentos);
+
+		/*
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78: Presentar información básica de los usuarios asignadores
+		 * y asignados en las bandejas del sistema.
+		 */
+		model.addAttribute("usuarioService", usuarioService);
+
 		return "bandeja-apoyo-consulta";
 
 	}

@@ -101,10 +101,9 @@ public class Usuario extends AuditActivoModifySupport {
 	@LaamWidget(value = "ofsfile")
 	@Column(name = "USU_IMAGEN_FIRMA")
 	private String imagenFirma;
-	
+
 	@Column(name = "USU_IMAGEN_FIRMA_EXT")
 	private String imagenFirmaExtension;
-		
 
 	@Column(name = "UMA_ID")
 	private Integer uma;
@@ -113,20 +112,20 @@ public class Usuario extends AuditActivoModifySupport {
 	@LaamCreate(order = 100)
 	@Column(name = "USU_EMAIL")
 	private String email;
-	
+
 	@Transient
 	private List<UsuarioHistorialFirmaDTO> historialUsuarios = new ArrayList<UsuarioHistorialFirmaDTO>();
-	
+
 	@Transient
 	private String mensajeNivelAcceso;
-	
+
 	@Transient
 	private boolean restriccionDocumentoNivelAcceso;
-	
-	public Usuario( Integer id ) {
+
+	public Usuario(Integer id) {
 		this.id = id;
 	}
-	
+
 	public Usuario() {
 	}
 
@@ -147,14 +146,14 @@ public class Usuario extends AuditActivoModifySupport {
 		this.id = id;
 	}
 
-	public String getLogin() {		
+	public String getLogin() {
 		return login;
 	}
 
 	public void setLogin(String login) {
-		if( login != null ){
+		if (login != null) {
 			this.login = login.trim().toLowerCase();
-		}else{
+		} else {
 			this.login = null;
 		}
 	}
@@ -265,8 +264,8 @@ public class Usuario extends AuditActivoModifySupport {
 	public void setCargo(String cargo) {
 		this.cargo = cargo;
 	}
-	
-	public boolean usuarioTieneFirmaCargada(){
+
+	public boolean usuarioTieneFirmaCargada() {
 		return imagenFirma != null && imagenFirma.trim().length() > 0;
 	}
 
@@ -286,7 +285,7 @@ public class Usuario extends AuditActivoModifySupport {
 		this.historialUsuarios = historialUsuarios;
 	}
 
-	public String getMensajeNivelAcceso() {		
+	public String getMensajeNivelAcceso() {
 		return mensajeNivelAcceso;
 	}
 
@@ -301,14 +300,14 @@ public class Usuario extends AuditActivoModifySupport {
 	public void setRestriccionDocumentoNivelAcceso(boolean restriccionDocumentoNivelAcceso) {
 		this.restriccionDocumentoNivelAcceso = restriccionDocumentoNivelAcceso;
 	}
-	
+
 	@Transient
 	private String idString;
 
 	public String getIdString() {
-		if( id != null){
+		if (id != null) {
 			idString = id.toString().replaceAll("\\.", "");
-		}else{
+		} else {
 			idString = null;
 		}
 		return idString;
@@ -317,6 +316,5 @@ public class Usuario extends AuditActivoModifySupport {
 	public void setIdString(String idString) {
 		this.idString = idString;
 	}
-	
-	
+
 }

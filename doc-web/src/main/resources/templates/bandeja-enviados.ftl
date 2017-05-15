@@ -38,13 +38,24 @@
       						<strong>Enviado:</strong>&nbsp;${x.cuandoMod?string('yyyy-MM-dd hh:mm a')}<#if (x.plazo)?? > <strong>Plazo:&nbsp;</strong><span class="label label-${x.semaforo}">${x.plazo?string('yyyy-MM-dd')}</span></#if> 
       					</div>
       					<div class="col-sm-4">
-      					    <!-- 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de dependencias adicionales a un documento. -->
-      						<!-- <#if (x.instancia.asignado)??><strong>Env: </strong>${(x.instancia.asignado)!"&lt;No asignado&gt;"}</#if> -->
+      					    <#-- 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de dependencias adicionales a un documento. -->
+      						<#-- <#if (x.instancia.asignado)??><strong>Env: </strong>${(x.instancia.asignado)!"&lt;No asignado&gt;"}</#if> -->
       						<#if (x.textoAsignado)??><strong>Env: </strong>${(x.textoAsignado)!"&lt;No asignado&gt;"}</#if>
       					</div>
-      					<div class="col-sm-4">      					    
-      						<strong>Asignado por: </strong><#if (x.usuarioUltimaAccion)?? > ${x.usuarioUltimaAccion} </#if>
+      					<div class="col-sm-4">
+      						<#--
+      							2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
+      							Presentar información básica de los usuarios asignadores y asignados en las
+      							bandejas del sistema.
+      						-->      					    
+      						<strong>Asignado por: </strong><#if (x.usuarioUltimaAccion)?? > ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)} </#if>
       					</div>
+					<#--
+						2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
+						Corrección presentación acciones en las bandejas.
+					-->        					
+      				</div>
+      				<div class="row">	      					
 	            		<div class="col-sm-4">
 	            			<#--
 	            				2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
@@ -54,7 +65,7 @@
 	            			<#if x.presentarTransiciones() >
 					            <#assign transiciones = x.instancia.transiciones() />
 					            <#if transiciones?? && transiciones?size &gt; 0 >
-					            		<strong>Acc:</strong>
+					            		<strong>Acciones:</strong>
 										<#list transiciones as t>
 					                  		<a href="${t.replace(x.instancia)}">${t.nombre}...&nbsp;&nbsp;&nbsp;</a>
 						             	</#list>
