@@ -1018,8 +1018,13 @@
 					        		</#if>
 				                </#list>
 				            </#if>
-				        </#if>    
-			            <#if documento.mostrarBtnReasignacion() == "Y" && usuariologueado?? && documento.elabora.id != usuariologueado.id >
+				        </#if>
+				        <#--
+				        	2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
+		 					hotfix-81 -> Corrección para que los documentos del proceso externo
+		 					no tengan acciones ni transiciones después de enviados.
+				        -->    
+			            <#if documento.activarAccionReasignacion() && usuariologueado?? && documento.elabora.id != usuariologueado.id >
 			            	<#-- 
 			            	    2017-03-13 jgarcia@controltechcg.com Issue #48 (SIGDI-Controltech): Validación para identificar si el documento se encuentra en estado 
 			            	    Enviado para el proceso Interno, y el usuario en sesión corresponde al usuario que firma el documento, para evitar que se presente el 

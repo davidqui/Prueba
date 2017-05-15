@@ -776,9 +776,19 @@ public class Documento extends AuditModifySupport {
 	 * @return {@code true} si el documento puede presentar las transiciones; de
 	 *         lo contrario, {@code false}.
 	 */
-	// 2017-05-02 jgarcia@controltechcg.com Issue #57 (SICDI-Controltech) 
+	// 2017-05-02 jgarcia@controltechcg.com Issue #57 (SICDI-Controltech)
 	// Corrección para presentación de transiciones para documentos externos.
 	private boolean presentarTransicionesGeneracionDocumentosExternos() {
+		/*
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
+		 * hotfix-81 -> Corrección para que los documentos del proceso externo
+		 * no tengan acciones ni transiciones después de enviados.
+		 */
+		final Integer estado = getInstancia().getEstado().getId();
+		if (estado.equals(Estado.ENVIADO)) {
+			return false;
+		}
+
 		if (getTrd() == null) {
 			return false;
 		}
@@ -827,16 +837,36 @@ public class Documento extends AuditModifySupport {
 		return "Y";
 	}
 
+	@Deprecated
 	public String mostrarBtnReasignacion() {
+		return activarAccionReasignacion() ? "Y" : "N";
+	}
+
+	/**
+	 * Indica si el documento en pantalla debe presentar la acción de
+	 * reasignación.
+	 * 
+	 * @return {@code true} si el documento debe presentar la acción de
+	 *         reasignación; de lo contrario, {@code false}.
+	 */
+	public boolean activarAccionReasignacion() {
 		/*
 		 * 2017-03-13 jgarcia@controltechcg.com Issue #4 (SIGDI-Incidencias01):
 		 * Verificación de transición de "Reasignar", dependendiendo la
 		 * configuracíón de la DB.
+		 * 
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
+		 * hotfix-81 -> Corrección para que los documentos del proceso externo
+		 * no tengan acciones ni transiciones después de enviados.
 		 */
-		Estado estado = instancia.getEstado();
-		boolean reasignacion = (estado != null && estado.getReasignacion() != null && estado.getReasignacion() == 1);
+		final Integer procesoID = getInstancia().getProceso().getId();
+		final Estado estado = getInstancia().getEstado();
+		if (procesoID.equals(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)
+				&& estado.getId().equals(Estado.ENVIADO)) {
+			return false;
+		}
 
-		return reasignacion ? "Y" : "N";
+		return (estado != null && estado.getReasignacion() != null && estado.getReasignacion() == 1);
 	}
 
 	/**

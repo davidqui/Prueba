@@ -53,8 +53,17 @@ public class DocumentoEnConsultaService {
 		final Instancia instancia = documento.getInstancia();
 		final Proceso proceso = instancia.getProceso();
 
-		if (proceso.getId() == Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS) {
+		if (proceso.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
 			return validarEnviarABandejaConsultaParaProcesoRegistroDocumentos(usuario, documento);
+		}
+
+		/*
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
+		 * hotfix-81 -> Corrección para que los documentos del proceso externo
+		 * no tengan acciones ni transiciones después de enviados.
+		 */
+		if (proceso.getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)) {
+			return false;
 		}
 
 		return validarEnviarABandejaConsultaParaProcesoGeneracionDocumentos(usuario, documento);
@@ -78,6 +87,15 @@ public class DocumentoEnConsultaService {
 
 		if (proceso.getId() == Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS) {
 			return validarExtraerDeBandejaConsultaParaProcesoRegistroDocumentos(usuario, documento);
+		}
+
+		/*
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
+		 * hotfix-81 -> Corrección para que los documentos del proceso externo
+		 * no tengan acciones ni transiciones después de enviados.
+		 */
+		if (proceso.getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)) {
+			return false;
 		}
 
 		return validarExtraerDeBandejaConsultaParaProcesoGeneracionDocumentos(usuario, documento);
