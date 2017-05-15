@@ -39,6 +39,7 @@ import com.laamware.ejercito.doc.web.repo.EstadoExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteEstadoRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
+import com.laamware.ejercito.doc.web.serv.TRDService;
 
 /**
  * @author mcr
@@ -72,6 +73,11 @@ public class ExpedienteController extends UtilController {
 
 	@Autowired
 	EstadoExpedienteRepository estadoExpedienteRepository;
+
+	// 2017-05-15 jgarcia@controltechcg.com Issue #80 (SICDI-Controltech)
+	// feature-80
+	@Autowired
+	TRDService trdService;
 
 	@Autowired
 	DataSource ds;
@@ -263,11 +269,25 @@ public class ExpedienteController extends UtilController {
 				trd.setDocumentos(documentos);
 			}
 
+			/*
+			 * 2017-05-15 jgarcia@controltechcg.com Issue #80
+			 * (SICDI-Controltech) feature-80: Ordenamiento tipo número de
+			 * versión de las TRD por código.
+			 */
+			trdService.ordenarPorCodigo(subseries);
+
 			model.addAttribute("subseries", subseries);
 			Trd serie = trdRepository.findById(ser);
 			model.addAttribute("serie", serie);
 		} else {
 			List<Trd> trds = trdRepository.findSeriesByDependencia(dependencia.getId());
+
+			/*
+			 * 2017-05-15 jgarcia@controltechcg.com Issue #80
+			 * (SICDI-Controltech) feature-80: Ordenamiento tipo número de
+			 * versión de las TRD por código.
+			 */
+			trdService.ordenarPorCodigo(trds);
 
 			model.addAttribute("series", trds);
 		}
