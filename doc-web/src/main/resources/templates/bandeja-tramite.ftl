@@ -44,13 +44,20 @@
       						<strong>Asignado por: </strong><#if (x.usuarioUltimaAccion)?? > ${x.usuarioUltimaAccion} </#if>
       					</div>
 	            		<div class="col-sm-4">
-				            <#assign transiciones = x.instancia.transiciones() />
-				            <#if transiciones?? && transiciones?size &gt; 0 >
-				            		<strong>Acciones:</strong>
-									<#list transiciones as t>
-				                  		<a href="${t.replace(x.instancia)}">${t.nombre}...&nbsp;&nbsp;&nbsp;</a>
-					             	</#list>
-				            </#if>
+	            			<#--
+	            				2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
+	            				hotfix-81 -> Validación para determinar si se deben presentar transiciones para los documentos en la bandeja de enviados
+	            				y en trámite.
+	            			-->
+	            			<#if x.presentarTransiciones() >
+					            <#assign transiciones = x.instancia.transiciones() />
+					            <#if transiciones?? && transiciones?size &gt; 0 >
+					            		<strong>Acciones:</strong>
+										<#list transiciones as t>
+					                  		<a href="${t.replace(x.instancia)}">${t.nombre}...&nbsp;&nbsp;&nbsp;</a>
+						             	</#list>
+					            </#if>
+					        </#if>
 						</div>
 					</div>
 				</div>
