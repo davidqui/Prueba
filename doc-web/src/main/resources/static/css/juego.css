@@ -1,0 +1,136 @@
+/*
+______________________
+Juego CSS
+______________________
+*/
+.cus2-root-container {
+	padding-top: 20px;
+	padding-left: 40px;
+	padding-bottom: 40px;
+	background: #53477a;
+}
+
+.cus-juego-jumbotron {
+	background: #e3f2fd;
+}
+
+.preguntas-div {
+	
+}
+
+.cus-panel-default {
+	width: 25%;
+}
+
+.referencia {
+	margin-top: 20px;
+	height: 15%;
+	width: 15%;
+}
+
+#j-tiempo-wrapper {
+	margin: 30px;
+}
+
+.juego-preguntas-title {
+	color: #f1c232;
+	text-align: center;
+	font-weight: bold;
+}
+
+#juego-logo {
+	background: url('img/juego-logo.png') no-repeat top left;
+	height: 160px;
+	width: 160px;
+	margin: auto;
+}
+
+#j-pregunta {
+	background: #2e73a1;
+	height: 86px;
+	padding: 0px;
+	margin: auto;
+	padding: 0px;
+	border-radius: 25px;
+	color: #fff;
+}
+
+.j-respuesta-wrapper {
+	padding: 10%;
+}
+
+.j-respuesta {
+	background: #2e73a1;
+	height: 60px;
+	margin: auto;
+	border-radius: 25px;
+	color: #fff;
+}
+
+.label-pregunta {
+	background: #1d0448;
+}
+
+.juego-pregunta {
+	padding-top: 30px;
+	text-align: center;
+	font-size: small;
+}
+
+.respuesta-link {
+	color: #fff;
+	text-align: center;
+	padding-top: 20px;
+	text-decoration: none;
+}
+
+.juego-r {
+	color: #fff;
+	text-align: center;
+	padding-top: 20px;
+}
+
+a.juego-r:hover {
+	text-decoration: none;
+}
+
+a.help:hover {
+	text-decoration: none;
+}
+
+#ayuda1 {
+	background: url('img/juego-help.png') no-repeat top right;
+	height: 38px;
+	width: 54px;
+	margin: auto;
+	padding: 10px;
+}
+
+#ayuda2 {
+	background: url('img/juego-help.png') no-repeat top right;
+	height: 38px;
+	width: 54px;
+	margin: auto;
+	padding: 10px;
+}
+
+.time {
+	font-size: 60px;
+}
+
+.cus-label {
+	background: #94ce18;
+}
+
+#capacitacion-dd {
+	background: #2e73a1;
+	color: #fff;
+	border-color: transparent;
+}
+
+.totalP {
+	background: #94ce18;
+	color: #ffff;
+	font-size: 20px;
+	margin-top: 20px;
+}

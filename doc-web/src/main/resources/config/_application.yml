@@ -1,0 +1,7 @@
+server:  
+  port: 443
+  ssl:
+    enabled: true
+    key-alias: tomcat
+    key-store: /home/doc/sgd.imi.mil.co.jks
+    key-store-password: "sigdi.ssl.123."

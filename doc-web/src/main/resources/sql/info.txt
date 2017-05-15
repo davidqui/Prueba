@@ -1,0 +1,4 @@
+La nomenclatura para los scripts es la siguiente:
+
+yyyyMMddhhmm-<descripción-sin-espacios>.sql
+

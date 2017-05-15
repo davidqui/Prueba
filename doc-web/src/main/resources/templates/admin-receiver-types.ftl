@@ -1,0 +1,37 @@
+<#assign pageTitle = "Tipos de destinatario">
+<#assign activePill = "receiver-types">
+<#include "admin-header.ftl">
+
+<#if !list??>
+  <div class="jumbotron">
+    <h1 class="display-1">No hay tipos de destinatario</h1>
+    <p class="lead">En este momento no existen tipos de destinatario</p>
+  </div>
+<#else>
+  <table class="table">
+    <thead class="thead-inverse">
+      <tr>
+        <th>#</th>
+        <th>Fecha</th>
+        <th>Asunto</th>
+        <th>Destinatario</th>
+        <th>Estado</th>
+        <th>Tipo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <#list list as x>
+        <tr>
+          <td>${x.DOC_ID}</td>
+          <td nowrap>${x.DOC_FECHA_RADICACION?string('yyyy-MM-dd')}</td>
+          <td>${x.DOC_ASUNTO}</td>
+          <td>${x.DEST_NOMBRE}</td>
+          <td>${x.EST_NOMBRE}</td>
+          <td>${x.TIPO_RAD_NOMBRE}</td>
+        </tr>
+      </#list>
+    </tbody>
+  </table>
+</#if>
+
+<#include "admin-footer.ftl">

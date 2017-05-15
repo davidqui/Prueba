@@ -1,0 +1,144 @@
+body {
+	font-family: 'Raleway', sans-serif;
+	font-size: 13px;
+}
+
+.cus-normal-text {
+	font-size: 13px;
+}
+
+h1.cus-pap-font {
+	font-size: 4em;
+}
+
+.cus-pap-font {
+	font-family: 'Lobster', cursive;
+	margin: 0px;
+}
+
+.navbar .nav-link {
+	font-size: 1rem;
+}
+
+.cus-root-container {
+	padding-top: 20px;
+}
+
+.cus-h1-page-title {
+	font-size: 1.5rem;
+}
+
+.cus-top-bar {
+	background-color: #2e73a1;
+	color: #fff;
+	font-size: 0.85rem;
+	padding: 5px 10px;
+}
+
+.cus-top-bar a {
+	font-size: 0.85rem;
+	color: #fff;
+	padding: 0px 5px;
+	margin: 5px 0px;
+}
+
+.cus-top-bar a:hover {
+	text-decoration: underline;
+}
+
+.cus-top-bar input {
+	font-size: 0.85rem;
+}
+
+.cus-login-body {
+	/*background: url(img/archive-bg.jpg) no-repeat center center fixed;*/
+	background-color: #ccc;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+.cus-deleted {
+	color: red;
+	text-decoration: line-through;
+}
+
+.error {
+	color: red;
+}
+
+.cus-gray-bg {
+	background-color: #eee !important;
+}
+/* ---------ORFEO css-----------*/
+/*
+.btn-primary {
+	background: #ffbb00;
+	border: #ffbb00;
+}
+
+.btn-success {
+	background: #ffbb00;
+	border: #ffbb00;
+	color: #fff;
+}
+*/
+/* Botones de acción expedientes*/
+.btn-archivar {
+	background: #f7dd30;
+	color: #fff;
+}
+
+.btn-cerrarEx {
+	background: #000000;
+	color: #fff;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.btn-prestado {
+	background: #000000;
+	color: #fff;
+}
+
+.cus-thead {
+	background: #a8bac6;
+	color: #fff;
+}
+
+.table {
+	color: #2f5771;
+}
+
+.hermes-bottombar {
+	background-color: #eee;
+	padding: 10px;
+	border-top: 1px #999 solid;
+}
+
+.hermes-spacer-120 {
+	min-height: 120px;
+}
+
+/*
+.card-header {
+	background: #94ce18;
+	color: #fff;
+}
+*/
+/*Estilo barra de navegación lateral*/
+/*
+.nav-stacked .nav-item a.nav-link.active {
+	background: #2e73a1 !important;
+	color: #fff;
+}
+
+.nav>li>a:hover {
+	background: #2e73a1;
+	opacity: 0.5;
+	color: #fff;
+}
+*/

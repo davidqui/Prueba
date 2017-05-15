@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.2.2.final using JasperReports Library version 6.2.2  -->
+<!-- 2016-06-20T16:00:57 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="inventarios" pageWidth="265" pageHeight="123" whenNoDataType="BlankPage" columnWidth="259" leftMargin="3" rightMargin="3" topMargin="3" bottomMargin="3" uuid="0ac05e1e-4c64-40a8-b468-147af9cf89e7">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="imagesRoot" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/tmp/doc/images"]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="adjuntos" class="java.util.List">
+		<fieldDescription><![CDATA[adjuntos]]></fieldDescription>
+	</field>
+	<field name="aprueba" class="com.laamware.ejercito.doc.web.entity.Usuario">
+		<fieldDescription><![CDATA[aprueba]]></fieldDescription>
+	</field>
+	<field name="destinatario" class="java.lang.String">
+		<fieldDescription><![CDATA[destinatario]]></fieldDescription>
+	</field>
+	<field name="id" class="java.lang.String">
+		<fieldDescription><![CDATA[id]]></fieldDescription>
+	</field>
+	<field name="instancia" class="com.laamware.ejercito.doc.web.entity.Instancia">
+		<fieldDescription><![CDATA[instancia]]></fieldDescription>
+	</field>
+	<field name="vistoBueno" class="com.laamware.ejercito.doc.web.entity.Usuario">
+		<fieldDescription><![CDATA[vistoBueno]]></fieldDescription>
+	</field>
+	<field name="clasificacion" class="com.laamware.ejercito.doc.web.entity.Clasificacion">
+		<fieldDescription><![CDATA[clasificacion]]></fieldDescription>
+	</field>
+	<field name="quienMod" class="java.lang.Integer">
+		<fieldDescription><![CDATA[quienMod]]></fieldDescription>
+	</field>
+	<field name="numeroOficio" class="java.lang.String">
+		<fieldDescription><![CDATA[numeroOficio]]></fieldDescription>
+	</field>
+	<field name="elabora" class="com.laamware.ejercito.doc.web.entity.Usuario">
+		<fieldDescription><![CDATA[elabora]]></fieldDescription>
+	</field>
+	<field name="firma" class="com.laamware.ejercito.doc.web.entity.Usuario">
+		<fieldDescription><![CDATA[firma]]></fieldDescription>
+	</field>
+	<field name="trd" class="com.laamware.ejercito.doc.web.entity.Trd">
+		<fieldDescription><![CDATA[trd]]></fieldDescription>
+	</field>
+	<field name="numeroFolios" class="java.lang.Integer">
+		<fieldDescription><![CDATA[numeroFolios]]></fieldDescription>
+	</field>
+	<field name="cuandoMod" class="java.util.Date">
+		<fieldDescription><![CDATA[cuandoMod]]></fieldDescription>
+	</field>
+	<field name="contenido" class="java.lang.String">
+		<fieldDescription><![CDATA[contenido]]></fieldDescription>
+	</field>
+	<field name="asunto" class="java.lang.String">
+		<fieldDescription><![CDATA[asunto]]></fieldDescription>
+	</field>
+	<field name="class" class="java.lang.Class">
+		<fieldDescription><![CDATA[class]]></fieldDescription>
+	</field>
+	<field name="plazo" class="java.util.Date">
+		<fieldDescription><![CDATA[plazo]]></fieldDescription>
+	</field>
+	<field name="quien" class="java.lang.Integer">
+		<fieldDescription><![CDATA[quien]]></fieldDescription>
+	</field>
+	<field name="fechaOficio" class="java.util.Date">
+		<fieldDescription><![CDATA[fechaOficio]]></fieldDescription>
+	</field>
+	<field name="cuando" class="java.util.Date">
+		<fieldDescription><![CDATA[cuando]]></fieldDescription>
+	</field>
+	<field name="sticker" class="java.lang.String">
+		<fieldDescription><![CDATA[sticker]]></fieldDescription>
+	</field>
+	<field name="remitente" class="java.lang.String">
+		<fieldDescription><![CDATA[remitente]]></fieldDescription>
+	</field>
+	<field name="radicado" class="java.lang.String">
+		<fieldDescription><![CDATA[radicado]]></fieldDescription>
+	</field>
+	<field name="observaciones" class="java.util.List">
+		<fieldDescription><![CDATA[observaciones]]></fieldDescription>
+	</field>
+	<field name="mode" class="com.laamware.ejercito.doc.web.ctrl.DocumentoMode">
+		<fieldDescription><![CDATA[mode]]></fieldDescription>
+	</field>
+	<field name="expediente" class="com.laamware.ejercito.doc.web.entity.Expediente">
+		<fieldDescription><![CDATA[expediente]]></fieldDescription>
+	</field>
+	<field name="relacionado" class="java.lang.String">
+		<fieldDescription><![CDATA[relacionado]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="117" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<componentElement>
+				<reportElement x="0" y="0" width="260" height="20" uuid="75f37d32-eaf9-4603-bf10-1271988a2ba8"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128A" drawText="false" checksumRequired="false">
+					<jr:codeExpression><![CDATA["20151153050942"]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<image>
+				<reportElement x="10" y="30" width="50" height="50" uuid="235d3b3e-077d-4980-a69a-733ea63fb311"/>
+				<imageExpression><![CDATA[$P{imagesRoot} + "/escudo-ejercito-nacional-de-colombia.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="60" y="20" width="200" height="10" uuid="67680c11-577c-4bb4-9382-fc6c93f182c3"/>
+				<textElement textAlignment="Left">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[RADICADO MDN-EJC NÚMERO:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="60" y="30" width="200" height="13" uuid="953d522c-d110-4b3f-b5bb-d18161aca032"/>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["No " + $F{radicado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="43" width="200" height="10" uuid="d96cf5e8-5935-4896-ad1c-a245eb4f4979"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Asunto: " + $F{asunto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="53" width="200" height="10" uuid="25631974-6d0a-4008-9aca-f9754fab48b3"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fecha: " + $F{cuando}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="63" width="200" height="10" uuid="9fa02a78-f19a-4868-8fd5-35dfa6211ab9"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Radicador: " + ($F{elabora} == null ? "" : $F{elabora})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="73" width="200" height="10" uuid="fdad07d5-ff05-4105-a93c-4ac24eb2bd30"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Destino: " + $F{destinatario}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="60" y="83" width="200" height="10" uuid="85373fee-cc7d-469f-8c07-84d24ee17902"/>
+				<textElement markup="none">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Remitente: " + $F{remitente}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="60" y="93" width="200" height="10" uuid="c05cbac5-d842-4e29-99a8-63ef03018d30"/>
+				<textElement markup="none">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["MDN - EJERCITO DE COLOMBIA"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="60" y="103" width="200" height="10" uuid="e795bee0-55fe-4a17-9703-543f8fb3aeba"/>
+				<textElement markup="none">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Bogotá D.C. CAN, Tel. 3150111"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

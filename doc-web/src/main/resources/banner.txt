@@ -1,0 +1,15 @@
+	
+	Ejército Nacional de Colombia
+	
+	  #####  ###  #####  ######  ### 
+	 #     #  #  #     # #     #  #  
+	 #        #  #       #     #  #  
+	  #####   #  #       #     #  #  
+	       #  #  #       #     #  #  
+	 #     #  #  #     # #     #  #  
+	  #####  ###  #####  ######  ### 
+	
+	SICDI - SISTEMA CLASIFICADO DE DOCUMENTOS DE INTELIGENCIA MILITAR. ${application.formatted-version}
+	
+	Spring Boot ${spring-boot.formatted-version}
+
