@@ -119,8 +119,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 			+ " )                                                                                "
 			+ " AND                                                                              "
 			+ " (DOCUMENTO_EN_CONSULTA.DEC_ID IS NULL OR (DOCUMENTO_EN_CONSULTA.ACTIVO = 0))     "
-			+ " ORDER BY DOCUMENTO.CUANDO_MOD DESC                                               "
-			+ " ;                                                                                ")
+			+ " ORDER BY DOCUMENTO.CUANDO_MOD DESC                                               ")
 	List<Documento> findBandejaEntrada(@Param("login") String login);
 
 	@Query(nativeQuery = true, value = "select doc.*                "
