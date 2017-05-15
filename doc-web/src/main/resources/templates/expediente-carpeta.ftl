@@ -50,12 +50,18 @@
     <#if docs?? >
         <h5>${subserie.codigo}. ${subserie.nombre}</h5>
         <#if (docs?size > 0) >
+        	<#--
+        	    2017-05-15 jgarcia@controltechcg.com Issue #82 (SICDI-Controltech) feature-82:
+        	    Modificación en la pantalla de presentación de registros de archivo, para presentar
+        	    la fecha de creación y fecha de archivo.
+        	-->
             <table class="table">
             <thead>
                 <tr>
                     <th>Radicado</th>
                     <th>Asunto</th>
-                    <th>Fecha</th>
+                    <th>Fecha Creación</th>
+                    <th>Fecha Archivo</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,7 +69,9 @@
                     <tr>
                         <td nowrap>${x.radicado!"&lt;Sin radicado&gt;"}</td>
                         <td><a href="/documento?pin=${x.instancia.id}">${x.asunto!"&lt;Sin asunto&gt;"}</a></td>
-                        <td nowrap>${x.cuando?string('yyyy-MM-dd')}</td>
+                        <td nowrap>${x.cuando?string('yyyy-MM-dd hh:mm aa')}</td>
+                        <#assign registroArchivo = registrosArchivoMapa[x.id]>
+                        <td nowrap>${registroArchivo.cuando?string('yyyy-MM-dd hh:mm aa')}</td>
                     </tr>
                 </#list>            
             </tbody>
