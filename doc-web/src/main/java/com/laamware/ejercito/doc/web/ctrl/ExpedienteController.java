@@ -5,7 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
@@ -241,6 +243,16 @@ public class ExpedienteController extends UtilController {
 			}
 
 			model.addAttribute("docs", documentos);
+
+			/*
+			 * 2017-05-15 jgarcia@controltechcg.com Issue #82
+			 * (SICDI-Controltech) feature-82: Implementación de mapa de
+			 * registros de archivos para asociación en pantalla de presentación
+			 * del archivo.
+			 */
+			Map<String, DocumentoDependencia> registrosArchivoMapa = buildMapaRegistrosArchivo(docDep);
+			model.addAttribute("registrosArchivoMapa", registrosArchivoMapa);
+
 			Trd subserie = trdRepository.findOne(sub);
 			model.addAttribute("subserie", subserie);
 		} else if (ser != null) {
@@ -293,6 +305,26 @@ public class ExpedienteController extends UtilController {
 		}
 
 		return "expediente-carpeta";
+	}
+
+	/**
+	 * Construye un mapara de los registros de archivo, utilizando como llave el
+	 * ID del documento asociado.
+	 * 
+	 * @param registros
+	 *            Lista de registros de archivo.
+	 * @return Mapa de registros de archivo.
+	 */
+	// 2017-05-15 jgarcia@controltechcg.com Issue #82 (SICDI-Controltech)
+	// feature-82
+	private Map<String, DocumentoDependencia> buildMapaRegistrosArchivo(List<DocumentoDependencia> registros) {
+		Map<String, DocumentoDependencia> map = new LinkedHashMap<>();
+
+		for (DocumentoDependencia registro : registros) {
+			map.put(registro.getDocumento().getId(), registro);
+		}
+
+		return map;
 	}
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
