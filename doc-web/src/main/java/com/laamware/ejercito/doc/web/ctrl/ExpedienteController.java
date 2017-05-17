@@ -256,7 +256,14 @@ public class ExpedienteController extends UtilController {
 			Trd subserie = trdRepository.findOne(sub);
 			model.addAttribute("subserie", subserie);
 		} else if (ser != null) {
-			List<Trd> subseries = trdRepository.findBySerie(ser, new Sort(Direction.ASC, "codigo"));
+			/*
+			 * 2017-05-17 jgarcia@controltechcg.com Issue #86
+			 * (SICDI-Controltech) hotfix-86: Corrección para presentar
+			 * únicamente las subseries asociadas a la dependencia del usuario
+			 * en sesión en las pantallas de Archivo.
+			 */
+			List<Trd> subseries = trdRepository.findSubseries(ser, dependencia.getId());
+			
 			for (Trd trd : subseries) {
 				/*
 				 * 2017-05-05 jgarcia@controltechcg.com Issue #63
