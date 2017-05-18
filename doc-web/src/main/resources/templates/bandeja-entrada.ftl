@@ -78,9 +78,14 @@
 							        		    2017-04-07 jgarcia@controltechcg.com Issue #37 (SIGDI-Controltech): Modificación en el template de documento para validar
 							        		    si el documento presentado corresponde a la respuesta de un documento relacionado en estado en construcción. En caso de
 							        		    ser así, se valida si la transacción a presentar corresponde a "Anular", para no presentarla dentro de las opciones al
-							        		    usuario en sesión. 
+							        		    usuario en sesión.
+							        		    
+							        		    2017-05-18 jgarcia@controltechcg.com Issue #87 (SICDI-Controltech) feature-87:
+							        		    Modificación en la bandeja de entrada y template de documento para validar si el documento presentado corresponde a la
+							        		    respuesta de un documento relacionado en estado de revisión por jefe de dependencia. En caso de ser así, se valida si la
+							        		    transición a presentar corresponde a "Anular", para no presentarla dentro de las opciones alusuario en sesión.
 							        		-->
-							        		<#if !(x.documentoRespuestaEnConstruccion() && isTransaccionAnular(t)) >
+							        		<#if !((x.documentoRespuestaEnConstruccion() || x.documentoRespuestaEnRevisionJefeDependencia()) && isTransaccionAnular(t)) >
 							                    <a href="${t.replace(x.instancia)}">${t.nombre}...&nbsp;&nbsp;&nbsp;</a>
 							        		</#if>
 						             	</#list>

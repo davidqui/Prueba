@@ -260,15 +260,15 @@ public class Documento extends AuditModifySupport {
 	private String textoAsignado;
 
 	/**
-	 * Indica si el documento corresponde a un documento respuesta en estado de
-	 * construcción.
+	 * Indica si el documento corresponde a un documento respuesta.
 	 * 
-	 * @return {@code true} Si el documento tiene otro documento relacionado,
-	 *         además de ser la respuesta de este y encontrarse en estado de
-	 *         construcción; de lo contrario, {@code false}
+	 * @return {@code true} si el documento tiene otro documento relacionado,
+	 *         además de ser la respuesta de este; de lo contrario,
+	 *         {@code false}.
 	 */
-	// 2017-04-07 jgarcia@controltechcg.com Issue #37 (SIGDI-Controltech)
-	public boolean documentoRespuestaEnConstruccion() {
+	// 2017-05-18 jgarcia@controltechcg.com Issue #87 (SIGDI-Controltech)
+	// feature-87
+	public boolean esDocumentoRespuesta() {
 		if (getRelacionado() == null || getRelacionado().trim().isEmpty()) {
 			return false;
 		}
@@ -277,7 +277,44 @@ public class Documento extends AuditModifySupport {
 			return false;
 		}
 
-		return (getInstancia().getEstado().getId() == Estado.EN_CONSTRUCCION);
+		return true;
+	}
+
+	/**
+	 * Indica si el documento corresponde a un documento respuesta en estado de
+	 * construcción.
+	 * 
+	 * @return {@code true} Si el documento corresponde a un documento respuesta
+	 *         y se encuentra en estado de construcción; de lo contrario,
+	 *         {@code false}
+	 */
+	// 2017-04-07 jgarcia@controltechcg.com Issue #37 (SIGDI-Controltech)
+	public boolean documentoRespuestaEnConstruccion() {
+		// 2017-05-18 jgarcia@controltechcg.com Issue #87 (SIGDI-Controltech)
+		// feature-87
+		if (!esDocumentoRespuesta()) {
+			return false;
+		}
+
+		return (getInstancia().getEstado().getId().equals(Estado.EN_CONSTRUCCION));
+	}
+
+	/**
+	 * Indica si el documento corresponde a un documento respuesta en estado de
+	 * revisión por jefe de dependencia.
+	 * 
+	 * @return {@code true} Si el documento corresponde a un documento respuesta
+	 *         y se encuentra en estado de revisión por jefe de dependencia; de
+	 *         lo contrario, {@code false}
+	 */
+	// 2017-05-18 jgarcia@controltechcg.com Issue #87 (SIGDI-Controltech)
+	// feature-87
+	public boolean documentoRespuestaEnRevisionJefeDependencia() {
+		if (!esDocumentoRespuesta()) {
+			return false;
+		}
+
+		return (getInstancia().getEstado().getId().equals(Estado.EN_REVISION_JEFE_DEPENDENCIA));
 	}
 
 	public boolean isWithErrors() {
