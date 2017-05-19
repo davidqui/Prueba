@@ -935,6 +935,12 @@
             </#if>            
         </#if>
         <nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
+        	<#--
+        		2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73
+        	-->
+        	<#assign asignacionCiclica = mustApplyAsignacionCiclica(documento) />
+        	asignacionCiclica=${asignacionCiclica?c}
+        	
         	<div class="container">
         	
         		<#if mode.guardar_view >
@@ -946,8 +952,16 @@
         		        de extraer el documento de la bandeja de apoyo y consulta para el proceso de radicacion de documentos.
         		    -->        		    
         		    <#assign deshabilitarTransicionesPorExtraccionConsulta=documentoEnConsulta && puedeExtraerDeBandejaConsulta />
-        		    <#if !deshabilitarTransicionesPorExtraccionConsulta>		        		
-	        			<button id="guardar-doc-btn" type="submit" class="btn btn-success btn-sm">Guardar</button>
+        		    <#if !deshabilitarTransicionesPorExtraccionConsulta>
+        		    	<#--
+        		    		2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73
+        		    		Cambio de estilo del botón guardar cuando aplique la asignación cíclica.
+        		    	-->
+        		    	<#assign btnGuardarStyle = "" />
+        		    	<#if !asignacionCiclica >
+        		    		<#assign btnGuardarStyle = "btn-success" /> 
+        		    	</#if>		        		
+	        			<button id="guardar-doc-btn" type="submit" class="btn ${btnGuardarStyle} btn-sm">Guardar</button>
 	        					
 		        		<script type="text/javascript">
 						        $(document).ready(function () {
