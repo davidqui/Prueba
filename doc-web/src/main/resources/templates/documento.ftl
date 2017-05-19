@@ -1057,7 +1057,10 @@
 			            	    botón de Reasignar. 
 			            	-->
 			            	<#if !(documento.esDocumentoEnviadoInterno() && (usuariologueado.id == documento.firma.id)) >
-								<a href="/documento/reasignar?pin=${instancia.id}" class="btn btn-danger btn-sm">
+			            		<#--
+			            			2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73
+			            		-->
+								<a href="/documento/${getReasignarURL(documento)}?pin=${instancia.id}" class="btn btn-danger btn-sm">
 				                    Reasignar
 				                </a> 
 			                </#if>

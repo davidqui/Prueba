@@ -20,7 +20,7 @@
  		<#return (1 == 1) />
  	<#elseif procesoID == 8 && estadoID == 49 >
  		<#return (1 == 1) />
- 	<#else >
+ 	<#else>
  		<#return (1 != 1) />
  	</#if> 	
  </#function>
@@ -40,4 +40,17 @@
  		<#default>
  			<#return "btn-primary" />
  	</#switch>
+ </#function>
+ 
+ <#--
+ 	 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73:
+ 	 Funcionalidad que establece la URL de la acción "Reasignar" dependiendo si esta
+ 	 debe aplicarse para la asignación cíclica o no. 
+ -->
+ <#function getReasignarURL documento >
+ 	<#if mustApplyAsignacionCiclica(documento) >
+ 		<#return "reasignar-ciclico" />
+ 	<#else>
+ 		<#return "reasignar" />
+ 	</#if>
  </#function>
