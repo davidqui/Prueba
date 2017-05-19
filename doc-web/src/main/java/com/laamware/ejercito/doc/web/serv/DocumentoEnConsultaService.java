@@ -167,7 +167,13 @@ public class DocumentoEnConsultaService {
 		final Instancia instancia = documento.getInstancia();
 		final Estado estado = instancia.getEstado();
 
-		if (!estado.getId().equals(Estado.REVISION_JEFE_DEPENDENCIA)) {
+		/*
+		 * 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73: Modificación en la validación de la acción de envío a la
+		 * bandeja de consulta para el proceso de registro de documentos,
+		 * teniendo como estado eje "Revisión Jefe Jefatura".
+		 */
+		if (!estado.getId().equals(Estado.REVISIÓN_JEFE_JEFATURA)) {
 			return false;
 		}
 
@@ -232,7 +238,13 @@ public class DocumentoEnConsultaService {
 		final Instancia instancia = documento.getInstancia();
 		final Estado estado = instancia.getEstado();
 
-		if (!estado.getId().equals(Estado.REVISION_JEFE_DEPENDENCIA)) {
+		/*
+		 * 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73: Modificación en la validación de la acción de extraccción
+		 * de la bandeja de consulta para el proceso de registro de documentos,
+		 * teniendo como estado eje "Revisión Jefe Jefatura".
+		 */
+		if (!estado.getId().equals(Estado.REVISIÓN_JEFE_JEFATURA)) {
 			return false;
 		}
 

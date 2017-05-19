@@ -939,7 +939,6 @@
         		2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73
         	-->
         	<#assign asignacionCiclica = mustApplyAsignacionCiclica(documento) />
-        	asignacionCiclica=${asignacionCiclica?c}
         	
         	<div class="container">
         	
@@ -994,7 +993,11 @@
                 	    Cambio del nombre del botón y del color de botón de Enviar a Consulta. 
 		                -->
 		                <a href="/documento-consulta/enviar-apoyo-consulta?pin=${instancia.id}" class="btn btn-warning btn-sm">
-		                    Apoyo y Consulta
+		                	<#--
+		                		2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73:
+		                		Cambio de nombre del botón de la acción "Apoyo y Consulta" a "Archivar como Apoyo".
+		                	-->
+		                    Archivar como Apoyo
 		                </a>
         		    <#elseif puedeExtraerDeBandejaConsulta>
         		    	<#--
