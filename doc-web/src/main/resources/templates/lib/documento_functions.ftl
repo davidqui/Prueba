@@ -36,6 +36,8 @@
  	
  	<#switch id >
  		<#case 123 >
+ 		<#case 125 >
+ 		 	<#-- Asignar documento -->
  			<#return "btn-success" />
  		<#default>
  			<#return "btn-primary" />
@@ -49,8 +51,8 @@
  -->
  <#function getReasignarURL documento >
  	<#if mustApplyAsignacionCiclica(documento) >
- 		<#return "reasignar-ciclico" />
+ 		<#return "/documento/reasignar-ciclico?pin=" + documento.instancia.id />
  	<#else>
- 		<#return "reasignar" />
+ 		<#return "/documento/reasignar?pin=" + documento.instancia.id />
  	</#if>
  </#function>
