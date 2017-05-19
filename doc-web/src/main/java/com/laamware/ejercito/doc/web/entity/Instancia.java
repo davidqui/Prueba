@@ -1,6 +1,8 @@
 package com.laamware.ejercito.doc.web.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -262,6 +264,21 @@ public class Instancia extends AuditModifySupport {
 			}
 
 		}
+
+		/*
+		 * 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73: Ordenamiento de las transiciones a presentar por
+		 * instancia de documento, según el ID de los mismos.
+		 */
+		Collections.sort(transicionesCumple, new Comparator<Transicion>() {
+
+			@Override
+			public int compare(Transicion transicion1, Transicion transicion2) {
+				return transicion1.getId().compareTo(transicion2.getId());
+			}
+
+		});
+
 		return transicionesCumple;
 	}
 
