@@ -16,5 +16,28 @@
  <#function mustApplyAsignacionCiclica documento >
  	<#local procesoID = documento.instancia.proceso.id />
  	<#local estadoID = documento.instancia.estado.id />
- 	<#return procesoID != estadoID />
+ 	<#if procesoID == 9 && estadoID == 46 >
+ 		<#return (1 == 1) />
+ 	<#elseif procesoID == 8 && estadoID == 49 >
+ 		<#return (1 == 1) />
+ 	<#else >
+ 		<#return (1 != 1) />
+ 	</#if> 	
+ </#function>
+ 
+ <#--
+ 	 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73:
+ 	 Funcionalidad que permite determinar el estilo de presentación de los botones
+ 	 de las transiciones a presentar en la pantalla de documento.
+ -->
+ 
+ <#function getTransicionStyle transicion >
+ 	<#local id = transicion.id />
+ 	
+ 	<#switch id >
+ 		<#case 123 >
+ 			<#return "btn-success" />
+ 		<#default>
+ 			<#return "btn-primary" />
+ 	</#switch>
  </#function>

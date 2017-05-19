@@ -1034,7 +1034,10 @@
 					        		-->
 					        		<#if !((documento.documentoRespuestaEnConstruccion() || documento.documentoRespuestaEnRevisionJefeDependencia()) 
 					        			&& isTransaccionAnular(x)) >
-					                    <a href="${x.replace(instancia)}" class="btn btn-primary btn-sm">${x.nombre}</a>
+					        			<#--
+        									2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73
+        								-->
+					                    <a href="${x.replace(instancia)}" class="btn ${getTransicionStyle(x)} btn-sm">${x.nombre}</a>
 					        		</#if>
 				                </#list>
 				            </#if>
