@@ -1060,7 +1060,7 @@
 			            		<#--
 			            			2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73
 			            		-->
-								<a href="/documento/${getReasignarURL(documento)}?pin=${instancia.id}" class="btn btn-danger btn-sm">
+								<a href="${getReasignarURL(documento)}" class="btn btn-danger btn-sm">
 				                    Reasignar
 				                </a> 
 			                </#if>
