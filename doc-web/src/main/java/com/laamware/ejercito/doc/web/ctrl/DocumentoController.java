@@ -3709,4 +3709,60 @@ public class DocumentoController extends UtilController {
 		return text;
 	}
 
+	/**
+	 * Obtiene la solicitud de asignación cíclica de documento y presenta el
+	 * formulario correspondiente al usuario.
+	 * 
+	 * @param pin
+	 *            ID de la instancia del proceso.
+	 * @param model
+	 *            Modelo de atributos.
+	 * @param principal
+	 *            Información de usuario en sesión.
+	 * @return Nombre del template del formulario.
+	 */
+	// 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+	// feature-73.
+	@RequestMapping(value = "/asignar-documento-ciclico", method = RequestMethod.GET)
+	public String asignarDocumentoCiclico(@RequestParam("pin") String pin, Model model, Principal principal) {
+		return "asignar-documento-ciclico";
+	}
+
+	/**
+	 * Obtiene la solicitud de dar respuesta para el proceso cíclico de un
+	 * documento y presenta el formulario correspondiente al usuario.
+	 * 
+	 * @param pin
+	 *            ID de la instancia del proceso.
+	 * @param model
+	 *            Modelo de atributos.
+	 * @param principal
+	 *            Información de usuario en sesión.
+	 * @return Nombre del template del formulario.
+	 */
+	// 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+	// feature-73.
+	@RequestMapping(value = "/dar-respuesta-ciclico", method = RequestMethod.GET)
+	public String darRespuestaCiclico(@RequestParam("pin") String pin, Model model, Principal principal) {
+		return "dar-respuesta-ciclico";
+	}
+
+	/**
+	 * Obtiene la solicitud de reasignación cíclica de un documetno y presenta
+	 * el formulario correspondiente al usuario.
+	 * 
+	 * @param pin
+	 *            ID de la instancia del proceso.
+	 * @param model
+	 *            Modelo de atributos.
+	 * @param principal
+	 *            Información de usuario en sesión.
+	 * @return Nombre del template del formulario.
+	 */
+	// 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+	// feature-73.
+	@RequestMapping(value = "/reasignar-ciclico", method = RequestMethod.GET)
+	public String reasignarCiclico(@RequestParam("pin") String pin, Model model, Principal principal) {
+		return "reasignar-ciclico";
+	}
 }
