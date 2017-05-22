@@ -3840,7 +3840,7 @@ public class DocumentoController extends UtilController {
 
 		if (proceso.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)
 				&& procesoRespuestaID == null) {
-			return "seleccionar-proceso-respuesta-ciclico";
+			return String.format("redirect:%s/seleccionar-proceso-respuesta-ciclico?pin=%s", PATH, instanciaID);
 		}
 
 		if (proceso.getId().equals(
@@ -3848,7 +3848,48 @@ public class DocumentoController extends UtilController {
 			procesoRespuestaID = Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA;
 		}
 
+		// TODO: Pendiente lógica de construcción del documento de respuesta.
+		// Tener presente que el return de este método podría ser más una
+		// redirección que una nueva pantalla.
+
 		return "dar-respuesta-ciclico";
+	}
+
+	/**
+	 * Obtiene la solicitud para la presentación de la pantalla de selección de
+	 * proceso para construir la respuesta de un proceso cíclico.
+	 * 
+	 * @param instanciaID
+	 *            ID de la instancia del proceso.
+	 * @param model
+	 *            Modelo de atributos.
+	 * @param principal
+	 *            Información de usuario en sesión.
+	 * @return Nombre del template del formulario.
+	 */
+	// 2017-05-22 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+	// feature-73.
+	@RequestMapping(value = "/seleccionar-proceso-respuesta-ciclico", method = RequestMethod.GET)
+	public String seleccionarProcesoRespuestaCiclico(@RequestParam("pin") String instanciaID, Model model,
+			Principal principal) {
+		final Instancia instancia = procesoService.instancia(instanciaID);
+		final String documentoID = instancia.getVariable(Documento.DOC_ID);
+		final Documento documento = documentRepository.findOne(documentoID);
+
+		model.addAttribute("pin", instanciaID);
+		model.addAttribute("documento", documento);
+
+		List<Proceso> list = procesoRepository.findAll();
+		List<Proceso> procesos = new ArrayList<>();
+		for (Proceso proceso : list) {
+			if (proceso.getActivo() && proceso.getId().intValue() != 9) {
+				procesos.add(proceso);
+			}
+		}
+
+		model.addAttribute("procesos", procesos);
+
+		return "seleccionar-proceso-respuesta-ciclico";
 	}
 
 	/**
