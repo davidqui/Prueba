@@ -3835,7 +3835,7 @@ public class DocumentoController extends UtilController {
 	}
 
 	/**
-	 * Obtiene la solicitud de reasignación cíclica de un documetno y presenta
+	 * Obtiene la solicitud de reasignación cíclica de un documento y presenta
 	 * el formulario correspondiente al usuario.
 	 * 
 	 * @param instanciaID
@@ -3852,7 +3852,7 @@ public class DocumentoController extends UtilController {
 	public String reasignarCiclico(@RequestParam("pin") String instanciaID, Model model, Principal principal) {
 
 		model.addAttribute("pin", instanciaID);
-		
+
 		final Instancia instancia = procesoService.instancia(instanciaID);
 		final String documentoID = instancia.getVariable(Documento.DOC_ID);
 		final Documento documento = documentRepository.findOne(documentoID);
@@ -3875,5 +3875,87 @@ public class DocumentoController extends UtilController {
 		model.addAttribute("unidades", unidades);
 
 		return "reasignar-ciclico";
+	}
+
+	/**
+	 * Obtiene la selección del usuario sobre la unidad a la cual será
+	 * reasignado el documento, realiza las validaciones correspondientes y
+	 * ejecuta el proceso de reasignación o presenta los mensajes de error,
+	 * según el éxito de la operación.
+	 * 
+	 * @param instanciaID
+	 * @param dependenciaID
+	 * @param observaciones
+	 * @param principal
+	 * @param model
+	 * @param redirectAttributes
+	 * @return
+	 */
+	// 2017-05-22 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+	// feature-73.
+	@RequestMapping(value = "/reasignar-ciclico", method = RequestMethod.POST)
+	public String reasignarCiclico(@RequestParam("pin") String instanciaID,
+			@RequestParam(value = "depId", required = false) Integer dependenciaID,
+			@RequestParam(value = "observacion", required = false) String[] observaciones, Principal principal,
+			Model model, RedirectAttributes redirectAttributes) {
+		Instancia instancia = null;
+
+		if (dependenciaID == null) {
+			redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "Debe seleccionar una Unidad.");
+			return String.format("redirect:%s/reasignar-ciclico?pin=%s", PATH, instanciaID);
+		}
+
+		final Dependencia dependenciaUnidad = dependenciaRepository.getOne(dependenciaID);
+		final Usuario usuarioSesion = getUsuario(principal);
+
+		EstrategiaSeleccionUsuario estrategiaSeleccion = new EstrategiaSeleccionUsuario() {
+
+			@Override
+			public Usuario select(Instancia instancia, Documento documento) {
+				Usuario jefeActivo = getJefeActivoDependencia(dependenciaUnidad);
+				if (jefeActivo != null && usuarioSesion.getId().equals(jefeActivo.getId())) {
+					return dependenciaUnidad.getJefe();
+				}
+
+				return jefeActivo;
+			}
+		};
+
+		// Se pasan los parámetros en null, ya que no son utilizados en este
+		// punto.
+		Usuario usuarioSeleccion = estrategiaSeleccion.select(null, null);
+		if (usuarioSeleccion == null) {
+			redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR,
+					"Unidad destino " + dependenciaUnidad.getNombre() + "no tiene Jefe Activo asignado.");
+			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
+		}
+
+		instancia = asignarNoForward(instanciaID, null, estrategiaSeleccion);
+
+		Documento documento = documentRepository.getOne(instancia.getVariable(Documento.DOC_ID));
+
+		String observacionesTexto = null;
+		for (String observacion : observaciones) {
+			if (StringUtils.isNotBlank(observacion)) {
+				observacionesTexto = observacion;
+				break;
+			}
+		}
+
+		if (observacionesTexto != null && observacionesTexto.trim().length() > 0) {
+			DocumentoObservacion observacion = new DocumentoObservacion();
+			observacion.setTexto(observacionesTexto);
+			observacion.setDocumento(documento);
+			dobRepository.save(observacion);
+		}
+
+		redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
+				documentoDependenciaAdicionalRepository, usuarioService, instancia, "Reasignado a: "));
+
+		if (instancia.transiciones().size() > 0) {
+			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
+		} else {
+			return "redirect:/";
+		}
 	}
 }
