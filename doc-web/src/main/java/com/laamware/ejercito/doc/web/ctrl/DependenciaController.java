@@ -327,39 +327,30 @@ public class DependenciaController extends UtilController {
 	@ResponseBody
 	@RequestMapping(value = "/dependencias.json", method = RequestMethod.GET)
 	public List<Map<String, String>> dependencias(@RequestParam(value = "id", required = false) Integer id) {
-		// System.out.println("DependenciaController.dependencias()>>>");
-		// System.out.println("id=" + id);
-
-		List<Map<String, String>> list = new ArrayList<>();
-		List<Dependencia> results = null;
+		List<Map<String, String>> mapList = new ArrayList<>();
+		List<Dependencia> dependencias;
 
 		if (id != null) {
-			// System.out.println("findByActivoAndPadre");
 			/*
 			 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS: Ordenamiento por peso.
 			 * Modificación: variable y orden en que se presentan las dependencias.
 			 */
-			results = dependenciaRepository.findByActivoAndPadre(true, id, new Sort(Direction.ASC, "pesoOrden", "nombre"));
+			dependencias = dependenciaRepository.findByActivoAndPadre(true, id, new Sort(Direction.ASC, "pesoOrden", "nombre"));
 		} else {
-			// System.out.println("findByActivoAndPadreIsNull");
 			/*
 			 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS: Ordenamiento por peso.
 			 * Modificación: variable y orden en que se presentan las dependencias.
 			 */
-			results = dependenciaRepository.findByActivoAndPadreIsNull(true, new Sort(Direction.ASC, "pesoOrden", "nombre"));
+			dependencias = dependenciaRepository.findByActivoAndPadreIsNull(true, new Sort(Direction.ASC, "pesoOrden", "nombre"));
 		}
 
-		// System.out.println("results=" + (results == null ? null :
-		// results.size()));
-
-		for (Dependencia d : results) {
-			HashMap<String, String> m = new HashMap<String, String>();
-			m.put("id", d.getId().toString());
-			m.put("nombre", d.getSiglaNombre());
-			list.add(m);
+		for (Dependencia dependencia : dependencias) {
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put("id", dependencia.getId().toString());
+			map.put("nombre", dependencia.getSiglaNombre());
+			mapList.add(map);
 		}
 
-		// System.out.println("<<<DependenciaController.dependencias()");
-		return list;
+		return mapList;
 	}
 }
