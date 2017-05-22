@@ -10,7 +10,7 @@ INSERT INTO PROCESO_TRANSICION
 	(PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL,
     PES_ID_FINAL, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO)
 VALUES
-  	(123, 1, '/documento/asignar-documento-ciclico?pin={instancia.id}', 'Asignar documento', 46, 
+  	(123, 1, '/documento/asignar-documento-ciclico?pin={instancia.id}&tid={transicion.id}', 'Asignar documento', 46, 
   	46, SYSDATE, 442, SYSDATE, 442, 1)
 ;
 
@@ -39,7 +39,7 @@ INSERT INTO PROCESO_TRANSICION
 	(PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL,
     PES_ID_FINAL, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO)
 VALUES
-  	(125, 1, '/documento/asignar-documento-ciclico?pin={instancia.id}', 'Asignar documento', 49, 
+  	(125, 1, '/documento/asignar-documento-ciclico?pin={instancia.id}&tid={transicion.id}', 'Asignar documento', 49, 
   	49, SYSDATE, 442, SYSDATE, 442, 1)
 ;
 

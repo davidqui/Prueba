@@ -3713,18 +3713,105 @@ public class DocumentoController extends UtilController {
 	 * Obtiene la solicitud de asignación cíclica de documento y presenta el
 	 * formulario correspondiente al usuario.
 	 * 
-	 * @param pin
-	 *            ID de la instancia del proceso.
+	 * @param instanciaID
+	 *            ID de la instancia del proceso. Obligatorio.
+	 * @param transicionID
+	 *            ID de la transición aplicada. Obligatorio.
+	 * @param usuarioID
+	 *            ID del usuario seleccionado para asignar la continuación del
+	 *            proceso.
+	 * @param dependenciaID
+	 *            ID de la dependencia seleccionada para la búsquda de usuarios
+	 *            a asignar.
 	 * @param model
 	 *            Modelo de atributos.
 	 * @param principal
 	 *            Información de usuario en sesión.
+	 * @param redirectAttributes
+	 *            Atributos de redirección.
 	 * @return Nombre del template del formulario.
 	 */
 	// 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
 	// feature-73.
 	@RequestMapping(value = "/asignar-documento-ciclico", method = RequestMethod.GET)
-	public String asignarDocumentoCiclico(@RequestParam("pin") String pin, Model model, Principal principal) {
+	public String asignarDocumentoCiclico(@RequestParam(value = "pin") final String instanciaID,
+			@RequestParam(value = "tid") final Integer transicionID,
+			@RequestParam(value = "usuId", required = false) final Integer usuarioID,
+			@RequestParam(value = "did", required = false) final Integer dependenciaID, Model model,
+			Principal principal, RedirectAttributes redirectAttributes) {
+
+		model.addAttribute("pin", instanciaID);
+		model.addAttribute("tid", transicionID);
+
+		Transicion transicion = transicionRepository.findOne(transicionID);
+		model.addAttribute("transicion", transicion);
+
+		final Usuario usuarioSesion = getUsuario(principal);
+
+		if (usuarioID == null) {
+			model.addAttribute("usuarios", "USUARIOS");
+
+			Instancia instancia = procesoService.instancia(instanciaID);
+
+			final String documentoID = instancia.getVariable(Documento.DOC_ID);
+			Documento documento = documentRepository.getOne(documentoID);
+			model.addAttribute("documento", documento);
+
+			List<Dependencia> listaDependencias = new ArrayList<>(1);
+			Dependencia dependenciaDestino = usuarioSesion.getDependencia();
+			Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
+			depsHierarchy(superDependencia);
+			listaDependencias.add(superDependencia);
+			model.addAttribute("dependencias_arbol", listaDependencias);
+
+			if (dependenciaID != null) {
+				Dependencia dependencia = dependenciaRepository.getOne(dependenciaID);
+
+				List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrue(dependencia,
+						new Sort(Direction.ASC, "nombre"));
+
+				int pesoClasificacionDocumento = documento.getClasificacion().getId();
+
+				for (Usuario usuarioSeleccionado : usuarios) {
+
+					if (usuarioSeleccionado.getClasificacion() == null
+							|| usuarioSeleccionado.getClasificacion().getId() == null) {
+						usuarioSeleccionado.setMensajeNivelAcceso(" ****SIN CLSIFICACIÓN****");
+						usuarioSeleccionado.setRestriccionDocumentoNivelAcceso(true);
+					} else {
+						int pesoClasificacionUsuario = usuarioSeleccionado.getClasificacion().getId();
+						usuarioSeleccionado
+								.setMensajeNivelAcceso(" -" + usuarioSeleccionado.getClasificacion().getNombre());
+						usuarioSeleccionado.setRestriccionDocumentoNivelAcceso(
+								pesoClasificacionUsuario < pesoClasificacionDocumento);
+					}
+				}
+
+				model.addAttribute("lista_usuarios", usuarios);
+			}
+
+		} else {
+			Instancia instancia = asignar(instanciaID, transicionID, new EstrategiaSeleccionUsuario() {
+				@Override
+				public Usuario select(Instancia i, Documento d) {
+					return usuR.getOne(usuarioID);
+				}
+			});
+
+			Documento documento = documentRepository.findOne(instancia.getVariable(Documento.DOC_ID));
+			documento.setUsuarioUltimaAccion(usuarioSesion);
+			documentRepository.saveAndFlush(documento);
+
+			redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
+					documentoDependenciaAdicionalRepository, usuarioService, instancia, "Asignado a "));
+
+			if (instancia.transiciones().size() > 0) {
+				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
+			} else {
+				return "redirect:/";
+			}
+		}
+
 		return "asignar-documento-ciclico";
 	}
 
