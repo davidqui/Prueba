@@ -3819,18 +3819,35 @@ public class DocumentoController extends UtilController {
 	 * Obtiene la solicitud de dar respuesta para el proceso cíclico de un
 	 * documento y presenta el formulario correspondiente al usuario.
 	 * 
-	 * @param pin
+	 * @param instanciaID
 	 *            ID de la instancia del proceso.
 	 * @param model
 	 *            Modelo de atributos.
 	 * @param principal
 	 *            Información de usuario en sesión.
+	 * @param redirectAttributes
+	 *            Atributos de redirección.
 	 * @return Nombre del template del formulario.
 	 */
 	// 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
 	// feature-73.
 	@RequestMapping(value = "/dar-respuesta-ciclico", method = RequestMethod.GET)
-	public String darRespuestaCiclico(@RequestParam("pin") String pin, Model model, Principal principal) {
+	public String darRespuestaCiclico(@RequestParam("pin") String instanciaID,
+			@RequestParam(value = "proResp", required = false) Integer procesoRespuestaID, Model model,
+			Principal principal, RedirectAttributes redirectAttributes) {
+		final Instancia instancia = procesoService.instancia(instanciaID);
+		final Proceso proceso = instancia.getProceso();
+
+		if (proceso.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)
+				&& procesoRespuestaID == null) {
+			return "seleccionar-proceso-respuesta-ciclico";
+		}
+
+		if (proceso.getId().equals(
+				Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)) {
+			procesoRespuestaID = Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA;
+		}
+
 		return "dar-respuesta-ciclico";
 	}
 
@@ -3884,12 +3901,19 @@ public class DocumentoController extends UtilController {
 	 * según el éxito de la operación.
 	 * 
 	 * @param instanciaID
+	 *            ID de la instancia del proceso.
 	 * @param dependenciaID
+	 *            ID de la dependencia seleccionada.
 	 * @param observaciones
+	 *            Observaciones.
 	 * @param principal
+	 *            Información de usuario en sesión.
 	 * @param model
+	 *            Modelo de atributos.
 	 * @param redirectAttributes
-	 * @return
+	 *            Atributos de redirección.
+	 * @return Instrucciones de redirección del flujo, según las reglas de
+	 *         negocio y validaciones aplicadas.
 	 */
 	// 2017-05-22 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
 	// feature-73.
