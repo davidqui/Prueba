@@ -3838,7 +3838,7 @@ public class DocumentoController extends UtilController {
 	 * Obtiene la solicitud de reasignación cíclica de un documetno y presenta
 	 * el formulario correspondiente al usuario.
 	 * 
-	 * @param pin
+	 * @param instanciaID
 	 *            ID de la instancia del proceso.
 	 * @param model
 	 *            Modelo de atributos.
@@ -3849,7 +3849,53 @@ public class DocumentoController extends UtilController {
 	// 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
 	// feature-73.
 	@RequestMapping(value = "/reasignar-ciclico", method = RequestMethod.GET)
-	public String reasignarCiclico(@RequestParam("pin") String pin, Model model, Principal principal) {
+	public String reasignarCiclico(@RequestParam("pin") String instanciaID, Model model, Principal principal) {
+
+		model.addAttribute("pin", instanciaID);
+
+		Usuario usuarioSesion = getUsuario(principal);
+		Instancia instancia = procesoService.instancia(instanciaID);
+		Documento documento = documentRepository.findOne(instancia.getVariable(Documento.DOC_ID));
+		Dependencia dependenciaDestino = documento.getDependenciaDestino();
+
+		if (dependenciaDestino == null) {
+			dependenciaDestino = usuarioSesion.getDependencia();
+		}
+
+		Usuario jefeActivoDependenciaDestino = getJefeActivoDependencia(dependenciaDestino);
+
+		if (jefeActivoDependenciaDestino != null
+				&& jefeActivoDependenciaDestino.getId().equals(usuarioSesion.getId())) {
+			List<Dependencia> dependenciasHermanas;
+
+			Integer dependenciaPadreID = dependenciaDestino.getPadre();
+
+			if (dependenciaPadreID == null || dependenciaPadreID == 0) {
+				dependenciasHermanas = dependenciaRepository.findByActivoAndPadreIsNull(true,
+						new Sort(Direction.ASC, "pesoOrden", "nombre"));
+			} else {
+				dependenciasHermanas = dependenciaRepository.findByActivoAndPadre(true, dependenciaPadreID,
+						new Sort(Direction.ASC, "pesoOrden", "nombre"));
+			}
+
+			model.addAttribute("dependenciasHermanas", dependenciasHermanas);
+		} else {
+
+			Dependencia dependenciaUsuario = usuarioSesion.getDependencia();
+			Dependencia superDependenciaUsuario = getSuperDependencia(dependenciaUsuario);
+			if (superDependenciaUsuario.getJefe().getId() == usuarioSesion.getId()) {
+
+				model.addAttribute("dependenciasHermanas", dependenciaRepository.findByActivoAndPadreIsNull(true,
+						new Sort(Direction.ASC, "pesoOrden", "nombre")));
+			} else if (dependenciaUsuario.getJefe().getId() == usuarioSesion.getId()) {
+
+				model.addAttribute("dependenciasHermanas", dependenciaRepository.findByActivoAndPadre(true,
+						dependenciaUsuario.getPadre(), new Sort(Direction.ASC, "pesoOrden", "nombre")));
+			} else {
+				model.addAttribute("dependencias", Collections.singletonList(dependenciaUsuario));
+			}
+		}
+
 		return "reasignar-ciclico";
 	}
 }
