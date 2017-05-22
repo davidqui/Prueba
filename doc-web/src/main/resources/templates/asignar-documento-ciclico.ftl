@@ -26,7 +26,7 @@
 	<div class="card">
 		<div class="card-header">
 			<h4>${transicion.nombre} - Selección de usuario</h4>
-			<p>Seleccione el usuario dentro de su misma unidad a quien será asignado a siguiente actividad en el proceso del documento "${documento.asunto}".</p>
+			<p>Seleccione el usuario dentro de su misma unidad a quien será asignado la siguiente actividad en el proceso del documento "${documento.asunto}".</p>
 		</div>
 
 		<#if usuarios??>
