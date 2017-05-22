@@ -1023,7 +1023,7 @@
 		        		<#if documento.presentarTransiciones() >
 			        		<#assign transiciones = documento.instancia.transiciones() />
 				            <#if transiciones??>
-				                <#list transiciones as x>
+				                <#list transiciones as transicion >
 					        		<#-- 
 					        		    2017-04-07 jgarcia@controltechcg.com Issue #37 (SIGDI-Controltech): Modificación en el template de documento para validar
 					        		    si el documento presentado corresponde a la respuesta de un documento relacionado en estado en construcción. En caso de
@@ -1036,11 +1036,11 @@
 					        		    transición a presentar corresponde a "Anular", para no presentarla dentro de las opciones alusuario en sesión.					        		    
 					        		-->
 					        		<#if !((documento.documentoRespuestaEnConstruccion() || documento.documentoRespuestaEnRevisionJefeDependencia()) 
-					        			&& isTransaccionAnular(x)) >
+					        			&& isTransaccionAnular(transicion)) >
 					        			<#--
         									2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73
         								-->
-					                    <a href="${x.replace(instancia)}" class="btn ${getTransicionStyle(x)} btn-sm">${x.nombre}</a>
+					                    <a href="${transicion.replace(instancia)}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
 					        		</#if>
 				                </#list>
 				            </#if>

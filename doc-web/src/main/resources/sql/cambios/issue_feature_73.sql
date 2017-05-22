@@ -55,3 +55,15 @@ VALUES
 ;
 
 -- UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID = 126;
+
+
+-- ----------------------------------------------------------------------
+-- 2017-05-22 jgarcia@controltechcg.com Issue #73 (SICDI-Controntech)
+-- feature-73
+-- Desactivación de transiciones que serán reemplazadas con la 
+-- implementación cíclica.
+-- ----------------------------------------------------------------------
+
+UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (90, 8, 6, 103);
+
+-- UPDATE PROCESO_TRANSICION SET ACTIVO = 1 WHERE PTR_ID IN (90, 8, 6, 103);
