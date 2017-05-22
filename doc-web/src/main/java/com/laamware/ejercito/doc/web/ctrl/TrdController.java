@@ -15,10 +15,16 @@ import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DependenciaTrdRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
+import com.laamware.ejercito.doc.web.serv.TRDService;
 
 @Controller
 @RequestMapping(value = "/trd")
 public class TrdController extends UtilController {
+
+	// 2017-05-22 jgarcia@controltechcg.com Issue #80 (SICDI-Controltech)
+	// feature-80
+	@Autowired
+	TRDService trdService;
 
 	@Autowired
 	TrdRepository trdR;
@@ -31,9 +37,17 @@ public class TrdController extends UtilController {
 	public List<Trd> series(Principal principal) {
 
 		Usuario usuario = getUsuario(principal);
-		Dependencia dep = usuario.getDependencia();
+		Dependencia dependencia = usuario.getDependencia();
 
-		List<Trd> trds = trdR.findSeriesByDependencia(dep.getId());
+		List<Trd> trds = trdR.findSeriesByDependencia(dependencia.getId());
+
+		/*
+		 * 2017-05-22 jgarcia@controltechcg.com Issue #80 (SICDI-Controltech)
+		 * feature-80: Ordenamiento tipo número de versión de las TRD por código
+		 * para servicios REST que proveen la información para los diálogos
+		 * modales en la creación de documento interno.
+		 */
+		trdService.ordenarPorCodigo(trds);
 
 		return trds;
 	}
@@ -43,8 +57,16 @@ public class TrdController extends UtilController {
 	public List<Trd> subseries(@RequestParam("serieId") Integer serieId, Principal principal) {
 
 		Usuario usuario = getUsuario(principal);
-		
+
 		List<Trd> subseries = trdR.findSubseries(serieId, usuario.getDependencia().getId());
+
+		/*
+		 * 2017-05-22 jgarcia@controltechcg.com Issue #80 (SICDI-Controltech)
+		 * feature-80: Ordenamiento tipo número de versión de las TRD por código
+		 * para servicios REST que proveen la información para los diálogos
+		 * modales en la creación de documento interno.
+		 */
+		trdService.ordenarPorCodigo(subseries);
 
 		return subseries;
 	}
