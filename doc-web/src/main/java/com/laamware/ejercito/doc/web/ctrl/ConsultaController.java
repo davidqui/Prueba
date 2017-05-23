@@ -34,6 +34,7 @@ import com.laamware.ejercito.doc.web.dto.DocumentoDTO;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.Estado;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Proceso;
@@ -155,21 +156,19 @@ public class ConsultaController extends UtilController {
 			@RequestParam(value = "clasificacion", required = false) Integer clasificacion,
 			@RequestParam(value = "dependenciaDestino", required = false) Integer dependenciaDestino,
 			Principal principal) {
-		// System.out.println("ConsultaController.buscar()>>>");
-		// System.out.println("model=[" + model + "]");
-		// System.out.println("asignado=[" + asignado + "]");
-		// System.out.println("asunto=[" + asunto + "]");
-		// System.out.println("contenido=[" + contenido + "]");
-		// System.out.println("fechaInicio=[" + fechaInicio + "]");
-		// System.out.println("fechaFin=[" + fechaFin + "]");
-		// System.out.println("radicado=[" + radicado + "]");
-		// System.out.println("expediente=[" + expediente + "]");
-		// System.out.println("destinatario=[" + destinatario + "]");
-		// System.out.println("remitente=[" + remitente + "]");
-		// System.out.println("clasificacion=[" + clasificacion + "]");
-		// System.out.println("dependenciaDestino=[" + dependenciaDestino +
-		// "]");
-		// System.out.println("principal=[" + principal + "]");
+//		System.out.println("ConsultaController.buscar()>>>");
+//		System.out.println("model=[" + model + "]");
+//		System.out.println("asignado=[" + asignado + "]");
+//		System.out.println("asunto=[" + asunto + "]");
+//		System.out.println("contenido=[" + contenido + "]");
+//		System.out.println("fechaInicio=[" + fechaInicio + "]");
+//		System.out.println("fechaFin=[" + fechaFin + "]");
+//		System.out.println("radicado=[" + radicado + "]");
+//		System.out.println("expediente=[" + expediente + "]");
+//		System.out.println("destinatario=[" + destinatario + "]");
+//		System.out.println("remitente=[" + remitente + "]");
+//		System.out.println("clasificacion=[" + clasificacion + "]");
+//		System.out.println("dependenciaDestino=[" + dependenciaDestino + "]");
 
 		// Issue #105, Issue #128
 		Object[] args = { asignado, asunto, contenido, fechaInicio, fechaFin, radicado, expediente, destinatario,
@@ -253,6 +252,20 @@ public class ConsultaController extends UtilController {
 		sql.append("LEFT JOIN DOCUMENTO_USU_FIRMA DOCFIRMA 	ON (DOC.DOC_ID 					= DOCFIRMA.DOC_ID ) \n");
 
 		sql.append("WHERE 1 = 1 \n");
+
+		/*
+		 * 2017-05-23 jgarcia@controltechcg.com Issue #91 (SICDI-Controltech)
+		 * hotfix-91: Lista de estados para no tener en cuenta en la consulta de
+		 * documentos a través de Búsqueda Avanzada.
+		 */
+		final Integer[] estadosNoAplican = { Estado.ANULADO, Estado.ANULADO_NEW };
+		sql.append("AND INSTANCIA.PES_ID NOT IN (");
+		for (int index = 0; index < estadosNoAplican.length; index++) {
+			final Integer estadoID = estadosNoAplican[index];
+			sql.append("?").append((index < estadosNoAplican.length - 1) ? ", " : "");
+			parameters.add(estadoID);
+		}
+		sql.append(")\n");
 
 		sql.append("AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ?) \n");
 		parameters.add(usuarioID);
@@ -390,9 +403,9 @@ public class ConsultaController extends UtilController {
 		// Issue #128
 		sql.append(" ) \n");
 
-		// System.out.println("sql.toString()»»»" + sql.toString());
-		// System.out.println("parameters.toArray()»»»" +
-		// java.util.Arrays.toString(parameters.toArray()));
+//		 System.out.println("sql.toString()»»»" + sql.toString());
+//		 System.out.println("parameters.toArray()»»»" +
+//		 java.util.Arrays.toString(parameters.toArray()));
 
 		documentosTemporal
 				.addAll(jdbcTemplate.query(sql.toString(), parameters.toArray(), new RowMapper<DocumentoDTO>() {
