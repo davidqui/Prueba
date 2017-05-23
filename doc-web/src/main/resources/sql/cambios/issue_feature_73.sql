@@ -31,7 +31,7 @@ VALUES
 -- 2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controntech)
 -- feature-73
 -- Modificación de transiciones y estados del flujo para el proceso de
--- radicación de documentos.
+-- generación de documentos internos.
 -- ----------------------------------------------------------------------
 
 -- PTR_ID = 125
@@ -64,6 +64,10 @@ VALUES
 -- implementación cíclica.
 -- ----------------------------------------------------------------------
 
-UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (90, 8, 6, 103);
+-- Radicación de documentos.
+UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (8, 6, 103);
+
+-- Generación interna de documentos.
+UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (90);
 
 -- UPDATE PROCESO_TRANSICION SET ACTIVO = 1 WHERE PTR_ID IN (90, 8, 6, 103);
