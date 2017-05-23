@@ -3841,25 +3841,119 @@ public class DocumentoController extends UtilController {
 			@RequestParam("tid") Integer transicionID,
 			@RequestParam(value = "proResp", required = false) Integer procesoRespuestaID, Model model,
 			Principal principal, RedirectAttributes redirectAttributes) {
-		final Instancia instancia = procesoService.instancia(instanciaID);
-		final Proceso proceso = instancia.getProceso();
 
-		if (proceso.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)
+		final Instancia instanciaOriginal = procesoService.instancia(instanciaID);
+		final Proceso procesoOriginal = instanciaOriginal.getProceso();
+
+		if (procesoOriginal.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)
 				&& procesoRespuestaID == null) {
 			return String.format("redirect:%s/seleccionar-proceso-respuesta-ciclico?pin=%s&tid=%d", PATH, instanciaID,
 					transicionID);
 		}
 
-		if (proceso.getId().equals(
+		if (procesoOriginal.getId().equals(
 				Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)) {
 			procesoRespuestaID = Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA;
 		}
 
-		// TODO: Pendiente lógica de construcción del documento de respuesta.
-		// Tener presente que el return de este método podría ser más una
-		// redirección que una nueva pantalla.
+		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-		return "dar-respuesta-ciclico";
+		try {
+			// TODO: Esto probablemente deba ir al final.
+			instanciaOriginal.forward(transicionID);
+
+			String docID = instanciaOriginal.getVariable(Documento.DOC_ID);
+			Documento documentoOriginal = documentRepository.getOne(docID);
+
+			Usuario usuarioSesion = getUsuario(principal);
+
+			instanciaOriginal.setAsignado(usuarioSesion);
+
+			Documento documentoNuevo = Documento.create();
+			String asuntoNuevo = "RE: " + documentoOriginal.getAsunto();
+			documentoNuevo.setAsunto(asuntoNuevo);
+			documentoNuevo.setElabora(usuarioSesion);
+			documentoNuevo.setClasificacion(documentoOriginal.getClasificacion());
+
+			if (StringUtils.isNotBlank(documentoOriginal.getRemitenteNombre())) {
+				documentoNuevo.setDestinatarioNombre(documentoOriginal.getRemitenteNombre());
+				documentoNuevo.setDestinatarioTitulo(documentoOriginal.getRemitenteTitulo());
+				documentoNuevo.setDestinatarioDireccion(documentoOriginal.getRemitenteDireccion());
+				documentoNuevo.setRemitenteNombre(documentoOriginal.getDestinatarioNombre());
+				documentoNuevo.setRemitenteTitulo(documentoOriginal.getDestinatarioTitulo());
+				documentoNuevo.setRemitenteDireccion(documentoOriginal.getDestinatarioDireccion());
+			}
+
+			if (documentoOriginal.getDependenciaRemitente() != null) {
+				documentoNuevo.setDependenciaDestino(documentoOriginal.getDependenciaRemitente());
+			}
+			documentoNuevo.setFechaOficio(new Date());
+
+			// TODO: Revisar que la asignación de los parámetros sea la
+			// correcta.
+			String instanciaNuevaID = procesoService.instancia(procesoRespuestaID, usuarioSesion);
+			Instancia instanciaNueva = new Instancia();
+			instanciaNueva.setId(instanciaNuevaID);
+
+			Variable variableID = new Variable();
+			variableID.setKey(Documento.DOC_ID);
+			variableID.setValue(documentoNuevo.getId());
+
+			Instancia instanciaTemporal = new Instancia();
+			instanciaTemporal.setId(instanciaNuevaID);
+			variableID.setInstancia(instanciaTemporal);
+			variableRepository.save(variableID);
+
+			documentoNuevo.setInstancia(instanciaNueva);
+			documentoNuevo.setRelacionado(documentoOriginal.getId());
+			documentoOriginal.setRelacionado(documentoNuevo.getId());
+
+			documentRepository.save(documentoNuevo);
+
+			documentoGeneradorVariables.generar(instanciaOriginal);
+
+			// Pone el documento en modo sólo lectura
+			instanciaOriginal.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_SOLO_LECTURA);
+
+			// TODO: Revisar porqué también aparece esta misma instrucción que
+			// está al comienzo de la implementación.
+			instanciaOriginal.forward(transicionID);
+
+			/*
+			 * 2017-02-10 jgarcia@controltechcg.com Issue #96: En caso que se
+			 * coloque el estado "En proceso de respuesta", el documento se
+			 * archiva.
+			 *
+			 * 2017-02-20 jgarcia@controltechcg.com Issue #138: Corrección para
+			 * que el archivado automático únicamente se realice para el proceso
+			 * interno.
+			 */
+			if (instanciaOriginal.getEstado().getId() == Estado.EN_PROCESO_DE_RESPUESTA && procesoOriginal
+					.getId() == Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA) {
+				DocumentoDependencia documentoDependenciaArchivar = new DocumentoDependencia();
+				Trd trd = trdRepository.getOne(documentoOriginal.getTrd().getId());
+				documentoDependenciaArchivar.setDependencia(usuarioSesion.getDependencia());
+				documentoDependenciaArchivar.setDocumento(documentoOriginal);
+				documentoDependenciaArchivar.setTrd(trd);
+				documentoDependenciaRepository.save(documentoDependenciaArchivar);
+			}
+
+			redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
+					"Documento respuesta creado. Asignado a: " + instanciaOriginal.getAsignado());
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR,
+					"Ocurrió un error inesperado: " + ex.getMessage());
+		}
+
+		if (instanciaOriginal.transiciones().size() > 0) {
+			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
+		} else {
+			return "redirect:/";
+		}
+
+		// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	}
 
 	/**
