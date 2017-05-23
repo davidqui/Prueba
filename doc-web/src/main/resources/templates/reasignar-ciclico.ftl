@@ -35,7 +35,7 @@
         
         <div class="card-footer">
 	        <#if hayUnidades >
-		    	<button type="submit" class="btn btn-danger">Reasignar</button>
+		    	<button type="submit" class="btn btn-success">Reasignar</button>
 		    </#if>
 		    <a href="/proceso/instancia?pin=${pin}" class="btn">Cancelar</a>
         </div>
