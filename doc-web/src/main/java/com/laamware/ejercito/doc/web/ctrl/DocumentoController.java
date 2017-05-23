@@ -3820,7 +3820,12 @@ public class DocumentoController extends UtilController {
 	 * documento y presenta el formulario correspondiente al usuario.
 	 * 
 	 * @param instanciaID
-	 *            ID de la instancia del proceso.
+	 *            ID de la instancia del proceso. Obligatorio.
+	 * @param transicionID
+	 *            ID de la transición aplicada. Obligatorio.
+	 * @param procesoRespuestaID
+	 *            ID del proceso seleccionado para la construcción del documento
+	 *            respuesta.
 	 * @param model
 	 *            Modelo de atributos.
 	 * @param principal
@@ -3833,6 +3838,7 @@ public class DocumentoController extends UtilController {
 	// feature-73.
 	@RequestMapping(value = "/dar-respuesta-ciclico", method = RequestMethod.GET)
 	public String darRespuestaCiclico(@RequestParam("pin") String instanciaID,
+			@RequestParam("tid") Integer transicionID,
 			@RequestParam(value = "proResp", required = false) Integer procesoRespuestaID, Model model,
 			Principal principal, RedirectAttributes redirectAttributes) {
 		final Instancia instancia = procesoService.instancia(instanciaID);
@@ -3840,7 +3846,8 @@ public class DocumentoController extends UtilController {
 
 		if (proceso.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)
 				&& procesoRespuestaID == null) {
-			return String.format("redirect:%s/seleccionar-proceso-respuesta-ciclico?pin=%s", PATH, instanciaID);
+			return String.format("redirect:%s/seleccionar-proceso-respuesta-ciclico?pin=%s&tid=%d", PATH, instanciaID,
+					transicionID);
 		}
 
 		if (proceso.getId().equals(
@@ -3860,7 +3867,9 @@ public class DocumentoController extends UtilController {
 	 * proceso para construir la respuesta de un proceso cíclico.
 	 * 
 	 * @param instanciaID
-	 *            ID de la instancia del proceso.
+	 *            ID de la instancia del proceso. Obligatorio.
+	 * @param transicionID
+	 *            ID de la transición aplicada. Obligatorio.
 	 * @param model
 	 *            Modelo de atributos.
 	 * @param principal
@@ -3870,13 +3879,14 @@ public class DocumentoController extends UtilController {
 	// 2017-05-22 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
 	// feature-73.
 	@RequestMapping(value = "/seleccionar-proceso-respuesta-ciclico", method = RequestMethod.GET)
-	public String seleccionarProcesoRespuestaCiclico(@RequestParam("pin") String instanciaID, Model model,
-			Principal principal) {
+	public String seleccionarProcesoRespuestaCiclico(@RequestParam("pin") String instanciaID,
+			@RequestParam("tid") Integer transicionID, Model model, Principal principal) {
 		final Instancia instancia = procesoService.instancia(instanciaID);
 		final String documentoID = instancia.getVariable(Documento.DOC_ID);
 		final Documento documento = documentRepository.findOne(documentoID);
 
 		model.addAttribute("pin", instanciaID);
+		model.addAttribute("tid", transicionID);
 		model.addAttribute("documento", documento);
 
 		List<Proceso> list = procesoRepository.findAll();

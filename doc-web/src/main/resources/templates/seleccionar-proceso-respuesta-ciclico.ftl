@@ -20,7 +20,7 @@
       				<p class="card-text">${proceso.descripcion!""}</p>
     			</div>    			
     			<div class="card-footer">
-      				<a href="/documento/dar-respuesta-ciclico?pin=${pin}&proResp=${proceso.id}" class="btn btn-primary">Seleccionar</a>
+      				<a href="/documento/dar-respuesta-ciclico?pin=${pin}&proResp=${proceso.id}&tid=${tid}" class="btn btn-primary">Seleccionar</a>
     			</div>
     		</div>
     	</#list>

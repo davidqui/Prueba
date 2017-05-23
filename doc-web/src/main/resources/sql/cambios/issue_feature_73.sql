@@ -21,7 +21,7 @@ INSERT INTO PROCESO_TRANSICION
 	(PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL,
     PES_ID_FINAL, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO)
 VALUES
-  	(124, 1, '/documento/dar-respuesta-ciclico?pin={instancia.id}', 'Dar Respuesta', 46, 
+  	(124, 1, '/documento/dar-respuesta-ciclico?pin={instancia.id}&tid={transicion.id}', 'Dar Respuesta', 46, 
   	52, SYSDATE, 442, SYSDATE, 442, 1)
 ;
 
@@ -50,7 +50,7 @@ INSERT INTO PROCESO_TRANSICION
 	(PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL,
     PES_ID_FINAL, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO)
 VALUES
-  	(126, 1, '/documento/dar-respuesta-ciclico?pin={instancia.id}', 'Dar Respuesta', 49, 
+  	(126, 1, '/documento/dar-respuesta-ciclico?pin={instancia.id}&tid={transicion.id}', 'Dar Respuesta', 49, 
   	52, SYSDATE, 442, SYSDATE, 442, 1)
 ;
 
