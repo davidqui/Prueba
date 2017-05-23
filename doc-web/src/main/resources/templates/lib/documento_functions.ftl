@@ -17,7 +17,7 @@
  	<#local procesoID = documento.instancia.proceso.id />
  	<#local estadoID = documento.instancia.estado.id />
  	<#if procesoID == 9 && estadoID == 46 >
- 		<#return (1 == 1) />
+ 		<#return (1 != 1) /> <#-- TODO: Pendiente pasar a == -->
  	<#elseif procesoID == 8 && estadoID == 49 >
  		<#return (1 == 1) />
  	<#else>
