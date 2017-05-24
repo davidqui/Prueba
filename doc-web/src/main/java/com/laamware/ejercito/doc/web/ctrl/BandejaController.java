@@ -95,9 +95,14 @@ public class BandejaController extends UtilController {
 			 * 2017-05-15 jgarcia@controltechcg.com Issue #78
 			 * (SICDI-Controltech) feature-78: Presentar información básica de
 			 * los usuarios asignadores y asignados en las bandejas del sistema.
+			 * 
+			 * 2017-05-24 jgarcia@controltechcg.com Issue #73
+			 * (SICDI-Controltech) feature-73: Opción para indicar si la
+			 * construcción del texto de asignados debe manejar múltiples
+			 * destinos o no.
 			 */
 			String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
-					usuarioService, d.getInstancia(), null);
+					usuarioService, d.getInstancia(), null, true);
 			d.setTextoAsignado(asignadosText);
 
 		}

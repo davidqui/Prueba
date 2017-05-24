@@ -1617,9 +1617,12 @@ public class DocumentoController extends UtilController {
 				 * 
 				 * 2017-05-15 jgarcia@controltechcg.com Issue #78
 				 * (SICDI-Controltech) feature-78
+				 * 
+				 * 2017-05-24 jgarcia@controltechcg.com Issue #73
+				 * (SICDI-Controltech) feature-73
 				 */
-				redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-						buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+				redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
+						documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 				return redirectToInstancia(i);
 			} else {
 				if (did != null) {
@@ -2396,9 +2399,12 @@ public class DocumentoController extends UtilController {
 		 * 
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78
+		 * 
+		 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73
 		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2451,9 +2457,12 @@ public class DocumentoController extends UtilController {
 		 * 
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78
+		 * 
+		 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73
 		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2500,9 +2509,12 @@ public class DocumentoController extends UtilController {
 		 * 
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78
+		 * 
+		 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73
 		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2761,9 +2773,12 @@ public class DocumentoController extends UtilController {
 		 * 
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78
+		 * 
+		 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73
 		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 		return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
 	}
@@ -2815,9 +2830,12 @@ public class DocumentoController extends UtilController {
 		 * 
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78
+		 * 
+		 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73
 		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3638,6 +3656,9 @@ public class DocumentoController extends UtilController {
 	 *            Instancia del proceso.
 	 * @param textoInicial
 	 *            Texto que se colocaría al inicio del resultado.
+	 * @param manejarMultiplesDestinos
+	 *            Indica si el texto debe manejar la presentación de usuarios
+	 *            asignados según múltiples destinos.
 	 * @return Texto que comienza con el valor de texto inicial (Si se ha
 	 *         colocado alguno) seguido del nombre del asignado primario. En
 	 *         caso que el documento de la instancia del proceso tenga asociados
@@ -3650,9 +3671,12 @@ public class DocumentoController extends UtilController {
 	 * 
 	 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 	 * feature-78
+	 * 
+	 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+	 * feature-73
 	 */
 	public static String buildAsignadosText(DocumentoDependenciaAdicionalRepository repository,
-			UsuarioService usuarioService, Instancia instancia, String textoInicial) {
+			UsuarioService usuarioService, Instancia instancia, String textoInicial, boolean manejarMultiplesDestinos) {
 		final String documentoID = instancia.getVariable(Documento.DOC_ID);
 
 		String text = (textoInicial == null || textoInicial.trim().isEmpty()) ? "" : textoInicial;
@@ -3663,10 +3687,16 @@ public class DocumentoController extends UtilController {
 		 */
 		text += usuarioService.mostrarInformacionBasica(instancia.getAsignado());
 
-		// 2017-02-08 jgarcia@controltechcg.com Issue #118 Modificación para que
-		// los jefes de dependencia destino únicamente se presenten cuando el
-		// estado corresponde a Enviado.
-		if (instancia.getEstado().getId() != Estado.ENVIADO) {
+		/*
+		 * 2017-02-08 jgarcia@controltechcg.com Issue #118 Modificación para que
+		 * los jefes de dependencia destino únicamente se presenten cuando el
+		 * estado corresponde a Enviado.
+		 * 
+		 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73: Opción para indicar si la construcción del texto de
+		 * asignados debe manejar múltiples destinos o no.
+		 */
+		if (!manejarMultiplesDestinos || instancia.getEstado().getId() != Estado.ENVIADO) {
 			return text;
 		}
 
@@ -3803,7 +3833,7 @@ public class DocumentoController extends UtilController {
 			documentRepository.saveAndFlush(documento);
 
 			redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
-					documentoDependenciaAdicionalRepository, usuarioService, instancia, "Asignado a "));
+					documentoDependenciaAdicionalRepository, usuarioService, instancia, "Asignado a ", false));
 
 			if (instancia.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
@@ -3956,7 +3986,7 @@ public class DocumentoController extends UtilController {
 
 			redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
 					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, instanciaOriginal,
-							"Documento respuesta \"" + asuntoNuevo + "\" creado. Asignado a: "));
+							"Documento respuesta \"" + asuntoNuevo + "\" creado. Asignado a: ", false));
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -4134,7 +4164,7 @@ public class DocumentoController extends UtilController {
 		}
 
 		redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
-				documentoDependenciaAdicionalRepository, usuarioService, instancia, "Reasignado a: "));
+				documentoDependenciaAdicionalRepository, usuarioService, instancia, "Reasignado a: ", false));
 
 		if (instancia.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
