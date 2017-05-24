@@ -3856,17 +3856,14 @@ public class DocumentoController extends UtilController {
 			procesoRespuestaID = Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA;
 		}
 
-		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 		try {
 			// TODO: Esto probablemente deba ir al final.
 			instanciaOriginal.forward(transicionID);
 
-			String docID = instanciaOriginal.getVariable(Documento.DOC_ID);
-			Documento documentoOriginal = documentRepository.getOne(docID);
+			final String documentoID = instanciaOriginal.getVariable(Documento.DOC_ID);
+			final Documento documentoOriginal = documentRepository.getOne(documentoID);
 
-			Usuario usuarioSesion = getUsuario(principal);
-
+			final Usuario usuarioSesion = getUsuario(principal);
 			instanciaOriginal.setAsignado(usuarioSesion);
 
 			Documento documentoNuevo = Documento.create();
@@ -3875,23 +3872,42 @@ public class DocumentoController extends UtilController {
 			documentoNuevo.setElabora(usuarioSesion);
 			documentoNuevo.setClasificacion(documentoOriginal.getClasificacion());
 
-			if (StringUtils.isNotBlank(documentoOriginal.getRemitenteNombre())) {
-				documentoNuevo.setDestinatarioNombre(documentoOriginal.getRemitenteNombre());
-				documentoNuevo.setDestinatarioTitulo(documentoOriginal.getRemitenteTitulo());
-				documentoNuevo.setDestinatarioDireccion(documentoOriginal.getRemitenteDireccion());
-				documentoNuevo.setRemitenteNombre(documentoOriginal.getDestinatarioNombre());
-				documentoNuevo.setRemitenteTitulo(documentoOriginal.getDestinatarioTitulo());
-				documentoNuevo.setRemitenteDireccion(documentoOriginal.getDestinatarioDireccion());
+			if (procesoOriginal.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)
+					&& procesoRespuestaID.equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
+				if (StringUtils.isNotBlank(documentoOriginal.getRemitenteNombre())) {
+					documentoNuevo.setDestinatarioNombre(documentoOriginal.getRemitenteNombre());
+				}
+
+				if (StringUtils.isNotBlank(documentoOriginal.getRemitenteTitulo())) {
+					documentoNuevo.setDestinatarioTitulo(documentoOriginal.getRemitenteTitulo());
+				}
+
+				if (StringUtils.isNotBlank(documentoOriginal.getRemitenteDireccion())) {
+					documentoNuevo.setDestinatarioDireccion(documentoOriginal.getRemitenteDireccion());
+				}
+
+				if (StringUtils.isNotBlank(documentoOriginal.getDestinatarioNombre())) {
+					documentoNuevo.setRemitenteNombre(documentoOriginal.getDestinatarioNombre());
+				}
+
+				if (StringUtils.isNotBlank(documentoOriginal.getDestinatarioTitulo())) {
+					documentoNuevo.setRemitenteTitulo(documentoOriginal.getDestinatarioTitulo());
+				}
+
+				if (StringUtils.isNotBlank(documentoOriginal.getDestinatarioDireccion())) {
+					documentoNuevo.setRemitenteDireccion(documentoOriginal.getDestinatarioDireccion());
+				}
 			}
 
 			if (documentoOriginal.getDependenciaRemitente() != null) {
 				documentoNuevo.setDependenciaDestino(documentoOriginal.getDependenciaRemitente());
 			}
+
 			documentoNuevo.setFechaOficio(new Date());
 
 			// TODO: Revisar que la asignación de los parámetros sea la
 			// correcta.
-			String instanciaNuevaID = procesoService.instancia(procesoRespuestaID, usuarioSesion);
+			final String instanciaNuevaID = procesoService.instancia(procesoRespuestaID, usuarioSesion);
 			Instancia instanciaNueva = new Instancia();
 			instanciaNueva.setId(instanciaNuevaID);
 
@@ -3939,12 +3955,12 @@ public class DocumentoController extends UtilController {
 			}
 
 			redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					"Documento respuesta creado. Asignado a: " + instanciaOriginal.getAsignado());
+					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, instanciaOriginal,
+							"Documento respuesta \"" + asuntoNuevo + "\" creado. Asignado a: "));
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR,
-					"Ocurrió un error inesperado: " + ex.getMessage());
+			redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "Excepción: " + ex.getMessage());
 		}
 
 		if (instanciaOriginal.transiciones().size() > 0) {
@@ -3952,8 +3968,6 @@ public class DocumentoController extends UtilController {
 		} else {
 			return "redirect:/";
 		}
-
-		// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	}
 
 	/**
@@ -3986,7 +4000,8 @@ public class DocumentoController extends UtilController {
 		List<Proceso> list = procesoRepository.findAll();
 		List<Proceso> procesos = new ArrayList<>();
 		for (Proceso proceso : list) {
-			if (proceso.getActivo() && proceso.getId().intValue() != 9) {
+			if (proceso.getActivo()
+					&& !proceso.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
 				procesos.add(proceso);
 			}
 		}
