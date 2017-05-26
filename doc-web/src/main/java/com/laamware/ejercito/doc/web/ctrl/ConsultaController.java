@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -156,19 +158,20 @@ public class ConsultaController extends UtilController {
 			@RequestParam(value = "clasificacion", required = false) Integer clasificacion,
 			@RequestParam(value = "dependenciaDestino", required = false) Integer dependenciaDestino,
 			Principal principal) {
-//		System.out.println("ConsultaController.buscar()>>>");
-//		System.out.println("model=[" + model + "]");
-//		System.out.println("asignado=[" + asignado + "]");
-//		System.out.println("asunto=[" + asunto + "]");
-//		System.out.println("contenido=[" + contenido + "]");
-//		System.out.println("fechaInicio=[" + fechaInicio + "]");
-//		System.out.println("fechaFin=[" + fechaFin + "]");
-//		System.out.println("radicado=[" + radicado + "]");
-//		System.out.println("expediente=[" + expediente + "]");
-//		System.out.println("destinatario=[" + destinatario + "]");
-//		System.out.println("remitente=[" + remitente + "]");
-//		System.out.println("clasificacion=[" + clasificacion + "]");
-//		System.out.println("dependenciaDestino=[" + dependenciaDestino + "]");
+		// System.out.println("ConsultaController.buscar()>>>");
+		// System.out.println("model=[" + model + "]");
+		// System.out.println("asignado=[" + asignado + "]");
+		// System.out.println("asunto=[" + asunto + "]");
+		// System.out.println("contenido=[" + contenido + "]");
+		// System.out.println("fechaInicio=[" + fechaInicio + "]");
+		// System.out.println("fechaFin=[" + fechaFin + "]");
+		// System.out.println("radicado=[" + radicado + "]");
+		// System.out.println("expediente=[" + expediente + "]");
+		// System.out.println("destinatario=[" + destinatario + "]");
+		// System.out.println("remitente=[" + remitente + "]");
+		// System.out.println("clasificacion=[" + clasificacion + "]");
+		// System.out.println("dependenciaDestino=[" + dependenciaDestino +
+		// "]");
 
 		// Issue #105, Issue #128
 		Object[] args = { asignado, asunto, contenido, fechaInicio, fechaFin, radicado, expediente, destinatario,
@@ -403,9 +406,9 @@ public class ConsultaController extends UtilController {
 		// Issue #128
 		sql.append(" ) \n");
 
-//		 System.out.println("sql.toString()»»»" + sql.toString());
-//		 System.out.println("parameters.toArray()»»»" +
-//		 java.util.Arrays.toString(parameters.toArray()));
+		// System.out.println("sql.toString()»»»" + sql.toString());
+		// System.out.println("parameters.toArray()»»»" +
+		// java.util.Arrays.toString(parameters.toArray()));
 
 		documentosTemporal
 				.addAll(jdbcTemplate.query(sql.toString(), parameters.toArray(), new RowMapper<DocumentoDTO>() {
@@ -425,6 +428,19 @@ public class ConsultaController extends UtilController {
 			Instancia i = procesoService.instancia(documento.getInstancia().getId());
 			documento.setInstancia(i);
 		}
+
+		/*
+		 * 2017-05-26 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
+		 * hotfix-96: Ordenamiento de lista de documentos por fecha de última
+		 * modificación.
+		 */
+		Collections.sort(documentos, new Comparator<Documento>() {
+
+			@Override
+			public int compare(Documento documento1, Documento documento2) {
+				return documento2.getCuandoMod().compareTo(documento1.getCuandoMod());
+			}
+		});
 
 		// System.out.println("documentos.size()=" + documentos.size());
 
