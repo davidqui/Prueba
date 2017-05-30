@@ -3887,7 +3887,6 @@ public class DocumentoController extends UtilController {
 		}
 
 		try {
-			// TODO: Esto probablemente deba ir al final.
 			instanciaOriginal.forward(transicionID);
 
 			final String documentoID = instanciaOriginal.getVariable(Documento.DOC_ID);
@@ -3935,8 +3934,6 @@ public class DocumentoController extends UtilController {
 
 			documentoNuevo.setFechaOficio(new Date());
 
-			// TODO: Revisar que la asignación de los parámetros sea la
-			// correcta.
 			final String instanciaNuevaID = procesoService.instancia(procesoRespuestaID, usuarioSesion);
 			Instancia instanciaNueva = new Instancia();
 			instanciaNueva.setId(instanciaNuevaID);
@@ -3960,9 +3957,7 @@ public class DocumentoController extends UtilController {
 
 			// Pone el documento en modo sólo lectura
 			instanciaOriginal.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_SOLO_LECTURA);
-
-			// TODO: Revisar porqué también aparece esta misma instrucción que
-			// está al comienzo de la implementación.
+			
 			instanciaOriginal.forward(transicionID);
 
 			/*
