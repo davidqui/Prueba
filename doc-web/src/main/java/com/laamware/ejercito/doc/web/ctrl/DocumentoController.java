@@ -1849,8 +1849,13 @@ public class DocumentoController extends UtilController {
 
 		i.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_ENTREGADO);
 
+		/*
+		 * 2017-05-30 jgarcia@controltechcg.com Issue #98 (SICDI-Controltech)
+		 * hotfix-98: Corrección en texto de mensaje de asignación de usuario a
+		 * siguiente transición del documento.
+		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				"Acción realizada correctamente. Asignado a " + i.getAsignado());
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2087,8 +2092,13 @@ public class DocumentoController extends UtilController {
 		documento.setUsuarioUltimaAccion(usuarioSesion);
 		documentRepository.saveAndFlush(documento);
 
+		/*
+		 * 2017-05-30 jgarcia@controltechcg.com Issue #98 (SICDI-Controltech)
+		 * hotfix-98: Corrección en texto de mensaje de asignación de usuario a
+		 * siguiente transición del documento.
+		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				"Acción realizada correctamente. Asignado a " + i.getAsignado());
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2143,7 +2153,13 @@ public class DocumentoController extends UtilController {
 				}
 			});
 
-			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Acción realizada correctamente");
+			/*
+			 * 2017-05-30 jgarcia@controltechcg.com Issue #98
+			 * (SICDI-Controltech) hotfix-98: Corrección en texto de mensaje de
+			 * asignación de usuario a siguiente transición del documento.
+			 */
+			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
+					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 			if (i.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2267,8 +2283,13 @@ public class DocumentoController extends UtilController {
 			documento.setUsuarioUltimaAccion(usuarioSesion);
 			documentRepository.saveAndFlush(documento);
 
+			/*
+			 * 2017-05-30 jgarcia@controltechcg.com Issue #98
+			 * (SICDI-Controltech) hotfix-98: Corrección en texto de mensaje de
+			 * asignación de usuario a siguiente transición del documento.
+			 */
 			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					"Acción realizada correctamente. Asignado a " + i.getAsignado());
+					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 			if (i.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2299,7 +2320,13 @@ public class DocumentoController extends UtilController {
 			}
 		});
 
-		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Acción realizada correctamente");
+		/*
+		 * 2017-05-30 jgarcia@controltechcg.com Issue #98 (SICDI-Controltech)
+		 * hotfix-98: Corrección en texto de mensaje de asignación de usuario a
+		 * siguiente transición del documento.
+		 */
+		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3009,8 +3036,13 @@ public class DocumentoController extends UtilController {
 			documento.setUsuarioUltimaAccion(usuarioSesion);
 			documentRepository.saveAndFlush(documento);
 
+			/*
+			 * 2017-05-30 jgarcia@controltechcg.com Issue #98
+			 * (SICDI-Controltech) hotfix-98: Corrección en texto de mensaje de
+			 * asignación de usuario a siguiente transición del documento.
+			 */
 			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					"Acción realizada correctamente. Asignado a " + i.getAsignado());
+					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 
 			if (i.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3129,8 +3161,13 @@ public class DocumentoController extends UtilController {
 				documentoDependenciaRepository.save(documentoDependenciaArchivar);
 			}
 
-			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					"Acción realizada correctamente. Asignada a " + instanciaOriginal.getAsignado());
+			/*
+			 * 2017-05-30 jgarcia@controltechcg.com Issue #98
+			 * (SICDI-Controltech) hotfix-98: Corrección en texto de mensaje de
+			 * asignación de usuario a siguiente transición del documento.
+			 */
+			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
+					documentoDependenciaAdicionalRepository, usuarioService, instanciaOriginal, "Asignado a "));
 
 		} catch (Exception e) {
 			e.printStackTrace();
