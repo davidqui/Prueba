@@ -1855,7 +1855,7 @@ public class DocumentoController extends UtilController {
 		 * siguiente transición del documento.
 		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2098,7 +2098,7 @@ public class DocumentoController extends UtilController {
 		 * siguiente transición del documento.
 		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2159,7 +2159,7 @@ public class DocumentoController extends UtilController {
 			 * asignación de usuario a siguiente transición del documento.
 			 */
 			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 			if (i.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2289,7 +2289,7 @@ public class DocumentoController extends UtilController {
 			 * asignación de usuario a siguiente transición del documento.
 			 */
 			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 			if (i.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2326,7 +2326,7 @@ public class DocumentoController extends UtilController {
 		 * siguiente transición del documento.
 		 */
 		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+				buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 		if (i.transiciones().size() > 0) {
 			return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3042,7 +3042,7 @@ public class DocumentoController extends UtilController {
 			 * asignación de usuario a siguiente transición del documento.
 			 */
 			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 			if (i.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3167,7 +3167,7 @@ public class DocumentoController extends UtilController {
 			 * asignación de usuario a siguiente transición del documento.
 			 */
 			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
-					documentoDependenciaAdicionalRepository, usuarioService, instanciaOriginal, "Asignado a "));
+					documentoDependenciaAdicionalRepository, usuarioService, instanciaOriginal, "Asignado a ", true));
 
 		} catch (Exception e) {
 			e.printStackTrace();
