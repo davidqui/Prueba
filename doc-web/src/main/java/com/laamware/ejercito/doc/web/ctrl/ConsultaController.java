@@ -307,28 +307,19 @@ public class ConsultaController extends UtilController {
 		}
 
 		/*
-		 * 2017-02-15 jgarcia@controltechcg.com Issue #142: Se separa la
-		 * validación realizada sobre los campos de fecha para que la búsqueda
-		 * sea independiente y no se necesite siempre de los dos campos para
-		 * filtrar. Se utilizan los campos de fecha indicados en el issue, según
-		 * el proceso asociado al documento.
+		 * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
+		 * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
+		 * avanzada, según la existencia o no de los filtros de fecha,
+		 * estableciendo la condición de concatenación de las condiciones.
 		 */
+		Date fInicio = null;
 		if (StringUtils.isNotBlank(fechaInicio)) {
-			Date fInicio;
-			try {
-				fInicio = DateUtil.setTime(DATE_FORMAT_YYYYMMDD.parse(fechaInicio.trim()),
-						DateUtil.SetTimeType.START_TIME);
+			fInicio = parseFilterDate(fechaInicio, DateUtil.SetTimeType.START_TIME);
+		}
 
-				sql.append((hasConditions ? operator.name() : "") + " ((CASE WHEN INSTANCIA.PRO_ID = "
-						+ Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS
-						+ " THEN DOC.CUANDO ELSE DOCFIRMA.CUANDO END) >= ?) \n");
-
-				parameters.add(fInicio);
-
-				hasConditions = true;
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+		Date fFin = null;
+		if (StringUtils.isNotBlank(fechaFin)) {
+			fFin = parseFilterDate(fechaFin, DateUtil.SetTimeType.END_TIME);
 		}
 
 		/*
@@ -337,23 +328,47 @@ public class ConsultaController extends UtilController {
 		 * sea independiente y no se necesite siempre de los dos campos para
 		 * filtrar. Se utilizan los campos de fecha indicados en el issue, según
 		 * el proceso asociado al documento.
+		 * 
+		 * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
+		 * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
+		 * avanzada, según la existencia o no de los filtros de fecha,
+		 * estableciendo la condición de concatenación de las condiciones.
 		 */
-		if (StringUtils.isNotBlank(fechaFin)) {
-			try {
+		if (fInicio != null) {
+			sql.append((hasConditions ? operator.name() : "") + " ((CASE WHEN INSTANCIA.PRO_ID = "
+					+ Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS
+					+ " THEN DOC.CUANDO ELSE DOCFIRMA.CUANDO END) >= ?) \n");
 
-				Date fFin = DateUtil.setTime(DATE_FORMAT_YYYYMMDD.parse(fechaFin.trim()),
-						DateUtil.SetTimeType.END_TIME);
+			parameters.add(fInicio);
 
-				sql.append((hasConditions ? operator.name() : "") + " ((CASE WHEN INSTANCIA.PRO_ID = "
-						+ Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS
-						+ " THEN DOC.CUANDO ELSE DOCFIRMA.CUANDO END) <= ?) \n");
+			hasConditions = true;
+		}
 
-				parameters.add(fFin);
-
-				hasConditions = true;
-			} catch (ParseException e) {
-				e.printStackTrace();
+		/*
+		 * 2017-02-15 jgarcia@controltechcg.com Issue #142: Se separa la
+		 * validación realizada sobre los campos de fecha para que la búsqueda
+		 * sea independiente y no se necesite siempre de los dos campos para
+		 * filtrar. Se utilizan los campos de fecha indicados en el issue, según
+		 * el proceso asociado al documento.
+		 * 
+		 * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
+		 * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
+		 * avanzada, según la existencia o no de los filtros de fecha,
+		 * estableciendo la condición de concatenación de las condiciones.
+		 */
+		if (fFin != null) {
+			if (fInicio == null) {
+				sql.append((hasConditions ? operator.name() : ""));
+			} else {
+				sql.append(SentenceOperator.AND.name());
 			}
+
+			sql.append(" ((CASE WHEN INSTANCIA.PRO_ID = " + Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS
+					+ " THEN DOC.CUANDO ELSE DOCFIRMA.CUANDO END) <= ?) \n");
+
+			parameters.add(fFin);
+
+			hasConditions = true;
 		}
 
 		if (StringUtils.isNotBlank(radicado)) {
@@ -452,6 +467,38 @@ public class ConsultaController extends UtilController {
 		}
 
 		return "consulta";
+	}
+
+	/**
+	 * Parsea el dato de la fecha enviado desde la interfaz, a un valor de
+	 * fecha, con la hora correspondiente según sí es fecha inicial o fecha
+	 * final.
+	 * 
+	 * @param dateValue
+	 *            Valor recibido desde la interfaz.
+	 * @param setTimeType
+	 *            Tipo de fecha.
+	 * @return Valor de la fecha, o {@code null} en caso que el valor recibido
+	 *         sea {@code null} o no se pueda parsear.
+	 * @see #DATE_FORMAT_YYYYMMDD
+	 */
+	/*
+	 * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
+	 * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
+	 * avanzada, según la existencia o no de los filtros de fecha, estableciendo
+	 * la condición de concatenación de las condiciones.
+	 */
+	private Date parseFilterDate(String dateValue, DateUtil.SetTimeType setTimeType) {
+		if (dateValue == null) {
+			return null;
+		}
+
+		try {
+			return DateUtil.setTime(DATE_FORMAT_YYYYMMDD.parse(dateValue.trim()), setTimeType);
+		} catch (ParseException ex) {
+			ex.printStackTrace();
+			return null;
+		}
 	}
 
 	/**
