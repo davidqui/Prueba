@@ -2,6 +2,20 @@
 <#assign yyyymmdd = objectConstructor("java.text.SimpleDateFormat","yyyy-MM-dd")>
 
 <#macro flash>
+
+	<#--
+		2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech) hotfix-99:
+		Validador para determinar la funcionalidad de los mensajes FLASH. 
+		(Código comentado).
+	-->
+	<#--
+		<#if FLASH_SUCCESS??>
+			${FLASH_SUCCESS}
+		<#else>
+			NADA!!!
+		</#if>
+	 -->
+	
     <#if FLASH_ERROR?? || FLASH_SUCCESS?? || FLASH_INFO?? || FLASH_WARN?? || postError?? || postSuccess?? >
       <#if FLASH_ERROR??>
         <#assign flashClass = "alert-danger" />
