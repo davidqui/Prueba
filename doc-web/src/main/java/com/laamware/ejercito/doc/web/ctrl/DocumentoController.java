@@ -2579,7 +2579,13 @@ public class DocumentoController extends UtilController {
 		final Estado estadoIntanciaTMP = instanciaAntesDeEjecutarProceso.getEstado();
 		final Usuario usuarioAsiganoTMP = instanciaAntesDeEjecutarProceso.getAsignado();
 
-		Instancia i = asignar(pin, tid, new EstrategiaSeleccionUsuario() {
+		/*
+		 * 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
+		 * hotfix-99: Validación del proceso de selección de usuario para
+		 * determinar si el usuario es null, para presentar el mensaje de error
+		 * correspondiente.
+		 */
+		EstrategiaSeleccionUsuario selector = new EstrategiaSeleccionUsuario() {
 			@Override
 			public Usuario select(Instancia i, Documento d) {
 
@@ -2613,7 +2619,19 @@ public class DocumentoController extends UtilController {
 					return yo;
 				}
 			}
-		});
+		};
+
+		Instancia instanciaTmp = procesoService.instancia(pin);
+		String docTmpId = instanciaTmp.getVariable(Documento.DOC_ID);
+		Documento documentoTmp = documentRepository.getOne(docTmpId);
+
+		if (selector.select(instanciaTmp, documentoTmp) == null) {
+			redirect.addFlashAttribute(AppConstants.FLASH_ERROR,
+					"ERROR: No hay Jefe Asignado para la Dependencia destino.");
+			return String.format("redirect:/proceso/instancia?pin=%s", pin);
+		}
+
+		Instancia i = asignar(pin, tid, selector);
 
 		// Cambia a solo lectura
 		i.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_SOLO_LECTURA);
