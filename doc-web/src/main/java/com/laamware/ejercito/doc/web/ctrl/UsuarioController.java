@@ -320,7 +320,7 @@ public class UsuarioController extends UtilController {
 		Integer idUsuario = Integer.valueOf(req.getParameter("id"));
 		try {
 			Usuario usuario = usuarioRepository.findOne(idUsuario);
-			// usuario.setActivo(false);
+			usuario.setActivo(false);
 			usuarioRepository.save(usuario);
 
 			/*
