@@ -1,9 +1,12 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.laamware.ejercito.doc.web.entity.Dependencia;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 
 /**
@@ -38,4 +41,24 @@ public class DependenciaService {
 		return unidad;
 	}
 
+	/**
+	 * Retira el usuario como jefe asignado (jefe principal o jefe encargado) de
+	 * las dependencias asociadas.
+	 * 
+	 * @param usuario
+	 *            Usuario a retirar como jefe encargado.
+	 * @return Lista de las dependencias activas de las cuales el usuario se
+	 *         retiró como jefe asignado.
+	 */
+	// 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
+	// hotfix-99
+	public List<Dependencia> retirarUsuarioComoJefeAsignado(Usuario usuario) {
+		List<Dependencia> dependenciasAsignadas = dependenciaRepository.findActivoByJefeAsignado(usuario.getId());
+
+		for (Dependencia dependencia : dependenciasAsignadas) {
+			System.out.println(dependencia);
+		}
+
+		return dependenciasAsignadas;
+	}
 }
