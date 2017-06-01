@@ -91,3 +91,14 @@ UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (8, 6, 103);
 UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (90);
 
 -- UPDATE PROCESO_TRANSICION SET ACTIVO = 1 WHERE PTR_ID IN (90, 8, 6, 103);
+
+-- ----------------------------------------------------------------------
+-- 2017-06-01 jgarcia@controltechcg.com Issue #73 (SICDI-Controntech)
+-- feature-73
+-- Cambio de nombre en estado de recepción del proceso de radicación
+-- de documentos.
+-- ----------------------------------------------------------------------
+
+UPDATE PROCESO_ESTADO SET PES_NOMBRE = 'En Revisión' WHERE PES_ID = 46;
+
+-- UPDATE PROCESO_ESTADO SET PES_NOMBRE = 'Revisión Jefe Jefatura' WHERE PES_ID = 46;
