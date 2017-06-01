@@ -1049,14 +1049,20 @@
 				        	2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
 		 					hotfix-81 -> Corrección para que los documentos del proceso externo
 		 					no tengan acciones ni transiciones después de enviados.
-				        -->    
+				        -->  
 			            <#if documento.activarAccionReasignacion() && usuariologueado?? && documento.elabora.id != usuariologueado.id >
 			            	<#-- 
 			            	    2017-03-13 jgarcia@controltechcg.com Issue #48 (SIGDI-Controltech): Validación para identificar si el documento se encuentra en estado 
 			            	    Enviado para el proceso Interno, y el usuario en sesión corresponde al usuario que firma el documento, para evitar que se presente el 
-			            	    botón de Reasignar. 
+			            	    botón de Reasignar.
+			            	    
+			            	    2017-06-01 jgarcia@controltechcg.com Issue #100 (SICDI-Controltech) feature-73: Modificación sobre la regla de negocio implementada
+			            	    en el Issue #48, para que valide cuando el documento se encuentra en estado Enviado para el proceso Interno, solo presente la acción
+			            	    de Reasignar el usuario en sesión corresponde al usuario asignado en la instancia del proceso. Complemento de la misma validación
+			            	    para que aplique con el proceso de radicación de documentos, cuando el documento se encuentra en estado de revisión.
 			            	-->
-			            	<#if !(documento.esDocumentoEnviadoInterno() && (usuariologueado.id == documento.firma.id)) >
+			            	<#if ((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+			            		&& (usuariologueado.id == documento.instancia.asignado.id)) >
 			            		<#--
 			            			2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73
 			            		-->

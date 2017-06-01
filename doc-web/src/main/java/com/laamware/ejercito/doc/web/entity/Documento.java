@@ -927,6 +927,28 @@ public class Documento extends AuditModifySupport {
 		return (estadoID == Estado.ENVIADO);
 	}
 
+	/**
+	 * Indica si el documento se encuentra en estado de revisión para el proceso
+	 * de radicación de documentos.
+	 * 
+	 * @return {@code true} si el documento se encuentra en estado de revisión
+	 *         para el proceso de radicación de documentos; de lo contrario,
+	 *         {@code false}.
+	 * @see Proceso#ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS
+	 * @see Estado#REVISIÓN_JEFE_JEFATURA
+	 */
+	// 2017-06-01 jgarcia@controltechcg.com Issue #100 (SIGDI-Controltech)
+	// feature-73
+	public boolean esDocumentoRevisionRadicado() {
+		final Integer procesoID = getInstancia().getProceso().getId();
+		if (procesoID != Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS) {
+			return false;
+		}
+
+		final Integer estadoID = getInstancia().getEstado().getId();
+		return (estadoID == Estado.REVISIÓN_JEFE_JEFATURA);
+	}
+
 	public String mostrarPreview() {
 		if (instancia == null || instancia.getEstado() == null || sticker != null) {
 			return "N";
