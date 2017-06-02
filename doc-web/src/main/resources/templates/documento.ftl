@@ -959,21 +959,29 @@
         		    	<#assign btnGuardarStyle = "" />
         		    	<#if !asignacionCiclica >
         		    		<#assign btnGuardarStyle = "btn-success" /> 
-        		    	</#if>		        		
-	        			<button id="guardar-doc-btn" type="submit" class="btn ${btnGuardarStyle} btn-sm">Guardar</button>
-	        					
-		        		<script type="text/javascript">
-						        $(document).ready(function () {
-								    $("#guardar-doc-btn").click(function() {
-									    $(this).attr("disabled", "disabled");
-									    $(this).text("Procesando...");
-									    
-									    // 2017-02-17 jgarcia@controltechcg.com Issue #143: Corrección para funcionalidad en Google Chrome.
-									    
-									    $(this).closest("form").submit();
-								    });
-						        });
-	        			</script>
+        		    	</#if>
+        		    	
+        		    	<#--
+        		    		2017-06-02 jgarcia@controltechcg.com Issue #100 (SICDI-Controltech) feature-73:
+        		    		Corrección para activar el botón de la acción "Guardar" únicamente cuando se encuentre
+        		    		en sesión el usuario asignado al documento. 
+        		    	-->
+        		    	<#if (usuariologueado.id == documento.instancia.asignado.id)>		        				        				        		
+		        			<button id="guardar-doc-btn" type="submit" class="btn ${btnGuardarStyle} btn-sm">Guardar</button>
+		        					
+			        		<script type="text/javascript">
+							        $(document).ready(function () {
+									    $("#guardar-doc-btn").click(function() {
+										    $(this).attr("disabled", "disabled");
+										    $(this).text("Procesando...");
+										    
+										    // 2017-02-17 jgarcia@controltechcg.com Issue #143: Corrección para funcionalidad en Google Chrome.
+										    
+										    $(this).closest("form").submit();
+									    });
+							        });
+		        			</script>
+	        			</#if>
 					</#if>        			
         		</#if>
         		
