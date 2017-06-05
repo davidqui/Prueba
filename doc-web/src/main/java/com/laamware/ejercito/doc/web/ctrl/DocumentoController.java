@@ -2423,7 +2423,7 @@ public class DocumentoController extends UtilController {
 			 * "Devolver para correcciones".
 			 */
 			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
+					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 			return "redirect:/";
 		}
 
