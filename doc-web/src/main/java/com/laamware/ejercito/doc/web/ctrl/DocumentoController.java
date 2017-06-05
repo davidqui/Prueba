@@ -2401,8 +2401,7 @@ public class DocumentoController extends UtilController {
 			 * (SIGDI-Incidencias01): Se modifica la función devolver, para que
 			 * en la actualización de los datos de la instancia del proceso,
 			 * reasigne al usuario creador del documento.
-			 */
-			/*
+			 * 
 			 * 2017-04-20 jgarcia@controltechcg.com Issue #52
 			 * (SICDI-Controltech): Corrección en la asignación del usuario
 			 * creador del documento, ya que en tiempo de generación del
@@ -2414,7 +2413,14 @@ public class DocumentoController extends UtilController {
 
 			instanciaRepository.saveAndFlush(i);
 
-			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Asignado a " + usuarioCreador);
+			/*
+			 * 2017-06-05 jgarcia@controltechcg.com Issue #98
+			 * (SICDI-Controltech) hotfix-98: Corrección en mensaje de
+			 * asignación para transición "No dar visto bueno" y
+			 * "Devolver para correcciones".
+			 */
+			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
+					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a "));
 			return "redirect:/";
 		}
 
