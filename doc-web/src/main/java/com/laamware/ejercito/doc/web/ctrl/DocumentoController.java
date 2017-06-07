@@ -2158,8 +2158,8 @@ public class DocumentoController extends UtilController {
 			 * (SICDI-Controltech) hotfix-98: Corrección en texto de mensaje de
 			 * asignación de usuario a siguiente transición del documento.
 			 */
-			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
+			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
+					documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 			if (i.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2288,8 +2288,8 @@ public class DocumentoController extends UtilController {
 			 * (SICDI-Controltech) hotfix-98: Corrección en texto de mensaje de
 			 * asignación de usuario a siguiente transición del documento.
 			 */
-			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
+			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
+					documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 			if (i.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3059,8 +3059,8 @@ public class DocumentoController extends UtilController {
 			 * (SICDI-Controltech) hotfix-98: Corrección en texto de mensaje de
 			 * asignación de usuario a siguiente transición del documento.
 			 */
-			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
+			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
+					documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 
 			if (i.transiciones().size() > 0) {
 				return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3947,11 +3947,31 @@ public class DocumentoController extends UtilController {
 			final String documentoID = instanciaOriginal.getVariable(Documento.DOC_ID);
 			final Documento documentoOriginal = documentRepository.getOne(documentoID);
 
+			/*
+			 * 2017-06-07 jgarcia@controltechcg.com Issue #105
+			 * (SICDI-Controltech) feature-73: Validación en generación de nuevo
+			 * documento respuesta para evitar que se creen 2 ó más documentos
+			 * asociados.
+			 */
+			String asuntoNuevo = "RE: " + documentoOriginal.getAsunto();
+			final String relacionadoId = documentoOriginal.getRelacionado();
+			if (relacionadoId != null && !documentoOriginal.getRelacionado().trim().isEmpty()) {
+				Documento documentoRelacionado = documentRepository.getOne(relacionadoId);
+				if (documentoRelacionado != null) {
+					final String asuntoRelacionado = documentoRelacionado.getAsunto();
+					if (asuntoRelacionado != null && asuntoRelacionado.equals(asuntoNuevo)) {
+						redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR,
+								"ERROR: El documento ya cuenta con una respuesta asociada.");
+						return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
+					}
+				}
+			}
+
 			final Usuario usuarioSesion = getUsuario(principal);
 			instanciaOriginal.setAsignado(usuarioSesion);
 
 			Documento documentoNuevo = Documento.create();
-			String asuntoNuevo = "RE: " + documentoOriginal.getAsunto();
+
 			documentoNuevo.setAsunto(asuntoNuevo);
 			documentoNuevo.setElabora(usuarioSesion);
 			documentoNuevo.setClasificacion(documentoOriginal.getClasificacion());
@@ -4012,7 +4032,7 @@ public class DocumentoController extends UtilController {
 
 			// Pone el documento en modo sólo lectura
 			instanciaOriginal.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_SOLO_LECTURA);
-			
+
 			instanciaOriginal.forward(transicionID);
 
 			/*
