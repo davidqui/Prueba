@@ -56,3 +56,13 @@
  		<#return "/documento/reasignar?pin=" + documento.instancia.id />
  	</#if>
  </#function>
+ 
+ <#--
+ 	 2017-06-12 jgarcia@controltechcg.com Issue #93 (SICDI-Controltech) feature-93:
+ 	 Funcionalidad que indica si una transición corresponde a la anulación de un
+ 	 documento respuesta. 
+  -->
+  <#function isTransicionAnularRespuesta transaccion >
+	<#local id = transaccion.id />
+	<#return (id == 127) />
+</#function>

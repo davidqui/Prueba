@@ -1027,9 +1027,12 @@
         		    	<#--
         		    		2017-04-26 jgarcia@controltechcg.com Issue #57 (SICDI-Controltech):
         		    		Cambio en el método que valida si un documento puede presentar o no las transiciones.
-        		    	-->       		        		        	        		        		        	    		        	    		       
+        		    		
+        		    		2017-06-12 jgarcia@controltechcg.com Issue #93 (SICDI-Controltech feature-93:
+        		    		Modificación para evaluar la presentación de transiciones de anulación en documentos respuesta en construcción.
+        		    	-->
+        		    	<#assign transiciones = documento.instancia.transiciones() />          		        	        		        		        	    		        	    		       
 		        		<#if documento.presentarTransiciones() >
-			        		<#assign transiciones = documento.instancia.transiciones() />
 				            <#if transiciones??>
 				                <#list transiciones as transicion >
 					        		<#-- 
@@ -1052,6 +1055,17 @@
 					        		</#if>
 				                </#list>
 				            </#if>
+				        <#--
+				        	2017-06-12 jgarcia@controltechcg.com Issue #93 (SICDI-Controltech feature-93:
+        		    		Modificación para evaluar la presentación de transiciones de anulación en documentos respuesta en construcción.
+				        -->
+				        <#elseif transiciones?? >
+				        	<#list transiciones as transicion >				        		
+				        		<#if (documento.documentoRespuestaEnConstruccion() || documento.documentoRespuestaEnRevisionJefeDependencia())
+				        			&& isTransicionAnularRespuesta(transicion) >
+				        			<a href="${transicion.replace(instancia)}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
+				        		</#if>
+				        	</#list>
 				        </#if>
 				        <#--
 				        	2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
