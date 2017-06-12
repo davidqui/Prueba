@@ -1047,11 +1047,15 @@
 					        		    transición a presentar corresponde a "Anular", para no presentarla dentro de las opciones alusuario en sesión.					        		    
 					        		-->
 					        		<#if !((documento.documentoRespuestaEnConstruccion() || documento.documentoRespuestaEnRevisionJefeDependencia()) 
-					        			&& isTransaccionAnular(transicion)) >
+					        			&& isTransaccionAnular(transicion)) >					        			
 					        			<#--
         									2017-05-19 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech) feature-73
+        									
+        									2017-06-12 jgarcia@controltechcg.com Issue #93 (SICDI-Controltech) feature-93
         								-->
-					                    <a href="${transicion.replace(instancia)}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
+        								<#if !isTransicionAnularRespuesta(transicion) >
+					                    	<a href="${transicion.replace(instancia)}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
+					                    </#if>
 					        		</#if>
 				                </#list>
 				            </#if>

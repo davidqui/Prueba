@@ -69,27 +69,43 @@
 	            				2017-05-11 jgarcia@controltechcg.com Issue #77 (SICDI-Controltech):
 	            				Validación para determinar si se deben presentar transiciones para los documentos. 
 	            			-->
+	            			<#assign transiciones = x.instancia.transiciones() />
 	            			<#if x.presentarTransiciones() >
-				            	<#assign transiciones = x.instancia.transiciones() />
 					            <#if transiciones?? && transiciones?size &gt; 0 >
-					            		<strong>Acciones:</strong>
-										<#list transiciones as t>
-											<#-- 
-							        		    2017-04-07 jgarcia@controltechcg.com Issue #37 (SIGDI-Controltech): Modificación en el template de documento para validar
-							        		    si el documento presentado corresponde a la respuesta de un documento relacionado en estado en construcción. En caso de
-							        		    ser así, se valida si la transacción a presentar corresponde a "Anular", para no presentarla dentro de las opciones al
-							        		    usuario en sesión.
-							        		    
-							        		    2017-05-18 jgarcia@controltechcg.com Issue #87 (SICDI-Controltech) feature-87:
-							        		    Modificación en la bandeja de entrada y template de documento para validar si el documento presentado corresponde a la
-							        		    respuesta de un documento relacionado en estado de revisión por jefe de dependencia. En caso de ser así, se valida si la
-							        		    transición a presentar corresponde a "Anular", para no presentarla dentro de las opciones alusuario en sesión.
-							        		-->
-							        		<#if !((x.documentoRespuestaEnConstruccion() || x.documentoRespuestaEnRevisionJefeDependencia()) && isTransaccionAnular(t)) >
-							                    <a href="${t.replace(x.instancia)}">${t.nombre}...&nbsp;&nbsp;&nbsp;</a>
-							        		</#if>
-						             	</#list>
+				            		<strong>Acciones:</strong>
+									<#list transiciones as t>
+										<#-- 
+						        		    2017-04-07 jgarcia@controltechcg.com Issue #37 (SIGDI-Controltech): Modificación en el template de documento para validar
+						        		    si el documento presentado corresponde a la respuesta de un documento relacionado en estado en construcción. En caso de
+						        		    ser así, se valida si la transacción a presentar corresponde a "Anular", para no presentarla dentro de las opciones al
+						        		    usuario en sesión.
+						        		    
+						        		    2017-05-18 jgarcia@controltechcg.com Issue #87 (SICDI-Controltech) feature-87:
+						        		    Modificación en la bandeja de entrada y template de documento para validar si el documento presentado corresponde a la
+						        		    respuesta de un documento relacionado en estado de revisión por jefe de dependencia. En caso de ser así, se valida si la
+						        		    transición a presentar corresponde a "Anular", para no presentarla dentro de las opciones alusuario en sesión.
+						        		    
+						        		    2017-06-12 jgarcia@controltechcg.com Issue #93 (SICDI-Controltech) feature-93:
+											Ajuste en bandejas para presentación de transiciones de anulación de documentos respuesta.
+						        		-->
+						        		<#if !((x.documentoRespuestaEnConstruccion() || x.documentoRespuestaEnRevisionJefeDependencia()) && isTransaccionAnular(t)) >
+						        			<#if !isTransicionAnularRespuesta(t) >
+						                    	<a href="${t.replace(x.instancia)}">${t.nombre}...&nbsp;&nbsp;&nbsp;</a>
+						                    </#if>
+				        				</#if>				        				
+					             	</#list>
 					            </#if>
+					        <#--
+					        	2017-06-12 jgarcia@controltechcg.com Issue #93 (SICDI-Controltech feature-93:
+	        		    		Modificación para evaluar la presentación de transiciones de anulación en documentos respuesta en construcción.
+					        -->
+				        	<#elseif transiciones?? >
+				        		<strong>Acciones:</strong>
+				        		<#list transiciones as transicion >				        		
+				        			<#if (x.documentoRespuestaEnConstruccion() || x.documentoRespuestaEnRevisionJefeDependencia()) && isTransicionAnularRespuesta(transicion) >
+				        				<a href="${transicion.replace(x.instancia)}">${transicion.nombre}...&nbsp;&nbsp;&nbsp;</a>
+				        			</#if>
+				        		</#list>					            
 				            </#if>
 						</div>
 					</div>

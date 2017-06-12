@@ -2422,8 +2422,8 @@ public class DocumentoController extends UtilController {
 			 * asignación para transición "No dar visto bueno" y
 			 * "Devolver para correcciones".
 			 */
-			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
+			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
+					documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 			return "redirect:/";
 		}
 
@@ -4247,5 +4247,30 @@ public class DocumentoController extends UtilController {
 		} else {
 			return "redirect:/";
 		}
+	}
+
+	/**
+	 * Aplica el proceso de anulación para un documento respuesta en estado de
+	 * creación, regresando el documento original al estado correspondiente al
+	 * manejo de transiciones cíclicas.
+	 * 
+	 * @param instanciaID
+	 *            ID de la instancia del proceso.
+	 * @param transicionID
+	 *            ID de la transición aplicada.
+	 * @param model
+	 *            Modelo de atributos.
+	 * @param principal
+	 *            Información de usuario en sesión.
+	 * @return Instrucciones de redirección del flujo, según las reglas de
+	 *         negocio y validaciones aplicadas.
+	 */
+	// 2017-05-22 jgarcia@controltechcg.com Issue #93 (SICDI-Controltech)
+	// feature-93.
+	@RequestMapping(value = "/anular-respuesta-documento-ciclico", method = RequestMethod.GET)
+	public String anularRespuestaDocumentoCiclico(@RequestParam("pin") String instanciaID,
+			@RequestParam("tid") Integer transicionID, Model model, Principal principal) {
+		// TODO
+		return "redirect:/";
 	}
 }
