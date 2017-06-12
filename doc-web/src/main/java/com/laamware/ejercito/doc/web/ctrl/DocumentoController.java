@@ -4251,8 +4251,8 @@ public class DocumentoController extends UtilController {
 
 	/**
 	 * Aplica el proceso de anulación para un documento respuesta en estado de
-	 * creación, regresando el documento original al estado correspondiente al
-	 * manejo de transiciones cíclicas.
+	 * construcción, regresando el documento original al estado correspondiente
+	 * al manejo de transiciones cíclicas.
 	 * 
 	 * @param instanciaID
 	 *            ID de la instancia del proceso.
@@ -4262,6 +4262,8 @@ public class DocumentoController extends UtilController {
 	 *            Modelo de atributos.
 	 * @param principal
 	 *            Información de usuario en sesión.
+	 * @param redirectAttributes
+	 *            Atributos de redirección.
 	 * @return Instrucciones de redirección del flujo, según las reglas de
 	 *         negocio y validaciones aplicadas.
 	 */
@@ -4269,8 +4271,38 @@ public class DocumentoController extends UtilController {
 	// feature-93.
 	@RequestMapping(value = "/anular-respuesta-documento-ciclico", method = RequestMethod.GET)
 	public String anularRespuestaDocumentoCiclico(@RequestParam("pin") String instanciaID,
-			@RequestParam("tid") Integer transicionID, Model model, Principal principal) {
-		// TODO
+			@RequestParam("tid") Integer transicionID, Model model, Principal principal,
+			RedirectAttributes redirectAttributes) {
+		final Instancia instanciaRespuesta = procesoService.instancia(instanciaID);
+		final String documentoRespuestaID = instanciaRespuesta.getVariable(Documento.DOC_ID);
+		final Documento documentoRespuesta = documentRepository.findOne(documentoRespuestaID);
+		final String asuntoRespuesta = documentoRespuesta.getAsunto();
+
+		final String documentoOriginalID = documentoRespuesta.getRelacionado();
+		final Documento documentoOriginal = documentRepository.getOne(documentoOriginalID);
+		final Instancia instanciaOriginal = documentoOriginal.getInstancia();
+		final Proceso procesoOriginal = instanciaOriginal.getProceso();
+
+		if (procesoOriginal.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
+			Estado estado = new Estado();
+			estado.setId(Estado.REVISIÓN_JEFE_JEFATURA);
+			instanciaOriginal.setEstado(estado);
+		} else if (procesoOriginal.getId().equals(
+				Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)) {
+			Estado estado = new Estado();
+			estado.setId(Estado.ENVIADO);
+			instanciaOriginal.setEstado(estado);
+		}
+
+		documentoOriginal.setRelacionado(null);
+
+		documentRepository.saveAndFlush(documentoOriginal);
+		instanciaRepository.saveAndFlush(instanciaOriginal);
+		instanciaRespuesta.forward(transicionID);
+
+		redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
+				"El documento respuesta \"" + asuntoRespuesta + "\" ha sido anulado exitosamente.");
+
 		return "redirect:/";
 	}
 }
