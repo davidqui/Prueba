@@ -2422,8 +2422,8 @@ public class DocumentoController extends UtilController {
 			 * asignación para transición "No dar visto bueno" y
 			 * "Devolver para correcciones".
 			 */
-			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
+			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosText(
+					documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
 			return "redirect:/";
 		}
 
@@ -3168,22 +3168,18 @@ public class DocumentoController extends UtilController {
 			 * 2017-02-10 jgarcia@controltechcg.com Issue #96: En caso que se
 			 * coloque el estado "En proceso de respuesta", el documento se
 			 * archiva.
-			 */
-			/*
+			 * 
 			 * 2017-02-20 jgarcia@controltechcg.com Issue #138: Corrección para
 			 * que el archivado automático únicamente se realice para el proceso
 			 * interno.
+			 * 
+			 * 2017-06-13 jgarcia@controltechcg.com Issue #102
+			 * (SICDI-Controltech) feature-102: Retiro de la lógica
+			 * correspondiente al archivo automático de documento original para
+			 * el usuario en sesión cuando este selecciona la transición
+			 * "Dar Respuesta" para el proceso de Generación de Documentos
+			 * Internos, solicitado en Febrero/2017.
 			 */
-			if (instanciaOriginal.getEstado().getId() == Estado.EN_PROCESO_DE_RESPUESTA && instanciaOriginal
-					.getProceso()
-					.getId() == Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA) {
-				DocumentoDependencia documentoDependenciaArchivar = new DocumentoDependencia();
-				Trd trd = trdRepository.getOne(documentoOriginal.getTrd().getId());
-				documentoDependenciaArchivar.setDependencia(usuarioSesion.getDependencia());
-				documentoDependenciaArchivar.setDocumento(documentoOriginal);
-				documentoDependenciaArchivar.setTrd(trd);
-				documentoDependenciaRepository.save(documentoDependenciaArchivar);
-			}
 
 			/*
 			 * 2017-05-30 jgarcia@controltechcg.com Issue #98
@@ -4049,16 +4045,14 @@ public class DocumentoController extends UtilController {
 			 * 2017-02-20 jgarcia@controltechcg.com Issue #138: Corrección para
 			 * que el archivado automático únicamente se realice para el proceso
 			 * interno.
+			 * 
+			 * 2017-06-13 jgarcia@controltechcg.com Issue #102
+			 * (SICDI-Controltech) feature-102: Retiro de la lógica
+			 * correspondiente al archivo automático de documento original para
+			 * el usuario en sesión cuando este selecciona la transición
+			 * "Dar Respuesta" para el proceso de Generación de Documentos
+			 * Internos, solicitado en Febrero/2017.
 			 */
-			if (instanciaOriginal.getEstado().getId() == Estado.EN_PROCESO_DE_RESPUESTA && procesoOriginal
-					.getId() == Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA) {
-				DocumentoDependencia documentoDependenciaArchivar = new DocumentoDependencia();
-				Trd trd = trdRepository.getOne(documentoOriginal.getTrd().getId());
-				documentoDependenciaArchivar.setDependencia(usuarioSesion.getDependencia());
-				documentoDependenciaArchivar.setDocumento(documentoOriginal);
-				documentoDependenciaArchivar.setTrd(trd);
-				documentoDependenciaRepository.save(documentoDependenciaArchivar);
-			}
 
 			redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
 					buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, instanciaOriginal,
