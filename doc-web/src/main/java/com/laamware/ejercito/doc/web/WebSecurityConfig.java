@@ -34,7 +34,6 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.LogRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.LdapService;
-import com.laamware.ejercito.doc.web.util.GeneralUtils;
 
 @Configuration
 @EnableWebMvcSecurity
@@ -68,9 +67,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				// Permite iframe del mismo origen
 				.headers().frameOptions().disable()
 				// Permite el acceso a css
-				.authorizeRequests()
-				.antMatchers("/").permitAll()
-				.antMatchers("/scanner/**").permitAll()
+				.authorizeRequests().antMatchers("/").permitAll().antMatchers("/scanner/**").permitAll()
 				.antMatchers("/css/**").permitAll()
 				// Permite el acceso a js
 				.antMatchers("/js/**").permitAll()
@@ -80,7 +77,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/java/**").permitAll()
 				// Permite el acceso a login
 				.antMatchers("/login").permitAll()
-				//.antMatchers("/invitacion").permitAll()
+				// .antMatchers("/invitacion").permitAll()
 				// Permite el acceso a ofs
 				.antMatchers("/ofs/**").permitAll()
 				// Permite el acceso a la página de NoUser
@@ -91,7 +88,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.anyRequest().authenticated().and()
 				// La página de login debe ser pública
 				.formLogin().loginPage("/login").successHandler(successHandler).permitAll().and()
-				//.formLogin().loginPage("/invitacion").successHandler(successHandler).permitAll().and()
+				// .formLogin().loginPage("/invitacion").successHandler(successHandler).permitAll().and()
 				// El recurso de logout debe ser público
 				.logout().logoutUrl("/logout").permitAll().and().exceptionHandling().accessDeniedPage("/access-denied");
 	}
@@ -109,17 +106,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 			@Autowired
 			UsuarioRepository usuR;
-			
+
 			@Autowired
 			LogRepository logRepository;
 
 			@Override
 			public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 					Authentication authentication) throws IOException, ServletException {
+				/*
+				 * 2017-06-15 jgarcia@controltechcg.com Issue #23
+				 * (SICDI-Controltech) hotfix-23: Banderas en proceso de login
+				 * para soporte y depuración.
+				 */
+				// System.out.println(
+				// "WebSecurityConfig.authenticationSuccessHandler().new
+				// AuthenticationSuccessHandler()
+				// {...}.onAuthenticationSuccess()");
+				// System.out.println("authentication.isAuthenticated()=" +
+				// authentication.isAuthenticated());
 
 				if (authentication.isAuthenticated()) {
-					
-					
+
 					String login = authentication.getName();
 					Usuario u = usuR.findByLoginAndActivo(login.toLowerCase(), Boolean.TRUE);
 
@@ -127,11 +134,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 					log.setQuien(login);
 					log.setCuando(new Date());
 					StringBuilder b = new StringBuilder(request.getRequestURI());
-					b.append("|login_success|").append(request.getRemoteAddr()).append("|").append(log.getQuien()).append("|").append(log.getCuando());
+					b.append("|login_success|").append(request.getRemoteAddr()).append("|").append(log.getQuien())
+							.append("|").append(log.getCuando());
 					log.setContenido(b.toString());
-					
+
 					logRepository.save(log);
-					
+
 					if (u == null) {
 						redirectStrategy.sendRedirect(request, response, "/security/nouser");
 
@@ -162,6 +170,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		/*
+		 * 2017-06-15 jgarcia@controltechcg.com Issue #23 (SICDI-Controltech)
+		 * hotfix-23: Banderas en proceso de login para soporte y depuración.
+		 */
+		// System.out.println("WebSecurityConfig.configureGlobal()");
+		// System.out.println("authMode=" + authMode);
 
 		if (authMode.equals("ad")) {
 
@@ -172,11 +186,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			auth.authenticationProvider(new CustomAuthenticationProvider(provider, usuarioRepository));
 
 		} else if (authMode.equals("jdbc")) {
-			auth.jdbcAuthentication()
-			.dataSource(dataSource)
+			auth.jdbcAuthentication().dataSource(dataSource)
 					.authoritiesByUsernameQuery(
 							"select lower(U.USU_LOGIN), pr.rol_id from USUARIO U join perfil_rol pr on u.per_id = pr.per_id  where lower(U.USU_LOGIN) = lower(?)")
-					.usersByUsernameQuery("select USU_LOGIN,USU_PASSWORD,ACTIVO from USUARIO where lower(USU_LOGIN) = lower(?)");
+					.usersByUsernameQuery(
+							"select USU_LOGIN,USU_PASSWORD,ACTIVO from USUARIO where lower(USU_LOGIN) = lower(?)");
 		}
 	}
 

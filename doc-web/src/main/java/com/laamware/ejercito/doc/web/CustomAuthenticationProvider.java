@@ -20,23 +20,38 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
 	UsuarioRepository usuarioRepository;
 
-	public CustomAuthenticationProvider(
-			ActiveDirectoryLdapAuthenticationProvider ldap,
+	public CustomAuthenticationProvider(ActiveDirectoryLdapAuthenticationProvider ldap,
 			UsuarioRepository usuarioRepository) {
 		this.ldap = ldap;
 		this.usuarioRepository = usuarioRepository;
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		try {
+			/*
+			 * 2017-06-15 jgarcia@controltechcg.com Issue #23
+			 * (SICDI-Controltech) hotfix-23: Banderas en proceso de login para
+			 * soporte y depuración.
+			 */
+			// System.out.println("CustomAuthenticationProvider.authenticate()
+			// >>>");
+			// System.out.println("authentication.getName()=" +
+			// authentication.getName());
+			// System.out.println("authentication.getCredentials()=" +
+			// authentication.getCredentials());
+			// System.out.println("authentication.getDetails()=" +
+			// authentication.getDetails());
+			// System.out.println("authentication.getPrincipal()=" +
+			// authentication.getPrincipal());
+
 			ldap.authenticate(authentication);
 		} catch (Exception e) {
 			throw e;
 		}
 
 		List<String> roles = usuarioRepository.allByLogin(authentication.getName().toLowerCase());
+
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 		for (String rol : roles) {
@@ -44,12 +59,20 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		}
 
 		User user = new User(authentication.getName(), "", authorities);
-
 		return new UsernamePasswordAuthenticationToken(user, "", authorities);
 	}
 
 	@Override
 	public boolean supports(Class<?> authentication) {
+		/*
+		 * 2017-06-15 jgarcia@controltechcg.com Issue #23 (SICDI-Controltech)
+		 * hotfix-23: Banderas en proceso de login para soporte y depuración.
+		 */
+		// System.out.println("CustomAuthenticationProvider.supports()");
+		// System.out.println("authentication=" + authentication);
+		// System.out.println("ldap.supports(authentication)" +
+		// ldap.supports(authentication));
+
 		return ldap.supports(authentication);
 	}
 

@@ -51,12 +51,22 @@
 	         -->
         </#if>
         <div class="card" style="background-color: #fff;border-color:#94ce18 ">
-          <#if error?? && Session.SPRING_SECURITY_LAST_EXCEPTION?? && Session.SPRING_SECURITY_LAST_EXCEPTION.message?has_content>
+        <#--
+        	2017-06-15 jgarcia@controltechcg.com Issue #23 (SICDI-Controltech) hotfix-23:
+        	Manejo de condicionales en presentación de mensaje de error en login, ya que
+        	las condiciones implementadas no funcionan con login contra LDAP. 
+         -->
+          <#if error??>
           	<div class="card-block lead">
           		<h1>Lo sentimos...</h1>
           		<p class="alert alert-danger">
           			Nombre de usuario o contraseña no son válidos
           		</p>
+          		<#if Session.SPRING_SECURITY_LAST_EXCEPTION?? && Session.SPRING_SECURITY_LAST_EXCEPTION.message?has_content>
+	          		<p class="small">
+	          			<span class="label label-danger">Mensaje servicio autenticación:</span> ${Session.SPRING_SECURITY_LAST_EXCEPTION.message}
+	          		</p>
+          		</#if>
           		<p>
           			<a href="/login" class="btn btn-primary">Intentar nuevamente</a>
           		</p>
