@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,4 +37,32 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
 
 	@Query(nativeQuery = true, value = "SELECT u.USU_LOGIN, vb.CUANDO, u.USU_NOMBRE, u.USU_GRADO FROM USUARIO_HISTORIAL_FIRMA_IMG vb INNER JOIN USUARIO u ON vb.QUIEN_MOD = u.USU_ID WHERE vb.USU_ID = ? ORDER BY vb.CUANDO DESC")
 	List<Object[]> findHistorialFirmaUsuario(Integer id);
+
+	/**
+	 * Obtiene una lista de los ID de los roles activos asignados a un usuario.
+	 * 
+	 * @param login
+	 *            Login de usuario.
+	 * @return Lista de los ID de los roles activos.
+	 */
+	/*
+	 * 2017-06-22 jgarcia@controltechcg.com Issue #111 (SICDI-Controltech)
+	 * hotfix-111: Implementación de función que obtiene la lista de roles
+	 * activos asignados a un usuario, según el perfil asociado.
+	 */
+	@Query(nativeQuery = true, value = ""
+			+ " SELECT DISTINCT                                                                  "
+			+ " ROL.ROL_ID                                                                       "
+			+ " FROM                                                                             "
+			+ " USUARIO                                                                          "
+			+ " JOIN PERFIL ON (PERFIL.PER_ID = USUARIO.PER_ID)                                  "
+			+ " JOIN PERFIL_ROL ON (PERFIL_ROL.PER_ID = PERFIL.PER_ID)                           "
+			+ " JOIN ROL ON (ROL.ROL_ID = PERFIL_ROL.ROL_ID)                                     "
+			+ " WHERE                                                                            "
+			+ " USUARIO.USU_LOGIN = :login                                                       "
+			+ " AND PERFIL.ACTIVO = 1                                                            "
+			+ " AND PERFIL_ROL.ACTIVO = 1                                                        "
+			+ " AND ROL.ACTIVO = 1                                                               "
+			+ " ORDER BY ROL.ROL_ID                                                              ")
+	List<String> findAllActiveRolByLogin(@Param("login") String login);
 }
