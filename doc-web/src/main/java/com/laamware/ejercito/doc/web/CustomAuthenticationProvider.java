@@ -50,7 +50,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			throw e;
 		}
 
-		List<String> roles = usuarioRepository.allByLogin(authentication.getName().toLowerCase());
+		/*
+		 * 2017-06-22 jgarcia@controltechcg.com Issue #111 (SICDI-Controltech)
+		 * hotfix-111: Cambio en el proveedor de autenticación para invocar
+		 * nueva función que únicamente obtenga la lista de roles activos
+		 * asignados a un usuario.
+		 */
+		List<String> roles = usuarioRepository.findAllActiveRolByLogin(authentication.getName());
 
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 		authorities.add(new SimpleGrantedAuthority("ROLE_USER"));

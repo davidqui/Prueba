@@ -161,17 +161,21 @@ public abstract class UtilController {
 	 * @return True if Principal has any admin role, False instead
 	 */
 	public boolean hasAdminRole() {
+		/*
+		 * 2017-06-22 jgarcia@controltechcg.com Issue #111 (SICDI-Controltech)
+		 * hotfix-111: Corrección en implementación de función utilitaria que
+		 * indica si el usuario tiene rol administrador.
+		 */
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Collection<? extends GrantedAuthority> granted = authentication.getAuthorities();
-		boolean isAdmin = false;
+
 		for (GrantedAuthority grantedAuthority : granted) {
 			if (grantedAuthority.getAuthority().startsWith(AppConstants.PREFIX_ROLE_ADMIN)) {
-				isAdmin = true;
-				break;
+				return true;
 			}
 		}
 
-		return isAdmin;
+		return false;
 	}
 
 	/**
@@ -218,6 +222,7 @@ public abstract class UtilController {
 		}
 
 	}
+
 	/**
 	 * 
 	 * @return The first admin role found for the principal
@@ -355,7 +360,6 @@ public abstract class UtilController {
 			return String.format("redirect:%s", AppConstants.PATH_ADMIN_FORMATOS);
 		if (grantsMap.containsKey(AppConstants.ADMIN_LOG))
 			return String.format("redirect:%s", AppConstants.PATH_ADMIN_LOG);
-		
 
 		else
 			return "redirect:/access-denied";

@@ -186,9 +186,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			auth.authenticationProvider(new CustomAuthenticationProvider(provider, usuarioRepository));
 
 		} else if (authMode.equals("jdbc")) {
+			/*
+			 * 2017-06-22 jgarcia@controltechcg.com Issue #111
+			 * (SICDI-Controltech) hotfix-111: Corrección de consulta SQL que
+			 * obtiene las autoridades (roles) para cada usuario, con el fin que
+			 * ahora únicamente obtenga aquellas autoridades activas en el
+			 * sistema.
+			 */
 			auth.jdbcAuthentication().dataSource(dataSource)
 					.authoritiesByUsernameQuery(
-							"select lower(U.USU_LOGIN), pr.rol_id from USUARIO U join perfil_rol pr on u.per_id = pr.per_id  where lower(U.USU_LOGIN) = lower(?)")
+							" SELECT DISTINCT                                                                            "
+									+ " USUARIO.USU_LOGIN,                                                               "
+									+ " ROL.ROL_ID                                                                       "
+									+ " FROM                                                                             "
+									+ " USUARIO                                                                          "
+									+ " JOIN PERFIL     ON (PERFIL.PER_ID     = USUARIO.PER_ID)                          "
+									+ " JOIN PERFIL_ROL ON (PERFIL_ROL.PER_ID = PERFIL.PER_ID)                           "
+									+ " JOIN ROL        ON (ROL.ROL_ID        = PERFIL_ROL.ROL_ID)                       "
+									+ " WHERE                                                                            "
+									+ " USUARIO.USU_LOGIN     = ?                                                        "
+									+ " AND PERFIL.ACTIVO     = 1                                                        "
+									+ " AND PERFIL_ROL.ACTIVO = 1                                                        "
+									+ " AND ROL.ACTIVO        = 1                                                        ")
 					.usersByUsernameQuery(
 							"select USU_LOGIN,USU_PASSWORD,ACTIVO from USUARIO where lower(USU_LOGIN) = lower(?)");
 		}
