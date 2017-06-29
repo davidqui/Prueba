@@ -172,16 +172,24 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 	 *            Login del usuario.
 	 * @return Lista de documentos en bandeja de consulta.
 	 */
-	// 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
+	/*
+	 * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
+	 * 
+	 * 2017-06-29 jgarcia@controltechcg.com Issue #113 (SICDI-Controltech)
+	 * feature-113: Modificación en sentencia SQL que obtiene los documentos en
+	 * bandeja de apoyo y consulta del usuario en sesión, para presentar la
+	 * información ordenada por la fecha de creación del documento en orden
+	 * descendente.
+	 */
 	@Query(nativeQuery = true, value = ""
-			+ " SELECT                                                                           "
-			+ " DOCUMENTO.*                                                                      "
-			+ " FROM DOCUMENTO                                                                   "
-			+ " JOIN DOCUMENTO_EN_CONSULTA ON (DOCUMENTO_EN_CONSULTA.DOC_ID = DOCUMENTO.DOC_ID)  "
+			+ " SELECT                                                                             "
+			+ " DOCUMENTO.*                                                                        "
+			+ " FROM DOCUMENTO                                                                     "
+			+ " JOIN DOCUMENTO_EN_CONSULTA ON (DOCUMENTO_EN_CONSULTA.DOC_ID = DOCUMENTO.DOC_ID)    "
 			+ " JOIN USUARIO USUARIO_QUIEN ON (USUARIO_QUIEN.USU_ID = DOCUMENTO_EN_CONSULTA.QUIEN) "
-			+ " WHERE DOCUMENTO_EN_CONSULTA.ACTIVO = 1                                           "
-			+ " AND USUARIO_QUIEN.USU_LOGIN = :login                                             "
-			+ " AND USUARIO_QUIEN.ACTIVO = 1                                                     "
-			+ " ORDER BY DOCUMENTO_EN_CONSULTA.CUANDO DESC                                       ")
+			+ " WHERE DOCUMENTO_EN_CONSULTA.ACTIVO = 1                                             "
+			+ " AND USUARIO_QUIEN.USU_LOGIN = :login                                               "
+			+ " AND USUARIO_QUIEN.ACTIVO = 1                                                       "
+			+ " ORDER BY DOCUMENTO.CUANDO DESC                                                     ")
 	List<Documento> findBandejaConsulta(@Param("login") String usuarioLogin);
 }
