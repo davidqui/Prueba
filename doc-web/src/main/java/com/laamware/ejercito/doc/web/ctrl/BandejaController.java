@@ -1,10 +1,13 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import java.security.Principal;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,8 +20,11 @@ import com.laamware.ejercito.doc.web.entity.InstanciaBandeja;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaAdicionalRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaBandejaRepository;
+import com.laamware.ejercito.doc.web.serv.BandejaService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
+import com.laamware.ejercito.doc.web.util.DateUtil;
+import com.laamware.ejercito.doc.web.util.DateUtil.SetTimeType;
 
 @Controller
 @RequestMapping(value = BandejaController.PATH)
@@ -44,6 +50,14 @@ public class BandejaController extends UtilController {
 	// dependencias adicionales a un documento.
 	@Autowired
 	DocumentoDependenciaAdicionalRepository documentoDependenciaAdicionalRepository;
+
+	/*
+	 * 2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Implementación de servicio para manejo de filtros por fecha
+	 * para la presentación de las bandejas diferentes a entrada.
+	 */
+	@Autowired
+	private BandejaService bandejaService;
 
 	@PreAuthorize("hasRole('BANDEJAS')")
 	@RequestMapping(value = "/entrada", method = RequestMethod.GET)
@@ -81,12 +95,30 @@ public class BandejaController extends UtilController {
 
 	@PreAuthorize("hasRole('BANDEJAS')")
 	@RequestMapping(value = "/enviados", method = RequestMethod.GET)
-	public String enviados(Model model, Principal principal) {
+	public String enviados(Model model, Principal principal,
+			@RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+			@RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
 
-		List<Documento> docs = docR.findBandejaEnviados(principal.getName());
-		for (Documento d : docs) {
-			d.getInstancia().getCuando();
-			d.getInstancia().setService(procesoService);
+		if (fechaFinal == null) {
+			fechaFinal = new Date();
+		}
+		DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
+
+		if (fechaInicial == null) {
+			fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
+		}
+		DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
+
+		System.out.println("fechaInicial=" + fechaInicial);
+		System.out.println("fechaFinal=" + fechaFinal);
+
+		final String login = principal.getName();
+		List<Documento> documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal);
+		System.out.println("documentos=" + documentos.size());
+
+		for (Documento documento : documentos) {
+			documento.getInstancia().getCuando();
+			documento.getInstancia().setService(procesoService);
 
 			/*
 			 * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de
@@ -102,11 +134,11 @@ public class BandejaController extends UtilController {
 			 * destinos o no.
 			 */
 			String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
-					usuarioService, d.getInstancia(), null, true);
-			d.setTextoAsignado(asignadosText);
+					usuarioService, documento.getInstancia(), null, true);
+			documento.setTextoAsignado(asignadosText);
 
 		}
-		model.addAttribute("documentos", docs);
+		model.addAttribute("documentos", documentos);
 
 		/*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)

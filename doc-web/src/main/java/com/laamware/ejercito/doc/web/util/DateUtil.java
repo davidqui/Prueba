@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.util;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
@@ -8,7 +9,6 @@ import java.util.GregorianCalendar;
  * 
  * @author jgarcia@controltechcg.com
  * @since Feb 6, 2017
- *
  */
 public final class DateUtil {
 
@@ -44,7 +44,7 @@ public final class DateUtil {
 	 *         00:00:00; si se indicó el tipo {@code SetTimeType#END_TIME} la
 	 *         hora queda establecida como 23:59:59.
 	 */
-	public static <T extends java.util.Date> T setTime(T date, SetTimeType timeType) {
+	public static <T extends Date> T setTime(T date, SetTimeType timeType) {
 		Calendar calendar = GregorianCalendar.getInstance();
 		calendar.setTime(date);
 
@@ -53,6 +53,32 @@ public final class DateUtil {
 		} else {
 			setTime(calendar, 23, 59, 59);
 		}
+
+		date.setTime(calendar.getTimeInMillis());
+		return date;
+	}
+
+	/**
+	 * Adiciona a la fecha la cantidad indicada al campo establecido.
+	 * 
+	 * @param date
+	 *            Fecha.
+	 * @param calendarField
+	 *            Campo de la clase {@link Calendar}
+	 * @param amount
+	 *            Cantidad a adicionar.
+	 * @return Instancia de fecha ingresada, modificada en la cantidad indicada
+	 *         sobre el campo establecido.
+	 */
+	/*
+	 * 2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115
+	 */
+	public static <T extends Date> T add(T date, int calendarField, int amount) {
+		Calendar calendar = GregorianCalendar.getInstance();
+		calendar.setTime(date);
+
+		calendar.add(calendarField, amount);
 
 		date.setTime(calendar.getTimeInMillis());
 		return date;

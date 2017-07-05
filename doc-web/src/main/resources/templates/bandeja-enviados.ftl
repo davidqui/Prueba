@@ -15,6 +15,21 @@
 	    <p class="lead">En este momento no existen documentos en esta bandeja</p>
 	  </div>
 	<#else>
+		<#--
+			2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech) feature-115:
+			Adición de formulario con fitro de fecha en bandejas diferentes a la de entrada.	 
+		 -->
+	  <form action="/bandeja/enviados" method="GET">
+	  	<fieldset class="form-group">
+	  		<label>Fecha Inicial</label>
+	  		<input class="form-control datepicker" id="fechaInicial" name="fechaInicial" value=""/>
+	  	</fieldset>
+	  	<fieldset class="form-group">
+	  		<label>Fecha Final</label>
+	  		<input class="form-control datepicker" id="fechaFinal" name="fechaFinal" value=""/>
+	  	</fieldset>
+	  	<button type="submit" class="btn btn-success">Buscar</button>
+	  </form> 
       <#list documentos as x>
       	<div class="card">
       		<div class="card-block">
