@@ -25,7 +25,7 @@
 		<#assign fechaFinalValor = "" />
 	</#if>
 	  
-  	<form action="/bandeja/apoyo-consulta" method="GET" class="form-inline">
+  	<form action="/bandeja/apoyo-consulta" method="POST" class="form-inline">
   		<div class="form-group">
   			<label for="fechaInicial">Fecha Inicial</label>
   			<input class="form-control datepicker" id="fechaInicial" name="fechaInicial" value="${fechaInicialValor}" />

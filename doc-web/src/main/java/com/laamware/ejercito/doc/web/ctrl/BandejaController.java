@@ -112,7 +112,7 @@ public class BandejaController extends UtilController {
 	 * de fechas, utilizando un servicio del modelo de negocio.
 	 */
 	@PreAuthorize("hasRole('BANDEJAS')")
-	@RequestMapping(value = "/enviados", method = RequestMethod.GET)
+	@RequestMapping(value = "/enviados", method = {RequestMethod.GET, RequestMethod.POST})
 	public String enviados(Model model, Principal principal,
 			@RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
 			@RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
@@ -185,7 +185,7 @@ public class BandejaController extends UtilController {
 	 * de fechas, utilizando un servicio del modelo de negocio.
 	 */
 	@PreAuthorize("hasRole('BANDEJAS')")
-	@RequestMapping(value = "/entramite", method = RequestMethod.GET)
+	@RequestMapping(value = "/entramite", method = {RequestMethod.GET, RequestMethod.POST})
 	public String entramite(Model model, Principal principal,
 			@RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
 			@RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
@@ -244,7 +244,7 @@ public class BandejaController extends UtilController {
 	 * @return Identificador del template de la bandeja.
 	 */
 	@PreAuthorize("hasRole('BANDEJAS')")
-	@RequestMapping(value = "/apoyo-consulta", method = RequestMethod.GET)
+	@RequestMapping(value = "/apoyo-consulta", method = {RequestMethod.GET, RequestMethod.POST})
 	/*
 	 * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
 	 * 
