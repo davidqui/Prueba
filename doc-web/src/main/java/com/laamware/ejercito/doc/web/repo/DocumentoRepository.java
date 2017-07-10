@@ -122,20 +122,26 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 			+ " ORDER BY DOCUMENTO.CUANDO_MOD DESC                                               ")
 	List<Documento> findBandejaEntrada(@Param("login") String login);
 
-	@Query(nativeQuery = true, value = "select doc.*                "
-			+ "  from DOCUMENTO doc                                 "
-			+ "  join S_INSTANCIA_USUARIO hpin                      "
-			+ "    on doc.PIN_ID = hpin.PIN_ID                      "
-			+ "  join PROCESO_INSTANCIA pin                         "
-			+ "    on doc.PIN_ID = pin.PIN_ID                       "
-			+ "  join PROCESO_ESTADO est                            "
-			+ "    on est.PES_ID = pin.PES_ID                       "
-			+ "  join USUARIO usu                                   "
-			+ "    on hpin.USU_ID = usu.USU_ID                      "
-			+ " where usu.USU_LOGIN = ?                             "
-			+ "   and est.PES_FINAL != 1                            "
-			+ " order by doc.CUANDO desc                            ")
-	List<Documento> findBandejaTramite(String name);
+	/*
+	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
+	 * por rango de fechas.
+	 */
+	@Query(nativeQuery = true, value = ""
+			+ " SELECT                                                                           "
+			+ " DOC.*                                                                            "
+			+ " FROM DOCUMENTO DOC                                                               "
+			+ " JOIN S_INSTANCIA_USUARIO HPIN ON (DOC.PIN_ID = HPIN.PIN_ID)                      "
+			+ " JOIN PROCESO_INSTANCIA   PIN  ON (DOC.PIN_ID = PIN.PIN_ID)                       "
+			+ " JOIN PROCESO_ESTADO      EST  ON (EST.PES_ID = PIN.PES_ID)                       "
+			+ " JOIN USUARIO             USU  ON (HPIN.USU_ID = USU.USU_ID)                      "
+			+ " WHERE                                                                            "
+			+ " USU.USU_LOGIN = ?                                                                "
+			+ " AND EST.PES_FINAL != 1                                                           "
+			+ " AND DOC.CUANDO BETWEEN ? AND ?                                                   "
+			+ " ORDER BY                                                                         "
+			+ " DOC.CUANDO DESC                                                                  ")
+	List<Documento> findBandejaTramite(String name, Date fechaInicial, Date fechaFinal);
 
 	/*
 	 * 2017-03-27 jgarcia@controltechcg.com Issue #22 (SIGDI-Incidencias01):

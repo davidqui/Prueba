@@ -56,4 +56,20 @@ public final class BandejaService {
 		return documentoRepository.findBandejaEnviados(login, fechaInicial, fechaFinal);
 	}
 
+	/**
+	 * Obtiene los documentos de la bandeja en trámite de un usuario para el
+	 * rango de fechas indicado.
+	 * 
+	 * @param login
+	 *            Login del usuario.
+	 * @param fechaInicial
+	 *            Fecha inicial del rango de búsqueda.
+	 * @param fechaFinal
+	 *            Fecha final del rango de búsqueda.
+	 * @return Lista de documentos.
+	 */
+	public List<Documento> obtenerDocumentosBandejaTramite(String login, Date fechaInicial, Date fechaFinal) {
+		return documentoRepository.findBandejaTramite(login, fechaInicial, fechaFinal);
+	}
+
 }

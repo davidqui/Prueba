@@ -151,7 +151,7 @@ public class BandejaController extends UtilController {
 					usuarioService, documento.getInstancia(), null, true);
 			documento.setTextoAsignado(asignadosText);
 		}
-		
+
 		model.addAttribute("documentos", documentos);
 		model.addAttribute("fechaInicial", fechaInicial);
 		model.addAttribute("fechaFinal", fechaFinal);
@@ -166,16 +166,50 @@ public class BandejaController extends UtilController {
 		return "bandeja-enviados";
 	}
 
+	/**
+	 * Presenta los documentos de la bandeja en trámite del usuario en sesión.
+	 * 
+	 * @param model
+	 *            Modelo de presentación.
+	 * @param principal
+	 *            Atributos de autenticación.
+	 * @param fechaInicial
+	 *            Fecha inicial del rango de filtro (Opcional).
+	 * @param fechaFinal
+	 *            Fecha final del rango de filtro (Opcional).
+	 * @return Lista de documentos en trámite del usuario.
+	 */
+	/*
+	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de controlador de bandejas para manejo de rango
+	 * de fechas, utilizando un servicio del modelo de negocio.
+	 */
 	@PreAuthorize("hasRole('BANDEJAS')")
 	@RequestMapping(value = "/entramite", method = RequestMethod.GET)
-	public String entramite(Model model, Principal principal) {
+	public String entramite(Model model, Principal principal,
+			@RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+			@RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
 
-		List<Documento> docs = docR.findBandejaTramite(principal.getName());
-		for (Documento d : docs) {
-			d.getInstancia().getCuando();
-			d.getInstancia().setService(procesoService);
+		if (fechaFinal == null) {
+			fechaFinal = new Date();
 		}
-		model.addAttribute("documentos", docs);
+		DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
+
+		if (fechaInicial == null) {
+			fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
+		}
+		DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
+
+		final String login = principal.getName();
+		List<Documento> documentos = bandejaService.obtenerDocumentosBandejaTramite(login, fechaInicial, fechaFinal);
+		for (Documento documento : documentos) {
+			documento.getInstancia().getCuando();
+			documento.getInstancia().setService(procesoService);
+		}
+
+		model.addAttribute("documentos", documentos);
+		model.addAttribute("fechaInicial", fechaInicial);
+		model.addAttribute("fechaFinal", fechaFinal);
 
 		/*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
