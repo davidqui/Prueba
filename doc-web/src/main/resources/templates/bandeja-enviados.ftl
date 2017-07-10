@@ -25,15 +25,15 @@
 		<#assign fechaFinalValor = "" />
 	</#if>
 	  
-  	<form action="/bandeja/enviados" method="GET">
-  		<fieldset class="form-group">
-  			<label>Fecha Inicial</label>
+  	<form action="/bandeja/enviados" method="GET" class="form-inline">
+  		<div class="form-group">
+  			<label for="fechaInicial">Fecha Inicial</label>
   			<input class="form-control datepicker" id="fechaInicial" name="fechaInicial" value="${fechaInicialValor}" />
-  		</fieldset>
-  		<fieldset class="form-group">
+  		</div>
+  		<div class="form-group">
   			<label>Fecha Final</label>
   			<input class="form-control datepicker" id="fechaFinal" name="fechaFinal" value="${fechaFinalValor}" />
-  		</fieldset>
+  		</div>
   		<button type="submit" class="btn btn-success">Buscar</button>
   	</form>
   	
@@ -46,8 +46,13 @@
 	    <h2 class="display-1">No hay documentos para el rango.</h2>
 	    <p class="lead">No existen documentos en esta bandeja para el rango de fechas seleccionado entre ${fechaInicialValor} y ${fechaFinalValor}.</p>
 	  </div>
-	<#else>
-		<span>${documentos?size} documentos entre ${fechaInicialValor} y ${fechaFinalValor}.</span>
+	<#else>	
+		<div style="margin-top:10px; margin-bottom:10px;">
+			<span class="label label-default" style="font-size:12px;">
+				${documentos?size} documentos entre ${fechaInicialValor} y ${fechaFinalValor}.
+			</span>
+		</div>
+		
       <#list documentos as x>
       	<div class="card">
       		<div class="card-block">
