@@ -93,6 +93,24 @@ public class BandejaController extends UtilController {
 		return "bandeja-entrada";
 	}
 
+	/**
+	 * Presenta los documentos de la bandeja de enviados del usuario en sesión.
+	 * 
+	 * @param model
+	 *            Modelo de presentación.
+	 * @param principal
+	 *            Atributos de autenticación.
+	 * @param fechaInicial
+	 *            Fecha inicial del rango de filtro (Opcional).
+	 * @param fechaFinal
+	 *            Fecha final del rango de filtro (Opcional).
+	 * @return Lista de documentos enviados del usuario.
+	 */
+	/*
+	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de controlador de bandejas para manejo de rango
+	 * de fechas, utilizando un servicio del modelo de negocio.
+	 */
 	@PreAuthorize("hasRole('BANDEJAS')")
 	@RequestMapping(value = "/enviados", method = RequestMethod.GET)
 	public String enviados(Model model, Principal principal,
@@ -109,12 +127,8 @@ public class BandejaController extends UtilController {
 		}
 		DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
-		System.out.println("fechaInicial=" + fechaInicial);
-		System.out.println("fechaFinal=" + fechaFinal);
-
 		final String login = principal.getName();
 		List<Documento> documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal);
-		System.out.println("documentos=" + documentos.size());
 
 		for (Documento documento : documentos) {
 			documento.getInstancia().getCuando();
@@ -136,9 +150,11 @@ public class BandejaController extends UtilController {
 			String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
 					usuarioService, documento.getInstancia(), null, true);
 			documento.setTextoAsignado(asignadosText);
-
 		}
+		
 		model.addAttribute("documentos", documentos);
+		model.addAttribute("fechaInicial", fechaInicial);
+		model.addAttribute("fechaFinal", fechaFinal);
 
 		/*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
