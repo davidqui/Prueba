@@ -197,6 +197,10 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 	 * bandeja de apoyo y consulta del usuario en sesión, para presentar la
 	 * información ordenada por la fecha de creación del documento en orden
 	 * descendente.
+	 * 
+	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
+	 * por rango de fechas.
 	 */
 	@Query(nativeQuery = true, value = ""
 			+ " SELECT                                                                             "
@@ -204,9 +208,12 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 			+ " FROM DOCUMENTO                                                                     "
 			+ " JOIN DOCUMENTO_EN_CONSULTA ON (DOCUMENTO_EN_CONSULTA.DOC_ID = DOCUMENTO.DOC_ID)    "
 			+ " JOIN USUARIO USUARIO_QUIEN ON (USUARIO_QUIEN.USU_ID = DOCUMENTO_EN_CONSULTA.QUIEN) "
-			+ " WHERE DOCUMENTO_EN_CONSULTA.ACTIVO = 1                                             "
+			+ " WHERE                                                                              "
+			+ " DOCUMENTO_EN_CONSULTA.ACTIVO = 1                                                   "
 			+ " AND USUARIO_QUIEN.USU_LOGIN = :login                                               "
 			+ " AND USUARIO_QUIEN.ACTIVO = 1                                                       "
+			+ " AND DOCUMENTO.CUANDO BETWEEN :fechaInicial AND :fechaFinal                         "
 			+ " ORDER BY DOCUMENTO.CUANDO DESC                                                     ")
-	List<Documento> findBandejaConsulta(@Param("login") String usuarioLogin);
+	List<Documento> findBandejaConsulta(@Param("login") String usuarioLogin, @Param("fechaInicial") Date fechaInicial,
+			@Param("fechaFinal") Date fechaFinal);
 }

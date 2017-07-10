@@ -9,12 +9,50 @@
     <p class="lead">No se puede construir la bandeja debido a un problema interno del sistema. Intente nuevamente por favor.</p>
   </div>
 <#else>
+	<#--
+		2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech) feature-115:
+		Adición de formulario con fitro de fecha en bandejas diferentes a la de entrada.	 
+	 -->
+	<#if fechaInicial??>
+		<#assign fechaInicialValor = fechaInicial?string["yyyy-MM-dd"] />
+	<#else>
+		<#assign fechaInicialValor = "" />
+	</#if>
+	
+	<#if fechaFinal??>
+		<#assign fechaFinalValor = fechaFinal?string["yyyy-MM-dd"] />
+	<#else>
+		<#assign fechaFinalValor = "" />
+	</#if>
+	  
+  	<form action="/bandeja/apoyo-consulta" method="GET" class="form-inline">
+  		<div class="form-group">
+  			<label for="fechaInicial">Fecha Inicial</label>
+  			<input class="form-control datepicker" id="fechaInicial" name="fechaInicial" value="${fechaInicialValor}" />
+  		</div>
+  		<div class="form-group">
+  			<label>Fecha Final</label>
+  			<input class="form-control datepicker" id="fechaFinal" name="fechaFinal" value="${fechaFinalValor}" />
+  		</div>
+  		<button type="submit" class="btn btn-success">Buscar</button>
+  	</form>
+  	
+  	<#--
+  		2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech) feature-115:
+  		Modificación presentación de mensaje de resultados, para hacer referencia al rango de fechas.
+  	-->
 	<#if !documentos?? || documentos?size == 0 >
 	  <div class="jumbotron">
-	    <h2 class="display-1">No hay más documentos</h2>
-	    <p class="lead">En este momento no existen documentos en esta bandeja</p>
+	    <h2 class="display-1">No hay documentos para el rango.</h2>
+	    <p class="lead">No existen documentos en esta bandeja para el rango de fechas seleccionado entre ${fechaInicialValor} y ${fechaFinalValor}.</p>
 	  </div>
 	<#else>
+		<div style="margin-top:10px; margin-bottom:10px;">
+			<span class="label label-default" style="font-size:12px;">
+				${documentos?size} documentos entre ${fechaInicialValor} y ${fechaFinalValor}.
+			</span>
+		</div>
+			
       <#list documentos as x>
       	<div class="card">
       		<div class="card-block">

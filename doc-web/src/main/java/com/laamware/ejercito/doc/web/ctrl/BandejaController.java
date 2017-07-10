@@ -237,14 +237,37 @@ public class BandejaController extends UtilController {
 	 *            Modelo.
 	 * @param principal
 	 *            Principal.
+	 * @param fechaInicial
+	 *            Fecha inicial del rango de filtro (Opcional).
+	 * @param fechaFinal
+	 *            Fecha final del rango de filtro (Opcional).
 	 * @return Identificador del template de la bandeja.
 	 */
 	@PreAuthorize("hasRole('BANDEJAS')")
 	@RequestMapping(value = "/apoyo-consulta", method = RequestMethod.GET)
-	// 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
-	public String apoyoConsulta(Model model, Principal principal) {
+	/*
+	 * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
+	 * 
+	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de controlador de bandejas para manejo de rango
+	 * de fechas, utilizando un servicio del modelo de negocio.
+	 */
+	public String apoyoConsulta(Model model, Principal principal,
+			@RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+			@RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
+
+		if (fechaFinal == null) {
+			fechaFinal = new Date();
+		}
+		DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
+
+		if (fechaInicial == null) {
+			fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
+		}
+		DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
+		
 		final String login = principal.getName();
-		final List<Documento> documentos = docR.findBandejaConsulta(login);
+		final List<Documento> documentos = bandejaService.obtenerDocumentosBandejaApoyoConsulta(login, fechaInicial, fechaFinal);
 
 		for (Documento documento : documentos) {
 			documento.getInstancia().getCuando();
@@ -252,6 +275,8 @@ public class BandejaController extends UtilController {
 		}
 
 		model.addAttribute("documentos", documentos);
+		model.addAttribute("fechaInicial", fechaInicial);
+		model.addAttribute("fechaFinal", fechaFinal);		
 
 		/*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)

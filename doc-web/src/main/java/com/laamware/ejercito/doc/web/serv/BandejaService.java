@@ -72,4 +72,20 @@ public final class BandejaService {
 		return documentoRepository.findBandejaTramite(login, fechaInicial, fechaFinal);
 	}
 
+	/**
+	 * Obtiene los documentos de la bandeja de apoyo y consulta de un usuario
+	 * para el rango de fechas indicado.
+	 * 
+	 * @param login
+	 *            Login del usuario.
+	 * @param fechaInicial
+	 *            Fecha inicial del rango de búsqueda.
+	 * @param fechaFinal
+	 *            Fecha final del rango de búsqueda.
+	 * @return Lista de documentos.
+	 */
+	public List<Documento> obtenerDocumentosBandejaApoyoConsulta(String login, Date fechaInicial, Date fechaFinal) {
+		return documentoRepository.findBandejaConsulta(login, fechaInicial, fechaFinal);
+	}
+
 }
