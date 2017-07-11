@@ -126,6 +126,10 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
 	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
 	 * por rango de fechas.
+	 * 
+	 * 2017-07-11 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación en fecha de filtro de dato de creación por dato
+	 * de última modificación del documento.
 	 */
 	@Query(nativeQuery = true, value = ""
 			+ " SELECT                                                                           "
@@ -138,7 +142,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 			+ " WHERE                                                                            "
 			+ " USU.USU_LOGIN = ?                                                                "
 			+ " AND EST.PES_FINAL != 1                                                           "
-			+ " AND DOC.CUANDO BETWEEN ? AND ?                                                   "
+			+ " AND DOC.CUANDO_MOD BETWEEN ? AND ?                                               "
 			+ " ORDER BY                                                                         "
 			+ " DOC.CUANDO DESC                                                                  ")
 	List<Documento> findBandejaTramite(String name, Date fechaInicial, Date fechaFinal);
