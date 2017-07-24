@@ -53,7 +53,13 @@ public final class BandejaService {
 	 */
 	public List<Documento> obtenerDocumentosBandejaEnviados(final String login, final Date fechaInicial,
 			final Date fechaFinal) {
-		return documentoRepository.findBandejaEnviados(login, fechaInicial, fechaFinal);
+		/*
+		 * 2017-07-25 jgarcia@controltechcg.com Issue #118 (SICDI-Controltech)
+		 * hotfix-118: Corrección en la sentencia SQL de la bandeja de enviados,
+		 * para que no presente documentos cuyo usuario asignado actual
+		 * corresponda al usuario en sesión.
+		 */
+		return documentoRepository.findBandejaEnviados(login, login, fechaInicial, fechaFinal);
 	}
 
 	/**

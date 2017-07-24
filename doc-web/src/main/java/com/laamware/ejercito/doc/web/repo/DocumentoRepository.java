@@ -155,21 +155,34 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 	 * 2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
 	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
 	 * por rango de fechas.
+	 * 
+	 * 2017-07-25 jgarcia@controltechcg.com Issue #118 (SICDI-Controltech)
+	 * hotfix-118: Corrección en la sentencia SQL de la bandeja de enviados,
+	 * para que no presente documentos cuyo usuario asignado actual corresponda
+	 * al usuario en sesión.
 	 */
 	@Query(nativeQuery = true, value = ""
-			+ " SELECT EST.PES_ID, DOC.*                                                         "
+			+ " SELECT EST.PES_ID,                                                               "
+			+ " DOC.*                                                                            "
 			+ " FROM DOCUMENTO DOC                                                               "
-			+ " JOIN S_INSTANCIA_USUARIO HPIN ON DOC.PIN_ID = HPIN.PIN_ID                        "
-			+ " JOIN PROCESO_INSTANCIA PIN ON DOC.PIN_ID = PIN.PIN_ID                            "
-			+ " JOIN PROCESO_ESTADO EST ON EST.PES_ID = PIN.PES_ID                               "
-			+ " JOIN USUARIO USU ON HPIN.USU_ID = USU.USU_ID                                     "
-			+ " WHERE USU.USU_LOGIN = ?                                                          "
-			+ " AND DOC.DOC_RADICADO IS NOT NULL                                                 "
-			+ " AND EST.PES_FINAL = 1                                                            "
-			+ " AND EST.PES_ID NOT IN (83, 101)                                                  "
+			+ " JOIN S_INSTANCIA_USUARIO HPIN                                                    "
+			+ " ON DOC.PIN_ID = HPIN.PIN_ID                                                      "
+			+ " JOIN PROCESO_INSTANCIA PIN                                                       "
+			+ " ON DOC.PIN_ID = PIN.PIN_ID                                                       "
+			+ " JOIN PROCESO_ESTADO EST                                                          "
+			+ " ON EST.PES_ID = PIN.PES_ID                                                       "
+			+ " JOIN USUARIO USU                                                                 "
+			+ " ON HPIN.USU_ID = USU.USU_ID                                                      "
+			+ " JOIN USUARIO USU_ASIGNADO                                                        "
+			+ " ON (USU_ASIGNADO.USU_ID     = PIN.USU_ID_ASIGNADO)                               "
+			+ " WHERE USU.USU_LOGIN         = ?                                                  "
+			+ " AND USU_ASIGNADO.USU_LOGIN <> ?                                                  "
+			+ " AND DOC.DOC_RADICADO       IS NOT NULL                                           "
+			+ " AND EST.PES_FINAL           = 1                                                  "
+			+ " AND EST.PES_ID NOT         IN (83, 101)                                          "
 			+ " AND DOC.CUANDO_MOD BETWEEN ? AND ?                                               "
 			+ " ORDER BY DOC.CUANDO_MOD DESC                                                     ")
-	List<Documento> findBandejaEnviados(String name, Date fechaInicial, Date fechaFinal);
+	List<Documento> findBandejaEnviados(String login, String loginAsignado, Date fechaInicial, Date fechaFinal);
 
 	@Query(nativeQuery = true, value = "SELECT u.USU_LOGIN, vb.CUANDO, u.USU_NOMBRE, u.USU_GRADO FROM DOCUMENTO_USU_VISTOS_BUENOS vb INNER JOIN USUARIO u ON vb.USU_ID_VISTO_BUENO = u.USU_ID WHERE vb.DOC_ID = ? ORDER BY vb.CUANDO ASC")
 	List<Object[]> findVistosBuenosDocumentos(String docID);
