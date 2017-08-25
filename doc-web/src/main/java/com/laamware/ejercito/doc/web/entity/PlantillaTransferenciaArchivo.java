@@ -90,7 +90,7 @@ public class PlantillaTransferenciaArchivo implements Serializable {
     /**
      * Fecha.
      */
-    @Column(name = "FIRMA_MD5")
+    @Column(name = "CUANDO")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fecha;
 

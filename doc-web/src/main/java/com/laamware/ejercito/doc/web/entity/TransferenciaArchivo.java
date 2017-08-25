@@ -141,7 +141,7 @@ public class TransferenciaArchivo implements Serializable {
     /**
      * Cargo del usuario origen.
      */
-    @Column(name = "CREADOR_USU_CARGO")
+    @Column(name = "ORIGEN_USU_CARGO")
     private String origenCargo;
 
     /**
