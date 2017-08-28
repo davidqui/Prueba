@@ -205,7 +205,8 @@ public class TransferenciaArchivo implements Serializable {
     }
 
     /**
-     * Constructor.
+     * Constructor. Crea el registro como activo y con estado
+     * {@link #CREADA_ESTADO}.
      *
      * @param creadorUsuario Usuario creador.
      * @param creadorDependencia Dependencia del usuario creador.
@@ -247,6 +248,9 @@ public class TransferenciaArchivo implements Serializable {
         this.destinoGrado = destinoGrado;
         this.destinoCargo = destinoCargo;
         this.numeroDocumentos = numeroDocumentos;
+
+        activo = true;
+        estado = CREADA_ESTADO;
     }
 
     /**
