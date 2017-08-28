@@ -5,7 +5,7 @@
 <#include "header.ftl" />
 
 <div class="container-fluid">
-    <h4>TRANSFERENCIA DE ARCHIVOS</h4>
+    <h4>${pageTitle}</h4>
 
     <div class="container-fluid">
         <form method="POST">
@@ -13,14 +13,14 @@
             <div class="form-group row">
                 <label for="origenUsuario" class="col-sm-2 col-form-label text-xs-right">Usuario Origen</label>
                 <div class="col-sm-10">
-                    <input type="text" name="origenUsuario" class="form-control" />
+                    <input type="text" name="origenUsuario" class="form-control" value="${usuario.id}"/>
                     </div>
                 </div>
 
             <div class="form-group row">
                 <label for="destinoUsuario" class="col-sm-2 col-form-label text-xs-right">Usuario Destino</label>
                 <div class="col-sm-10">
-                    <input type="text" name="destinoUsuario" class="form-control" />
+                    <input type="text" name="destinoUsuario" class="form-control" value="1147" />
                     </div>
                 </div>
 

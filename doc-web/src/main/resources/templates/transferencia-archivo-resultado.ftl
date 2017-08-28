@@ -1,27 +1,21 @@
-<#ftl strip_whitespace = true>
+<#assign pageTitle = "TRANSFERENCIA DE ARCHIVOS" />
+<#assign deferredJS = "" />
 
-<#setting boolean_format=computer>
-<#import "/libs/mylib.ftl" as my>
+<#import "spring.ftl" as spring />
+<#include "header.ftl" />
 
-<#assign charset="UTF-8">
-<#assign title="Example">
-<#assign content>
-This is content
-</#assign>
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>${title}</title>
-        <meta charset="${charset}">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-    <body><#if content??>
-        <div>${content}</div>
-		<#else>
-        <div>No content</div>
-		</#if>
-		<@my.function>parameter</@my.function>
+<div class="container-fluid">
+    <h4>${pageTitle}</h4>
 
+    <div class="container-fluid">
+        <form action="crear" method="GET">
 
-        </body>
-    </html>
+            <div class="text-center">
+                <button id="btn-ok" type="submit" class="btn btn-success btn-lg">Cerrar</button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+<#include "footer.ftl" />

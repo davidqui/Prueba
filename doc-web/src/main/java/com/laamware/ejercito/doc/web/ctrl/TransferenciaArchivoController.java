@@ -109,18 +109,23 @@ public class TransferenciaArchivoController extends UtilController {
             @RequestParam("destinoUsuario") Integer destinoUsuarioID,
             @RequestParam("tipoTransferencia") String tipoTransferencia,
             Principal principal, Model model) {
-        LOG.log(Level.INFO, "tipoTransferencia = {0}", tipoTransferencia);
-        LOG.log(Level.INFO, "destinoUsuario = {0}", destinoUsuarioID);
-        LOG.log(Level.INFO, "origenUsuario = {0}", origenUsuarioID);
+        try {
+            LOG.log(Level.INFO, "tipoTransferencia = {0}", tipoTransferencia);
+            LOG.log(Level.INFO, "destinoUsuario = {0}", destinoUsuarioID);
+            LOG.log(Level.INFO, "origenUsuario = {0}", origenUsuarioID);
 
-        final Usuario creadorUsuario = getUsuario(principal);
-        final Usuario origenUsuario = usuarioRepository.findOne(origenUsuarioID);
-        final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
+            final Usuario creadorUsuario = getUsuario(principal);
+            final Usuario origenUsuario = usuarioRepository.findOne(origenUsuarioID);
+            final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
 
-        final TransferenciaArchivo transferencia
-                = transferenciaService.crearTransferencia(creadorUsuario,
-                        origenUsuario, destinoUsuario, null);
-        model.addAttribute("transferencia", transferencia);
+            final TransferenciaArchivo transferencia
+                    = transferenciaService.crearTransferencia(creadorUsuario,
+                            origenUsuario, destinoUsuario, null);
+            model.addAttribute("transferencia", transferencia);
+
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, null, e);
+        }
 
         return "transferencia-archivo-resultado";
     }
