@@ -35,6 +35,16 @@ public class TransferenciaArchivo implements Serializable {
     private static final long serialVersionUID = 3630553950712061442L;
 
     /**
+     * Tipo de transferencia total.
+     */
+    public static final String TOTAL_TIPO = "T";
+
+    /**
+     * Tipo de transferencia parcial.
+     */
+    public static final String PARCIAL_TIPO = "P";
+
+    /**
      * Estado de transferencia creada.
      */
     public static final String CREADA_ESTADO = "C";
@@ -68,6 +78,13 @@ public class TransferenciaArchivo implements Serializable {
      */
     @Column(name = "ACTIVO")
     private Boolean activo;
+
+    /**
+     * Tipo de transferencia.
+     */
+    @Size(max = 1)
+    @Column(name = "TIPO_TRANSFERENCIA")
+    private String tipo;
 
     /**
      * Estado.
@@ -199,6 +216,13 @@ public class TransferenciaArchivo implements Serializable {
     private String actaOFS;
 
     /**
+     * ID de la transferencia anterior a transferir de nuevo mediante
+     * transferencia tipo {@link #PARCIAL_TIPO}.
+     */
+    @Column(name = "TAR_ANTERIOR")
+    private Integer transferenciaAnteriorID;
+
+    /**
      * Constructor vacío.
      */
     public TransferenciaArchivo() {
@@ -206,8 +230,11 @@ public class TransferenciaArchivo implements Serializable {
 
     /**
      * Constructor. Crea el registro como activo y con estado
-     * {@link #CREADA_ESTADO}.
+     * {@link #CREADA_ESTADO}. El registro inicial queda con 0 documentos, en
+     * espera que la continuación del proceso de creación establezca el valor
+     * correcto.
      *
+     * @param tipo Tipo de transferencia.
      * @param creadorUsuario Usuario creador.
      * @param creadorDependencia Dependencia del usuario creador.
      * @param creadorGrado Grado del usuario creador.
@@ -223,15 +250,17 @@ public class TransferenciaArchivo implements Serializable {
      * @param destinoClasificacion Clasificación del usuario destino.
      * @param destinoGrado Grado del usuario destino.
      * @param destinoCargo Cargo del usuario destino.
-     * @param numeroDocumentos Número de documentos.
+     * @param transferenciaAnteriorID ID de la transferencia anterior.
      */
-    public TransferenciaArchivo(Usuario creadorUsuario, Dependencia creadorDependencia,
-            Grados creadorGrado, String creadorCargo, Date fechaCreacion,
-            Usuario origenUsuario, Dependencia origenDependencia,
-            Clasificacion origenClasificacion, Grados origenGrado, String origenCargo,
-            Usuario destinoUsuario, Dependencia destinoDependencia,
-            Clasificacion destinoClasificacion, Grados destinoGrado,
-            String destinoCargo, Integer numeroDocumentos) {
+    public TransferenciaArchivo(String tipo, Usuario creadorUsuario,
+            Dependencia creadorDependencia, Grados creadorGrado,
+            String creadorCargo, Date fechaCreacion, Usuario origenUsuario,
+            Dependencia origenDependencia, Clasificacion origenClasificacion,
+            Grados origenGrado, String origenCargo, Usuario destinoUsuario,
+            Dependencia destinoDependencia, Clasificacion destinoClasificacion,
+            Grados destinoGrado, String destinoCargo,
+            Integer transferenciaAnteriorID) {
+        this.tipo = tipo;
         this.creadorUsuario = creadorUsuario;
         this.creadorDependencia = creadorDependencia;
         this.creadorGrado = creadorGrado;
@@ -247,10 +276,11 @@ public class TransferenciaArchivo implements Serializable {
         this.destinoClasificacion = destinoClasificacion;
         this.destinoGrado = destinoGrado;
         this.destinoCargo = destinoCargo;
-        this.numeroDocumentos = numeroDocumentos;
+        this.transferenciaAnteriorID = transferenciaAnteriorID;
 
         activo = true;
         estado = CREADA_ESTADO;
+        numeroDocumentos = 0;
     }
 
     /**
@@ -302,6 +332,9 @@ public class TransferenciaArchivo implements Serializable {
      * Establece el estado.
      *
      * @param estado Estado.
+     * @see #APROBADA_ESTADO
+     * @see #CREADA_ESTADO
+     * @see #RECHAZADA_ESTADO
      */
     public void setEstado(String estado) {
         this.estado = estado;
@@ -633,30 +666,70 @@ public class TransferenciaArchivo implements Serializable {
         this.actaOFS = actaOFS;
     }
 
+    /**
+     * Obtiene el tipo de transferencia.
+     *
+     * @return Tipo.
+     */
+    public String getTipo() {
+        return tipo;
+    }
+
+    /**
+     * Establece el tipo de transferencia.
+     *
+     * @param tipo Tipo
+     * @see #TOTAL_TIPO
+     * @see #PARCIAL_TIPO
+     */
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    /**
+     * Obtiene el ID de la transferencia anterior.
+     *
+     * @return ID.
+     */
+    public Integer getTransferenciaAnteriorID() {
+        return transferenciaAnteriorID;
+    }
+
+    /**
+     * Establece el ID de la transferencia anterior.
+     *
+     * @param transferenciaAnteriorID ID.
+     */
+    public void setTransferenciaAnteriorID(Integer transferenciaAnteriorID) {
+        this.transferenciaAnteriorID = transferenciaAnteriorID;
+    }
+
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 47 * hash + Objects.hashCode(this.id);
-        hash = 47 * hash + Objects.hashCode(this.activo);
-        hash = 47 * hash + Objects.hashCode(this.estado);
-        hash = 47 * hash + Objects.hashCode(this.creadorUsuario);
-        hash = 47 * hash + Objects.hashCode(this.creadorDependencia);
-        hash = 47 * hash + Objects.hashCode(this.creadorGrado);
-        hash = 47 * hash + Objects.hashCode(this.creadorCargo);
-        hash = 47 * hash + Objects.hashCode(this.fechaCreacion);
-        hash = 47 * hash + Objects.hashCode(this.origenUsuario);
-        hash = 47 * hash + Objects.hashCode(this.origenDependencia);
-        hash = 47 * hash + Objects.hashCode(this.origenClasificacion);
-        hash = 47 * hash + Objects.hashCode(this.origenGrado);
-        hash = 47 * hash + Objects.hashCode(this.origenCargo);
-        hash = 47 * hash + Objects.hashCode(this.destinoUsuario);
-        hash = 47 * hash + Objects.hashCode(this.destinoDependencia);
-        hash = 47 * hash + Objects.hashCode(this.destinoClasificacion);
-        hash = 47 * hash + Objects.hashCode(this.destinoGrado);
-        hash = 47 * hash + Objects.hashCode(this.destinoCargo);
-        hash = 47 * hash + Objects.hashCode(this.numeroDocumentos);
-        hash = 47 * hash + Objects.hashCode(this.fechaAprobacion);
-        hash = 47 * hash + Objects.hashCode(this.actaOFS);
+        int hash = 5;
+        hash = 79 * hash + Objects.hashCode(this.id);
+        hash = 79 * hash + Objects.hashCode(this.activo);
+        hash = 79 * hash + Objects.hashCode(this.tipo);
+        hash = 79 * hash + Objects.hashCode(this.estado);
+        hash = 79 * hash + Objects.hashCode(this.creadorUsuario);
+        hash = 79 * hash + Objects.hashCode(this.creadorDependencia);
+        hash = 79 * hash + Objects.hashCode(this.creadorGrado);
+        hash = 79 * hash + Objects.hashCode(this.creadorCargo);
+        hash = 79 * hash + Objects.hashCode(this.fechaCreacion);
+        hash = 79 * hash + Objects.hashCode(this.origenUsuario);
+        hash = 79 * hash + Objects.hashCode(this.origenDependencia);
+        hash = 79 * hash + Objects.hashCode(this.origenClasificacion);
+        hash = 79 * hash + Objects.hashCode(this.origenGrado);
+        hash = 79 * hash + Objects.hashCode(this.origenCargo);
+        hash = 79 * hash + Objects.hashCode(this.destinoUsuario);
+        hash = 79 * hash + Objects.hashCode(this.destinoDependencia);
+        hash = 79 * hash + Objects.hashCode(this.destinoClasificacion);
+        hash = 79 * hash + Objects.hashCode(this.destinoGrado);
+        hash = 79 * hash + Objects.hashCode(this.destinoCargo);
+        hash = 79 * hash + Objects.hashCode(this.numeroDocumentos);
+        hash = 79 * hash + Objects.hashCode(this.fechaAprobacion);
+        hash = 79 * hash + Objects.hashCode(this.actaOFS);
+        hash = 79 * hash + Objects.hashCode(this.transferenciaAnteriorID);
         return hash;
     }
 
@@ -672,6 +745,9 @@ public class TransferenciaArchivo implements Serializable {
             return false;
         }
         final TransferenciaArchivo other = (TransferenciaArchivo) obj;
+        if (!Objects.equals(this.tipo, other.tipo)) {
+            return false;
+        }
         if (!Objects.equals(this.estado, other.estado)) {
             return false;
         }
@@ -732,7 +808,10 @@ public class TransferenciaArchivo implements Serializable {
         if (!Objects.equals(this.numeroDocumentos, other.numeroDocumentos)) {
             return false;
         }
-        return Objects.equals(this.fechaAprobacion, other.fechaAprobacion);
+        if (!Objects.equals(this.fechaAprobacion, other.fechaAprobacion)) {
+            return false;
+        }
+        return Objects.equals(this.transferenciaAnteriorID, other.transferenciaAnteriorID);
     }
 
 }

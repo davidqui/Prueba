@@ -1,3 +1,5 @@
+<#setting number_format="computer">
+
 <#assign pageTitle = "TRANSFERENCIA DE ARCHIVOS" />
 <#assign deferredJS = "" />
 
@@ -24,12 +26,37 @@
                     </div>
                 </div>
 
+            <#assign tipoTransferenciaTotal = !tipoTransferencia?? || tipoTransferencia == "T" />
+
             <div class="form-group row">
                 <label for="tipoTransferencia" class="col-sm-2 col-form-label text-xs-right">Tipo Transferencia</label>
                 <div class="col-sm-10">
-                    <input type="radio" name="tipoTransferencia" value="T">Total<br>
-                    <input type="radio" name="tipoTransferencia" value="P">Parcial (Recibida previamente)<br>
+                    <input type="radio" name="tipoTransferencia" value="T" <#if  tipoTransferenciaTotal> checked="checked" </#if> >Total<br>
+                    <input type="radio" name="tipoTransferencia" value="P" <#if !tipoTransferenciaTotal> checked="checked" </#if> >Parcial (Recibida previamente)<br>
                     </div>    
+                </div>
+
+            <div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Seleccionar</th>
+                            <th>Fecha</th>
+                            <th>Usuario Origen</th> 
+                            <th>Núm. Documentos</th>
+                            </tr>
+                        </thead>
+                    <tbody>
+                        <#list transferenciasRecibidas as transferenciasRecibida >
+                        <tr>
+                            <th><input type="radio" name="transferenciaAnterior" value="${transferenciasRecibida.id}" /></th>
+                            <td>${transferenciasRecibida.fechaAprobacion?string('yyyy-MM-dd hh:mm:ss a')}</td>
+                            <td>${transferenciasRecibida.origenUsuario.login}</td>
+                            <td>${transferenciasRecibida.numeroDocumentos}</td>
+                            </tr>
+                        </#list>
+                        </tbody>
+                    </table>
                 </div>
 
             <div class="text-center">
