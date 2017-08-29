@@ -6,3 +6,13 @@
 <#function getUsuarioDescripcion usuario >
     <#return usuario.grado + " " + usuario.nombre + " - [" + usuario.clasificacion.nombre + "]" />
 </#function>
+
+<#function getTipoDescripcion tipo >
+    <#if tipo == "T" >
+        <#return "Total" />
+    <#elseif tipo == "P">
+        <#return "Parcial (Recibida previamente)" />
+    <#else>
+        <#return "TIPO NO VÁLIDO: " + tipo />
+    </#if>
+</#function>

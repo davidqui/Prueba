@@ -25,7 +25,7 @@
                 <label for="destinoUsuario" class="col-sm-2 col-form-label text-xs-right">Usuario Destino</label>
                 <div class="col-sm-10">
                     <input type="text" name="destinoUsuario_visible" class="form-control" value="${getUsuarioDescripcion(origenUsuario)}" disabled />
-                    <input type="hidden" name="destinoUsuario" value="1147" />
+                    <input type="hidden" name="destinoUsuario" value="261" />
                     </div>
                 </div>
 
@@ -34,8 +34,8 @@
             <div class="form-group row">
                 <label for="tipoTransferencia" class="col-sm-2 col-form-label text-xs-right">Tipo Transferencia</label>
                 <div class="col-sm-10">
-                    <input type="radio" name="tipoTransferencia" value="T" <#if  tipoTransferenciaTotal> checked="checked" </#if> >Total<br>
-                    <input type="radio" name="tipoTransferencia" value="P" <#if !tipoTransferenciaTotal> checked="checked" </#if> >Parcial (Recibida previamente)<br>
+                    <input type="radio" name="tipoTransferencia" value="T" <#if  tipoTransferenciaTotal> checked="checked" </#if> >${getTipoDescripcion("T")}<br>
+                    <input type="radio" name="tipoTransferencia" value="P" <#if !tipoTransferenciaTotal> checked="checked" </#if> >${getTipoDescripcion("P")}<br>
                     </div>    
                 </div>
 

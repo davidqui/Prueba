@@ -14,6 +14,7 @@ import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import java.util.Date;
 import java.util.List;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class TransferenciaArchivoService {
+
+    /**
+     * Datasource del sistema.
+     */
+    @Autowired
+    private DataSource dataSource;
 
     /**
      * Repositorio de maestro de transferencia.
@@ -215,6 +222,11 @@ public class TransferenciaArchivoService {
 
         transferenciaRepository.save(transferencia);
 
+        // TODO: Quitar!.
+        if (true) {
+            return transferencia;
+        }
+
         final List<DocumentoDependencia> registrosArchivo;
         if (transferenciaAnterior == null) {
             registrosArchivo = documentoDependenciaRepository
@@ -252,7 +264,8 @@ public class TransferenciaArchivoService {
      */
     @Transactional
     private void procesarRegistroArchivo(final TransferenciaArchivo transferencia,
-            final DocumentoDependencia documentoDependencia, final Date fechaAsignacion) {
+            final DocumentoDependencia documentoDependencia,
+            final Date fechaAsignacion) {
 
         final Usuario anteriorUsuario
                 = usuarioRepository.findOne(documentoDependencia.getQuien());
@@ -267,6 +280,27 @@ public class TransferenciaArchivoService {
                         transferencia.getDestinoUsuario(), fechaAsignacion);
 
         detalleRepository.saveAndFlush(detalle);
+
+        // TODO: Descomentar para pruebas de transferencia.
+//        documentoDependencia.setDependencia(transferencia.getDestinoDependencia());
+//        documentoDependencia.setCuando(fechaAsignacion);
+//        documentoDependencia.setQuien(transferencia.getDestinoUsuario().getId());
+//        documentoDependenciaRepository.save(documentoDependencia);
+//
+//        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+//        String sql = ""
+//                + "UPDATE \n"
+//                + " DOCUMENTO_DEPENDENCIA \n"
+//                + "SET \n"
+//                + " DOCUMENTO_DEPENDENCIA.QUIEN = ? \n"
+//                + "WHERE \n"
+//                + " DOCUMENTO_DEPENDENCIA.DCDP_ID = ? \n"
+//                + "";
+//        Object[] params = {
+//            transferencia.getDestinoUsuario().getId(),
+//            documentoDependencia.getId()
+//        };
+//        jdbcTemplate.update(sql, params);
     }
 
 }
