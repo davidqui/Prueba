@@ -5,6 +5,7 @@
 
 <#import "spring.ftl" as spring />
 <#include "header.ftl" />
+<#include "lib/transferencia-archivo_functions.ftl" />
 
 <div class="container-fluid">
     <h4>${pageTitle}</h4>
@@ -15,14 +16,16 @@
             <div class="form-group row">
                 <label for="origenUsuario" class="col-sm-2 col-form-label text-xs-right">Usuario Origen</label>
                 <div class="col-sm-10">
-                    <input type="text" name="origenUsuario" class="form-control" value="${usuario.id}"/>
+                    <input type="text" name="origenUsuario_visible" class="form-control" value="${getUsuarioDescripcion(origenUsuario)}" disabled />
+                    <input type="hidden" name="origenUsuario" value="${origenUsuario.id}" />
                     </div>
                 </div>
 
             <div class="form-group row">
                 <label for="destinoUsuario" class="col-sm-2 col-form-label text-xs-right">Usuario Destino</label>
                 <div class="col-sm-10">
-                    <input type="text" name="destinoUsuario" class="form-control" value="1147" />
+                    <input type="text" name="destinoUsuario_visible" class="form-control" value="${getUsuarioDescripcion(origenUsuario)}" disabled />
+                    <input type="hidden" name="destinoUsuario" value="1147" />
                     </div>
                 </div>
 

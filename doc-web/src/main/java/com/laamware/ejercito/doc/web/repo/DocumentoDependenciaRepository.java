@@ -82,7 +82,7 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
             + "WHERE \n"
             + "        DOCUMENTO_DEPENDENCIA.QUIEN =:usuarioID \n"
             + "    AND \n"
-            + "        TRANSFERENCIA_ARCHIVO_DETALLE.TAR_ID = transferenciaArchivoID"
+            + "        TRANSFERENCIA_ARCHIVO_DETALLE.TAR_ID = :transferenciaArchivoID"
             + "")
     List<DocumentoDependencia> findAllByUsuarioAndTransferenciaArchivo(
             @Param("usuarioID") Integer usuarioID,
