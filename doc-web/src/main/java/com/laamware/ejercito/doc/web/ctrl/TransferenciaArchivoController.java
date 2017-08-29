@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Usuario;
@@ -99,7 +100,9 @@ public class TransferenciaArchivoController extends UtilController {
         final List<TransferenciaArchivo> transferenciasRecibidas
                 = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
-        
+
+        model.addAttribute("tipoTransferencia", tipoTransferencia);
+
         if (destinoUsuarioID == null) {
             model.addAttribute(AppConstants.FLASH_ERROR,
                     "Debe seleccionar un usuario destino de la transferencia.");
@@ -107,53 +110,34 @@ public class TransferenciaArchivoController extends UtilController {
         }
 
         final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
-        if (destinoUsuario.getId().equals(origenUsuario.getId())) {
-            model.addAttribute(AppConstants.FLASH_ERROR,
-                    "Debe seleccionar un usuario destino diferente al usuario origen.");
-            return "transferencia-archivo-crear";
-        }
+        model.addAttribute("destinoUsuario", origenUsuario);
 
-        if (!destinoUsuario.getActivo()) {
+        final TransferenciaArchivoValidacionDTO validacionDTO
+                = transferenciaService.validarTransferencia(origenUsuario,
+                        destinoUsuario, tipoTransferencia);
+        if (!validacionDTO.isOK()) {
             model.addAttribute(AppConstants.FLASH_ERROR,
-                    "Debe seleccionar un usuario destino activo.");
-            return "transferencia-archivo-crear";
-        }
-
-        if (destinoUsuario.getClasificacion() == null) {
-            model.addAttribute(AppConstants.FLASH_ERROR,
-                    "El usuario " + destinoUsuario.getGrado() + " "
-                    + destinoUsuario.getNombre() + " no tiene una clasificación "
-                    + "configurada en el sistema.");
-            return "transferencia-archivo-crear";
-        }
-
-        if (!destinoUsuario.getClasificacion().getActivo()) {
-            model.addAttribute(AppConstants.FLASH_ERROR,
-                    "El usuario " + destinoUsuario.getGrado() + " "
-                    + destinoUsuario.getNombre() + " no tiene una clasificación "
-                    + "activa en el sistema ["
-                    + destinoUsuario.getClasificacion().getNombre()
-                    + "].");
-            return "transferencia-archivo-crear";
-        }
-
-        if (destinoUsuario.getClasificacion().getOrden()
-                .compareTo(origenUsuario.getClasificacion().getOrden()) < 0) {
-            model.addAttribute(AppConstants.FLASH_ERROR,
-                    "El usuario destino " + destinoUsuario.getGrado() + " "
-                    + destinoUsuario.getNombre() + " tiene una clasificación "
-                    + "menor ["
-                    + destinoUsuario.getClasificacion().getNombre()
-                    + "] que la clasificación del usuario origen "
-                    + origenUsuario.getGrado() + " " + origenUsuario.getNombre()
-                    + " ["
-                    + origenUsuario.getClasificacion().getNombre()
-                    + "]"
-                    + ".");
+                    buildFlashErrorMessage(validacionDTO));
             return "transferencia-archivo-crear";
         }
 
         return "transferencia-archivo-confirmar";
+    }
+
+    /**
+     * Construye el mensaje de error a partir del DTO de validación.
+     *
+     * @param validacionDTO DTO de validación.
+     * @return Mensaje de error.
+     */
+    private String buildFlashErrorMessage(final TransferenciaArchivoValidacionDTO validacionDTO) {
+        final StringBuilder builder = new StringBuilder();
+
+        for (String error : validacionDTO) {
+            builder.append(error).append(" ");
+        }
+
+        return builder.toString().trim();
     }
 
     /**

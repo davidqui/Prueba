@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
@@ -76,6 +77,100 @@ public class TransferenciaArchivoService {
             final Integer destinoUsuario) {
         return transferenciaRepository
                 .findAllRecibidasActivasByDestinoUsuario(destinoUsuario);
+    }
+
+    /**
+     * Valida los parámetros de entrada el proceso de transferencia.
+     *
+     * @param origenUsuario Usuario origen de la transferencia.
+     * @param destinoUsuario Usuario destino de la transferencia.
+     * @param tipoTransferencia Tipo de transferencia.
+     * @return DTO con los resultados de la validación.
+     */
+    public TransferenciaArchivoValidacionDTO validarTransferencia(
+            final Usuario origenUsuario, final Usuario destinoUsuario,
+            final String tipoTransferencia) {
+        final TransferenciaArchivoValidacionDTO validacionDTO
+                = new TransferenciaArchivoValidacionDTO();
+
+        if (origenUsuario == null) {
+            validacionDTO.addError("Debe seleccionar un usuario origen de la "
+                    + "transferencia.");
+        } else {
+            if (origenUsuario.getClasificacion() == null) {
+                validacionDTO.addError("El usuario origen "
+                        + getUsuarioDescripcion(origenUsuario, false) + " no "
+                        + "tiene una clasificación configurada en el sistema.");
+            } else if (!origenUsuario.getClasificacion().getActivo()) {
+                validacionDTO.addError("El usuario origen "
+                        + getUsuarioDescripcion(origenUsuario, false) + " no "
+                        + "tiene una clasificación activa en el sistema ["
+                        + origenUsuario.getClasificacion().getNombre()
+                        + "].");
+            }
+        }
+
+        if (destinoUsuario == null) {
+            validacionDTO.addError("Debe seleccionar un usuario destino de la "
+                    + "transferencia.");
+        } else if (!destinoUsuario.getActivo()) {
+            validacionDTO.addError("El usuario destino "
+                    + getUsuarioDescripcion(destinoUsuario, false) + " no "
+                    + "se encuentra activo en el sistema.");
+        } else {
+            if (destinoUsuario.getClasificacion() == null) {
+                validacionDTO.addError("El usuario destino "
+                        + getUsuarioDescripcion(destinoUsuario, false) + " no "
+                        + "tiene una clasificación configurada en el sistema.");
+            } else if (!destinoUsuario.getClasificacion().getActivo()) {
+                validacionDTO.addError("El usuario destino "
+                        + getUsuarioDescripcion(destinoUsuario, false) + " no "
+                        + "tiene una clasificación activa en el sistema ["
+                        + destinoUsuario.getClasificacion().getNombre()
+                        + "].");
+            }
+        }
+
+        if (origenUsuario != null && destinoUsuario != null) {
+            if (destinoUsuario.getId().equals(origenUsuario.getId())) {
+                validacionDTO.addError("Debe seleccionar un usuario destino "
+                        + "diferente al usuario origen.");
+            } else if (origenUsuario.getClasificacion() != null
+                    && destinoUsuario.getClasificacion() != null
+                    && destinoUsuario.getClasificacion().getOrden()
+                            .compareTo(origenUsuario.getClasificacion()
+                                    .getOrden()) < 0) {
+                validacionDTO.addError(
+                        "El usuario destino "
+                        + getUsuarioDescripcion(destinoUsuario, true) + " tiene "
+                        + "una clasificación menor que la clasificación del "
+                        + "usuario origen "
+                        + getUsuarioDescripcion(origenUsuario, true) + ".");
+            }
+        }
+
+        return validacionDTO;
+    }
+
+    /**
+     * Obtiene la descripción del usuario.
+     *
+     * @param usuario Usuario.
+     * @param conClasificacion {@code true} indica que se debe presentar la
+     * clasificación del usuario.
+     * @return Descripción.
+     */
+    public String getUsuarioDescripcion(final Usuario usuario,
+            final boolean conClasificacion) {
+        String descripcion = usuario.getGrado() + " "
+                + usuario.getNombre();
+
+        if (!conClasificacion) {
+            return descripcion;
+        }
+
+        descripcion += " [" + usuario.getClasificacion().getNombre() + "]";
+        return descripcion;
     }
 
     /**
