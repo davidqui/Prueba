@@ -24,10 +24,16 @@
             <div class="form-group row">
                 <label for="destinoUsuario" class="col-sm-2 col-form-label text-xs-right">Usuario Destino</label>
                 <div class="col-sm-10">
-                    <input type="text" name="destinoUsuario_visible" class="form-control" value="${getUsuarioDescripcion(origenUsuario)}" disabled />
-                    <input type="hidden" name="destinoUsuario" value="261" />
+                    <div class="input-group">
+                        <input type="text" id="destinoUsuario_buscar" name="destinoUsuario_buscar" class="form-control" value="" placeholder="Ingrese el documento de identidad del usuario a buscar..." />
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-primary" onclick="buscarUsuarioActivo()">Buscar</button>
+                            </div> 
+                        </div> 
+                    <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="" disabled />
                     </div>
-                </div>
+                <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
+                </div>            
 
             <#assign tipoTransferenciaTotal = !tipoTransferencia?? || tipoTransferencia == "T" />
 
@@ -68,6 +74,9 @@
 
             </form>
         </div>
-
     </div>
+
+<script src="/js/app/transferencia-archivo-crear.js">
+    </script>
+
 <#include "footer.ftl" />
