@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
@@ -110,7 +111,14 @@ public class TransferenciaArchivoController extends UtilController {
         }
 
         final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
-        model.addAttribute("destinoUsuario", origenUsuario);
+        model.addAttribute("destinoUsuario", destinoUsuario);
+
+        // TODO: Buscar cuando es transferencia parcial.
+        final List<DocumentoDependencia> registrosArchivo
+                = transferenciaService.findRegistrosArchivo(tipoTransferencia,
+                        null, origenUsuario);
+
+        model.addAttribute("registrosArchivo", registrosArchivo);
 
         final TransferenciaArchivoValidacionDTO validacionDTO
                 = transferenciaService.validarTransferencia(origenUsuario,

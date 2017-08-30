@@ -29,7 +29,7 @@
                         <td><strong>Tipo de transferencia:</strong></td>
                         <td>${getTipoDescripcion(tipoTransferencia)}</td>
                         </tr>    
-                    <#if tipoTransferencia == "T" >
+                    <#if tipoTransferencia == "P" >
                     <tr>
                         <td><strong><i>Fecha aplicación transferencia seleccionada:</strong></i></td>
                         <td><i>TODO</i></td>
@@ -41,7 +41,7 @@
                     </#if>
                     <tr>
                         <td><strong>Número de documentos:</strong></td>
-                        <td>TODO</td>
+                        <td>${registrosArchivo?size}</td>
                         </tr> 
 
                     </tbody>

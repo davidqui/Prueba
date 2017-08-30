@@ -227,18 +227,12 @@ public class TransferenciaArchivoService {
             return transferencia;
         }
 
-        final List<DocumentoDependencia> registrosArchivo;
-        if (transferenciaAnterior == null) {
-            registrosArchivo = documentoDependenciaRepository
-                    .findAllActivoByUsuario(origenUsuario.getId());
-        } else {
-            registrosArchivo = documentoDependenciaRepository
-                    .findAllByUsuarioAndTransferenciaArchivo(origenUsuario.getId(),
-                            transferenciaAnterior.getId());
-        }
+        final List<DocumentoDependencia> registrosArchivo
+                = findRegistrosArchivo(tipoTransferencia, transferenciaAnterior,
+                        origenUsuario);
 
-        for (DocumentoDependencia documentoDependencia : registrosArchivo) {
-            procesarRegistroArchivo(transferencia, documentoDependencia, ahora);
+        for (DocumentoDependencia registroArchivo : registrosArchivo) {
+            procesarRegistroArchivo(transferencia, registroArchivo, ahora);
         }
 
         transferencia.setNumeroDocumentos(registrosArchivo.size());
@@ -256,26 +250,50 @@ public class TransferenciaArchivoService {
     }
 
     /**
+     * Busca la lista de registros de archivo a transferir.
+     *
+     * @param tipoTransferencia Tipo de transferencia.
+     * @param transferenciaAnterior Transferencia anterior seleccionado, en caso
+     * que el tipo de transferencia sea
+     * {@link TransferenciaArchivo#PARCIAL_TIPO}.
+     * @param origenUsuario Usuario origen de la transferencia.
+     * @return Lista de registros de archivo a transferir.
+     */
+    public List<DocumentoDependencia> findRegistrosArchivo(final String tipoTransferencia,
+            final TransferenciaArchivo transferenciaAnterior,
+            final Usuario origenUsuario) {
+        if (tipoTransferencia.equals(TransferenciaArchivo.TOTAL_TIPO)) {
+            return documentoDependenciaRepository
+                    .findAllActivoByUsuario(origenUsuario.getId());
+        }
+
+        return documentoDependenciaRepository
+                .findAllByUsuarioAndTransferenciaArchivo(origenUsuario.getId(),
+                        transferenciaAnterior.getId());
+
+    }
+
+    /**
      * Procesa un registro de archivo para su transferencia.
      *
      * @param transferencia Transferencia de archivo maestro.
-     * @param documentoDependencia Registro de archivo.
+     * @param registroArchivo Registro de archivo.
      * @param fechaAsignacion Fecha de asignación.
      */
     @Transactional
     private void procesarRegistroArchivo(final TransferenciaArchivo transferencia,
-            final DocumentoDependencia documentoDependencia,
+            final DocumentoDependencia registroArchivo,
             final Date fechaAsignacion) {
 
         final Usuario anteriorUsuario
-                = usuarioRepository.findOne(documentoDependencia.getQuien());
+                = usuarioRepository.findOne(registroArchivo.getQuien());
 
         final TransferenciaArchivoDetalle detalle
                 = new TransferenciaArchivoDetalle(transferencia,
-                        documentoDependencia,
-                        documentoDependencia.getDocumento().getId(),
-                        documentoDependencia.getDependencia(), anteriorUsuario,
-                        documentoDependencia.getCuando(),
+                        registroArchivo,
+                        registroArchivo.getDocumento().getId(),
+                        registroArchivo.getDependencia(), anteriorUsuario,
+                        registroArchivo.getCuando(),
                         transferencia.getDestinoDependencia(),
                         transferencia.getDestinoUsuario(), fechaAsignacion);
 

@@ -35,16 +35,23 @@
                 <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
                 </div>            
 
-            <#assign tipoTransferenciaTotal = !tipoTransferencia?? || tipoTransferencia == "T" />
+            <#assign tipoTransferenciaTotal = !tipoTransferencia?? || transferenciasRecibidas?size == 0 || tipoTransferencia == "T" />
 
             <div class="form-group row">
                 <label for="tipoTransferencia" class="col-sm-2 col-form-label text-xs-right">Tipo Transferencia</label>
                 <div class="col-sm-10">
                     <input type="radio" name="tipoTransferencia" value="T" <#if  tipoTransferenciaTotal> checked="checked" </#if> >${getTipoDescripcion("T")}<br>
-                    <input type="radio" name="tipoTransferencia" value="P" <#if !tipoTransferenciaTotal> checked="checked" </#if> >${getTipoDescripcion("P")}<br>
+                    <input type="radio" name="tipoTransferencia" value="P" <#if !tipoTransferenciaTotal> checked="checked" </#if> 
+                        <#if transferenciasRecibidas?size == 0> disabled </#if> >${getTipoDescripcion("P")}<br>
                     </div>    
                 </div>
 
+            <#if transferenciasRecibidas?size == 0 >
+            <h6><span class="label label-default font-weight-normal">No tiene transferencias previas recibidas.</span></h6>
+            <#else>
+            <h5>
+                <span class="label label-info font-weight-normal">Transferencias previas recibidas:<strong>${transferenciasRecibidas?size}</strong></span>
+                </h5>
             <div>
                 <table class="table table-striped">
                     <thead>
@@ -67,6 +74,8 @@
                         </tbody>
                     </table>
                 </div>
+            </#if>
+
 
             <div class="text-center">
                 <button type="submit" class="btn btn-success btn-lg">Aceptar</button>
