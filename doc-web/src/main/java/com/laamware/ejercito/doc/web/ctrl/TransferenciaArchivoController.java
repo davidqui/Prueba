@@ -158,11 +158,11 @@ public class TransferenciaArchivoController extends UtilController {
         final Usuario origenUsuario = usuarioRepository.findOne(origenUsuarioID);
         final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
 
-        final TransferenciaArchivo transferencia
+        final TransferenciaArchivo nuevatransferencia
                 = transferenciaService.crearTransferencia(creadorUsuario,
                         origenUsuario, destinoUsuario, tipoTransferencia,
                         null);
-        model.addAttribute("transferencia", transferencia);
+        model.addAttribute("nuevatransferencia", nuevatransferencia);
 
         return "transferencia-archivo-resultado";
     }
