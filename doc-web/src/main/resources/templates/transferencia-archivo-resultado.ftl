@@ -1,3 +1,5 @@
+<#setting number_format="computer">
+
 <#assign pageTitle = "TRANSFERENCIA DE ARCHIVOS" />
 <#assign deferredJS = "" />
 

@@ -155,3 +155,25 @@ FOREIGN KEY (QUIEN) REFERENCES USUARIO (USU_ID);
 -- SEQUENCE
 
 CREATE SEQUENCE PLANTILLA_TRANSF_ARCHIVO_SEQ;
+
+-- -----------------------------------------------------------------------------
+-- CAMBIOS A DATOS EXISTENTES
+-- -----------------------------------------------------------------------------
+
+INSERT INTO ROL (
+    ROL_ID,
+    QUIEN,
+    CUANDO,
+    QUIEN_MOD,
+    CUANDO_MOD,
+    ACTIVO,
+    ROL_NOMBRE
+) VALUES (
+    'ADMIN_PLANTILLA_TRANSF_ARCHIVO',
+    442,
+    SYSDATE,
+    442,
+    SYSDATE,
+    1,
+    'Plantilla Transf. Archivo'
+);

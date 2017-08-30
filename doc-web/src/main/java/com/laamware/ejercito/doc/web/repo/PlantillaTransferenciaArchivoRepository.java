@@ -11,4 +11,10 @@ import com.laamware.ejercito.doc.web.entity.PlantillaTransferenciaArchivo;
  */
 public interface PlantillaTransferenciaArchivoRepository extends GenJpaRepository<PlantillaTransferenciaArchivo, Integer> {
 
+    /**
+     * Busca el registro de plantilla activa.
+     *
+     * @return Registro de plantilla.
+     */
+    PlantillaTransferenciaArchivo findByActivoTrue();
 }

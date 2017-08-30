@@ -55,6 +55,8 @@
                 <@link_admin  "ADMIN_FORMATOS" "/admin/formatos" 'formatos' 'Formatos'/>
                 
                 <@link_admin  "ADMIN_LOG" "/admin/logs" 'logs' 'Logs'/>
+                  
+                <@link_admin  "ADMIN_PLANTILLA_TRANSF_ARCHIVO" "/admin/plantilla-transf-archivo" 'plantilla-transf-archivo' 'Plantilla Transf. Archivo'/>
            
               </ul>
             </div>
