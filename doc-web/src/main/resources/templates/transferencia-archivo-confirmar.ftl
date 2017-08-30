@@ -48,8 +48,8 @@
                 </table>
 
             <div class="text-center">
-                <button id="btn-ok" name="btn-ok" type="submit" class="btn btn-success btn-lg">Aceptar</button>
-                <button id="btn-cancel" name="btn-cancel" type="submit" class="btn btn-lg">Cancelar</button>
+                <button id="btnOK" name="btnOK" type="submit" class="btn btn-success btn-lg">Aceptar</button>
+                <a href="/transferencia-archivo/crear" class="btn btn-secondary btn-lg">Cancelar</a>
                 </div>
 
             <input type="hidden" id="origenUsuario" name="origenUsuario" value="442"/>

@@ -131,10 +131,6 @@ public class TransferenciaArchivoController extends UtilController {
      * @param destinoUsuarioID ID del usuario de destino de la transferencia.
      * @param tipoTransferencia Identificador del tipo de la transferencia
      * realizada.
-     * @param accionOK Indica si la acción aplicada fue la aceptación del
-     * proceso. Opcional.
-     * @param accionCancelar Indica si la acción aplicada fue la cancelación del
-     * proceso. Opcional.
      * @param principal Objeto principal de A&A.
      * @param model Modelo de UI.
      * @return Nombre del template Freemarker redirigido.
@@ -144,20 +140,11 @@ public class TransferenciaArchivoController extends UtilController {
             @RequestParam("origenUsuario") Integer origenUsuarioID,
             @RequestParam("destinoUsuario") Integer destinoUsuarioID,
             @RequestParam("tipoTransferencia") String tipoTransferencia,
-            @RequestParam(required = false, value = "btn-ok") String accionOK,
-            @RequestParam(required = false, value = "btn-cancel") String accionCancelar,
             Principal principal, Model model) {
 
         LOG.log(Level.INFO, "tipoTransferencia = {0}", tipoTransferencia);
         LOG.log(Level.INFO, "destinoUsuario = {0}", destinoUsuarioID);
         LOG.log(Level.INFO, "origenUsuario = {0}", origenUsuarioID);
-        LOG.log(Level.INFO, "accionOK = {0}", accionOK);
-        LOG.log(Level.INFO, "accionCancelar = {0}", accionCancelar);
-
-        if (accionCancelar != null) {
-            model.addAttribute(AppConstants.FLASH_INFO, "Proceso cancelado.");
-            return presentarFormularioCreacionGET(principal, model);
-        }
 
         final Usuario creadorUsuario = getUsuario(principal);
         final Usuario origenUsuario = usuarioRepository.findOne(origenUsuarioID);
