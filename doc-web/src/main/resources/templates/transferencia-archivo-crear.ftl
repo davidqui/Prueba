@@ -65,7 +65,8 @@
                     <tbody>
                         <#list transferenciasRecibidas as transferenciasRecibida >
                         <tr>
-                            <th><input type="radio" name="transferenciaAnterior" value="${transferenciasRecibida.id}" /></th>
+                            <th><input type="radio" name="transferenciaAnterior" value="${transferenciasRecibida.id}" 
+                                <#if transferenciaAnterior?? && transferenciasRecibida.id == transferenciaAnterior.id>checked="checked"</#if> /></th>
                             <td>${transferenciasRecibida.fechaAprobacion?string('yyyy-MM-dd hh:mm:ss a')}</td>
                             <td>${getUsuarioDescripcion(transferenciasRecibida.origenUsuario)}</td>
                             <td>${transferenciasRecibida.numeroDocumentos}</td>

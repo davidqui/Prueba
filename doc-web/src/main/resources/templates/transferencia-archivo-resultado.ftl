@@ -31,12 +31,12 @@
                     <#if nuevatransferencia.tipo == "P" >
                 <tr>
                     <td><strong><i>Fecha aplicación transferencia seleccionada:</strong></i></td>
-                    <td><i>TODO</i></td>
+                    <td><i>${transferenciaAnterior.fechaAprobacion?string('yyyy-MM-dd hh:mm:ss a')}</i></td>
                     </tr>                        
                 <tr>
                     <td><strong><i>Usuario origen transferencia seleccionada:</strong></i></td>
-                    <td><i>TODO</i></td>
-                    </tr>                        
+                    <td><i>${getUsuarioDescripcion(transferenciaAnterior.origenUsuario)}</i></td>
+                    </tr>                         
                     </#if>
                 <tr>
                     <td><strong>Número de documentos:</strong></td>

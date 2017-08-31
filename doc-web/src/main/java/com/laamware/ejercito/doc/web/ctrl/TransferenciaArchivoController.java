@@ -9,7 +9,6 @@ import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
 import java.security.Principal;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -95,10 +94,6 @@ public class TransferenciaArchivoController extends UtilController {
             @RequestParam("tipoTransferencia") String tipoTransferencia,
             @RequestParam(value = "transferenciaAnterior", required = false) Integer transferenciaAnteriorID,
             Principal principal, Model model) {
-        LOG.log(Level.INFO, "transferenciaAnterior = {0}", transferenciaAnteriorID);
-        LOG.log(Level.INFO, "tipoTransferencia = {0}", tipoTransferencia);
-        LOG.log(Level.INFO, "destinoUsuario = {0}", destinoUsuarioID);
-        LOG.log(Level.INFO, "origenUsuario = {0}", origenUsuarioID);
 
         final Usuario origenUsuario = getUsuario(principal);
         model.addAttribute("origenUsuario", origenUsuario);
@@ -109,15 +104,6 @@ public class TransferenciaArchivoController extends UtilController {
 
         model.addAttribute("tipoTransferencia", tipoTransferencia);
 
-        if (destinoUsuarioID == null) {
-            model.addAttribute(AppConstants.FLASH_ERROR,
-                    "Debe seleccionar un usuario destino de la transferencia.");
-            return "transferencia-archivo-crear";
-        }
-
-        final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
-        model.addAttribute("destinoUsuario", destinoUsuario);
-
         final TransferenciaArchivo transferenciaAnterior;
         if (transferenciaAnteriorID == null) {
             transferenciaAnterior = null;
@@ -126,6 +112,15 @@ public class TransferenciaArchivoController extends UtilController {
                     .findOneTransferenciaArchivo(transferenciaAnteriorID);
         }
         model.addAttribute("transferenciaAnterior", transferenciaAnterior);
+
+        if (destinoUsuarioID == null) {
+            model.addAttribute(AppConstants.FLASH_ERROR,
+                    "Debe seleccionar un usuario destino de la transferencia.");
+            return "transferencia-archivo-crear";
+        }
+
+        final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
+        model.addAttribute("destinoUsuario", destinoUsuario);
 
         final TransferenciaArchivoValidacionDTO validacionDTO
                 = transferenciaService.validarTransferencia(origenUsuario,
@@ -158,6 +153,9 @@ public class TransferenciaArchivoController extends UtilController {
      * @param destinoUsuarioID ID del usuario de destino de la transferencia.
      * @param tipoTransferencia Identificador del tipo de la transferencia
      * realizada.
+     * @param transferenciaAnteriorID ID de la transferencia anterior
+     * seleccionada. Este valor únicamente es obligatorio cuando el tipo de
+     * transferencia es {@link TransferenciaArchivo#PARCIAL_TIPO}.
      * @param principal Objeto principal de A&A.
      * @param model Modelo de UI.
      * @return Nombre del template Freemarker redirigido.
@@ -167,20 +165,25 @@ public class TransferenciaArchivoController extends UtilController {
             @RequestParam("origenUsuario") Integer origenUsuarioID,
             @RequestParam("destinoUsuario") Integer destinoUsuarioID,
             @RequestParam("tipoTransferencia") String tipoTransferencia,
+            @RequestParam(value = "transferenciaAnterior", required = false) Integer transferenciaAnteriorID,
             Principal principal, Model model) {
-
-        LOG.log(Level.INFO, "tipoTransferencia = {0}", tipoTransferencia);
-        LOG.log(Level.INFO, "destinoUsuario = {0}", destinoUsuarioID);
-        LOG.log(Level.INFO, "origenUsuario = {0}", origenUsuarioID);
 
         final Usuario creadorUsuario = getUsuario(principal);
         final Usuario origenUsuario = usuarioRepository.findOne(origenUsuarioID);
         final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
+        final TransferenciaArchivo transferenciaAnterior;
+        if (transferenciaAnteriorID == null) {
+            transferenciaAnterior = null;
+        } else {
+            transferenciaAnterior = transferenciaService
+                    .findOneTransferenciaArchivo(transferenciaAnteriorID);
+        }
+        model.addAttribute("transferenciaAnterior", transferenciaAnterior);
 
         final TransferenciaArchivo nuevatransferencia
                 = transferenciaService.crearTransferencia(creadorUsuario,
                         origenUsuario, destinoUsuario, tipoTransferencia,
-                        null);
+                        transferenciaAnterior);
         model.addAttribute("nuevatransferencia", nuevatransferencia);
 
         return "transferencia-archivo-resultado";

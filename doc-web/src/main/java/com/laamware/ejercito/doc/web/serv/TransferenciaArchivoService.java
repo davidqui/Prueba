@@ -1,7 +1,6 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
-import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
