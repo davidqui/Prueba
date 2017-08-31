@@ -1,6 +1,5 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
-import com.laamware.ejercito.doc.web.dto.UsuarioBusquedaDTO;
 import java.security.Principal;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,7 +40,6 @@ import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.LdapService;
 import com.laamware.ejercito.doc.web.serv.OFS;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 @PreAuthorize("hasRole('ADMIN_USUARIOS')")
@@ -451,56 +449,4 @@ public class UsuarioController extends UtilController {
         }
     }
 
-    /**
-     * Servicio REST que busca un usuario activo por el número de documento.
-     *
-     * @param documento Número de documento.
-     * @return DTO de Usuario activo o {@code null} si no hay concordancia en el
-     * sistema.
-     */
-    /* 
-        2017-08-30 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
-        feature-120: Funciones para buscador de usuarios.
-     */
-    @RequestMapping(value = "/rest/buscar/activo/{documento}", method = RequestMethod.POST)
-    @ResponseBody
-    public UsuarioBusquedaDTO buscarUsuarioActivoJSON(@PathVariable String documento) {
-        final Usuario usuario
-                = usuarioRepository.findByActivoTrueAndDocumento(documento);
-
-        if (usuario == null) {
-            final UsuarioBusquedaDTO busquedaDTO = new UsuarioBusquedaDTO();
-            busquedaDTO.setOk(Boolean.FALSE);
-            busquedaDTO.setMensajeBusqueda("Usuario no encontrado en el sistema.");
-            return busquedaDTO;
-        }
-
-        return convertirABusquedaDTO(usuario);
-    }
-
-    /**
-     * Convierte un usuario a un DTO de búsqueda.
-     *
-     * @param usuario Usuario.
-     * @return DTO.
-     */
-    /* 
-        2017-08-30 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
-        feature-120: Funciones para buscador de usuarios.
-     */
-    private UsuarioBusquedaDTO convertirABusquedaDTO(final Usuario usuario) {
-        final UsuarioBusquedaDTO busquedaDTO = new UsuarioBusquedaDTO();
-        busquedaDTO.setOk(Boolean.TRUE);
-        busquedaDTO.setId(usuario.getId());
-        busquedaDTO.setNombre(usuario.getNombre());
-        busquedaDTO.setGrado(usuario.getGrado());
-
-        if (usuario.getClasificacion() != null) {
-            busquedaDTO.setClasificacionId(usuario.getClasificacion().getId());
-            busquedaDTO.setClasificacionNombre(usuario.getClasificacion()
-                    .getNombre());
-        }
-
-        return busquedaDTO;
-    }
 }

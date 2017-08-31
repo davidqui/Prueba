@@ -52,9 +52,9 @@
                 <a href="/transferencia-archivo/crear" class="btn btn-secondary btn-lg">Cancelar</a>
                 </div>
 
-            <input type="hidden" id="origenUsuario" name="origenUsuario" value="442"/>
-            <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="1147"/>
-            <input type="hidden" id="tipoTransferencia" name="tipoTransferencia" value="T"/>
+            <input type="hidden" id="origenUsuario" name="origenUsuario" value="${origenUsuario.id}"/>
+            <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="${destinoUsuario.id}"/>
+            <input type="hidden" id="tipoTransferencia" name="tipoTransferencia" value="${tipoTransferencia}"/>
 
             </form>
         </div>

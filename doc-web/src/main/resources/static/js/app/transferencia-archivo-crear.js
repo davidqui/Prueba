@@ -15,7 +15,7 @@ function buscarUsuarioActivo() {
 
     $.ajax({
         method: "POST",
-        url: "/usuarios/rest/buscar/activo/" + documento
+        url: "/rest/usuario/buscar/activo/" + documento
     }).done(function (busquedaDTO) {
         if (!busquedaDTO.ok) {
             $("#destinoUsuario_visible").val(busquedaDTO.mensajeBusqueda);
