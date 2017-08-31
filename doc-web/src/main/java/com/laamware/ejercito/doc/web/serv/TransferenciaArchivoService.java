@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
+import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
@@ -74,6 +75,16 @@ public class TransferenciaArchivoService {
     private UsuarioRepository usuarioRepository;
 
     /**
+     * Busca un registro de transferencia de archivo.
+     *
+     * @param id ID del registro.
+     * @return Transferencia.
+     */
+    public TransferenciaArchivo findOneTransferenciaArchivo(Integer id) {
+        return transferenciaRepository.findOne(id);
+    }
+
+    /**
      * Obtiene todas las transferencias de archivo activas en estado
      * {@link TransferenciaArchivo#APROBADA_ESTADO} para un usuario destino,
      * ordenadas por la fecha de aprobación.
@@ -93,13 +104,23 @@ public class TransferenciaArchivoService {
      * @param origenUsuario Usuario origen de la transferencia.
      * @param destinoUsuario Usuario destino de la transferencia.
      * @param tipoTransferencia Tipo de transferencia.
+     * @param transferenciaAnteriorID ID de la transferencia anterior
+     * seleccionada. Este valor únicamente es obligatorio cuando el tipo de
+     * transferencia es {@link TransferenciaArchivo#PARCIAL_TIPO}.
      * @return DTO con los resultados de la validación.
      */
     public TransferenciaArchivoValidacionDTO validarTransferencia(
             final Usuario origenUsuario, final Usuario destinoUsuario,
-            final String tipoTransferencia) {
+            final String tipoTransferencia, final Integer transferenciaAnteriorID) {
         final TransferenciaArchivoValidacionDTO validacionDTO
                 = new TransferenciaArchivoValidacionDTO();
+
+        if (tipoTransferencia.equals(TransferenciaArchivo.PARCIAL_TIPO)
+                && transferenciaAnteriorID == null) {
+            validacionDTO.addError(
+                    "Debe seleccionar una transferencia previa cuando se elige "
+                    + "realizar transferencia parcial.");
+        }
 
         if (origenUsuario == null) {
             validacionDTO.addError("Debe seleccionar un usuario origen de la "

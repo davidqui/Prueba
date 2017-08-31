@@ -32,11 +32,11 @@
                     <#if tipoTransferencia == "P" >
                     <tr>
                         <td><strong><i>Fecha aplicación transferencia seleccionada:</strong></i></td>
-                        <td><i>TODO</i></td>
+                        <td><i>${transferenciaAnterior.fechaAprobacion?string('yyyy-MM-dd hh:mm:ss a')}</i></td>
                         </tr>                        
                     <tr>
                         <td><strong><i>Usuario origen transferencia seleccionada:</strong></i></td>
-                        <td><i>TODO</i></td>
+                        <td><i>${getUsuarioDescripcion(transferenciaAnterior.origenUsuario)}</i></td>
                         </tr>                        
                     </#if>
                     <tr>
@@ -55,6 +55,7 @@
             <input type="hidden" id="origenUsuario" name="origenUsuario" value="${origenUsuario.id}"/>
             <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="${destinoUsuario.id}"/>
             <input type="hidden" id="tipoTransferencia" name="tipoTransferencia" value="${tipoTransferencia}"/>
+            <input type="hidden" id="transferenciaAnterior" name="transferenciaAnterior" value="<#if transferenciaAnterior??>${transferenciaAnterior.id}</#if>"/>
 
             </form>
         </div>

@@ -25,14 +25,14 @@
                 <label for="destinoUsuario" class="col-sm-2 col-form-label text-xs-right">Usuario Destino</label>
                 <div class="col-sm-10">
                     <div class="input-group">
-                        <input type="text" id="destinoUsuario_buscar" name="destinoUsuario_buscar" class="form-control" value="" placeholder="Ingrese el documento de identidad del usuario a buscar..." />
+                        <input type="text" id="destinoUsuario_buscar" name="destinoUsuario_buscar" class="form-control" value="<#if destinoUsuario??>${destinoUsuario.documento}</#if>" placeholder="Ingrese el documento de identidad del usuario a buscar..." />
                         <div class="input-group-btn">
                             <button type="button" class="btn btn-primary" onclick="buscarUsuarioActivo()">Buscar</button>
                             </div> 
                         </div> 
-                    <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="" disabled />
+                    <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="<#if destinoUsuario??>${getUsuarioDescripcion(destinoUsuario)}</#if>" disabled />
                     </div>
-                <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
+                <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="<#if destinoUsuario??>${destinoUsuario.id}</#if>" />
                 </div>            
 
             <#assign tipoTransferenciaTotal = !tipoTransferencia?? || transferenciasRecibidas?size == 0 || tipoTransferencia == "T" />
@@ -67,7 +67,7 @@
                         <tr>
                             <th><input type="radio" name="transferenciaAnterior" value="${transferenciasRecibida.id}" /></th>
                             <td>${transferenciasRecibida.fechaAprobacion?string('yyyy-MM-dd hh:mm:ss a')}</td>
-                            <td>${transferenciasRecibida.origenUsuario.login}</td>
+                            <td>${getUsuarioDescripcion(transferenciasRecibida.origenUsuario)}</td>
                             <td>${transferenciasRecibida.numeroDocumentos}</td>
                             </tr>
                         </#list>

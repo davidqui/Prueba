@@ -81,6 +81,9 @@ public class TransferenciaArchivoController extends UtilController {
      * @param destinoUsuarioID ID del usuario de destino de la transferencia.
      * @param tipoTransferencia Identificador del tipo de la transferencia
      * realizada.
+     * @param transferenciaAnteriorID ID de la transferencia anterior
+     * seleccionada. Este valor únicamente es obligatorio cuando el tipo de
+     * transferencia es {@link TransferenciaArchivo#PARCIAL_TIPO}.
      * @param principal Objeto principal de A&A.
      * @param model Modelo de UI.
      * @return Nombre del template Freemarker redirigido.
@@ -90,7 +93,9 @@ public class TransferenciaArchivoController extends UtilController {
             @RequestParam("origenUsuario") Integer origenUsuarioID,
             @RequestParam("destinoUsuario") Integer destinoUsuarioID,
             @RequestParam("tipoTransferencia") String tipoTransferencia,
+            @RequestParam(value = "transferenciaAnterior", required = false) Integer transferenciaAnteriorID,
             Principal principal, Model model) {
+        LOG.log(Level.INFO, "transferenciaAnterior = {0}", transferenciaAnteriorID);
         LOG.log(Level.INFO, "tipoTransferencia = {0}", tipoTransferencia);
         LOG.log(Level.INFO, "destinoUsuario = {0}", destinoUsuarioID);
         LOG.log(Level.INFO, "origenUsuario = {0}", origenUsuarioID);
@@ -113,19 +118,33 @@ public class TransferenciaArchivoController extends UtilController {
         final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
         model.addAttribute("destinoUsuario", destinoUsuario);
 
-        // TODO: Buscar cuando es transferencia parcial.
-        final List<DocumentoDependencia> registrosArchivo
-                = transferenciaService.findRegistrosArchivo(tipoTransferencia,
-                        null, origenUsuario);
-
-        model.addAttribute("registrosArchivo", registrosArchivo);
+        final TransferenciaArchivo transferenciaAnterior;
+        if (transferenciaAnteriorID == null) {
+            transferenciaAnterior = null;
+        } else {
+            transferenciaAnterior = transferenciaService
+                    .findOneTransferenciaArchivo(transferenciaAnteriorID);
+        }
+        model.addAttribute("transferenciaAnterior", transferenciaAnterior);
 
         final TransferenciaArchivoValidacionDTO validacionDTO
                 = transferenciaService.validarTransferencia(origenUsuario,
-                        destinoUsuario, tipoTransferencia);
+                        destinoUsuario, tipoTransferencia, transferenciaAnteriorID);
         if (!validacionDTO.isOK()) {
             model.addAttribute(AppConstants.FLASH_ERROR,
                     buildFlashErrorMessage(validacionDTO));
+            return "transferencia-archivo-crear";
+        }
+
+        final List<DocumentoDependencia> registrosArchivo
+                = transferenciaService.findRegistrosArchivo(tipoTransferencia,
+                        transferenciaAnterior, origenUsuario);
+        model.addAttribute("registrosArchivo", registrosArchivo);
+
+        if (registrosArchivo.isEmpty()) {
+            model.addAttribute(AppConstants.FLASH_ERROR,
+                    "El usuario origen no tiene registros de archivo para "
+                    + "transferir.");
             return "transferencia-archivo-crear";
         }
 
