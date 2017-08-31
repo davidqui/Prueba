@@ -44,7 +44,7 @@
                     </tr> 
                 <#if nuevatransferencia.actaOFS?? >
                 <tr>
-                    <td colspan="2"><strong><a href="/documento/download/${nuevatransferencia.actaOFS}" >Descargar Acta</a></strong></td>
+                    <td colspan="2"><strong><a href="/ofs/download/${nuevatransferencia.actaOFS}" >Descargar Acta</a></strong></td>
                     </tr>
                 </#if>
                 </tbody>

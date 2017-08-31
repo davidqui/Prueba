@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.aspose.words.License;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
@@ -9,8 +10,11 @@ import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
 import java.security.Principal;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,6 +71,12 @@ public class TransferenciaArchivoController extends UtilController {
         final List<TransferenciaArchivo> transferenciasRecibidas
                 = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
+
+        if (!transferenciaService.hayPlantillaActiva()) {
+            model.addAttribute(AppConstants.FLASH_ERROR,
+                    "ATENCIÓN: No hay plantilla activa para la generación "
+                    + "del acta de transferencia de archivo.");
+        }
 
         return "transferencia-archivo-crear";
     }
@@ -180,13 +190,45 @@ public class TransferenciaArchivoController extends UtilController {
         }
         model.addAttribute("transferenciaAnterior", transferenciaAnterior);
 
-        final TransferenciaArchivo nuevatransferencia
-                = transferenciaService.crearTransferencia(creadorUsuario,
-                        origenUsuario, destinoUsuario, tipoTransferencia,
-                        transferenciaAnterior);
+        final License asposeLicense;
+        try {
+            asposeLicense = getAsposeLicence();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            model.addAttribute(AppConstants.FLASH_ERROR,
+                    "Excepción obteniendo Licencia Aspose: " + ex.getMessage());
+            return presentarFormularioCreacionGET(principal, model);
+        }
+
+        final TransferenciaArchivo nuevatransferencia;
+        try {
+            nuevatransferencia = transferenciaService
+                    .crearTransferenciaConActa(creadorUsuario,
+                            origenUsuario, destinoUsuario, tipoTransferencia,
+                            transferenciaAnterior, asposeLicense);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            model.addAttribute(AppConstants.FLASH_ERROR,
+                    "Excepción durante transferencia: " + ex.getMessage());
+            return presentarFormularioCreacionGET(principal, model);
+        }
+
         model.addAttribute("nuevatransferencia", nuevatransferencia);
 
         return "transferencia-archivo-resultado";
+    }
+
+    /**
+     * Obtiene la referencia de la licencia de Aspose.
+     *
+     * @return Licencia de Aspose.
+     * @throws Exception
+     */
+    private License getAsposeLicence() throws Exception {
+        final License asposeLicense = new License();
+        final Resource resource = new ClassPathResource("Aspose.Words.lic");
+        asposeLicense.setLicense(resource.getInputStream());
+        return asposeLicense;
     }
 
     /**

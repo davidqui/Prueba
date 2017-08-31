@@ -1,8 +1,13 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.aspose.words.Document;
+import com.aspose.words.License;
+import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
+import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Grados;
+import com.laamware.ejercito.doc.web.entity.PlantillaTransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Usuario;
@@ -12,8 +17,13 @@ import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepositor
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,10 +42,32 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransferenciaArchivoService {
 
     /**
+     * Logger.
+     */
+    private static final Logger LOG
+            = Logger.getLogger(TransferenciaArchivoService.class.getName());
+
+    /**
+     * Locale para Colombia.
+     */
+    private static final Locale LOCALE_ES_CO = new Locale("es", "CO");
+
+    /**
+     * Formato de fecha completa.
+     */
+    private static final String FULL_DATE_FORMAT_PATTERN = "yyyy-MMMM-dd hh:mm a";
+
+    /**
      * Datasource del sistema.
      */
     @Autowired
     private DataSource dataSource;
+
+    /**
+     * Servicio de OFS.
+     */
+    @Autowired
+    private OFS ofs;
 
     /**
      * Repositorio de maestro de transferencia.
@@ -98,6 +130,16 @@ public class TransferenciaArchivoService {
     }
 
     /**
+     * Indica si hay plantilla activa para el acta de la transferencia.
+     *
+     * @return {@code true} si hay plantilla activa; de lo contrario,
+     * {@code false}.
+     */
+    public Boolean hayPlantillaActiva() {
+        return plantillaRepository.findByActivoTrue() != null;
+    }
+
+    /**
      * Valida los parámetros de entrada el proceso de transferencia.
      *
      * @param origenUsuario Usuario origen de la transferencia.
@@ -113,6 +155,14 @@ public class TransferenciaArchivoService {
             final TransferenciaArchivo transferenciaAnterior) {
         final TransferenciaArchivoValidacionDTO validacionDTO
                 = new TransferenciaArchivoValidacionDTO();
+
+        final PlantillaTransferenciaArchivo plantilla
+                = plantillaRepository.findByActivoTrue();
+        if (plantilla == null) {
+            validacionDTO.addError(
+                    "ATENCIÓN: No hay plantilla activa para la generación "
+                    + "del acta de transferencia de archivo.");
+        }
 
         if (tipoTransferencia.equals(TransferenciaArchivo.PARCIAL_TIPO)
                 && transferenciaAnterior == null) {
@@ -217,6 +267,42 @@ public class TransferenciaArchivoService {
     }
 
     /**
+     * Procesa, aplica y crea una transferencia de archivo, generando el acta
+     * correspondiente.
+     *
+     * @param creadorUsuario Usuario creador de la transferencia.
+     * @param origenUsuario Usuario origen de la transferencia.
+     * @param destinoUsuario Usuario destino de la transferencia.
+     * @param tipoTransferencia Tipo de transferencia.
+     * @param transferenciaAnterior Registro maestro de transferencia anterior a
+     * transferir de nuevo. En caso que este parámetro sea {@code null}, se
+     * realizará transferencia de todo el archivo del usuario origen, al usuario
+     * destino.
+     * @param asposeLicense Licencia de Aspose.
+     * @return Registro maestro de la transferencia creada.
+     * @throws java.lang.Exception Si ocurre algún error durante la creación del
+     * documento Aspose.
+     * @see TransferenciaArchivo#TOTAL_TIPO
+     * @see TransferenciaArchivo#PARCIAL_TIPO
+     */
+    public TransferenciaArchivo crearTransferenciaConActa(final Usuario creadorUsuario,
+            final Usuario origenUsuario, final Usuario destinoUsuario,
+            final String tipoTransferencia,
+            final TransferenciaArchivo transferenciaAnterior, final License asposeLicense) throws Exception {
+
+        final TransferenciaArchivo transferenciaArchivo
+                = crearTransferencia(creadorUsuario, origenUsuario, destinoUsuario,
+                        tipoTransferencia, transferenciaAnterior);
+
+        final PlantillaTransferenciaArchivo plantilla
+                = plantillaRepository.findByActivoTrue();
+
+        crearActa(transferenciaArchivo, plantilla, asposeLicense);
+
+        return transferenciaArchivo;
+    }
+
+    /**
      * Procesa, aplica y crea una transferencia de archivo.
      *
      * @param creadorUsuario Usuario creador de la transferencia.
@@ -232,10 +318,9 @@ public class TransferenciaArchivoService {
      * @see TransferenciaArchivo#PARCIAL_TIPO
      */
     @Transactional
-    public TransferenciaArchivo crearTransferencia(final Usuario creadorUsuario,
+    private TransferenciaArchivo crearTransferencia(final Usuario creadorUsuario,
             final Usuario origenUsuario, final Usuario destinoUsuario,
-            final String tipoTransferencia,
-            final TransferenciaArchivo transferenciaAnterior) {
+            final String tipoTransferencia, final TransferenciaArchivo transferenciaAnterior) {
 
         final Date ahora = new Date(System.currentTimeMillis());
 
@@ -352,6 +437,102 @@ public class TransferenciaArchivoService {
             registroArchivo.getId()
         };
         jdbcTemplate.update(sql, params);
+    }
+
+    /**
+     * Crea el acta para la transferencia de archivo.
+     *
+     * @param transferenciaArchivo Transferencia de archivo.
+     * @param plantilla Plantilla de transferencia.
+     * @param asposeLicense Licencia de Aspose.
+     * @throws Exception Si ocurre algún error durante la creación del documento
+     * Aspose.
+     */
+    private void crearActa(final TransferenciaArchivo transferenciaArchivo,
+            final PlantillaTransferenciaArchivo plantilla, final License asposeLicense) throws Exception {
+
+        if (!asposeLicense.getIsLicensed()) {
+            LOG.severe("ASPOSE no Licenciado!");
+        }
+
+        final KeysValuesAsposeDocxDTO asposeMap
+                = crearMapaAspose(transferenciaArchivo);
+        final String plantillaPath = ofs.getPath(plantilla.getCodigoOFS());
+        final Document asposeDocument = new Document(plantillaPath);
+
+        asposeDocument.getMailMerge()
+                .execute(asposeMap.getNombres(), asposeMap.getValues());
+
+        final File tmpFile = File.createTempFile("_sigdi_temp_", ".pdf");
+        asposeDocument.save(tmpFile.getPath());
+
+        final OFSEntry ofsEntry = ofs.readPDFAspose(tmpFile);
+        final String codigoActaOFS = ofs.save(ofsEntry.getContent(),
+                AppConstants.MIME_TYPE_PDF);
+
+        transferenciaArchivo.setActaOFS(codigoActaOFS);
+
+        transferenciaRepository.saveAndFlush(transferenciaArchivo);
+
+        try {
+            tmpFile.delete();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            try {
+                tmpFile.deleteOnExit();
+            } catch (Exception ex1) {
+                LOG.log(Level.SEVERE, null, ex1);
+            }
+        }
+    }
+
+    /**
+     * Crea el mapa de campos/valor para el reemplazo de wildcards sobre la
+     * plantilla para la generación del mapa a través de la API de Aspose.
+     *
+     * @param transferenciaArchivo Transferencia de archivo.
+     * @return Mapa de campos/valor.
+     */
+    private KeysValuesAsposeDocxDTO crearMapaAspose(final TransferenciaArchivo transferenciaArchivo) {
+        final SimpleDateFormat fullDateFormatter
+                = new SimpleDateFormat(FULL_DATE_FORMAT_PATTERN, LOCALE_ES_CO);
+
+        final KeysValuesAsposeDocxDTO map = new KeysValuesAsposeDocxDTO();
+
+        map.put("TIPO_TRANSFERENCIA", transferenciaArchivo.getTipo()
+                .equals(TransferenciaArchivo.PARCIAL_TIPO) ? "Parcial" : "Total");
+
+        map.put("CREADOR_NOMBRE", transferenciaArchivo.getCreadorGrado().getNombre());
+        map.put("CREADOR_DEPENDENCIA_NOMBRE", transferenciaArchivo.getCreadorDependencia().getNombre());
+        map.put("CREADOR_GRADO_ID", transferenciaArchivo.getCreadorGrado().getId());
+        map.put("CREADOR_GRADO_NOMBRE", transferenciaArchivo.getCreadorGrado().getNombre());
+        map.put("CREADOR_CARGO", transferenciaArchivo.getCreadorCargo());
+
+        map.put("FECHA_CREACION", fullDateFormatter.format(
+                transferenciaArchivo.getFechaCreacion()));
+
+        map.put("ORIGEN_NOMBRE", transferenciaArchivo.getOrigenGrado().getNombre());
+        map.put("ORIGEN_DEPENDENCIA_NOMBRE", transferenciaArchivo.getOrigenDependencia().getNombre());
+        map.put("ORIGEN_GRADO_ID", transferenciaArchivo.getOrigenGrado().getId());
+        map.put("ORIGEN_GRADO_NOMBRE", transferenciaArchivo.getOrigenGrado().getNombre());
+        map.put("ORIGEN_CARGO", transferenciaArchivo.getOrigenCargo());
+        map.put("ORIGEN_CLASIFICACION", transferenciaArchivo.getOrigenClasificacion().getNombre());
+
+        map.put("DESTINO_NOMBRE", transferenciaArchivo.getDestinoGrado().getNombre());
+        map.put("DESTINO_DEPENDENCIA_NOMBRE", transferenciaArchivo.getDestinoDependencia().getNombre());
+        map.put("DESTINO_GRADO_ID", transferenciaArchivo.getDestinoGrado().getId());
+        map.put("DESTINO_GRADO_NOMBRE", transferenciaArchivo.getDestinoGrado().getNombre());
+        map.put("DESTINO_CARGO", transferenciaArchivo.getDestinoCargo());
+        map.put("DESTINO_CLASIFICACION", transferenciaArchivo.getDestinoClasificacion().getNombre());
+
+        map.put("NUMERO_DOCUMENTOS", transferenciaArchivo.getNumeroDocumentos());
+
+        map.put("FECHA_APROBACION", fullDateFormatter.format(
+                transferenciaArchivo.getFechaAprobacion()));
+
+        // TODO: Información de transferencia parcial
+        // TODO: Lista de documentos transferidos.
+        return map;
     }
 
 }
