@@ -31,6 +31,10 @@
                         </tr>    
                     <#if tipoTransferencia == "P" >
                     <tr>
+                        <td><strong><i>Clasificación original transferencia seleccionada:</strong></i></td>
+                        <td><i>${transferenciaAnterior.origenClasificacion.nombre}</i></td>
+                        </tr>                        
+                    <tr>
                         <td><strong><i>Fecha aplicación transferencia seleccionada:</strong></i></td>
                         <td><i>${transferenciaAnterior.fechaAprobacion?string('yyyy-MM-dd hh:mm:ss a')}</i></td>
                         </tr>                        

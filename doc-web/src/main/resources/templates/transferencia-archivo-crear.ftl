@@ -59,6 +59,7 @@
                             <th>Seleccionar</th>
                             <th>Fecha</th>
                             <th>Usuario Origen</th> 
+                            <th>Clasificación Original</th> 
                             <th>Núm. Documentos</th>
                             </tr>
                         </thead>
@@ -68,7 +69,8 @@
                             <th><input type="radio" name="transferenciaAnterior" value="${transferenciasRecibida.id}" 
                                 <#if transferenciaAnterior?? && transferenciasRecibida.id == transferenciaAnterior.id>checked="checked"</#if> /></th>
                             <td>${transferenciasRecibida.fechaAprobacion?string('yyyy-MM-dd hh:mm:ss a')}</td>
-                            <td>${getUsuarioDescripcion(transferenciasRecibida.origenUsuario)}</td>
+                            <td>${transferenciasRecibida.origenUsuario.grado + " " + transferenciasRecibida.origenUsuario.nombre}</td>
+                            <td>${transferenciasRecibida.origenClasificacion.nombre}</td>
                             <td>${transferenciasRecibida.numeroDocumentos}</td>
                             </tr>
                         </#list>

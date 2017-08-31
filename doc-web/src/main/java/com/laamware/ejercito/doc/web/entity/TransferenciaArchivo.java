@@ -223,6 +223,13 @@ public class TransferenciaArchivo implements Serializable {
     private Integer transferenciaAnteriorID;
 
     /**
+     * Clasificación de origen de la transferencia anterior.
+     */
+    @ManyToOne
+    @JoinColumn(name = "TAR_ORIGEN_CLA_ID")
+    private Clasificacion transferenciaAnteriorOrigenClasificacion;
+
+    /**
      * Constructor vacío.
      */
     public TransferenciaArchivo() {
@@ -251,6 +258,8 @@ public class TransferenciaArchivo implements Serializable {
      * @param destinoGrado Grado del usuario destino.
      * @param destinoCargo Cargo del usuario destino.
      * @param transferenciaAnteriorID ID de la transferencia anterior.
+     * @param transferenciaAnteriorOrigenClasificacion Clasificación de origen
+     * de la transferencia anterior.
      */
     public TransferenciaArchivo(String tipo, Usuario creadorUsuario,
             Dependencia creadorDependencia, Grados creadorGrado,
@@ -259,7 +268,8 @@ public class TransferenciaArchivo implements Serializable {
             Grados origenGrado, String origenCargo, Usuario destinoUsuario,
             Dependencia destinoDependencia, Clasificacion destinoClasificacion,
             Grados destinoGrado, String destinoCargo,
-            Integer transferenciaAnteriorID) {
+            Integer transferenciaAnteriorID,
+            Clasificacion transferenciaAnteriorOrigenClasificacion) {
         this.tipo = tipo;
         this.creadorUsuario = creadorUsuario;
         this.creadorDependencia = creadorDependencia;
@@ -277,6 +287,8 @@ public class TransferenciaArchivo implements Serializable {
         this.destinoGrado = destinoGrado;
         this.destinoCargo = destinoCargo;
         this.transferenciaAnteriorID = transferenciaAnteriorID;
+        this.transferenciaAnteriorOrigenClasificacion
+                = transferenciaAnteriorOrigenClasificacion;
 
         activo = true;
         estado = CREADA_ESTADO;
@@ -704,6 +716,24 @@ public class TransferenciaArchivo implements Serializable {
         this.transferenciaAnteriorID = transferenciaAnteriorID;
     }
 
+    /**
+     * Obtiene la clasificación de origen de la transferencia anterior.
+     *
+     * @return Clasificación.
+     */
+    public Clasificacion getTransferenciaAnteriorOrigenClasificacion() {
+        return transferenciaAnteriorOrigenClasificacion;
+    }
+
+    /**
+     * Establece la clasificación de origen de la transferencia anterior.
+     *
+     * @param transferenciaAnteriorOrigenClasificacion Clasificación.
+     */
+    public void setTransferenciaAnteriorOrigenClasificacion(Clasificacion transferenciaAnteriorOrigenClasificacion) {
+        this.transferenciaAnteriorOrigenClasificacion = transferenciaAnteriorOrigenClasificacion;
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;
@@ -730,6 +760,7 @@ public class TransferenciaArchivo implements Serializable {
         hash = 79 * hash + Objects.hashCode(this.fechaAprobacion);
         hash = 79 * hash + Objects.hashCode(this.actaOFS);
         hash = 79 * hash + Objects.hashCode(this.transferenciaAnteriorID);
+        hash = 79 * hash + Objects.hashCode(this.transferenciaAnteriorOrigenClasificacion);
         return hash;
     }
 
@@ -811,7 +842,10 @@ public class TransferenciaArchivo implements Serializable {
         if (!Objects.equals(this.fechaAprobacion, other.fechaAprobacion)) {
             return false;
         }
-        return Objects.equals(this.transferenciaAnteriorID, other.transferenciaAnteriorID);
+        if (!Objects.equals(this.transferenciaAnteriorID, other.transferenciaAnteriorID)) {
+            return false;
+        }
+        return Objects.equals(this.transferenciaAnteriorOrigenClasificacion, other.transferenciaAnteriorOrigenClasificacion);
     }
 
 }

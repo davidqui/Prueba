@@ -103,19 +103,19 @@ public class TransferenciaArchivoService {
      * @param origenUsuario Usuario origen de la transferencia.
      * @param destinoUsuario Usuario destino de la transferencia.
      * @param tipoTransferencia Tipo de transferencia.
-     * @param transferenciaAnteriorID ID de la transferencia anterior
-     * seleccionada. Este valor únicamente es obligatorio cuando el tipo de
-     * transferencia es {@link TransferenciaArchivo#PARCIAL_TIPO}.
+     * @param transferenciaAnterior Registro maestro de transferencia anterior a
+     * transferir de nuevo.
      * @return DTO con los resultados de la validación.
      */
     public TransferenciaArchivoValidacionDTO validarTransferencia(
             final Usuario origenUsuario, final Usuario destinoUsuario,
-            final String tipoTransferencia, final Integer transferenciaAnteriorID) {
+            final String tipoTransferencia,
+            final TransferenciaArchivo transferenciaAnterior) {
         final TransferenciaArchivoValidacionDTO validacionDTO
                 = new TransferenciaArchivoValidacionDTO();
 
         if (tipoTransferencia.equals(TransferenciaArchivo.PARCIAL_TIPO)
-                && transferenciaAnteriorID == null) {
+                && transferenciaAnterior == null) {
             validacionDTO.addError(
                     "Debe seleccionar una transferencia previa cuando se elige "
                     + "realizar transferencia parcial.");
@@ -163,17 +163,32 @@ public class TransferenciaArchivoService {
             if (destinoUsuario.getId().equals(origenUsuario.getId())) {
                 validacionDTO.addError("Debe seleccionar un usuario destino "
                         + "diferente al usuario origen.");
-            } else if (origenUsuario.getClasificacion() != null
-                    && destinoUsuario.getClasificacion() != null
-                    && destinoUsuario.getClasificacion().getOrden()
-                            .compareTo(origenUsuario.getClasificacion()
-                                    .getOrden()) < 0) {
-                validacionDTO.addError(
-                        "El usuario destino "
-                        + getUsuarioDescripcion(destinoUsuario, true) + " tiene "
-                        + "una clasificación menor que la clasificación del "
-                        + "usuario origen "
-                        + getUsuarioDescripcion(origenUsuario, true) + ".");
+            } else {
+                if (tipoTransferencia.equals(TransferenciaArchivo.TOTAL_TIPO)
+                        && origenUsuario.getClasificacion() != null
+                        && destinoUsuario.getClasificacion() != null
+                        && destinoUsuario.getClasificacion().getOrden()
+                                .compareTo(origenUsuario.getClasificacion()
+                                        .getOrden()) < 0) {
+                    validacionDTO.addError(
+                            "El usuario destino "
+                            + getUsuarioDescripcion(destinoUsuario, true) + " tiene "
+                            + "una clasificación menor que la clasificación del "
+                            + "usuario origen "
+                            + getUsuarioDescripcion(origenUsuario, true) + ".");
+                } else if (tipoTransferencia.equals(TransferenciaArchivo.PARCIAL_TIPO)
+                        && transferenciaAnterior != null
+                        && destinoUsuario.getClasificacion().getOrden()
+                                .compareTo(transferenciaAnterior.getOrigenClasificacion()
+                                        .getOrden()) < 0) {
+                    validacionDTO.addError(
+                            "El usuario destino "
+                            + getUsuarioDescripcion(destinoUsuario, true) + " tiene "
+                            + "una clasificación menor que la clasificación de "
+                            + "la transferencia original ["
+                            + transferenciaAnterior.getOrigenClasificacion()
+                            + "].");
+                }
             }
         }
 
@@ -239,7 +254,10 @@ public class TransferenciaArchivoService {
                 origenGrado, origenUsuario.getCargo(), destinoUsuario,
                 destinoUsuario.getDependencia(), destinoUsuario.getClasificacion(),
                 destinoGrado, destinoUsuario.getCargo(),
-                transferenciaAnterior == null ? null : transferenciaAnterior.getId());
+                transferenciaAnterior == null ? null
+                        : transferenciaAnterior.getId(),
+                transferenciaAnterior == null ? null
+                        : transferenciaAnterior.getOrigenClasificacion());
 
         transferenciaRepository.save(transferencia);
 

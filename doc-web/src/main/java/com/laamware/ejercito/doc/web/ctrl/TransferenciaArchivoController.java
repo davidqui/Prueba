@@ -124,7 +124,7 @@ public class TransferenciaArchivoController extends UtilController {
 
         final TransferenciaArchivoValidacionDTO validacionDTO
                 = transferenciaService.validarTransferencia(origenUsuario,
-                        destinoUsuario, tipoTransferencia, transferenciaAnteriorID);
+                        destinoUsuario, tipoTransferencia, transferenciaAnterior);
         if (!validacionDTO.isOK()) {
             model.addAttribute(AppConstants.FLASH_ERROR,
                     buildFlashErrorMessage(validacionDTO));
