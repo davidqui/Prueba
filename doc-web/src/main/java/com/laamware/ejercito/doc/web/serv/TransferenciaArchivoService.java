@@ -1,7 +1,13 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.aspose.words.Cell;
 import com.aspose.words.Document;
 import com.aspose.words.License;
+import com.aspose.words.NodeType;
+import com.aspose.words.Paragraph;
+import com.aspose.words.Row;
+import com.aspose.words.Run;
+import com.aspose.words.Table;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
@@ -462,6 +468,17 @@ public class TransferenciaArchivoService {
 
         asposeDocument.getMailMerge()
                 .execute(asposeMap.getNombres(), asposeMap.getValues());
+
+        // TODO: Crear un algoritmo para la tabla y verificar que no se dañe con texto posterior.
+        // Ver forma de mantener las celdas iniciales cuando cambie de página.
+        Paragraph paragraph = new Paragraph(asposeDocument);
+        paragraph.appendChild(new Run(asposeDocument, "Row 1, Cell 1 Text"));
+        Cell cell = new Cell(asposeDocument);
+        cell.appendChild(paragraph);
+        Row row = new Row(asposeDocument);
+        row.appendChild(cell);
+        Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 0, true);
+        table.appendChild(row);
 
         final File tmpFile = File.createTempFile("_sigdi_temp_", ".pdf");
         asposeDocument.save(tmpFile.getPath());
