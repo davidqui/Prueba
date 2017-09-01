@@ -61,12 +61,15 @@ public class TransferenciaArchivoController extends UtilController {
     @Autowired
     private UsuarioSpecificationService specificationService;
 
-    @RequestMapping(value = "/buscador", method = RequestMethod.GET)
-    public String pruebaBuscador() {
-        return "prueba-buscador";
-    }
-
-    @RequestMapping(value = "/formulario-busqueda", method = {RequestMethod.GET, RequestMethod.POST})
+    /**
+     * Presenta el formulario de búsqueda de usuario destino, para el finder
+     * correspondiente.
+     *
+     * @param model Modelo de UI.
+     * @return Nombre del template Freemarker del formulario.
+     */
+    @RequestMapping(value = "/formulario-buscar-usuario",
+            method = {RequestMethod.GET, RequestMethod.POST})
     public String pruebaFormularioBusqueda(Model model) {
         final Page<Usuario> page = specificationService.buscar(null);
 
@@ -76,7 +79,7 @@ public class TransferenciaArchivoController extends UtilController {
         }
         model.addAttribute("usuarios", usuarios);
 
-        return "prueba-formulario-busqueda";
+        return "transferencia-archivo-buscar-usuario";
     }
 
     /**

@@ -63,6 +63,6 @@
                 </form>
             </div>
 
-        <script src="/js/lib/finder.js"></script>
+        <script src="/js/app/transferencia-archivo-crear.js"></script>
 
     </html>

@@ -21,7 +21,8 @@
                     </div>
                 </div>
 
-            <div class="form-group row">
+<!--            Busqueda con número de documento -->
+<!--            <div class="form-group row">
                 <label for="destinoUsuario" class="col-sm-2 col-form-label text-xs-right">Usuario Destino</label>
                 <div class="col-sm-10">
                     <div class="input-group">
@@ -33,7 +34,21 @@
                     <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="<#if destinoUsuario??>${getUsuarioDescripcion(destinoUsuario)}</#if>" disabled />
                     </div>
                 <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="<#if destinoUsuario??>${destinoUsuario.id}</#if>" />
-                </div>            
+                </div>            -->
+
+<!--            Búsqueda con finder -->
+            <div class="form-group row">
+                <label for="destinoUsuario" class="col-sm-2 col-form-label text-xs-right">Usuario Destino</label>
+                <div class="col-sm-10">
+                    <div class="input-group">
+                        <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="<#if destinoUsuario??>${getUsuarioDescripcion(destinoUsuario)}</#if>" disabled />
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-primary" onclick="openFinderWindow()">Buscar</button>
+                            </div> 
+                        </div> 
+                    </div>
+                <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="<#if destinoUsuario??>${destinoUsuario.id}</#if>" />
+                </div> 
 
             <#assign tipoTransferenciaTotal = !tipoTransferencia?? || transferenciasRecibidas?size == 0 || tipoTransferencia == "T" />
 
@@ -88,6 +103,6 @@
         </div>
     </div>
 
-<script src="/js/app/transferencia-archivo-crear.js"></script>
+    <script src="/js/app/transferencia-archivo-crear.js"></script>
 
 <#include "footer.ftl" />
