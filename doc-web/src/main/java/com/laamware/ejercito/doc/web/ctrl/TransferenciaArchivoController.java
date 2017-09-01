@@ -55,6 +55,16 @@ public class TransferenciaArchivoController extends UtilController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @RequestMapping(value = "/buscador", method = RequestMethod.GET)
+    public String pruebaBuscador() {
+        return "prueba-buscador";
+    }
+
+    @RequestMapping(value = "/formulario-busqueda", method = {RequestMethod.GET, RequestMethod.POST})
+    public String pruebaFormularioBusqueda() {
+        return "prueba-formulario-busqueda";
+    }
+
     /**
      * Presenta el formulario de creación para el proceso de transferencia de
      * archivo.
