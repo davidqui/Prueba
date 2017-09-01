@@ -368,7 +368,14 @@ public class TransferenciaArchivoService {
 
         transferenciaRepository.saveAndFlush(transferencia);
 
-        if (transferenciaAnterior != null) {
+        if (transferenciaAnterior == null) {
+            final List<TransferenciaArchivo> transferenciasRecibidas
+                    = transferenciaRepository.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
+            for (TransferenciaArchivo transferenciasRecibida : transferenciasRecibidas) {
+                transferenciasRecibida.setActivo(Boolean.FALSE);
+                transferenciaRepository.saveAndFlush(transferenciasRecibida);
+            }
+        } else {
             transferenciaAnterior.setActivo(Boolean.FALSE);
             transferenciaRepository.saveAndFlush(transferenciaAnterior);
         }

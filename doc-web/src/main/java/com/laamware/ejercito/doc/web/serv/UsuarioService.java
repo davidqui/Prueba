@@ -9,6 +9,14 @@ import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
+import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 /**
  * Servicio para las operaciones de negocio de usuario.
@@ -26,8 +34,46 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    /**
+     * Servicios de dependencias.
+     */
     @Autowired
     private DependenciaService dependenciaService;
+
+    /**
+     * Mapa de unidades por dependencia.
+     */
+    private Map<Integer, Dependencia> unidadesMap = new LinkedHashMap<>();
+
+    /**
+     * Repositorio de especificación de usuarios.
+     */
+    @Autowired
+    private UsuarioSpecificationRepository repository;
+
+    /**
+     * Obtiene una primera página de usuarios correspondientes a la criteria de
+     * búsqueda asignada.
+     *
+     * @param criteria Criteria de búsqueda.
+     * @param pageIndex Índice de la página.
+     * @param pageSize Tamaño de la página.
+     * @return Página de usuarios.
+     */
+    public Page<Usuario> findAllByCriteriaSpecification(final String criteria,
+            final int pageIndex, final int pageSize) {
+        // TODO: Completar implementación.
+        // https://stackoverflow.com/questions/38566672/query-with-dynamic-criteria-in-spring-boot-extending-crudrepository
+        Specification<Usuario> specification = new Specification<Usuario>() {
+            @Override
+            public Predicate toPredicate(Root<Usuario> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+                return builder.conjunction();
+            }
+        };
+
+        final PageRequest pageRequest = new PageRequest(pageIndex, pageSize);
+        return repository.findAll(specification, pageRequest);
+    }
 
     /**
      * Busca un usuario.
@@ -38,11 +84,6 @@ public class UsuarioService {
     public Usuario findOne(Integer id) {
         return usuarioRepository.findOne(id);
     }
-
-    /**
-     * Mapa de unidades por dependencia.
-     */
-    private Map<Integer, Dependencia> unidadesMap = new LinkedHashMap<>();
 
     /**
      * Obtiene la información básica del usuario (Grado, Nombre, Cargo,

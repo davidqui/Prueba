@@ -8,7 +8,6 @@ import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
-import com.laamware.ejercito.doc.web.serv.UsuarioSpecificationService;
 import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,9 +57,6 @@ public class TransferenciaArchivoController extends UtilController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @Autowired
-    private UsuarioSpecificationService specificationService;
-
     /**
      * Presenta el formulario de búsqueda de usuario destino, para el finder
      * correspondiente.
@@ -71,7 +67,8 @@ public class TransferenciaArchivoController extends UtilController {
     @RequestMapping(value = "/formulario-buscar-usuario",
             method = {RequestMethod.GET, RequestMethod.POST})
     public String pruebaFormularioBusqueda(Model model) {
-        final Page<Usuario> page = specificationService.buscar(null);
+        final Page<Usuario> page
+                = usuarioService.findAllByCriteriaSpecification(null, 0, 10);
 
         final List<Usuario> usuarios = new LinkedList<>();
         for (Usuario usuario : page) {
