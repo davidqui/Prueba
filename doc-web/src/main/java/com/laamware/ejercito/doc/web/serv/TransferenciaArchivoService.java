@@ -11,11 +11,13 @@ import com.aspose.words.Table;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.entity.PlantillaTransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
+import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.GradosRepository;
@@ -469,16 +471,32 @@ public class TransferenciaArchivoService {
         asposeDocument.getMailMerge()
                 .execute(asposeMap.getNombres(), asposeMap.getValues());
 
-        // TODO: Crear un algoritmo para la tabla y verificar que no se dañe con texto posterior.
+        final List<TransferenciaArchivoDetalle> detalles
+                = detalleRepository.findAllByTransferenciaArchivo(transferenciaArchivo);
+
+        // TODO: Formato de tabla (Negrita para títulos, etc...)
         // Ver forma de mantener las celdas iniciales cuando cambie de página.
-        Paragraph paragraph = new Paragraph(asposeDocument);
-        paragraph.appendChild(new Run(asposeDocument, "Row 1, Cell 1 Text"));
-        Cell cell = new Cell(asposeDocument);
-        cell.appendChild(paragraph);
-        Row row = new Row(asposeDocument);
-        row.appendChild(cell);
-        Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 0, true);
-        table.appendChild(row);
+        final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 0, true);
+        table.removeAllChildren();
+
+        Row headersRow = new Row(asposeDocument);
+        fillTableRow(asposeDocument, headersRow, "ASUNTO", "CÓDIGO TRD", "TRD");
+        table.appendChild(headersRow);
+
+        for (TransferenciaArchivoDetalle detalle : detalles) {
+            final DocumentoDependencia documentoDependencia
+                    = detalle.getDocumentoDependencia();
+            final Documento documento = documentoDependencia.getDocumento();
+            final String asunto = documento.getAsunto();
+
+            final Trd trd = documentoDependencia.getTrd();
+            final String trdCodigo = trd.getCodigo();
+            final String trdNombre = trd.getNombre();
+
+            Row row = new Row(asposeDocument);
+            fillTableRow(asposeDocument, row, asunto, trdCodigo, trdNombre);
+            table.appendChild(row);
+        }
 
         final File tmpFile = File.createTempFile("_sigdi_temp_", ".pdf");
         asposeDocument.save(tmpFile.getPath());
@@ -550,6 +568,25 @@ public class TransferenciaArchivoService {
         // TODO: Información de transferencia parcial
         // TODO: Lista de documentos transferidos.
         return map;
+    }
+
+    /**
+     * Llena la fila de table.
+     *
+     * @param asposeDocument Documento ASPOSE.
+     * @param row Fila.
+     * @param cellValues Valores para las celdas de la fila.
+     */
+    private void fillTableRow(final Document asposeDocument, final Row row,
+            final String... cellValues) {
+        for (String cellValue : cellValues) {
+            Paragraph paragraph = new Paragraph(asposeDocument);
+            paragraph.appendChild(new Run(asposeDocument, cellValue));
+
+            Cell cell = new Cell(asposeDocument);
+            cell.appendChild(paragraph);
+            row.appendChild(cell);
+        }
     }
 
 }
