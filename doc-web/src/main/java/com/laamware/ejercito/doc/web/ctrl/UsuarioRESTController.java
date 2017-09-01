@@ -31,11 +31,34 @@ public class UsuarioRESTController {
      * @return DTO de Usuario activo o {@code null} si no hay concordancia en el
      * sistema.
      */
-    @RequestMapping(value = "/buscar/activo/{documento}", method = RequestMethod.POST)
+    @RequestMapping(value = "/buscar/activo/documento/{documento}", method = RequestMethod.POST)
     @ResponseBody
-    public UsuarioBusquedaDTO buscarUsuarioActivoJSON(@PathVariable String documento) {
+    public UsuarioBusquedaDTO buscarUsuarioActivoByDocumentoJSON(@PathVariable String documento) {
         final Usuario usuario
                 = usuarioRepository.findByActivoTrueAndDocumento(documento);
+
+        if (usuario == null) {
+            final UsuarioBusquedaDTO busquedaDTO = new UsuarioBusquedaDTO();
+            busquedaDTO.setOk(Boolean.FALSE);
+            busquedaDTO.setMensajeBusqueda("Usuario no encontrado en el sistema.");
+            return busquedaDTO;
+        }
+
+        return convertirABusquedaDTO(usuario);
+    }
+
+    /**
+     * Servicio REST que busca un usuario activo por el número de documento.
+     *
+     * @param id ID del usuario.
+     * @return DTO de Usuario activo o {@code null} si no hay concordancia en el
+     * sistema.
+     */
+    @RequestMapping(value = "/buscar/activo/id/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public UsuarioBusquedaDTO buscarUsuarioActivoJSON(@PathVariable Integer id) {
+        final Usuario usuario
+                = usuarioRepository.findOne(id);
 
         if (usuario == null) {
             final UsuarioBusquedaDTO busquedaDTO = new UsuarioBusquedaDTO();

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 
 /**
  * Servicio para las operaciones de negocio de usuario.
@@ -19,8 +20,24 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 @Service
 public class UsuarioService {
 
+    /**
+     * Repositorio de usuarios.
+     */
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     @Autowired
     private DependenciaService dependenciaService;
+
+    /**
+     * Busca un usuario.
+     *
+     * @param id ID.
+     * @return Usuario.
+     */
+    public Usuario findOne(Integer id) {
+        return usuarioRepository.findOne(id);
+    }
 
     /**
      * Mapa de unidades por dependencia.

@@ -23,8 +23,20 @@ function openFinderWindow() {
 }
 
 function setFindResult(id) {
-    $("#destinoUsuario_visible").val("Nombre");
-    $("#destinoUsuario").val(id);
+    $.ajax({
+        method: "POST",
+        url: "/rest/usuario/buscar/activo/id/" + id
+    }).done(function (busquedaDTO) {
+        if (!busquedaDTO.ok) {
+            $("#destinoUsuario_visible").val(busquedaDTO.mensajeBusqueda);
+            return;
+        }
+
+        descripcion = busquedaDTO.grado + " " + busquedaDTO.nombre + " ["
+                + busquedaDTO.clasificacionNombre + "]";
+        $("#destinoUsuario_visible").val(descripcion);
+        $("#destinoUsuario").val(busquedaDTO.id);
+    });
 }
 
 function selectFindResult(id) {

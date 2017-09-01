@@ -6,15 +6,18 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Usuario;
-import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
+import com.laamware.ejercito.doc.web.serv.UsuarioService;
+import com.laamware.ejercito.doc.web.serv.UsuarioSpecificationService;
 import java.security.Principal;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,10 +53,13 @@ public class TransferenciaArchivoController extends UtilController {
     private TransferenciaArchivoService transferenciaService;
 
     /**
-     * Repositorio de usuarios.
+     * Servicio de usuarios.
      */
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private UsuarioSpecificationService specificationService;
 
     @RequestMapping(value = "/buscador", method = RequestMethod.GET)
     public String pruebaBuscador() {
@@ -61,7 +67,15 @@ public class TransferenciaArchivoController extends UtilController {
     }
 
     @RequestMapping(value = "/formulario-busqueda", method = {RequestMethod.GET, RequestMethod.POST})
-    public String pruebaFormularioBusqueda() {
+    public String pruebaFormularioBusqueda(Model model) {
+        final Page<Usuario> page = specificationService.buscar(null);
+
+        final List<Usuario> usuarios = new LinkedList<>();
+        for (Usuario usuario : page) {
+            usuarios.add(usuario);
+        }
+        model.addAttribute("usuarios", usuarios);
+
         return "prueba-formulario-busqueda";
     }
 
@@ -139,7 +153,7 @@ public class TransferenciaArchivoController extends UtilController {
             return "transferencia-archivo-crear";
         }
 
-        final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
+        final Usuario destinoUsuario = usuarioService.findOne(destinoUsuarioID);
         model.addAttribute("destinoUsuario", destinoUsuario);
 
         final TransferenciaArchivoValidacionDTO validacionDTO
@@ -189,8 +203,8 @@ public class TransferenciaArchivoController extends UtilController {
             Principal principal, Model model) {
 
         final Usuario creadorUsuario = getUsuario(principal);
-        final Usuario origenUsuario = usuarioRepository.findOne(origenUsuarioID);
-        final Usuario destinoUsuario = usuarioRepository.findOne(destinoUsuarioID);
+        final Usuario origenUsuario = usuarioService.findOne(origenUsuarioID);
+        final Usuario destinoUsuario = usuarioService.findOne(destinoUsuarioID);
         final TransferenciaArchivo transferenciaAnterior;
         if (transferenciaAnteriorID == null) {
             transferenciaAnterior = null;

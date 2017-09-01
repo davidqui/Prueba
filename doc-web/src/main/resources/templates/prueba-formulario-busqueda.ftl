@@ -1,3 +1,5 @@
+<#setting number_format="computer">
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -46,13 +48,15 @@
                                 </tr>
                             </thead>
                         <tbody>
+                            <#list usuarios as usuario >
                             <tr>
-                                <td><a href="javascript:selectFindResult(1);">Seleccionar</a></td>
-                                <td>Nombre 1</td>
-                                <td>Dependencia 1</td>
-                                <td>Clasificación 1</td>
+                                <td><a href="javascript:selectFindResult(${usuario.id});">Seleccionar</a></td>
+                                <td>${usuario.nombre}</td>
+                                <td>${usuario.dependencia.nombre}</td>
+                                <td>${usuario.clasificacion.nombre}</td>
                                 </tr>
                             <tr>
+                            </#list>
                             </tbody>
                         </table>
                     </div>
