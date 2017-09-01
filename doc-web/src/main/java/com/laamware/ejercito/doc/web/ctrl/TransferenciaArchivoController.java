@@ -215,6 +215,9 @@ public class TransferenciaArchivoController extends UtilController {
 
         model.addAttribute("nuevatransferencia", nuevatransferencia);
 
+        model.addAttribute(AppConstants.FLASH_SUCCESS,
+                "Se ha realizado la transferencia de archivo exitosamente.");
+
         return "transferencia-archivo-resultado";
     }
 

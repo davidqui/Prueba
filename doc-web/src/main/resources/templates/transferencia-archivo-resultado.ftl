@@ -12,7 +12,9 @@
 
     <div class="container-fluid">
 
-        Se ha realizado la siguiente transferencia de archivos
+        <p>
+            Se ha realizado la siguiente transferencia de archivos:
+            </p>
 
         <table class="table table-striped">
             <tbody>
