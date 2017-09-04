@@ -31,7 +31,7 @@
             <form method="POST">
                 <div class="form-group row">
                     <div class="input-group">
-                        <input type="text" id="criterioBusqueda" name="criterioBusqueda" class="form-control" value="" placeholder="Ingrese los valores de búsqueda..."/>
+                        <input type="text" id="criterioBusqueda" name="criteria" class="form-control" value="" placeholder="Ingrese los valores de búsqueda..."/>
                         <div class="input-group-btn">
                             <button type="submit" class="btn btn-primary">Buscar</button>
                             </div> 

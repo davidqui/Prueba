@@ -61,14 +61,16 @@ public class TransferenciaArchivoController extends UtilController {
      * Presenta el formulario de búsqueda de usuario destino, para el finder
      * correspondiente.
      *
+     * @param criteria Criteria de búsqueda.
      * @param model Modelo de UI.
      * @return Nombre del template Freemarker del formulario.
      */
     @RequestMapping(value = "/formulario-buscar-usuario",
             method = {RequestMethod.GET, RequestMethod.POST})
-    public String pruebaFormularioBusqueda(Model model) {
+    public String pruebaFormularioBusqueda(@RequestParam(value = "criteria", required = false) String criteria,
+            Model model) {
         final Page<Usuario> page
-                = usuarioService.findAllByCriteriaSpecification(null, 0, 10);
+                = usuarioService.findAllByCriteriaSpecification(criteria, 0, 10);
 
         final List<Usuario> usuarios = new LinkedList<>();
         for (Usuario usuario : page) {

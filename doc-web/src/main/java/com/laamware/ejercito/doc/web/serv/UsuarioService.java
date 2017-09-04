@@ -10,6 +10,11 @@ import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
+import com.laamware.ejercito.doc.web.serv.spec.UsuarioSpecifications;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -17,6 +22,7 @@ import javax.persistence.criteria.Root;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.Specifications;
 
 /**
  * Servicio para las operaciones de negocio de usuario.
@@ -27,6 +33,12 @@ import org.springframework.data.jpa.domain.Specification;
 // 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78
 @Service
 public class UsuarioService {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOG
+            = Logger.getLogger(UsuarioService.class.getName());
 
     /**
      * Repositorio de usuarios.
@@ -62,17 +74,26 @@ public class UsuarioService {
      */
     public Page<Usuario> findAllByCriteriaSpecification(final String criteria,
             final int pageIndex, final int pageSize) {
-        // TODO: Completar implementación.
-        // https://stackoverflow.com/questions/38566672/query-with-dynamic-criteria-in-spring-boot-extending-crudrepository
-        Specification<Usuario> specification = new Specification<Usuario>() {
-            @Override
-            public Predicate toPredicate(Root<Usuario> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-                return builder.conjunction();
+        LOG.info("com.laamware.ejercito.doc.web.serv.UsuarioService.findAllByCriteriaSpecification()");
+        LOG.log(Level.INFO, "criteria = {0}", criteria);
+        LOG.log(Level.INFO, "pageIndex = {0}", pageIndex);
+        LOG.log(Level.INFO, "pageSize = {0}", pageSize);
+
+        Specifications<Usuario> where = Specifications
+                .where(UsuarioSpecifications.inicio());
+
+        if (criteria != null) {
+            final String[] tokens = criteria.replaceAll("'", " ").split(" ");
+            for (String token : tokens) {
+                where = where.and(UsuarioSpecifications.filtrosPorToken(token));
             }
-        };
+        }
 
         final PageRequest pageRequest = new PageRequest(pageIndex, pageSize);
-        return repository.findAll(specification, pageRequest);
+        LOG.log(Level.INFO, "pageRequest = {0}", pageRequest);
+        final Page<Usuario> users = repository.findAll(where, pageRequest);
+        LOG.log(Level.INFO, "users = {0}", users);
+        return users;
     }
 
     /**
