@@ -26,6 +26,7 @@ import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -484,25 +486,27 @@ public class TransferenciaArchivoService {
         // TODO: Formato de tabla (Negrita para títulos, etc...)
         // Ver forma de mantener las celdas iniciales cuando cambie de página.
         final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 0, true);
-        table.removeAllChildren();
+        if (table != null) {
+            table.removeAllChildren();
 
-        Row headersRow = new Row(asposeDocument);
-        fillTableRow(asposeDocument, headersRow, "ASUNTO", "CÓDIGO TRD", "TRD");
-        table.appendChild(headersRow);
+            Row headersRow = new Row(asposeDocument);
+            fillTableRow(asposeDocument, headersRow, "ASUNTO", "CÓDIGO TRD", "TRD");
+            table.appendChild(headersRow);
 
-        for (TransferenciaArchivoDetalle detalle : detalles) {
-            final DocumentoDependencia documentoDependencia
-                    = detalle.getDocumentoDependencia();
-            final Documento documento = documentoDependencia.getDocumento();
-            final String asunto = documento.getAsunto();
+            for (TransferenciaArchivoDetalle detalle : detalles) {
+                final DocumentoDependencia documentoDependencia
+                        = detalle.getDocumentoDependencia();
+                final Documento documento = documentoDependencia.getDocumento();
+                final String asunto = documento.getAsunto();
 
-            final Trd trd = documentoDependencia.getTrd();
-            final String trdCodigo = trd.getCodigo();
-            final String trdNombre = trd.getNombre();
+                final Trd trd = documentoDependencia.getTrd();
+                final String trdCodigo = trd.getCodigo();
+                final String trdNombre = trd.getNombre();
 
-            Row row = new Row(asposeDocument);
-            fillTableRow(asposeDocument, row, asunto, trdCodigo, trdNombre);
-            table.appendChild(row);
+                Row row = new Row(asposeDocument);
+                fillTableRow(asposeDocument, row, asunto, trdCodigo, trdNombre);
+                table.appendChild(row);
+            }
         }
 
         final File tmpFile = File.createTempFile("_sigdi_temp_", ".pdf");
@@ -573,8 +577,49 @@ public class TransferenciaArchivoService {
                 transferenciaArchivo.getFechaAprobacion()));
 
         // TODO: Información de transferencia parcial
-        // TODO: Lista de documentos transferidos.
+        final File creadorFirma = getImagenFirma(transferenciaArchivo.getCreadorUsuario());
+        if (creadorFirma != null) {
+            try {
+                map.put("CREADOR_FIRMA_IMG", FileUtils.readFileToByteArray(creadorFirma));
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            }
+        }
+
+        final File origenFirma = getImagenFirma(transferenciaArchivo.getOrigenUsuario());
+        if (origenFirma != null) {
+            try {
+                map.put("ORIGEN_FIRMA_IMG", FileUtils.readFileToByteArray(origenFirma));
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            }
+        }
+
+        final File destinoFirma = getImagenFirma(transferenciaArchivo.getDestinoUsuario());
+        if (destinoFirma != null) {
+            try {
+                map.put("DESTINO_FIRMA_IMG", FileUtils.readFileToByteArray(destinoFirma));
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            }
+        }
+
         return map;
+    }
+
+    /**
+     * Obtiene el archivo de la firma del usuario.
+     *
+     * @param usuario Usuario.
+     * @return Archivo.
+     */
+    private File getImagenFirma(final Usuario usuario) {
+        final String imagenFirma = usuario.getImagenFirma();
+        if (imagenFirma == null) {
+            return null;
+        }
+
+        return new File(ofs.getPath(usuario.getImagenFirmaExtension()));
     }
 
     /**
