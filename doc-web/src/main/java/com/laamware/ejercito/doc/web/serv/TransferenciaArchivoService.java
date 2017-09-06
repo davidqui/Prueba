@@ -559,7 +559,7 @@ public class TransferenciaArchivoService {
         map.put("TIPO_TRANSFERENCIA", transferenciaArchivo.getTipo()
                 .equals(TransferenciaArchivo.PARCIAL_TIPO) ? "Parcial" : "Total");
 
-        map.put("CREADOR_NOMBRE", transferenciaArchivo.getCreadorGrado().getNombre());
+        map.put("CREADOR_NOMBRE", transferenciaArchivo.getCreadorUsuario().getNombre());
         map.put("CREADOR_DEPENDENCIA_NOMBRE", transferenciaArchivo.getCreadorDependencia().getNombre());
         map.put("CREADOR_GRADO_ID", transferenciaArchivo.getCreadorGrado().getId());
         map.put("CREADOR_GRADO_NOMBRE", transferenciaArchivo.getCreadorGrado().getNombre());
@@ -568,14 +568,14 @@ public class TransferenciaArchivoService {
         map.put("FECHA_CREACION", fullDateFormatter.format(
                 transferenciaArchivo.getFechaCreacion()));
 
-        map.put("ORIGEN_NOMBRE", transferenciaArchivo.getOrigenGrado().getNombre());
+        map.put("ORIGEN_NOMBRE", transferenciaArchivo.getOrigenUsuario().getNombre());
         map.put("ORIGEN_DEPENDENCIA_NOMBRE", transferenciaArchivo.getOrigenDependencia().getNombre());
         map.put("ORIGEN_GRADO_ID", transferenciaArchivo.getOrigenGrado().getId());
         map.put("ORIGEN_GRADO_NOMBRE", transferenciaArchivo.getOrigenGrado().getNombre());
         map.put("ORIGEN_CARGO", transferenciaArchivo.getOrigenCargo());
         map.put("ORIGEN_CLASIFICACION", transferenciaArchivo.getOrigenClasificacion().getNombre());
 
-        map.put("DESTINO_NOMBRE", transferenciaArchivo.getDestinoGrado().getNombre());
+        map.put("DESTINO_NOMBRE", transferenciaArchivo.getDestinoUsuario().getNombre());
         map.put("DESTINO_DEPENDENCIA_NOMBRE", transferenciaArchivo.getDestinoDependencia().getNombre());
         map.put("DESTINO_GRADO_ID", transferenciaArchivo.getDestinoGrado().getId());
         map.put("DESTINO_GRADO_NOMBRE", transferenciaArchivo.getDestinoGrado().getNombre());
