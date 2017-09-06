@@ -98,10 +98,10 @@ public class TransferenciaArchivoController extends UtilController {
                 = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
 
-        final List<DocumentoDependencia> archivoRegistros 
+        final List<DocumentoDependencia> archivoRegistros
                 = transferenciaService.findAllArchivoActivoByUsuario(origenUsuario.getId());
         model.addAttribute("archivoRegistros", archivoRegistros);
-        
+
         if (!transferenciaService.hayPlantillaActiva()) {
             model.addAttribute(AppConstants.FLASH_ERROR,
                     "ATENCIÓN: No hay plantilla activa para la generación "
@@ -143,6 +143,10 @@ public class TransferenciaArchivoController extends UtilController {
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
 
         model.addAttribute("tipoTransferencia", tipoTransferencia);
+
+        final List<DocumentoDependencia> archivoRegistros
+                = transferenciaService.findAllArchivoActivoByUsuario(origenUsuario.getId());
+        model.addAttribute("archivoRegistros", archivoRegistros);
 
         final TransferenciaArchivo transferenciaAnterior;
         if (transferenciaAnteriorID == null) {
