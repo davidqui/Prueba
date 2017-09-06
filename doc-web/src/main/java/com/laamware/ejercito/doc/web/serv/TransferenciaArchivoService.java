@@ -126,6 +126,17 @@ public class TransferenciaArchivoService {
     }
 
     /**
+     * Obtiene la lista de todos los registros de archivo activos para un
+     * usuario.
+     *
+     * @param usuarioID ID del usuario.
+     * @return Lista de todos los registros de archivo activos.
+     */
+    public List<DocumentoDependencia> findAllArchivoActivoByUsuario(Integer usuarioID) {
+        return documentoDependenciaRepository.findAllActivoByUsuario(usuarioID);
+    }
+
+    /**
      * Obtiene todas las transferencias de archivo activas en estado
      * {@link TransferenciaArchivo#APROBADA_ESTADO} para un usuario destino,
      * ordenadas por la fecha de aprobación.

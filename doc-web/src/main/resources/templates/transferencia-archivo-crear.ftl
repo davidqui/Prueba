@@ -55,7 +55,7 @@
             <div class="form-group row">
                 <label for="tipoTransferencia" class="col-sm-2 col-form-label text-xs-right">Tipo Transferencia</label>
                 <div class="col-sm-10">
-                    <input type="radio" name="tipoTransferencia" value="T" <#if  tipoTransferenciaTotal> checked="checked" </#if> >${getTipoDescripcion("T")}<br>
+                    <input type="radio" name="tipoTransferencia" value="T" <#if  tipoTransferenciaTotal> checked="checked" </#if> >${getTipoDescripcion("T")} (Núm. Documentos: ${archivoRegistros?size})<br>
                     <input type="radio" name="tipoTransferencia" value="P" <#if !tipoTransferenciaTotal> checked="checked" </#if> 
                         <#if transferenciasRecibidas?size == 0> disabled </#if> >${getTipoDescripcion("P")}<br>
                     </div>    

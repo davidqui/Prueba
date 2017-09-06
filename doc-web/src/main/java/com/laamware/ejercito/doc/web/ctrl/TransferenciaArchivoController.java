@@ -67,7 +67,7 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @RequestMapping(value = "/formulario-buscar-usuario",
             method = {RequestMethod.GET, RequestMethod.POST})
-    public String pruebaFormularioBusqueda(@RequestParam(value = "criteria", required = false) String criteria,
+    public String presentarFormularioBusquedaUsuarioPOST(@RequestParam(value = "criteria", required = false) String criteria,
             Model model) {
         final Page<Usuario> page
                 = usuarioService.findAllByCriteriaSpecification(criteria, 0, 10);
@@ -98,6 +98,10 @@ public class TransferenciaArchivoController extends UtilController {
                 = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
 
+        final List<DocumentoDependencia> archivoRegistros 
+                = transferenciaService.findAllArchivoActivoByUsuario(origenUsuario.getId());
+        model.addAttribute("archivoRegistros", archivoRegistros);
+        
         if (!transferenciaService.hayPlantillaActiva()) {
             model.addAttribute(AppConstants.FLASH_ERROR,
                     "ATENCIÓN: No hay plantilla activa para la generación "
