@@ -11,17 +11,10 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
 import com.laamware.ejercito.doc.web.serv.spec.UsuarioSpecifications;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 
 /**
@@ -74,13 +67,8 @@ public class UsuarioService {
      */
     public Page<Usuario> findAllByCriteriaSpecification(final String criteria,
             final int pageIndex, final int pageSize) {
-        LOG.info("com.laamware.ejercito.doc.web.serv.UsuarioService.findAllByCriteriaSpecification()");
-        LOG.log(Level.INFO, "criteria = {0}", criteria);
-        LOG.log(Level.INFO, "pageIndex = {0}", pageIndex);
-        LOG.log(Level.INFO, "pageSize = {0}", pageSize);
 
-        Specifications<Usuario> where = Specifications
-                .where(UsuarioSpecifications.inicio());
+        Specifications<Usuario> where = Specifications.where(UsuarioSpecifications.inicio());
 
         if (criteria != null) {
             final String[] tokens = criteria.replaceAll("'", " ").split(" ");
@@ -90,9 +78,7 @@ public class UsuarioService {
         }
 
         final PageRequest pageRequest = new PageRequest(pageIndex, pageSize);
-        LOG.log(Level.INFO, "pageRequest = {0}", pageRequest);
         final Page<Usuario> users = repository.findAll(where, pageRequest);
-        LOG.log(Level.INFO, "users = {0}", users);
         return users;
     }
 

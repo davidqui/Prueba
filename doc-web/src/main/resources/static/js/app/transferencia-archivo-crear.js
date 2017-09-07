@@ -34,7 +34,7 @@ function buscarUsuarioActivo() {
  * @returns {undefined}
  */
 function openFinderWindow() {
-    var w = 800;
+    var w = 1200;
     var h = 600;
 
     var dualScreenLeft = window.screenLeft !== undefined ?

@@ -137,6 +137,17 @@ public class TransferenciaArchivoService {
     }
 
     /**
+     * Obtiene la cuenta de todos los documentos archivados activos para un
+     * usuario.
+     *
+     * @param usuarioID ID del usuario.
+     * @return Cuenta de documentos activos archivados.
+     */
+    public Integer countAllArchivoActivoByUsuario(Integer usuarioID) {
+        return documentoDependenciaRepository.countAllActivoByUsuario(usuarioID);
+    }
+
+    /**
      * Obtiene todas las transferencias de archivo activas en estado
      * {@link TransferenciaArchivo#APROBADA_ESTADO} para un usuario destino,
      * ordenadas por la fecha de aprobación.

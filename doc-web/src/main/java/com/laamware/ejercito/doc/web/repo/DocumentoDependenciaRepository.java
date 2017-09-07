@@ -60,6 +60,30 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
     List<DocumentoDependencia> findAllActivoByUsuario(@Param("usuarioID") Integer usuarioID);
 
     /**
+     * Obtiene la cuenta de todos los documentos archivados activos para un
+     * usuario.
+     *
+     * @param usuarioID ID del usuario.
+     * @return Cuenta de documentos activos archivados.
+     * @see #findAllActivoByUsuario(java.lang.Integer)
+     */
+    /*
+        2017-09-07 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech) 
+        feature-120: Proceso de transferencia de archivos.
+     */
+    @Query(nativeQuery = true, value = ""
+            + "SELECT \n"
+            + "    COUNT(1) \n"
+            + "FROM \n"
+            + "    DOCUMENTO_DEPENDENCIA \n"
+            + "WHERE \n"
+            + "        ACTIVO = 1 \n"
+            + "    AND \n"
+            + "        QUIEN =:usuarioID"
+            + "")
+    Integer countAllActivoByUsuario(@Param("usuarioID") Integer usuarioID);
+
+    /**
      * Obtiene todos los documentos archivados para un usuario, asociados a un
      * proceso de transferencia de archivo.
      *

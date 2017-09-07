@@ -9,7 +9,6 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import java.security.Principal;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,6 +40,11 @@ public class TransferenciaArchivoController extends UtilController {
             = Logger.getLogger(TransferenciaArchivoController.class.getName());
 
     /**
+     * Tamaño de la lista de presentación en la página de búsqueda de usuarios.
+     */
+    private static final int BUSQUEDA_PAGE_SIZE = 10;
+
+    /**
      * Ruta raíz del controlador.
      */
     public static final String PATH = "/transferencia-archivo";
@@ -62,21 +66,20 @@ public class TransferenciaArchivoController extends UtilController {
      * correspondiente.
      *
      * @param criteria Criteria de búsqueda.
+     * @param pageIndex Índice de la página a presentar.
      * @param model Modelo de UI.
      * @return Nombre del template Freemarker del formulario.
      */
-    @RequestMapping(value = "/formulario-buscar-usuario",
-            method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/formulario-buscar-usuario", method = {RequestMethod.GET, RequestMethod.POST})
     public String presentarFormularioBusquedaUsuarioPOST(@RequestParam(value = "criteria", required = false) String criteria,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "0") Integer pageIndex,
             Model model) {
-        final Page<Usuario> page
-                = usuarioService.findAllByCriteriaSpecification(criteria, 0, 10);
+        final Page<Usuario> page = usuarioService.findAllByCriteriaSpecification(criteria, pageIndex, BUSQUEDA_PAGE_SIZE);
 
-        final List<Usuario> usuarios = new LinkedList<>();
-        for (Usuario usuario : page) {
-            usuarios.add(usuario);
-        }
-        model.addAttribute("usuarios", usuarios);
+        model.addAttribute("criteria", criteria);
+        model.addAttribute("usuarios", page.getContent());
+        model.addAttribute("pageIndex", pageIndex);
+        model.addAttribute("totalPages", page.getTotalPages());
 
         return "transferencia-archivo-buscar-usuario";
     }
@@ -98,9 +101,8 @@ public class TransferenciaArchivoController extends UtilController {
                 = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
 
-        final List<DocumentoDependencia> archivoRegistros
-                = transferenciaService.findAllArchivoActivoByUsuario(origenUsuario.getId());
-        model.addAttribute("archivoRegistros", archivoRegistros);
+        final Integer numArchivosRegistrosTotal = transferenciaService.countAllArchivoActivoByUsuario(origenUsuario.getId());
+        model.addAttribute("numArchivosRegistrosTotal", numArchivosRegistrosTotal);
 
         if (!transferenciaService.hayPlantillaActiva()) {
             model.addAttribute(AppConstants.FLASH_ERROR,
@@ -144,9 +146,8 @@ public class TransferenciaArchivoController extends UtilController {
 
         model.addAttribute("tipoTransferencia", tipoTransferencia);
 
-        final List<DocumentoDependencia> archivoRegistros
-                = transferenciaService.findAllArchivoActivoByUsuario(origenUsuario.getId());
-        model.addAttribute("archivoRegistros", archivoRegistros);
+        final Integer numArchivosRegistrosTotal = transferenciaService.countAllArchivoActivoByUsuario(origenUsuario.getId());
+        model.addAttribute("numArchivosRegistrosTotal", numArchivosRegistrosTotal);
 
         final TransferenciaArchivo transferenciaAnterior;
         if (transferenciaAnteriorID == null) {

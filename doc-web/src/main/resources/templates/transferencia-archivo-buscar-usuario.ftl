@@ -28,10 +28,10 @@
         </head>
     <body>
         <div class="container-fluid">
-            <form method="POST">
+            <form action = "/transferencia-archivo/formulario-buscar-usuario" method="POST">
                 <div class="form-group row">
                     <div class="input-group">
-                        <input type="text" id="criterioBusqueda" name="criteria" class="form-control" value="" placeholder="Ingrese los valores de búsqueda..."/>
+                        <input type="text" id="criteria" name="criteria" class="form-control" value="${criteria!""}" placeholder="Ingrese los valores de búsqueda..."/>
                         <div class="input-group-btn">
                             <button type="submit" class="btn btn-primary">Buscar</button>
                             </div> 
@@ -61,6 +61,18 @@
                         </table>
                     </div>
                 </form>
+
+
+            <center>
+            <#if pageIndex gt 0>
+                <a href="/transferencia-archivo/formulario-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex - 1}" class="btn btn-primary btn-sm">Anterior</a>
+                    </#if>
+
+            <#if pageIndex lt (totalPages - 1)>
+                <a href="/transferencia-archivo/formulario-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex + 1}" class="btn btn-primary btn-sm">Siguiente</a>
+            </#if>
+                </center>
+            
             </div>
 
         <script src="/js/app/transferencia-archivo-crear.js"></script>
