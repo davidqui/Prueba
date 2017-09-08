@@ -507,7 +507,7 @@ public class TransferenciaArchivoService {
 
         // TODO: Formato de tabla (Negrita para títulos, etc...)
         // Ver forma de mantener las celdas iniciales cuando cambie de página.
-        final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 0, true);
+        final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 0, true);        
         if (table != null) {
             table.removeAllChildren();
 
@@ -562,8 +562,7 @@ public class TransferenciaArchivoService {
      * @return Mapa de campos/valor.
      */
     private KeysValuesAsposeDocxDTO crearMapaAspose(final TransferenciaArchivo transferenciaArchivo) {
-        final SimpleDateFormat fullDateFormatter
-                = new SimpleDateFormat(FULL_DATE_FORMAT_PATTERN, LOCALE_ES_CO);
+        final SimpleDateFormat fullDateFormatter = new SimpleDateFormat(FULL_DATE_FORMAT_PATTERN, LOCALE_ES_CO);
 
         final KeysValuesAsposeDocxDTO map = new KeysValuesAsposeDocxDTO();
 
@@ -576,8 +575,7 @@ public class TransferenciaArchivoService {
         map.put("CREADOR_GRADO_NOMBRE", transferenciaArchivo.getCreadorGrado().getNombre());
         map.put("CREADOR_CARGO", transferenciaArchivo.getCreadorCargo());
 
-        map.put("FECHA_CREACION", fullDateFormatter.format(
-                transferenciaArchivo.getFechaCreacion()));
+        map.put("FECHA_CREACION", fullDateFormatter.format(transferenciaArchivo.getFechaCreacion()));
 
         map.put("ORIGEN_NOMBRE", transferenciaArchivo.getOrigenUsuario().getNombre());
         map.put("ORIGEN_DEPENDENCIA_NOMBRE", transferenciaArchivo.getOrigenDependencia().getNombre());
@@ -595,16 +593,14 @@ public class TransferenciaArchivoService {
 
         map.put("NUMERO_DOCUMENTOS", transferenciaArchivo.getNumeroDocumentos());
 
-        map.put("FECHA_APROBACION", fullDateFormatter.format(
-                transferenciaArchivo.getFechaAprobacion()));
+        map.put("FECHA_APROBACION", fullDateFormatter.format(transferenciaArchivo.getFechaAprobacion()));
 
-        // TODO: Información de transferencia parcial
         final File creadorFirma = getImagenFirma(transferenciaArchivo.getCreadorUsuario());
         if (creadorFirma != null) {
             try {
                 map.put("CREADOR_FIRMA_IMG", FileUtils.readFileToByteArray(creadorFirma));
             } catch (IOException ex) {
-                LOG.log(Level.SEVERE, null, ex);
+                LOG.log(Level.SEVERE, "CREADOR_FIRMA_IMG", ex);
             }
         }
 
@@ -613,7 +609,7 @@ public class TransferenciaArchivoService {
             try {
                 map.put("ORIGEN_FIRMA_IMG", FileUtils.readFileToByteArray(origenFirma));
             } catch (IOException ex) {
-                LOG.log(Level.SEVERE, null, ex);
+                LOG.log(Level.SEVERE, "ORIGEN_FIRMA_IMG", ex);
             }
         }
 
@@ -622,7 +618,7 @@ public class TransferenciaArchivoService {
             try {
                 map.put("DESTINO_FIRMA_IMG", FileUtils.readFileToByteArray(destinoFirma));
             } catch (IOException ex) {
-                LOG.log(Level.SEVERE, null, ex);
+                LOG.log(Level.SEVERE, "DESTINO_FIRMA_IMG", ex);
             }
         }
 
@@ -651,8 +647,7 @@ public class TransferenciaArchivoService {
      * @param row Fila.
      * @param cellValues Valores para las celdas de la fila.
      */
-    private void fillTableRow(final Document asposeDocument, final Row row,
-            final String... cellValues) {
+    private void fillTableRow(final Document asposeDocument, final Row row, final String... cellValues) {
         for (String cellValue : cellValues) {
             Paragraph paragraph = new Paragraph(asposeDocument);
             paragraph.appendChild(new Run(asposeDocument, cellValue));
