@@ -13,8 +13,20 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 
 public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
 
+    /**
+     * Obtiene el usuario activo correspondiente al login.
+     *
+     * @param login Login.
+     * @return Usuario activo o {@code null} en caso que no exista un usuario
+     * activo correspondiente.
+     */
+    /*
+     * 2017-09-12 jgarcia@controltechcg.com Issue #123 (SICDI-Controltech) 
+     * hotfix-123: Corrección en búsqueda de usuarios para que únicamente 
+     * presente información de usuarios activos.
+     */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    Usuario getByLogin(String login);
+    Usuario getByLoginAndActivoTrue(String login);
 
     /**
      * Obtiene los usuarios que pertenecen a la dependencia
