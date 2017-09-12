@@ -13,9 +13,6 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 
 public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    Usuario getByLogin(String login);
-
     /**
      * Obtiene el usuario activo correspondiente al login.
      *
