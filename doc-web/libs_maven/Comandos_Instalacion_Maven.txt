@@ -1,0 +1,3 @@
+mvn install:install-file -Dfile=fw-entity-1.0.0.jar -DgroupId=com.laamware -DartifactId=fw-entity -Dversion=1.0.0 -Dpackaging=jar
+mvn install:install-file -Dfile=net-sourceforge-barbecue-local-1.2.0.local.jar -DgroupId=net.sourceforge.barbecue.local -DartifactId=net-sourceforge-barbecue-local -Dversion=1.2.0.local -Dpackaging=jar
+mvn install:install-file -Dfile=local_aspose_words-16.11.0.local.jar -DgroupId=com.aspose.words.Document -DartifactId=local_aspose_words -Dversion=16.11.0.local -Dpackaging=jar
