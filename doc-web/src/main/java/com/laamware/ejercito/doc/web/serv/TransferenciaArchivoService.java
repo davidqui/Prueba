@@ -11,6 +11,7 @@ import com.aspose.words.Table;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Grados;
@@ -19,6 +20,7 @@ import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.GradosRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepository;
@@ -114,6 +116,12 @@ public class TransferenciaArchivoService {
      */
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    /**
+     * Repositorio de clasificaciones.
+     */
+    @Autowired
+    private ClasificacionRepository clasificacionRepository;
 
     /**
      * Busca un registro de transferencia de archivo.
@@ -507,7 +515,7 @@ public class TransferenciaArchivoService {
 
         // TODO: Formato de tabla (Negrita para títulos, etc...)
         // Ver forma de mantener las celdas iniciales cuando cambie de página.
-        final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 0, true);        
+        final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 0, true);
         if (table != null) {
             table.removeAllChildren();
 
@@ -621,6 +629,9 @@ public class TransferenciaArchivoService {
                 LOG.log(Level.SEVERE, "DESTINO_FIRMA_IMG", ex);
             }
         }
+
+        final Clasificacion minClasificacion = clasificacionRepository.findMinOrderActivo();
+        map.put("N_CLASIFICACION", minClasificacion.getNombre());
 
         return map;
     }
