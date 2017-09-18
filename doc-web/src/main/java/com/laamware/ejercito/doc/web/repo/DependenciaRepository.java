@@ -10,31 +10,53 @@ import com.laamware.ejercito.doc.web.entity.Dependencia;
 
 public interface DependenciaRepository extends GenJpaRepository<Dependencia, Integer> {
 
-	List<Dependencia> findByActivo(boolean activo, Sort sort);
+    List<Dependencia> findByActivo(boolean activo, Sort sort);
 
-	List<Dependencia> findByActivoAndPadre(boolean activo, Integer padreId, Sort sort);
+    List<Dependencia> findByActivoAndPadre(boolean activo, Integer padreId, Sort sort);
 
-	List<Dependencia> findByActivoAndPadreIsNull(boolean activo, Sort sort);
+    List<Dependencia> findByActivoAndPadreIsNull(boolean activo, Sort sort);
 
-	Dependencia findByActivoAndDepCodigoLdap(boolean activo, String depCodLdap);
+    Dependencia findByActivoAndDepCodigoLdap(boolean activo, String depCodLdap);
 
-	/**
-	 * Obtiene la lista de dependencias activas en las cuales el usuario es jefe
-	 * principal o jefe encargado.
-	 * 
-	 * @param usuarioId
-	 *            ID del usuario.
-	 * @return Lista de dependencias activas.
-	 */
-	// 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
-	// hotfix-99
-	@Query(nativeQuery = true, value = ""
-			+ " SELECT                                                                           "
-			+ " DEPENDENCIA.*                                                                    "
-			+ " FROM                                                                             "
-			+ " DEPENDENCIA                                                                      "
-			+ " WHERE                                                                            "
-			+ " DEPENDENCIA.ACTIVO = 1                                                           "
-			+ " AND (DEPENDENCIA.USU_ID_JEFE = :usuarioId OR DEPENDENCIA.USU_ID_JEFE = :usuarioId ) ")
-	List<Dependencia> findActivoByJefeAsignado(@Param("usuarioId") Integer usuarioId);
+    /**
+     * Obtiene la lista de dependencias activas en las cuales el usuario es jefe
+     * principal o jefe encargado.
+     *
+     * @param usuarioId ID del usuario.
+     * @return Lista de dependencias activas.
+     */
+    // 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
+    // hotfix-99
+    @Query(nativeQuery = true, value = ""
+            + " SELECT                                                                           "
+            + " DEPENDENCIA.*                                                                    "
+            + " FROM                                                                             "
+            + " DEPENDENCIA                                                                      "
+            + " WHERE                                                                            "
+            + " DEPENDENCIA.ACTIVO = 1                                                           "
+            + " AND (DEPENDENCIA.USU_ID_JEFE = :usuarioId OR DEPENDENCIA.USU_ID_JEFE = :usuarioId ) ")
+    List<Dependencia> findActivoByJefeAsignado(@Param("usuarioId") Integer usuarioId);
+
+    /**
+     * Obtiene el ID de la dependencia unidad.
+     *
+     * @param dependenciaID ID de la dependencia.
+     * @return ID de la unidad.
+     */
+    /*
+     * 2017-09-18 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
+     * feature-120: Campos para acta de transferencia.
+     */
+    @Query(nativeQuery = true, value = ""
+            + "SELECT \n"
+            + "  CONNECT_BY_ROOT DEP_ID AS ROOT_KEY \n"
+            + "FROM \n"
+            + "  DEPENDENCIA \n"
+            + "  WHERE DEP_ID = :dependenciaID \n"
+            + "START WITH \n"
+            + "  DEP_PADRE IS NULL \n"
+            + "CONNECT BY \n"
+            + "  DEP_PADRE = PRIOR DEP_ID "
+            + "")
+    public Integer findUnidadID(@Param("dependenciaID") Integer dependenciaID);
 }

@@ -12,6 +12,7 @@ import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
+import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Grados;
@@ -21,7 +22,9 @@ import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
+import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
+import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.GradosRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
@@ -33,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
@@ -68,6 +72,26 @@ public class TransferenciaArchivoService {
      * Formato de fecha completa.
      */
     private static final String FULL_DATE_FORMAT_PATTERN = "yyyy-MMMM-dd hh:mm a";
+
+    /**
+     * Formato de fecha para presentar en el acta.
+     */
+    private static final String DOCUMENT_DATE_FORMAT_PATTERN = "dd 'de' MMMM 'de' yyyy";
+
+    /**
+     * Formato de fecha de firma de documento transferido.
+     */
+    private static final String DETALLE_DOCUMENTO_FIRMA_DATE_FORMAT_PATTERN = "yyyy-MM-dd";
+
+    /**
+     * Prefijo de línea de mando.
+     */
+    private static final String LINEA_MANDO_PREFIX = "MDN-CGFM-COEJC-SECEJ";
+
+    /**
+     * Separador de línea de mando.
+     */
+    private static final String LINEA_MANDO_SEPARATOR = "-";
 
     /**
      * Datasource del sistema.
@@ -122,6 +146,18 @@ public class TransferenciaArchivoService {
      */
     @Autowired
     private ClasificacionRepository clasificacionRepository;
+
+    /**
+     * Repositorio de dependencias.
+     */
+    @Autowired
+    private DependenciaRepository dependenciaRepository;
+
+    /**
+     * Repositorio de documentos.
+     */
+    @Autowired
+    DocumentoRepository documentRepository;
 
     /**
      * Busca un registro de transferencia de archivo.
@@ -520,21 +556,14 @@ public class TransferenciaArchivoService {
             table.removeAllChildren();
 
             Row headersRow = new Row(asposeDocument);
-            fillTableRow(asposeDocument, headersRow, "ASUNTO", "CÓDIGO TRD", "TRD");
+            fillTableRow(asposeDocument, headersRow, "RADICADO", "CÓDIGO", "ASUNTO", "FECHA FINAL", "ELABORÓ", "UNIDAD DEST.");
             table.appendChild(headersRow);
 
             for (TransferenciaArchivoDetalle detalle : detalles) {
-                final DocumentoDependencia documentoDependencia
-                        = detalle.getDocumentoDependencia();
-                final Documento documento = documentoDependencia.getDocumento();
-                final String asunto = documento.getAsunto();
-
-                final Trd trd = documentoDependencia.getTrd();
-                final String trdCodigo = trd.getCodigo();
-                final String trdNombre = trd.getNombre();
+                final String[] cellValues = buildCellValues(detalle);
 
                 Row row = new Row(asposeDocument);
-                fillTableRow(asposeDocument, row, asunto, trdCodigo, trdNombre);
+                fillTableRow(asposeDocument, row, cellValues);
                 table.appendChild(row);
             }
         }
@@ -563,6 +592,41 @@ public class TransferenciaArchivoService {
     }
 
     /**
+     * Construye los valores para las celdas de una fila de la tabla de
+     * documentos transferidos.
+     *
+     * @param detalle Registro de detalle de transferencia.
+     * @return Arreglo de valores del detalle de transferencia.
+     */
+    private String[] buildCellValues(TransferenciaArchivoDetalle detalle) {
+        final SimpleDateFormat fechaFirmaDateFormatter = new SimpleDateFormat(DETALLE_DOCUMENTO_FIRMA_DATE_FORMAT_PATTERN, LOCALE_ES_CO);
+
+        final DocumentoDependencia documentoDependencia = detalle.getDocumentoDependencia();
+        final Documento documento = documentoDependencia.getDocumento();
+        final String radicado = documento.getRadicado();
+        final String asunto = documento.getAsunto();
+
+        final Trd trd = documentoDependencia.getTrd();
+        final String trdCodigo = trd.getCodigo();
+
+        final Integer quien = documento.getQuien();
+        final Usuario documentoQuien = usuarioRepository.findOne(quien);
+        final String documentoElaboro = (Objects.toString(documentoQuien.getGrado(), "") + " " + documentoQuien.getNombre()).trim();
+
+        final String siglaDependenciaDestino = Objects.toString(documento.getDependenciaDestino().getSigla(), "");
+
+        final String fechaFirma;
+        if (documento.getFirma() == null) {
+            fechaFirma = "";
+        } else {
+            final Date cuandoFirma = documentRepository.findCuandoFirma(documento.getInstancia().getId());
+            fechaFirma = fechaFirmaDateFormatter.format(cuandoFirma);
+        }
+
+        return new String[]{radicado, trdCodigo, asunto, fechaFirma, documentoElaboro, siglaDependenciaDestino};
+    }
+
+    /**
      * Crea el mapa de campos/valor para el reemplazo de wildcards sobre la
      * plantilla para la generación del mapa a través de la API de Aspose.
      *
@@ -571,11 +635,12 @@ public class TransferenciaArchivoService {
      */
     private KeysValuesAsposeDocxDTO crearMapaAspose(final TransferenciaArchivo transferenciaArchivo) {
         final SimpleDateFormat fullDateFormatter = new SimpleDateFormat(FULL_DATE_FORMAT_PATTERN, LOCALE_ES_CO);
+        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(DOCUMENT_DATE_FORMAT_PATTERN, LOCALE_ES_CO);
 
         final KeysValuesAsposeDocxDTO map = new KeysValuesAsposeDocxDTO();
 
-        map.put("TIPO_TRANSFERENCIA", transferenciaArchivo.getTipo()
-                .equals(TransferenciaArchivo.PARCIAL_TIPO) ? "Parcial" : "Total");
+        map.put("TIPO_TRANSFERENCIA", "Transferencia " + (transferenciaArchivo.getTipo()
+                .equals(TransferenciaArchivo.PARCIAL_TIPO) ? "Parcial" : "Total"));
 
         map.put("CREADOR_NOMBRE", transferenciaArchivo.getCreadorUsuario().getNombre());
         map.put("CREADOR_DEPENDENCIA_NOMBRE", transferenciaArchivo.getCreadorDependencia().getNombre());
@@ -633,7 +698,43 @@ public class TransferenciaArchivoService {
         final Clasificacion minClasificacion = clasificacionRepository.findMinOrderActivo();
         map.put("N_CLASIFICACION", minClasificacion.getNombre());
 
+        final Integer unidadID = dependenciaRepository.findUnidadID(transferenciaArchivo.getOrigenDependencia().getId());
+        final Dependencia origenUnidadDependencia = dependenciaRepository.findOne(unidadID);
+        map.put("ELABORA_DEP_SPADRE", origenUnidadDependencia.getNombre());
+
+        final String lineaMando = buildLineaMando(transferenciaArchivo);
+        map.put("LINEA_MANDO2", lineaMando);
+
+        final String elaboraCiudad = transferenciaArchivo.getOrigenDependencia().getCiudad();
+        map.put("Dependencia_Ciudad_Elabora", elaboraCiudad == null ? "" : elaboraCiudad);
+
+        final String fechaDocumento = documentDateFormatter.format(transferenciaArchivo.getFechaAprobacion());
+        map.put("FECHA_DOC", fechaDocumento);
+
         return map;
+    }
+
+    /**
+     * Construye la línea de mando de la dependencia origen de la transferencia.
+     *
+     * @param transferenciaArchivo Transferencia de archivo.
+     * @return Línea de mando.
+     */
+    private String buildLineaMando(final TransferenciaArchivo transferenciaArchivo) {
+        String lineaMando = LINEA_MANDO_PREFIX;
+
+        final Dependencia origenDependencia = transferenciaArchivo.getOrigenDependencia();
+        final Integer unidadID = dependenciaRepository.findUnidadID(origenDependencia.getId());
+        final Dependencia origenUnidadDependencia = dependenciaRepository.findOne(unidadID);
+        if (origenUnidadDependencia.getSigla() != null) {
+            lineaMando += LINEA_MANDO_SEPARATOR + origenUnidadDependencia.getSigla();
+        }
+
+        if (origenDependencia.getSigla() != null) {
+            lineaMando += LINEA_MANDO_SEPARATOR + origenDependencia.getSigla();
+        }
+
+        return lineaMando;
     }
 
     /**
