@@ -30,6 +30,7 @@ import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepositor
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -39,7 +40,10 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.sql.DataSource;
+import net.sourceforge.jbarcodebean.JBarcodeBean;
+import net.sourceforge.jbarcodebean.model.Interleaved25;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -711,6 +715,11 @@ public class TransferenciaArchivoService {
         final String fechaDocumento = documentDateFormatter.format(transferenciaArchivo.getFechaAprobacion());
         map.put("FECHA_DOC", fechaDocumento);
 
+        // TODO: Generar número de radicado.
+        final String numeroRadicado = "2017091801";
+        final byte[] barcodeBytes = buildBarcodeBytes(numeroRadicado);
+        map.put("COD_BARRA", barcodeBytes);
+
         return map;
     }
 
@@ -768,6 +777,64 @@ public class TransferenciaArchivoService {
             cell.appendChild(paragraph);
             row.appendChild(cell);
         }
+    }
+
+    /**
+     * Construye un arreglo de bytes correspondiente a la imagen del código de
+     * barras del valor indicado.
+     *
+     * @param value Valor a presentar como código de barras. Todos sus
+     * caracteres deben ser números.
+     * @return Arreglo de bytes.
+     */
+    private byte[] buildBarcodeBytes(final String value) {
+
+        byte[] barcodeBytes = null;
+
+        JBarcodeBean barcode = new JBarcodeBean();
+
+        barcode.setCodeType(new Interleaved25());
+
+        String codigo;
+        if (value == null || value.trim().isEmpty()) {
+            codigo = "000000000";
+        } else {
+            String chars = value.trim();
+            codigo = "";
+            for (int indice = 0; indice < chars.length(); indice++) {
+                codigo += String.valueOf(Integer.parseInt(chars.charAt(indice) + ""));
+            }
+        }
+
+        barcode.setCode(codigo);
+        barcode.setCheckDigit(true);
+
+        BufferedImage bufferedImage = barcode.draw(new BufferedImage(200, 20, BufferedImage.TYPE_INT_RGB));
+
+        File barcodeTmpFile = null;
+        try {
+            barcodeTmpFile = File.createTempFile("_sigdi_img_tmp_", ".png");
+            ImageIO.write(bufferedImage, "png", barcodeTmpFile);
+
+            barcodeBytes = FileUtils.readFileToByteArray(barcodeTmpFile);
+
+            if (!barcodeTmpFile.delete()) {
+                LOG.log(Level.WARNING, "No puedo borrar archivo {0}", barcodeTmpFile.getCanonicalPath());
+            }
+
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, codigo, ex);
+            try {
+                if (barcodeTmpFile != null) {
+                    barcodeTmpFile.deleteOnExit();
+                }
+            } catch (Exception ex2) {
+                LOG.log(Level.SEVERE, codigo, ex2);
+            }
+        }
+
+        return barcodeBytes;
+
     }
 
 }
