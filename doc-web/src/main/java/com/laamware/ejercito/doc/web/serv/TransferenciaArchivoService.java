@@ -78,7 +78,7 @@ public class TransferenciaArchivoService {
     /**
      * Formato de fecha completa.
      */
-    private static final String FULL_DATE_FORMAT_PATTERN = "yyyy-MMMM-dd hh:mm a";
+    private static final String FULL_DATE_FORMAT_PATTERN = "dd 'de' MMMM 'de' yyyy hh:mm a";
 
     /**
      * Formato de fecha para presentar en el acta.
@@ -686,6 +686,7 @@ public class TransferenciaArchivoService {
         if (creadorFirma != null) {
             try {
                 map.put("CREADOR_FIRMA_IMG", FileUtils.readFileToByteArray(creadorFirma));
+                map.put("IMG_FIRMA", FileUtils.readFileToByteArray(creadorFirma));
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, "CREADOR_FIRMA_IMG", ex);
             }
@@ -720,7 +721,7 @@ public class TransferenciaArchivoService {
         map.put("LINEA_MANDO2", lineaMando);
 
         final String elaboraCiudad = transferenciaArchivo.getOrigenDependencia().getCiudad();
-        map.put("Dependencia_Ciudad_Elabora", elaboraCiudad == null ? "" : elaboraCiudad);
+        map.put("DEPENDENCIA_CIUDAD_ELABORA", elaboraCiudad == null ? "" : elaboraCiudad);
 
         final String fechaDocumento = documentDateFormatter.format(transferenciaArchivo.getFechaAprobacion());
         map.put("FECHA_DOC", fechaDocumento);
@@ -729,6 +730,10 @@ public class TransferenciaArchivoService {
         map.put("COD_BARRA", barcodeBytes);
 
         map.put("N_RADICADO", transferenciaArchivo.getNumeroRadicado());
+
+        map.put("FIRMA_NOM", transferenciaArchivo.getCreadorUsuario().getNombre());
+        map.put("FIRMA_GRADO", transferenciaArchivo.getCreadorGrado().getId());
+        map.put("FIRMA_CARGO", transferenciaArchivo.getCreadorCargo());
 
         return map;
     }
