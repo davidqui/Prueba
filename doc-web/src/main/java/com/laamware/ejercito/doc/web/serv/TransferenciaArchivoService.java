@@ -542,13 +542,11 @@ public class TransferenciaArchivoService {
             LOG.severe("ASPOSE no Licenciado!");
         }
 
-        final KeysValuesAsposeDocxDTO asposeMap
-                = crearMapaAspose(transferenciaArchivo);
+        final KeysValuesAsposeDocxDTO asposeMap = crearMapaAspose(transferenciaArchivo);
         final String plantillaPath = ofs.getPath(plantilla.getCodigoOFS());
         final Document asposeDocument = new Document(plantillaPath);
 
-        asposeDocument.getMailMerge()
-                .execute(asposeMap.getNombres(), asposeMap.getValues());
+        asposeDocument.getMailMerge().execute(asposeMap.getNombres(), asposeMap.getValues());
 
         final List<TransferenciaArchivoDetalle> detalles
                 = detalleRepository.findAllByTransferenciaArchivo(transferenciaArchivo);
@@ -571,6 +569,10 @@ public class TransferenciaArchivoService {
                 table.appendChild(row);
             }
         }
+
+        // TODO: Preguntar que hacemos si la dependencia destino no tiene sigla.
+        final String siglaDependenciaDestino = Objects.toString(transferenciaArchivo.getDestinoDependencia().getSigla(), "");
+        ofs.insertWatermarkText(asposeDocument, siglaDependenciaDestino);
 
         final File tmpFile = File.createTempFile("_sigdi_temp_", ".pdf");
         asposeDocument.save(tmpFile.getPath());
