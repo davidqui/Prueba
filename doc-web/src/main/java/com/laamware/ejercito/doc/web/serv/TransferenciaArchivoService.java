@@ -30,10 +30,13 @@ import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepositor
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
+import com.laamware.ejercito.doc.web.util.NumeroVersionComparator;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -554,6 +557,7 @@ public class TransferenciaArchivoService {
 
         final List<TransferenciaArchivoDetalle> detalles
                 = detalleRepository.findAllByTransferenciaArchivo(transferenciaArchivo);
+        ordenarDetalles(detalles);
 
         // TODO: Formato de tabla (Negrita para títulos, etc...)
         // Ver forma de mantener las celdas iniciales cuando cambie de página.
@@ -720,10 +724,10 @@ public class TransferenciaArchivoService {
 
         final String fechaDocumento = documentDateFormatter.format(transferenciaArchivo.getFechaAprobacion());
         map.put("FECHA_DOC", fechaDocumento);
-        
+
         final byte[] barcodeBytes = buildBarcodeBytes(transferenciaArchivo.getNumeroRadicado().replaceAll("-", ""));
         map.put("COD_BARRA", barcodeBytes);
-        
+
         map.put("N_RADICADO", transferenciaArchivo.getNumeroRadicado());
 
         return map;
@@ -841,6 +845,24 @@ public class TransferenciaArchivoService {
 
         return barcodeBytes;
 
+    }
+
+    /**
+     * Ordena la lista de detalles según el código de la TRD asociada.
+     *
+     * @param detalles Lista de detalles de transferencia.
+     */
+    private void ordenarDetalles(List<TransferenciaArchivoDetalle> detalles) {
+        Collections.sort(detalles, new Comparator<TransferenciaArchivoDetalle>() {
+            final NumeroVersionComparator versionComparator = new NumeroVersionComparator();
+
+            @Override
+            public int compare(TransferenciaArchivoDetalle detalle1, TransferenciaArchivoDetalle detalle2) {
+                final String codigo1 = detalle1.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
+                final String codigo2 = detalle2.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
+                return versionComparator.compare(codigo1, codigo2);
+            }
+        });
     }
 
 }
