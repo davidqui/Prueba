@@ -44,6 +44,10 @@
                     <td><strong>Número de documentos:</strong></td>
                     <td>${nuevatransferencia.numeroDocumentos}</td>
                     </tr> 
+                <tr>
+                    <td><strong>Número de radicado:</strong></td>
+                    <td>${nuevatransferencia.numeroRadicado}</td>
+                    </tr> 
                 <#if nuevatransferencia.actaOFS?? >
                 <tr>
                     <td colspan="2"><strong><a class="btn btn-success btn-lg" href="/ofs/download/${nuevatransferencia.actaOFS}" >Descargar Acta</a></strong></td>

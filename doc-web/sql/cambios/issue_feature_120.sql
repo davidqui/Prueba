@@ -1,4 +1,13 @@
 -- -----------------------------------------------------------------------------
+-- 2017-09-19 jgarcia@controltechcg.com Issue #120 (SICDI-Controntech)
+-- feature-120
+-- Número de radicado.
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE TRANSFERENCIA_ARCHIVO ADD (NUM_RADICADO VARCHAR2(32 BYTE) NULL);
+CREATE INDEX TAR_NUM_RADICADO_IDX ON TRANSFERENCIA_ARCHIVO (NUM_RADICADO);
+
+-- -----------------------------------------------------------------------------
 -- 2017-08-25 jgarcia@controltechcg.com Issue #120 (SICDI-Controntech)
 -- feature-120
 -- Creación de Entidades correspondientes a Transferencia de Archivo.
@@ -33,6 +42,7 @@ CREATE TABLE TRANSFERENCIA_ARCHIVO (
     ACTA_OFS            VARCHAR2(32 CHAR)   NULL,
     TAR_ANTERIOR        NUMBER(*,0)         NULL,
     TAR_ORIGEN_CLA_ID   NUMBER(*,0)         NULL,
+    NUM_RADICADO        VARCHAR2(32 BYTE)   NULL
     PRIMARY KEY (TAR_ID)
 );
 
@@ -43,6 +53,7 @@ CREATE INDEX TAR_ESTADO_IDX             ON TRANSFERENCIA_ARCHIVO (ESTADO);
 CREATE INDEX TAR_TIPO_TRANSFERENCIA_IDX ON TRANSFERENCIA_ARCHIVO (TIPO_TRANSFERENCIA);
 CREATE INDEX TAR_TAR_ANTERIOR_IDX       ON TRANSFERENCIA_ARCHIVO (TAR_ANTERIOR);
 CREATE INDEX TAR_TAR_ORIGEN_CLA_ID_IDX  ON TRANSFERENCIA_ARCHIVO (TAR_ORIGEN_CLA_ID);
+CREATE INDEX TAR_NUM_RADICADO_IDX       ON TRANSFERENCIA_ARCHIVO (NUM_RADICADO);
 
 -- FOREIGN KEY
 

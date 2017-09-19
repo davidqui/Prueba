@@ -161,7 +161,7 @@ public class TransferenciaArchivoService {
      * Repositorio de documentos.
      */
     @Autowired
-    DocumentoRepository documentRepository;
+    private DocumentoRepository documentoRepository;
 
     /**
      * Busca un registro de transferencia de archivo.
@@ -438,6 +438,10 @@ public class TransferenciaArchivoService {
         transferencia.setEstado(TransferenciaArchivo.APROBADA_ESTADO);
         transferencia.setFechaAprobacion(ahora);
 
+        final Integer unidadDestinoID = dependenciaRepository.findUnidadID(destinoUsuario.getDependencia().getId());
+        final String radicado = documentoRepository.getRadicado(unidadDestinoID);
+        transferencia.setNumeroRadicado(radicado);
+
         transferenciaRepository.saveAndFlush(transferencia);
 
         if (transferenciaAnterior == null) {
@@ -625,7 +629,7 @@ public class TransferenciaArchivoService {
         if (documento.getFirma() == null) {
             fechaFirma = "";
         } else {
-            final Date cuandoFirma = documentRepository.findCuandoFirma(documento.getInstancia().getId());
+            final Date cuandoFirma = documentoRepository.findCuandoFirma(documento.getInstancia().getId());
             fechaFirma = fechaFirmaDateFormatter.format(cuandoFirma);
         }
 
@@ -716,11 +720,11 @@ public class TransferenciaArchivoService {
 
         final String fechaDocumento = documentDateFormatter.format(transferenciaArchivo.getFechaAprobacion());
         map.put("FECHA_DOC", fechaDocumento);
-
-        // TODO: Generar número de radicado.
-        final String numeroRadicado = "2017091801";
-        final byte[] barcodeBytes = buildBarcodeBytes(numeroRadicado);
+        
+        final byte[] barcodeBytes = buildBarcodeBytes(transferenciaArchivo.getNumeroRadicado().replaceAll("-", ""));
         map.put("COD_BARRA", barcodeBytes);
+        
+        map.put("N_RADICADO", transferenciaArchivo.getNumeroRadicado());
 
         return map;
     }

@@ -230,6 +230,12 @@ public class TransferenciaArchivo implements Serializable {
     private Clasificacion transferenciaAnteriorOrigenClasificacion;
 
     /**
+     * Número de radicado.
+     */
+    @Column(name = "NUM_RADICADO")
+    private String numeroRadicado;
+
+    /**
      * Constructor vacío.
      */
     public TransferenciaArchivo() {
@@ -656,8 +662,7 @@ public class TransferenciaArchivo implements Serializable {
      * @param fechaAprobacion Fecha.
      */
     public void setFechaAprobacion(Date fechaAprobacion) {
-        this.fechaAprobacion = (fechaAprobacion == null)
-                ? null : new Date(fechaAprobacion.getTime());
+        this.fechaAprobacion = (fechaAprobacion == null) ? null : new Date(fechaAprobacion.getTime());
     }
 
     /**
@@ -734,6 +739,24 @@ public class TransferenciaArchivo implements Serializable {
         this.transferenciaAnteriorOrigenClasificacion = transferenciaAnteriorOrigenClasificacion;
     }
 
+    /**
+     * Obtiene el número de radicado.
+     *
+     * @return Número de radicado.
+     */
+    public String getNumeroRadicado() {
+        return numeroRadicado;
+    }
+
+    /**
+     * Establece el número de radicado.
+     *
+     * @param numeroRadicado Número de radicado.
+     */
+    public void setNumeroRadicado(String numeroRadicado) {
+        this.numeroRadicado = numeroRadicado;
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;
@@ -761,6 +784,7 @@ public class TransferenciaArchivo implements Serializable {
         hash = 79 * hash + Objects.hashCode(this.actaOFS);
         hash = 79 * hash + Objects.hashCode(this.transferenciaAnteriorID);
         hash = 79 * hash + Objects.hashCode(this.transferenciaAnteriorOrigenClasificacion);
+        hash = 79 * hash + Objects.hashCode(this.numeroRadicado);
         return hash;
     }
 
@@ -792,6 +816,9 @@ public class TransferenciaArchivo implements Serializable {
             return false;
         }
         if (!Objects.equals(this.actaOFS, other.actaOFS)) {
+            return false;
+        }
+        if (!Objects.equals(this.numeroRadicado, other.numeroRadicado)) {
             return false;
         }
         if (!Objects.equals(this.id, other.id)) {
