@@ -4,8 +4,8 @@
 -- Número de radicado.
 -- -----------------------------------------------------------------------------
 
-ALTER TABLE TRANSFERENCIA_ARCHIVO ADD (NUM_RADICADO VARCHAR2(32 BYTE) NULL);
-CREATE INDEX TAR_NUM_RADICADO_IDX ON TRANSFERENCIA_ARCHIVO (NUM_RADICADO);
+-- ALTER TABLE TRANSFERENCIA_ARCHIVO ADD (NUM_RADICADO VARCHAR2(32 BYTE) NULL);
+-- CREATE INDEX TAR_NUM_RADICADO_IDX ON TRANSFERENCIA_ARCHIVO (NUM_RADICADO);
 
 -- -----------------------------------------------------------------------------
 -- 2017-08-25 jgarcia@controltechcg.com Issue #120 (SICDI-Controntech)
