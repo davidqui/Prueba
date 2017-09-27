@@ -627,7 +627,18 @@ public class TransferenciaArchivoService {
         final Usuario documentoQuien = usuarioRepository.findOne(quien);
         final String documentoElaboro = (Objects.toString(documentoQuien.getGrado(), "") + " " + documentoQuien.getNombre()).trim();
 
-        final String siglaDependenciaDestino = Objects.toString(documento.getDependenciaDestino().getSigla(), "");
+        /**
+         * 2017-09-27 jgarcia@controltechcg.net Issue #128 (SICDI-Controltech)
+         * hotfix-128: Corrección para no tener en cuenta la dependencia
+         * destino, cuando los documentos son de proceso externo.
+         */
+        final Dependencia dependenciaDestino = documento.getDependenciaDestino();
+        final String siglaDependenciaDestino;
+        if (dependenciaDestino == null) {
+            siglaDependenciaDestino = "";
+        } else {
+            siglaDependenciaDestino = Objects.toString(dependenciaDestino.getSigla(), "");
+        }
 
         final String fechaFirma;
         if (documento.getFirma() == null) {
