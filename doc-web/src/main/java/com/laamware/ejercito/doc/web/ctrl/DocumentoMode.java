@@ -135,10 +135,15 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		 * de construcción la clave expediente para que el componente aparezca,
 		 * según lo indicado en documento.ftl.
 		 */
+                /*
+		 * 2017-09-28 edison.gonzalez@controltechcg.com feature #129 : Se adiciona al mapa
+		 * de construcción la clave grado y marca de agua para que el componente aparezca,
+		 * según lo indicado en documento.ftl.
+		 */
 		EN_CONSTRUCCION_EXTERNO.editAndView("trd").editAndView("destinatario").editAndView("asunto")
 				.editAndView("plazo").editAndView("clasificacion").editAndView("adjuntos").editAndView("observaciones")
 				.editAndView("contenido").editAndView("formatos").editAndView("plantilla").editAndView("guardar")
-				.editAndView("expediente");
+				.editAndView("expediente").editAndView("grado");
 		EN_CONSTRUCCION_EXTERNO.validator = new EnConstruccionExternoValidator();
 		modes.put(NAME_EN_CONSTRUCCION_EXTERNO, EN_CONSTRUCCION_EXTERNO);
 
@@ -488,6 +493,9 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 
 		if (get("plantilla_edit") == false)
 			target.setPlantilla(source.getPlantilla());
+                
+                if (get("grado_edit") == false)
+			target.setGrado(source.getGrado());
 
 		// Información no editable por naturaleza
 		target.setAprueba(source.getAprueba());
@@ -563,6 +571,9 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 
 		if (get("plantilla_edit"))
 			target.setPlantilla(source.getPlantilla());
+                
+                if (get("grado_edit"))
+			target.setGrado(source.getGrado());
 
 	}
 

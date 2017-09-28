@@ -32,8 +32,8 @@ import org.hibernate.annotations.Parameter;
 @SuppressWarnings("PersistenceUnitPresent")
 public class RestriccionDifusion implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
+    private static final long serialVersionUID = -28360048168646087L;
+    
     /**
      * ID.
      */
