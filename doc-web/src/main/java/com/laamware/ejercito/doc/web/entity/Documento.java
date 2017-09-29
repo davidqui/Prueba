@@ -240,6 +240,7 @@ public class Documento extends AuditModifySupport {
 	 * permite almacenar la etiqueta de grado en el documento. Aplica solo para documentos
          * externos.
      */
+    @Size(max = 32)
     @Column(name = "GRADO_EXTERNO")
     private String gradoExterno;
 
@@ -248,6 +249,7 @@ public class Documento extends AuditModifySupport {
 	 * permite almacenar la etiqueta de gota de agua en el documento. Aplica solo para documentos
          * externos.
      */
+    @Size(max = 64)
     @Column(name = "MARCA_AGUA_EXTERNO")
     private String marcaAguaExterno;
 

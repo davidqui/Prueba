@@ -83,8 +83,19 @@ public class OFSController extends UtilController {
 						ofs.insertWatermarkText(documentAspose, asposeDocxDTO.getValues()[ indice ].toString().trim() );//APLICAMOS LA MARCA DE AGUA, EN CASO LA TENGA
 						break;
 					}
+                                        
+                                        /*
+                                        * 2017-09-29 edison.gonzalez@controltechcg.com issue #129 : Se adiciona la marca de agua
+                                        * para documentos externos.
+                                        */
+                                        if(  "EXTERNO_MARCA_AGUA".equalsIgnoreCase( valor ) && asposeDocxDTO.getValues()[ indice ].toString().trim().length() > 0 ){
+						ofs.insertWatermarkText(documentAspose, asposeDocxDTO.getValues()[ indice ].toString().trim() );//APLICAMOS LA MARCA DE AGUA, EN CASO LA TENGA
+						break;
+					}
 					
-				}				
+				}
+                                
+                                
 				
 				File fTempSalidaPDF = File.createTempFile("_sigdi_aspose_", ".pdf");
 				documentAspose.save( fTempSalidaPDF.getPath() );

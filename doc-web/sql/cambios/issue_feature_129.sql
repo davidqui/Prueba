@@ -28,8 +28,8 @@ CREATE SEQUENCE RESTRICCION_DIFUSION_SEQ;
 -- -----------------------------------------------------------------------------
 -- ALTERACION DE LA TABLA: DOCUMENTO
 -- -----------------------------------------------------------------------------
-alter table DOCUMENTO add GRADO_EXTERNO VARCHAR2(100);
-alter table DOCUMENTO add MARCA_AGUA_EXTERNO VARCHAR2(100);
+alter table DOCUMENTO add GRADO_EXTERNO VARCHAR2(32);
+alter table DOCUMENTO add MARCA_AGUA_EXTERNO VARCHAR2(64);
 alter table DOCUMENTO add RESTRICCION_DIFUSION NUMBER;
 
 -- FOREIGN KEY

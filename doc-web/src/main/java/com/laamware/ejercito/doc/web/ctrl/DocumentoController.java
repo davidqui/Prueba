@@ -420,10 +420,10 @@ public class DocumentoController extends UtilController {
          */
         keysValuesAsposeDocxDTO.put("DESTINATARIO_GRADO",
                 documento.getPdfTexto84() != null ? documento.getPdfTexto84() : "");
-        
+
         keysValuesAsposeDocxDTO.put("EXTERNO_MARCA_AGUA",
                 documento.getPdfTexto85() != null ? documento.getPdfTexto85() : "");
-        
+
         keysValuesAsposeDocxDTO.put("RESTRICCION_DIFUSION",
                 documento.getPdfTexto86() != null ? documento.getPdfTexto86() : "");
 
@@ -2748,6 +2748,15 @@ public class DocumentoController extends UtilController {
                     ofs.insertWatermarkText(documentAspose, asposeDocxDTO.getValues()[indice].toString().trim());
                     break;
                 }
+
+                /*
+                 * 2017-09-29 edison.gonzalez@controltechcg.com issue #129 : Se adiciona la marca de agua
+                 * para documentos externos.
+                 */
+                if ("EXTERNO_MARCA_AGUA".equalsIgnoreCase(valor) && asposeDocxDTO.getValues()[indice].toString().trim().length() > 0) {
+                    ofs.insertWatermarkText(documentAspose, asposeDocxDTO.getValues()[indice].toString().trim());//APLICAMOS LA MARCA DE AGUA, EN CASO LA TENGA
+                    break;
+                }
             }
 
             File fTempSalidaPDF = File.createTempFile("_sigdi_temp_", ".pdf");
@@ -3385,7 +3394,6 @@ public class DocumentoController extends UtilController {
     List<Plantilla> listaPlantilla;
 
     /* --------------------------- privados -------------------------- */
-
     /**
      * Carga el listado de destinatarios al modelo
      *

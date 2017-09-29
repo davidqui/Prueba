@@ -78,7 +78,11 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 	}
 
 	static {
-
+                /*
+		 * 2017-09-28 edison.gonzalez@controltechcg.com feature #129 : Se adiciona al mapa
+		 * de construcción la clave gradoExterno y marca de agua externo para que el componente aparezca,
+		 * según lo indicado en documento.ftl.
+		 */
 		REGISTRO.edit("destinatario").editAndView("asunto").editAndView("remitente").editAndView("numeroOficio")
 				.editAndView("fechaOficio").editAndView("numeroFolios").editAndView("clasificacion")
 				.editAndView("radicadoOrfeo").editAndView("numeroBolsa").editAndView("trd").editAndView("observaciones")
@@ -133,11 +137,6 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		/*
 		 * 2017-02-07 jgarcia@controltechcg.com Issue #47 : Se adiciona al mapa
 		 * de construcción la clave expediente para que el componente aparezca,
-		 * según lo indicado en documento.ftl.
-		 */
-                /*
-		 * 2017-09-28 edison.gonzalez@controltechcg.com feature #129 : Se adiciona al mapa
-		 * de construcción la clave gradoExterno y marca de agua externo para que el componente aparezca,
 		 * según lo indicado en documento.ftl.
 		 */
 		EN_CONSTRUCCION_EXTERNO.editAndView("trd").editAndView("destinatario").editAndView("asunto")
@@ -494,9 +493,17 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		if (get("plantilla_edit") == false)
 			target.setPlantilla(source.getPlantilla());
                 
+                /*
+		 * 2017-09-28 edison.gonzalez@controltechcg.com issue #129 : Se adiciona al mapa
+		 * de construcción la clave gradoExterno y marca de agua externo para que el componente aparezca,
+		 * según lo indicado en documento.ftl.
+		 */
                 if (get("gradoExterno_edit") == false)
 			target.setGradoExterno(source.getGradoExterno());
-
+                
+                if (get("marcaAguaExterno_edit") == false)
+			target.setMarcaAguaExterno(source.getMarcaAguaExterno());
+                
 		// Información no editable por naturaleza
 		target.setAprueba(source.getAprueba());
 		target.setCuando(source.getCuando());
@@ -572,8 +579,16 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		if (get("plantilla_edit"))
 			target.setPlantilla(source.getPlantilla());
                 
+                /*
+		 * 2017-09-28 edison.gonzalez@controltechcg.com issue #129 : Se adiciona al mapa
+		 * de construcción la clave gradoExterno y marca de agua externo para que el componente aparezca,
+		 * según lo indicado en documento.ftl.
+		 */
                 if (get("gradoExterno_edit"))
 			target.setGradoExterno(source.getGradoExterno());
+                
+                if (get("marcaAguaExterno_edit"))
+			target.setMarcaAguaExterno(source.getMarcaAguaExterno());
 
 	}
 
