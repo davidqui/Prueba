@@ -240,16 +240,16 @@ public class Documento extends AuditModifySupport {
 	 * permite almacenar la etiqueta de grado en el documento. Aplica solo para documentos
          * externos.
      */
-    @Column(name = "GRADO")
-    private String grado;
+    @Column(name = "GRADO_EXTERNO")
+    private String gradoExterno;
 
     /*
          * 2017-02-02 edison.gonzalez@controltechcg.com Feature #129: Variable que 
 	 * permite almacenar la etiqueta de gota de agua en el documento. Aplica solo para documentos
          * externos.
      */
-    @Column(name = "MARCA_AGUA")
-    private String marcaAgua;
+    @Column(name = "MARCA_AGUA_EXTERNO")
+    private String marcaAguaExterno;
 
     /*
          * 2017-02-02 edison.gonzalez@controltechcg.com Feature #129: Variable que 
@@ -1093,21 +1093,23 @@ public class Documento extends AuditModifySupport {
         this.estadoCodigoValidaScanner = estadoCodigoValidaScanner;
     }
 
-    public String getGrado() {
-        return grado;
+    public String getGradoExterno() {
+        return gradoExterno;
     }
 
-    public void setGrado(String grado) {
-        this.grado = grado;
+    public void setGradoExterno(String gradoExterno) {
+        this.gradoExterno = gradoExterno;
     }
 
-    public String getMarcaAgua() {
-        return marcaAgua;
+    public String getMarcaAguaExterno() {
+        return marcaAguaExterno;
     }
 
-    public void setMarcaAgua(String marcaAgua) {
-        this.marcaAgua = marcaAgua;
+    public void setMarcaAguaExterno(String marcaAguaExterno) {
+        this.marcaAguaExterno = marcaAguaExterno;
     }
+
+    
 
     public RestriccionDifusion getRestriccionDifusion() {
         return restriccionDifusion;

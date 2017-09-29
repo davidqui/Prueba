@@ -56,8 +56,8 @@ public class RestriccionDifusion implements Serializable {
      * Estado.
      */
     @Basic(optional = false)
-    @Column(name = "ESTADO")
-    private String estado;
+    @Column(name = "ACTIVO")
+    private Integer activo;
 
     /**
      * Documentos de la restriccion.
@@ -72,9 +72,9 @@ public class RestriccionDifusion implements Serializable {
         this.resId = resId;
     }
 
-    public RestriccionDifusion(BigDecimal resId, String estado) {
+    public RestriccionDifusion(BigDecimal resId, Integer activo) {
         this.resId = resId;
-        this.estado = estado;
+        this.activo = activo;
     }
 
     /**
@@ -114,21 +114,21 @@ public class RestriccionDifusion implements Serializable {
     }
 
     /**
-     * Obtiene ESTADO.
+     * Obtiene ACTIVO.
      *
-     * @return estado.
+     * @return activo.
      */
-    public String getEstado() {
-        return estado;
+    public Integer getActivo() {
+        return activo;
     }
 
     /**
-     * Establece el estado.
+     * Establece el activo.
      *
-     * @param estado estado.
+     * @param activo activo.
      */
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setEstado(Integer activo) {
+        this.activo = activo;
     }
     
     /**

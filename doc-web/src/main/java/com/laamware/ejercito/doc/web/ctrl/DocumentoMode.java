@@ -82,27 +82,27 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		REGISTRO.edit("destinatario").editAndView("asunto").editAndView("remitente").editAndView("numeroOficio")
 				.editAndView("fechaOficio").editAndView("numeroFolios").editAndView("clasificacion")
 				.editAndView("radicadoOrfeo").editAndView("numeroBolsa").editAndView("trd").editAndView("observaciones")
-				.editAndView("guardar");
+				.editAndView("guardar").editAndView("gradoExterno").editAndView("marcaAguaExterno");
 		REGISTRO.validator = new RegistroValidator();
 		modes.put(NAME_REGISTRO, REGISTRO);
 
 		CON_STICKER.view("sticker").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
 				.view("fechaOficio").view("numeroFolios").view("clasificacion").view("radicado").view("radicadoOrfeo")
-				.view("numeroBolsa").editAndView("trd").editAndView("observaciones").editAndView("guardar");
+				.view("numeroBolsa").editAndView("trd").editAndView("observaciones").editAndView("guardar").editAndView("gradoExterno").editAndView("marcaAguaExterno");
 		CON_STICKER.validator = new ConStickerValidator();
 		modes.put(NAME_CON_STICKER, CON_STICKER);
 
 		DIGITALIZANDO.view("sticker").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
 				.view("fechaOficio").view("numeroFolios").view("clasificacion").editAndView("adjuntos")
 				.editAndView("observaciones").view("radicado").view("radicadoOrfeo").view("numeroBolsa")
-				.editAndView("trd").editAndView("guardar");
+				.editAndView("trd").editAndView("guardar").editAndView("gradoExterno").editAndView("marcaAguaExterno");
 		DIGITALIZANDO.validator = new DigitalizandoValidator();
 		modes.put(NAME_DIGITALIZANDO, DIGITALIZANDO);
 
 		ENTREGADO.editAndView("trd").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
 				.view("fechaOficio").view("numeroFolios").view("clasificacion").editAndView("expediente")
 				.view("adjuntos").editAndView("observaciones").view("radicado").view("radicadoOrfeo")
-				.view("numeroBolsa").editAndView("trd").editAndView("guardar");
+				.view("numeroBolsa").editAndView("trd").editAndView("guardar").editAndView("gradoExterno").editAndView("marcaAguaExterno");
 		ENTREGADO.validator = new EntregadoValidator();
 		modes.put(NAME_ENTREGADO, ENTREGADO);
 
@@ -114,7 +114,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		EN_CONSTRUCCION.editAndView("trd").editAndView("destinatario").editAndView("asunto")
 				.editAndView("clasificacion").editAndView("adjuntos").editAndView("observaciones")
 				.editAndView("contenido").editAndView("formatos").editAndView("plantilla").editAndView("plazo")// .editAndView("docx4jDocumento")
-				.editAndView("guardar").editAndView("expediente");
+				.editAndView("guardar").editAndView("expediente").editAndView("gradoExterno").editAndView("marcaAguaExterno");
 		EN_CONSTRUCCION.validator = new EnConstruccionValidator();
 		modes.put(NAME_EN_CONSTRUCCION, EN_CONSTRUCCION);
 
@@ -126,7 +126,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		EN_CONSTRUCCION_INTERNO.editAndView("trd").editAndView("destinatario").editAndView("asunto")
 				.editAndView("clasificacion").editAndView("adjuntos").editAndView("observaciones")
 				.editAndView("contenido").editAndView("formatos").editAndView("plantilla").editAndView("guardar")
-				.editAndView("expediente");
+				.editAndView("expediente").editAndView("gradoExterno").editAndView("marcaAguaExterno");
 		EN_CONSTRUCCION_INTERNO.validator = new EnConstruccionValidator();
 		modes.put(NAME_EN_CONSTRUCCION_INTERNO, EN_CONSTRUCCION_INTERNO);
 
@@ -137,26 +137,26 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		 */
                 /*
 		 * 2017-09-28 edison.gonzalez@controltechcg.com feature #129 : Se adiciona al mapa
-		 * de construcción la clave grado y marca de agua para que el componente aparezca,
+		 * de construcción la clave gradoExterno y marca de agua externo para que el componente aparezca,
 		 * según lo indicado en documento.ftl.
 		 */
 		EN_CONSTRUCCION_EXTERNO.editAndView("trd").editAndView("destinatario").editAndView("asunto")
 				.editAndView("plazo").editAndView("clasificacion").editAndView("adjuntos").editAndView("observaciones")
 				.editAndView("contenido").editAndView("formatos").editAndView("plantilla").editAndView("guardar")
-				.editAndView("expediente").editAndView("grado");
+				.editAndView("expediente").editAndView("gradoExterno").editAndView("marcaAguaExterno");
 		EN_CONSTRUCCION_EXTERNO.validator = new EnConstruccionExternoValidator();
 		modes.put(NAME_EN_CONSTRUCCION_EXTERNO, EN_CONSTRUCCION_EXTERNO);
 
 		SOLO_LECTURA.view("trd").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
 				.view("fechaOficio").view("numeroFolios").view("plazo").view("clasificacion").view("expediente")
 				.view("adjuntos").editAndView("observaciones").view("radicado").view("contenido").view("plantilla")
-				.view("radicadoOrfeo").view("numeroBolsa");
+				.view("radicadoOrfeo").view("numeroBolsa").view("gradoExterno").view("marcaAguaExterno");
 		modes.put(NAME_SOLO_LECTURA, SOLO_LECTURA);
 
 		SOLO_LECTURA_INTERNO.view("trd").view("destinatario").view("remitente").view("asunto").view("remitente")
 				.view("numeroOficio").view("fechaOficio").view("numeroFolios").view("plazo").view("clasificacion")
 				.view("expediente").view("adjuntos").editAndView("observaciones").view("radicado").view("contenido")
-				.view("plantilla");
+				.view("plantilla").view("gradoExterno").view("marcaAguaExterno");
 		modes.put(NAME_SOLO_LECTURA_INTERNO, SOLO_LECTURA_INTERNO);
 	}
 
@@ -494,8 +494,8 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		if (get("plantilla_edit") == false)
 			target.setPlantilla(source.getPlantilla());
                 
-                if (get("grado_edit") == false)
-			target.setGrado(source.getGrado());
+                if (get("gradoExterno_edit") == false)
+			target.setGradoExterno(source.getGradoExterno());
 
 		// Información no editable por naturaleza
 		target.setAprueba(source.getAprueba());
@@ -572,8 +572,8 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		if (get("plantilla_edit"))
 			target.setPlantilla(source.getPlantilla());
                 
-                if (get("grado_edit"))
-			target.setGrado(source.getGrado());
+                if (get("gradoExterno_edit"))
+			target.setGradoExterno(source.getGradoExterno());
 
 	}
 

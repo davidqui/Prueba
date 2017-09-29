@@ -17,7 +17,7 @@
 create table RESTRICCION_DIFUSION(
     RES_ID              NUMBER(*,0)         NOT NULL,
     RES_DESCRIPCION     VARCHAR2(100 CHAR),
-    ESTADO              VARCHAR2(1 CHAR)    NOT NULL,
+    ACTIVO              NUMBER(1)    		NOT NULL,
     PRIMARY KEY(RES_ID)
 );
 
@@ -28,8 +28,8 @@ CREATE SEQUENCE RESTRICCION_DIFUSION_SEQ;
 -- -----------------------------------------------------------------------------
 -- ALTERACION DE LA TABLA: DOCUMENTO
 -- -----------------------------------------------------------------------------
-alter table DOCUMENTO add GRADO VARCHAR2(100);
-alter table DOCUMENTO add MARCA_AGUA VARCHAR2(100);
+alter table DOCUMENTO add GRADO_EXTERNO VARCHAR2(100);
+alter table DOCUMENTO add MARCA_AGUA_EXTERNO VARCHAR2(100);
 alter table DOCUMENTO add RESTRICCION_DIFUSION NUMBER;
 
 -- FOREIGN KEY

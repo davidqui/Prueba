@@ -917,13 +917,26 @@ Asunto
         
         <!--
             2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
-            grado
+            gradoExterno
         -->
-        <#if mode.grado_edit>
+        <#if instancia.proceso.id == 41 && mode.gradoExterno_edit >
             <fieldset class="form-group">
-                <label for="grado">Grado</label>
-                <@spring.formInput "documento.grado" 'class="form-control"' />
-                <!--<small class="text-muted">El asunto del documento es un texto corto que describe el documento, preferiblemente de manera única.</small>-->
+                <label for="gradoExterno">Grado</label>
+                <@spring.formInput "documento.gradoExterno" 'class="form-control"' />
+                <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        </#if>
+        
+        <!--
+            2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
+            gradoExterno
+        -->
+        <#if instancia.proceso.id == 41 && mode.marcaAguaExterno_edit >
+            <fieldset class="form-group">
+                <label for="marcaAguaExterno">Marca Agua</label>
+                <@spring.formInput "documento.marcaAguaExterno" 'class="form-control"' />
                 <div class="error">
                     <@spring.showErrors "<br>"/>
                 </div>
