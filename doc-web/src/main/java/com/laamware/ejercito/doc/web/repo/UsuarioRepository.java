@@ -21,8 +21,8 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      * activo correspondiente.
      */
     /*
-     * 2017-09-12 jgarcia@controltechcg.com Issue #123 (SICDI-Controltech) 
-     * hotfix-123: Corrección en búsqueda de usuarios para que únicamente 
+     * 2017-09-12 jgarcia@controltechcg.com Issue #123 (SICDI-Controltech)
+     * hotfix-123: Corrección en búsqueda de usuarios para que únicamente
      * presente información de usuarios activos.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -32,10 +32,13 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      * Obtiene los usuarios que pertenecen a la dependencia
      *
      * @param dep
+     * @param sort
      * @return
      */
-    // 2017-02-27 jgarcia@controltechcg.com Issue #148: Corrección para que
-    // únicamente se puedan seleccionar usuarios activos.
+    /*
+     * 2017-02-27 jgarcia@controltechcg.com Issue #148: Corrección para que
+     * únicamente se puedan seleccionar usuarios activos.
+     */
     List<Usuario> findByDependenciaAndActivoTrue(Dependencia dep, Sort sort);
 
     @Query(nativeQuery = true, value = "select pr.rol_id from perfil_rol pr join usuario u on u.PER_ID = pr.PER_ID where lower(u.USU_LOGIN) = ?")
@@ -57,9 +60,9 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      * @return Lista de los ID de los roles activos.
      */
     /*
-	 * 2017-06-22 jgarcia@controltechcg.com Issue #111 (SICDI-Controltech)
-	 * hotfix-111: Implementación de función que obtiene la lista de roles
-	 * activos asignados a un usuario, según el perfil asociado.
+     * 2017-06-22 jgarcia@controltechcg.com Issue #111 (SICDI-Controltech)
+     * hotfix-111: Implementación de función que obtiene la lista de roles
+     * activos asignados a un usuario, según el perfil asociado.
      */
     @Query(nativeQuery = true, value = ""
             + " SELECT DISTINCT                                                                  "
@@ -84,9 +87,23 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      * @return Usuario activo o {@code null} si no hay concordancia en el
      * sistema.
      */
-    /* 
-        2017-08-30 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
-        feature-120: Funciones para buscador de usuarios.
+    /*
+     * 2017-08-30 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
+     * feature-120: Funciones para buscador de usuarios.
      */
     Usuario findByActivoTrueAndDocumento(String documento);
+
+    /**
+     * Obtiene la lista de todos los usuarios activos registrados en el sistema,
+     * ordenados según los criterios indicados.
+     *
+     * @param sort Criterios de ordenamiento.
+     * @return Lista de usuarios activos.
+     */
+    /*
+     * 2017-09-29 jgarcia@controltechcg.com Issue #130 (SICDI-Controltech)
+     * hotfix-130.
+     */
+    List<Usuario> findAllByActivoTrue(Sort sort);
+
 }
