@@ -105,6 +105,15 @@ RETURN VARCHAR2 is
   -- Issue #123
   V_DEPENDENCIA_CIUDAD_ELABORA  DEPENDENCIA.CIUDAD%TYPE;
   V_DEPENDENCIA_CIUDAD_DESTINO  DEPENDENCIA.CIUDAD%TYPE;
+  
+  /*
+    2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
+    feature-129: Se añade las variables para almacenar el grado externo, la 
+    marca de agua externa y la descripcion del campo restriccion de difusion.
+  */
+  V_MARCA_AGUA_EXTERNO          DOCUMENTO.MARCA_AGUA_EXTERNO%TYPE;
+  V_GRADO_EXTERNO               DOCUMENTO.GRADO_EXTERNO%TYPE;
+  V_RES_DESCRIPCION             RESTRICCION_DIFUSION.RES_DESCRIPCION%TYPE;
 
 BEGIN
     DBMS_OUTPUT.PUT_LINE('Inicio proceso main');
@@ -415,6 +424,13 @@ BEGIN
       V_SIGLA_LARGA_DE := '';
       V_PADRE_ORIGEN := '';
     END IF;
+
+    IF v_documento.RESTRICCION_DIFUSION IS NOT NULL THEN
+        SELECT RES_DESCRIPCION
+        INTO V_RES_DESCRIPCION
+        FROM RESTRICCION_DIFUSION
+        WHERE RES_ID = v_documento.RESTRICCION_DIFUSION;
+    END IF;
     
     V_CONTADOR := 1;
     FOR rec IN (select USU_ID_VISTO_BUENO from DOCUMENTO_USU_VISTOS_BUENOS where DOC_ID = P_DOC_ID order by CUANDO ASC )
@@ -550,7 +566,11 @@ BEGIN
       PDF_TEXTO81 = V_USU_CARGO_VoBo_6,
       -- Issue #123
       PDF_TEXTO82 = V_DEPENDENCIA_CIUDAD_ELABORA,
-      PDF_TEXTO83 = V_DEPENDENCIA_CIUDAD_DESTINO
+      PDF_TEXTO83 = V_DEPENDENCIA_CIUDAD_DESTINO,
+      -- Issue #129
+      PDF_TEXTO84 = v_documento.GRADO_EXTERNO,
+      PDF_TEXTO85 = v_documento.MARCA_AGUA_EXTERNO,
+      PDF_TEXTO86 = V_RES_DESCRIPCION
       
     WHERE DOCPDF_ID = P_DOC_ID;
 
