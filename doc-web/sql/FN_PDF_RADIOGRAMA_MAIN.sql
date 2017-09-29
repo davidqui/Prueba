@@ -1,9 +1,9 @@
 -- ------------------------------------------------------------ 
--- 2017-06-07 jgarcia@controltechcg.com Issue #101 (SICDI-Controltech)
--- hotfix-101: Corrección para agregar la lógica en las funciones 
--- FN_PDF_DOC_PREVIEW y FN_PDF_RADIOGRAMA_MAIN para establecer el valor de la 
--- sigla del grado del usuario destino, correspondiente al campo 47 de la
--- tabla DOCUMENTO_PDF.
+-- 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
+-- feature-129: Corrección para agregar la lógica en las funciones 
+-- FN_PDF_DOC_PREVIEW y FN_PDF_RADIOGRAMA_MAIN para establecer el valor del 
+-- grado, marca de agua y restriccion de difusion, correspondientes al campo 84,
+-- 85 y 86 de la tabla DOCUMENTO_PDF.
 -- ------------------------------------------------------------
 
 create or replace FUNCTION "FN_PDF_RADIOGRAMA_MAIN" 
@@ -110,7 +110,13 @@ RETURN VARCHAR2 is
   -- Issue #123
   V_DEPENDENCIA_CIUDAD_ELABORA  DEPENDENCIA.CIUDAD%TYPE;
   V_DEPENDENCIA_CIUDAD_DESTINO  DEPENDENCIA.CIUDAD%TYPE;
-  
+
+  /*
+    2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
+    feature-129: Se añade las variables para almacenar  la descripcion del 
+    campo restriccion de difusion.
+  */
+  V_RES_DESCRIPCION             RESTRICCION_DIFUSION.RES_DESCRIPCION%TYPE;
 BEGIN
 
   DBMS_OUTPUT.PUT_LINE('Inicio proceso main');
@@ -426,6 +432,18 @@ BEGIN
       V_PADRE_ORIGEN := '';
     END IF;
     
+    /*
+    2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
+    feature-129: Se añade las variables para almacenar la descripcion del campo 
+    restriccion de difusion.
+    */
+    IF v_documento.RESTRICCION_DIFUSION IS NOT NULL THEN
+        SELECT RES_DESCRIPCION
+        INTO V_RES_DESCRIPCION
+        FROM RESTRICCION_DIFUSION
+        WHERE RES_ID = v_documento.RESTRICCION_DIFUSION;
+    END IF;
+    
     V_CONTADOR := 1;
     FOR rec IN (select USU_ID_VISTO_BUENO from DOCUMENTO_USU_VISTOS_BUENOS where DOC_ID = P_DOC_ID and rownum <= 6 order by CUANDO ASC )
        LOOP
@@ -558,7 +576,11 @@ BEGIN
       PDF_TEXTO81 = V_USU_CARGO_VoBo_6,
       -- Issue #123
       PDF_TEXTO82 = V_DEPENDENCIA_CIUDAD_ELABORA,
-      PDF_TEXTO83 = V_DEPENDENCIA_CIUDAD_DESTINO
+      PDF_TEXTO83 = V_DEPENDENCIA_CIUDAD_DESTINO,
+      -- Issue #129
+      PDF_TEXTO84 = v_documento.GRADO_EXTERNO,
+      PDF_TEXTO85 = v_documento.MARCA_AGUA_EXTERNO,
+      PDF_TEXTO86 = V_RES_DESCRIPCION
 
     WHERE DOCPDF_ID = P_DOC_ID;
 

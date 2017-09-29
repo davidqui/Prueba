@@ -1,9 +1,9 @@
 -- ------------------------------------------------------------ 
--- 2017-06-07 jgarcia@controltechcg.com Issue #101 (SICDI-Controltech)
--- hotfix-101: Corrección para agregar la lógica en las funciones 
--- FN_PDF_DOC_PREVIEW y FN_PDF_RADIOGRAMA_MAIN para establecer el valor de la 
--- sigla del grado del usuario destino, correspondiente al campo 47 de la
--- tabla DOCUMENTO_PDF.
+-- 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
+-- feature-129: Corrección para agregar la lógica en las funciones 
+-- FN_PDF_DOC_PREVIEW y FN_PDF_RADIOGRAMA_MAIN para establecer el valor del 
+-- grado, marca de agua y restriccion de difusion, correspondientes al campo 84,
+-- 85 y 86 de la tabla DOCUMENTO_PDF.
 -- ------------------------------------------------------------
 
 create or replace FUNCTION "FN_PDF_DOC_PREVIEW" 
@@ -108,11 +108,9 @@ RETURN VARCHAR2 is
   
   /*
     2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
-    feature-129: Se añade las variables para almacenar el grado externo, la 
-    marca de agua externa y la descripcion del campo restriccion de difusion.
+    feature-129: Se añade las variables para almacenar la descripcion del campo 
+    restriccion de difusion.
   */
-  V_MARCA_AGUA_EXTERNO          DOCUMENTO.MARCA_AGUA_EXTERNO%TYPE;
-  V_GRADO_EXTERNO               DOCUMENTO.GRADO_EXTERNO%TYPE;
   V_RES_DESCRIPCION             RESTRICCION_DIFUSION.RES_DESCRIPCION%TYPE;
 
 BEGIN
@@ -425,6 +423,11 @@ BEGIN
       V_PADRE_ORIGEN := '';
     END IF;
 
+    /*
+    2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
+    feature-129: Se añade las variables para almacenar la descripcion del campo 
+    restriccion de difusion.
+    */
     IF v_documento.RESTRICCION_DIFUSION IS NOT NULL THEN
         SELECT RES_DESCRIPCION
         INTO V_RES_DESCRIPCION
