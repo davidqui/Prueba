@@ -366,6 +366,15 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 					&& StringUtils.isBlank(doc.getDestinatarioTitulo())) {
 				errors.rejectValue("destinatarioTitulo", "documento.destinatarioTitulo.empty");
 			}
+                        
+                        /*
+			 * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129: Se coloca
+			 * validacíón del campo marca de agua como obligatorio.
+			 */
+                        if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)
+					&& StringUtils.isBlank(doc.getMarcaAguaExterno())) {
+				errors.rejectValue("marcaAguaExterno", "documento.marcaAguaExterno.empty");
+			}
 
 		}
 
