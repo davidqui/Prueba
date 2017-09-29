@@ -8,6 +8,7 @@ package com.laamware.ejercito.doc.web.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,7 +34,7 @@ import org.hibernate.annotations.Parameter;
 public class RestriccionDifusion implements Serializable {
 
     private static final long serialVersionUID = -28360048168646087L;
-    
+
     /**
      * ID.
      */
@@ -46,7 +47,7 @@ public class RestriccionDifusion implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RESTRICCION_DIFUSION_SEQ")
     @Basic(optional = false)
     @Column(name = "RES_ID")
-    private BigDecimal resId;
+    private BigDecimal id;
     /**
      * Descripcion.
      */
@@ -57,24 +58,9 @@ public class RestriccionDifusion implements Serializable {
      */
     @Basic(optional = false)
     @Column(name = "ACTIVO")
-    private Integer activo;
-
-    /**
-     * Documentos de la restriccion.
-     */
-    @OneToMany(mappedBy = "restriccionDifusion")
-    private List<Documento> documentoList;
+    private Boolean activo;
 
     public RestriccionDifusion() {
-    }
-
-    public RestriccionDifusion(BigDecimal resId) {
-        this.resId = resId;
-    }
-
-    public RestriccionDifusion(BigDecimal resId, Integer activo) {
-        this.resId = resId;
-        this.activo = activo;
     }
 
     /**
@@ -82,8 +68,8 @@ public class RestriccionDifusion implements Serializable {
      *
      * @return identificador unico.
      */
-    public BigDecimal getResId() {
-        return resId;
+    public BigDecimal getId() {
+        return id;
     }
 
     /**
@@ -91,8 +77,8 @@ public class RestriccionDifusion implements Serializable {
      *
      * @param resId Secuencia.
      */
-    public void setResId(BigDecimal resId) {
-        this.resId = resId;
+    public void setId(BigDecimal id) {
+        this.id = id;
     }
 
     /**
@@ -118,7 +104,7 @@ public class RestriccionDifusion implements Serializable {
      *
      * @return activo.
      */
-    public Integer getActivo() {
+    public Boolean getActivo() {
         return activo;
     }
 
@@ -127,46 +113,41 @@ public class RestriccionDifusion implements Serializable {
      *
      * @param activo activo.
      */
-    public void setEstado(Integer activo) {
+    public void setActivo(Boolean activo) {
         this.activo = activo;
-    }
-    
-    /**
-     * Obtiene documentos de la restriccion.
-     *
-     * @return lista de documentos.
-     */
-    @XmlTransient
-    public List<Documento> getDocumentoList() {
-        return documentoList;
-    }
-
-    /**
-     * Establece la lista de documentos.
-     *
-     * @param documentoList Lista de documentos.
-     */
-    public void setDocumentoList(List<Documento> documentoList) {
-        this.documentoList = documentoList;
     }
 
     @Override
     public int hashCode() {
-        int hash = 0;
-        hash += (resId != null ? resId.hashCode() : 0);
+        int hash = 7;
+        hash = 37 * hash + Objects.hashCode(this.id);
+        hash = 37 * hash + Objects.hashCode(this.resDescripcion);
+        hash = 37 * hash + Objects.hashCode(this.activo);
         return hash;
     }
 
     @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof RestriccionDifusion)) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
             return false;
         }
-        RestriccionDifusion other = (RestriccionDifusion) object;
-        if ((this.resId == null && other.resId != null) || (this.resId != null && !this.resId.equals(other.resId))) {
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final RestriccionDifusion other = (RestriccionDifusion) obj;
+        if (!Objects.equals(this.resDescripcion, other.resDescripcion)) {
+            return false;
+        }
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Objects.equals(this.activo, other.activo)) {
             return false;
         }
         return true;
     }
+
 }

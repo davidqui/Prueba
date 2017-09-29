@@ -73,6 +73,7 @@ import com.laamware.ejercito.doc.web.entity.OFSStage;
 import com.laamware.ejercito.doc.web.entity.PDFDocumento;
 import com.laamware.ejercito.doc.web.entity.Plantilla;
 import com.laamware.ejercito.doc.web.entity.Proceso;
+import com.laamware.ejercito.doc.web.entity.RestriccionDifusion;
 import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Trd;
@@ -92,6 +93,7 @@ import com.laamware.ejercito.doc.web.repo.HProcesoInstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaRepository;
 import com.laamware.ejercito.doc.web.repo.ProcesoRepository;
+import com.laamware.ejercito.doc.web.repo.RestriccionDifusionRepository;
 import com.laamware.ejercito.doc.web.repo.TipologiaRepository;
 import com.laamware.ejercito.doc.web.repo.TransicionRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
@@ -180,6 +182,11 @@ public class DocumentoController extends UtilController {
     // feature-78
     @Autowired
     UsuarioService usuarioService;
+    
+    // 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
+    // feature-129
+    @Autowired
+    RestriccionDifusionRepository restriccionDifusionRepository;
 
     /* ---------------------- públicos ------------------------------- */
     /**
@@ -416,13 +423,10 @@ public class DocumentoController extends UtilController {
         /*
 		 * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129: Nuevo campos
 		 * PDF_TEXTO para WILDCARDS de generación de documento
-		 * (grado, marca de agua y restriccion de la difusion).
+		 * (grado y restriccion de la difusion).
          */
         keysValuesAsposeDocxDTO.put("DESTINATARIO_GRADO",
                 documento.getPdfTexto84() != null ? documento.getPdfTexto84() : "");
-
-        keysValuesAsposeDocxDTO.put("EXTERNO_MARCA_AGUA",
-                documento.getPdfTexto85() != null ? documento.getPdfTexto85() : "");
 
         keysValuesAsposeDocxDTO.put("RESTRICCION_DIFUSION",
                 documento.getPdfTexto86() != null ? documento.getPdfTexto86() : "");
@@ -3467,7 +3471,7 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     AdjuntoRepository adjuntoRepository;
-
+    
     private String imagesRoot;
 
     @Value("${docweb.images.root}")
@@ -3541,6 +3545,17 @@ public class DocumentoController extends UtilController {
     @ModelAttribute("clasificaciones")
     public List<Clasificacion> clasificaciones() {
         return clasificacionRepository.findByActivo(true, new Sort(Direction.ASC, "orden"));
+    }
+    
+    /**
+     * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
+     * feature-129: Carga el listado de restricciones de difusión
+     *
+     * @return
+     */
+    @ModelAttribute("restriccionesDifusion")
+    public List<RestriccionDifusion> restriccionesDifusion() {
+        return restriccionDifusionRepository.findByActivoTrue(new Sort(Direction.ASC, "resDescripcion"));
     }
 
     /**

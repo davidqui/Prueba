@@ -914,35 +914,61 @@ Asunto
                 </fieldset>
             </fieldset>		
         </#if>
-        
-        <!--
-            2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
-            gradoExterno
+
+<!--
+    2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
+    gradoExterno
         -->
         <#if instancia.proceso.id == 41 && mode.gradoExterno_edit >
-            <fieldset class="form-group">
-                <label for="gradoExterno">Grado</label>
+        <fieldset class="form-group">
+            <label for="gradoExterno">Grado</label>
                 <@spring.formInput "documento.gradoExterno" 'class="form-control"' />
-                <div class="error">
+            <div class="error">
                     <@spring.showErrors "<br>"/>
                 </div>
             </fieldset>
         </#if>
-        
-        <!--
-            2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
-            gradoExterno
+
+<!--
+    2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
+    marcaAguaExterna
         -->
         <#if instancia.proceso.id == 41 && mode.marcaAguaExterno_edit >
-            <fieldset class="form-group">
-                <label for="marcaAguaExterno">Marca Agua</label>
+        <fieldset class="form-group">
+            <label for="marcaAguaExterno">Marca de Agua</label>
                 <@spring.formInput "documento.marcaAguaExterno" 'class="form-control"' />
-                <div class="error">
+            <div class="error">
                     <@spring.showErrors "<br>"/>
                 </div>
             </fieldset>
         </#if>
-        
+
+<!--
+    2017-09-29 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
+    Restriccion de difusion
+        -->
+        <#if mode.restriccionDifusion_edit >
+        <fieldset class="form-group">
+            <label for="restriccionDifusion">Restriccion de difusión</label>
+                <@spring.bind "documento.restriccionDifusion" />
+            <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
+                    <#if restriccionesDifusion??>
+                <option value=""></option>
+                        <#list restriccionesDifusion as res>
+                        <#if res.id?string == ((documento.restriccionDifusion.id)!"")?string >
+                <option value="${res.id}" selected="selected">${res.resDescripcion}</option>
+                        <#else>
+                <option value="${res.id}">${res.resDescripcion}</option>
+                        </#if>
+                        </#list>
+                    </#if>
+                </select>
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        </#if>
+
         <#-- <div class="error">
             <@spring.showErrors "<br>"/>
         </div> -->
