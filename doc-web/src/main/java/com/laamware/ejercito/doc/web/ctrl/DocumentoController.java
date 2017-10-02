@@ -120,10 +120,24 @@ public class DocumentoController extends UtilController {
     /* **************************** REFORMA ********************************* */
 
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
-
     static final String PATH = "/documento";
-
     private static final com.aspose.words.License license = new com.aspose.words.License();
+    /*
+    2017-10-02 edison.gonzalez@controltechcg.com feature #129 : Organizacion
+    de las variables.
+     */
+    private String idPlantillaSeleccionada;
+    private boolean fileSaveRequestGet = false;
+    public static final String STRING_JNLP = " <jnlp" + " spec=\"1.0+\""
+            + " codebase=\"http://192.168.52.112:8181/java\"" + " href=\"launch.jnlp\">" + " <information>"
+            + "<title>SIGDI-Scanner</title>" + "<vendor>ASCONTROLTECH - SIGDI</vendor>" + "<homepage href=\"\"/>"
+            + "<description>SIGDI-Scanner</description>" + "<description kind=\"short\">Scanner - SIGDI</description>"
+            + "<offline-allowed/>" + "</information>" + " <resources>" + "<j2se version=\"1.7+\"/>"
+            + "<jar href='doc-web-scanner.jar' main='true'/>" + "<jar href='lib/uk.co.mmscomputing.device.twain.jar'/>"
+            + " </resources>" + " <application-desc main-class='doc.web.scanner.JFrameDocWebScanner'/>" + " </jnlp> ";
+    List<Plantilla> listaPlantilla;
+    private String imagesRoot;
+    private String ofsRoot;
 
     @Autowired
     private DataSource dataSource;
@@ -188,6 +202,33 @@ public class DocumentoController extends UtilController {
     @Autowired
     RestriccionDifusionRepository restriccionDifusionRepository;
 
+    @Autowired
+    ProcesoRepository procesoRepository;
+
+    @Autowired
+    InstanciaRepository instanciaRepository;
+
+    @Autowired
+    HProcesoInstanciaRepository hprocesoInstanciaRepository;
+
+    @Autowired
+    TransicionRepository transicionRepository;
+
+    @Autowired
+    VariableRepository variableRepository;
+
+    @Autowired
+    ClasificacionRepository clasificacionRepository;
+
+    @Autowired
+    TrdRepository trdRepository;
+
+    @Autowired
+    AdjuntoRepository adjuntoRepository;
+
+    @Autowired
+    TipologiaRepository tipologiaRepository;
+
     /* ---------------------- públicos ------------------------------- */
     /**
      * Muestra la página de acceso denegado
@@ -217,10 +258,6 @@ public class DocumentoController extends UtilController {
         return "";
     }
 
-    private String idPlantillaSeleccionada;
-
-    private boolean fileSaveRequestGet = false;
-
     /**
      *
      * @param pin
@@ -248,6 +285,7 @@ public class DocumentoController extends UtilController {
      * @param documento
      * @param root
      * @return
+     * @throws java.lang.Exception
      */
     public static KeysValuesAsposeDocxDTO getKeysValuesWord(PDFDocumento documento, String root) throws Exception {
 
@@ -453,8 +491,10 @@ public class DocumentoController extends UtilController {
      * rápidamente las bandejas.
      *
      * @param pin Identificador de la instancia
+     * @param archivoHeader
      * @param model
      * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -662,14 +702,6 @@ public class DocumentoController extends UtilController {
 
     }
 
-    public static final String STRING_JNLP = " <jnlp" + " spec=\"1.0+\""
-            + " codebase=\"http://192.168.52.112:8181/java\"" + " href=\"launch.jnlp\">" + " <information>"
-            + "<title>SIGDI-Scanner</title>" + "<vendor>ASCONTROLTECH - SIGDI</vendor>" + "<homepage href=\"\"/>"
-            + "<description>SIGDI-Scanner</description>" + "<description kind=\"short\">Scanner - SIGDI</description>"
-            + "<offline-allowed/>" + "</information>" + " <resources>" + "<j2se version=\"1.7+\"/>"
-            + "<jar href='doc-web-scanner.jar' main='true'/>" + "<jar href='lib/uk.co.mmscomputing.device.twain.jar'/>"
-            + " </resources>" + " <application-desc main-class='doc.web.scanner.JFrameDocWebScanner'/>" + " </jnlp> ";
-
     /**
      *
      * @param pin
@@ -677,7 +709,7 @@ public class DocumentoController extends UtilController {
      * @param model
      * @param req
      * @param principal
-     * @return
+     * @param resp
      */
     @RequestMapping(value = "/digitalizar-descargar-jnlp", method = RequestMethod.GET)
     public void descargarJnlp(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid, Model model,
@@ -739,6 +771,7 @@ public class DocumentoController extends UtilController {
      * Guarda las modificaciones a un documento dependiendo del modo de edición
      *
      * @param pin Identificador de la instancia de proceso
+     * @param file
      * @param doc La información del documento que proviene del formulario
      * @param docBind Enlace del framework con la entidad
      * @param model Modelo para la vista
@@ -904,8 +937,10 @@ public class DocumentoController extends UtilController {
     /**
      * Genera el sticker del documento
      *
-     * @param pid
+     * @param pin
      * @param model
+     * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/sticker", method = RequestMethod.GET)
@@ -979,9 +1014,8 @@ public class DocumentoController extends UtilController {
 
     /**
      *
-     * @param idDependencia
-     * @param idDocumento
-     * @param principal
+     * @param pin
+     * @return
      */
     @RequestMapping(value = "/validarcarguedigitacion", method = RequestMethod.GET)
     @ResponseBody
@@ -1002,6 +1036,7 @@ public class DocumentoController extends UtilController {
      * documento
      *
      * @param pin Indentificador de la instancia
+     * @param tid
      * @param model
      * @param req
      * @param principal
@@ -1086,6 +1121,7 @@ public class DocumentoController extends UtilController {
      * en stage de OFS
      *
      * @param pin Indentificador de la instancia de proceso
+     * @param tid
      * @param model
      * @param req
      * @param principal
@@ -1133,8 +1169,10 @@ public class DocumentoController extends UtilController {
      * relacionado al stage. El archivo PDF debe quedar adjunto al documento.
      *
      * @param pin Identificador de la instancia de proceso
+     * @param tid
      * @param model
      * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/attach", method = RequestMethod.GET)
@@ -1185,10 +1223,12 @@ public class DocumentoController extends UtilController {
      * Realiza la digitalización mediente la unidad compartida de red
      *
      * @param pin Identificador de la instancia de proceso
+     * @param tid
      * @param file El archivo seleccionado
      * @param model
      * @param req
      * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/digitalizar-principal-net", method = RequestMethod.GET)
@@ -1271,6 +1311,7 @@ public class DocumentoController extends UtilController {
      * HTTP
      *
      * @param pin Identificador de la instancia de proceso
+     * @param tid
      * @param model
      * @param req
      * @param principal
@@ -1298,10 +1339,12 @@ public class DocumentoController extends UtilController {
      * Realiza la digitalización mediante la recepción de archivos por HTTP
      *
      * @param docId Identificador del documento
+     * @param tid
      * @param archivo Archivo recibido
      * @param model
      * @param req
      * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/digitalizar-principal-file", method = RequestMethod.POST)
@@ -1404,6 +1447,7 @@ public class DocumentoController extends UtilController {
      * @param tipologia
      * @param archivo
      * @param model
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/adjunto", method = RequestMethod.POST)
@@ -1482,8 +1526,9 @@ public class DocumentoController extends UtilController {
      * Actualiza el nombre del archivo adjunto
      *
      * @param dad (identificador del adjunto)
-     * @param nAd
-     * @param model
+     * @param nombreAdjunto
+     * @param desc
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/adjunto/update", method = RequestMethod.GET)
@@ -1506,6 +1551,12 @@ public class DocumentoController extends UtilController {
 
     /**
      * Elimina un archivo adjunto mediante la marca de activo del mismo
+     *
+     * @param dad
+     * @param pin
+     * @param redirect
+     * @param principal
+     * @return
      */
     @RequestMapping(value = "/adjunto/{dad}/eliminar", method = RequestMethod.GET)
     public String adjuntoEliminar(@PathVariable("dad") String dad, @RequestParam("pin") String pin,
@@ -1545,6 +1596,11 @@ public class DocumentoController extends UtilController {
 
     /**
      * Crea una observación al documento
+     *
+     * @param docId
+     * @param observacion
+     * @param model
+     * @return
      */
     @RequestMapping(value = {"/observacion"}, method = RequestMethod.POST)
     @ResponseBody
@@ -1564,11 +1620,6 @@ public class DocumentoController extends UtilController {
         map.put("cuando", obs.getCuando().toString());
         map.put("quien", usuR.getOne(obs.getQuien()).toString());
         return map;
-    }
-
-    private static interface EstrategiaSeleccionUsuario {
-
-        Usuario select(Instancia i, Documento d);
     }
 
     @RequestMapping(value = "/asignar", method = {RequestMethod.GET, RequestMethod.POST})
@@ -1703,79 +1754,14 @@ public class DocumentoController extends UtilController {
         return "documento-asignar";
     }
 
-    /*
-	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
-	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
-	 * las dependencias.
-     */
-    private List<Dependencia> depsHierarchy() {
-        List<Dependencia> root = dependenciaRepository.findByActivoAndPadreIsNull(true,
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        for (Dependencia d : root) {
-            depsHierarchy(d);
-        }
-        return root;
-    }
-
-    /*
-	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
-	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
-	 * las dependencias.
-     */
-    private void depsHierarchy(Dependencia d) {
-        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        d.setSubs(subs);
-        for (Dependencia x : subs) {
-            depsHierarchy(x);
-        }
-    }
-
-    private String redirectToInstancia(Instancia i) {
-        if (i.transiciones().size() > 0) {
-            return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, i.getId());
-        } else {
-            return "redirect:/";
-        }
-    }
-
-    private Instancia asignar(String pin, Integer tid, EstrategiaSeleccionUsuario selector) {
-
-        Instancia i = procesoService.instancia(pin);
-        String docId = i.getVariable(Documento.DOC_ID);
-        Documento doc = documentRepository.getOne(docId);
-
-        // Aplica el generador de variables
-        documentoGeneradorVariables.generar(i);
-
-        // Intenta avanzar en el proceso
-        boolean haAvanzado = (tid == null ? i.forward() : i.forward(tid));
-        if (haAvanzado) {
-            i.asignar(selector.select(i, doc));
-        }
-
-        return i;
-    }
-
-    private Instancia asignarNoForward(String pin, Integer tid, EstrategiaSeleccionUsuario selector) {
-
-        Instancia i = procesoService.instancia(pin);
-        String docId = i.getVariable(Documento.DOC_ID);
-        Documento doc = documentRepository.getOne(docId);
-
-        // Aplica el generador de variables
-        documentoGeneradorVariables.generar(i);
-
-        i.asignar(selector.select(i, doc));
-
-        return i;
-    }
-
     /**
      * Asigna al jefe máximo y avanza en el proceso
      *
      * @param pin Identificador de la instancia de proceso
+     * @param tid
      * @param model
+     * @param redirect
+     * @param principal
      * @return
      */
     @RequestMapping(value = "/asignar-jefe-maximo", method = RequestMethod.GET)
@@ -1864,24 +1850,14 @@ public class DocumentoController extends UtilController {
         }
     }
 
-    protected Dependencia getSuperDependencia(Dependencia dep) {
-        if (dep.getPadre() == null) {
-            return dep;
-        }
-        Dependencia jefatura = dep;
-        Integer jefaturaId = dep.getPadre();
-        while (jefaturaId != null) {
-            jefatura = dependenciaRepository.getOne(jefaturaId);
-            jefaturaId = jefatura.getPadre();
-        }
-        return jefatura;
-    }
-
     /**
      * Pantalla de asignación a dependencia
      *
      * @param pin Identificador de la instancia de proceso
+     * @param tid
+     * @param did
      * @param model
+     * @param principal
      * @return
      */
     @RequestMapping(value = "/asignar-jefe-dependencia", method = RequestMethod.GET)
@@ -1966,59 +1942,14 @@ public class DocumentoController extends UtilController {
     }
 
     /**
-     * Obtiene el jefe activo de la dependencia.
-     *
-     * @param dependencia Dependencia.
-     * @return En caso que la dependencia tenga un jefe encargado y la fecha del
-     * sistema se encuentre dentro del rango de asignación del jefe encargado y
-     * este se encuentre activo en el sistema, se retorna el jefe encargado; de
-     * lo contrario, se retorna el jefe principal de la dependencia.
-     */
-    // 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01)
-    // 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01):
-    // Paso a static
-    private static Usuario getJefeActivoDependencia(final Dependencia dependencia) {
-
-        Usuario jefe = dependencia.getJefe();
-
-        Usuario jefeEncargado = dependencia.getJefeEncargado();
-        if (jefeEncargado == null) {
-            return jefe;
-        }
-
-        if (!jefeEncargado.getActivo()) {
-            return jefe;
-        }
-
-        Date fechaInicioJefeEncargado = dependencia.getFchInicioJefeEncargado();
-        if (fechaInicioJefeEncargado == null) {
-            return jefe;
-        }
-
-        fechaInicioJefeEncargado = DateUtil.setTime(fechaInicioJefeEncargado, DateUtil.SetTimeType.START_TIME);
-
-        Date fechaFinJefeEncargado = dependencia.getFchFinJefeEncargado();
-        if (fechaFinJefeEncargado == null) {
-            return jefe;
-        }
-
-        fechaFinJefeEncargado = DateUtil.setTime(fechaFinJefeEncargado, DateUtil.SetTimeType.END_TIME);
-
-        Date fechaActual = new Date(System.currentTimeMillis());
-
-        if (fechaInicioJefeEncargado.compareTo(fechaActual) <= 0 && fechaActual.compareTo(fechaFinJefeEncargado) <= 0) {
-
-            return jefeEncargado;
-        }
-
-        return jefe;
-    }
-
-    /**
      * Asigna al jefe de dependencia
      *
      * @param pin Identificador de la instancia de proceso
+     * @param tid
+     * @param depId
      * @param model
+     * @param redirect
+     * @param principal
      * @return
      */
     @RequestMapping(value = "/asignar-jefe-dependencia", method = RequestMethod.POST)
@@ -2108,7 +2039,12 @@ public class DocumentoController extends UtilController {
      * Pantalla de asignación a cualquiera
      *
      * @param pin Identificador de la instancia de proceso
+     * @param tid
+     * @param depId
+     * @param usuId
      * @param model
+     * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/asignar-cualquiera-dependencia", method = RequestMethod.GET)
@@ -2171,7 +2107,12 @@ public class DocumentoController extends UtilController {
      * Pantalla de asignación a cualquiera en la misma dependencia
      *
      * @param pin Identificador de la instancia de proceso
+     * @param tid
+     * @param usuId
+     * @param did
      * @param model
+     * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/asignar-cualquiera-mi-dependencia", method = RequestMethod.GET)
@@ -2300,7 +2241,9 @@ public class DocumentoController extends UtilController {
      * Asigna al mismo usuario
      *
      * @param pin Identificador de la instancia de proceso
+     * @param tid
      * @param model
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/asignar-mismo", method = RequestMethod.GET)
@@ -2332,9 +2275,12 @@ public class DocumentoController extends UtilController {
     /**
      * Realiza la transición asignando el usuario anterior
      *
-     * @param pid
+     * @param pin
+     * @param bvb
      * @param tid
      * @param model
+     * @param redirect
+     * @param principal
      * @return
      */
     @RequestMapping(value = "/devolver", method = RequestMethod.GET)
@@ -2443,9 +2389,12 @@ public class DocumentoController extends UtilController {
     /**
      * Realiza la transición asignando el usuario elaboro
      *
-     * @param pid
+     * @param pin
      * @param tid
+     * @param bvb
      * @param model
+     * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/devolver-elaboro", method = RequestMethod.GET)
@@ -2502,9 +2451,11 @@ public class DocumentoController extends UtilController {
     /**
      * Marca la aprobación y avanza
      *
-     * @param pid
+     * @param pin
      * @param tid
      * @param model
+     * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/aprobar", method = RequestMethod.GET)
@@ -2572,10 +2523,12 @@ public class DocumentoController extends UtilController {
     /**
      * Marca la firma y avanza
      *
-     * @param pid
+     * @param pin
      * @param tid
+     * @param expId
      * @param model
-     * @param locale
+     * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/firmar", method = RequestMethod.GET)
@@ -2842,9 +2795,11 @@ public class DocumentoController extends UtilController {
     /**
      * Da el visto bueno
      *
-     * @param pid
+     * @param pin
      * @param tid
      * @param model
+     * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/vistobueno", method = RequestMethod.GET)
@@ -2903,8 +2858,10 @@ public class DocumentoController extends UtilController {
     /**
      * Archiva un documento
      *
-     * @param pid Identificación de la instancia
+     * @param pin
+     * @param tid
      * @param model
+     * @param principal
      * @return
      */
     @RequestMapping(value = "/archivar", method = RequestMethod.GET)
@@ -2944,8 +2901,10 @@ public class DocumentoController extends UtilController {
     /**
      * Anula un documento
      *
-     * @param pid Identificación de la instancia
+     * @param pin
      * @param model
+     * @param tid
+     * @param principal
      * @return
      */
     @RequestMapping(value = "/anular", method = RequestMethod.GET)
@@ -2972,9 +2931,13 @@ public class DocumentoController extends UtilController {
     /**
      * Muestra el listado de funcionarios de la dependencia
      *
-     * @param pid
+     * @param pin
      * @param tid
+     * @param usuId
+     * @param did
      * @param model
+     * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/dar-respuesta", method = RequestMethod.GET)
@@ -3084,9 +3047,12 @@ public class DocumentoController extends UtilController {
     /**
      * Asigna al funcionario de la dependencia y luego hace la transición
      *
-     * @param pid
+     * @param pin
      * @param tid
+     * @param usuId
      * @param model
+     * @param principal
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/dar-respuesta", method = RequestMethod.POST)
@@ -3208,6 +3174,7 @@ public class DocumentoController extends UtilController {
      * Muestra la pantalla de reasignación con las personas a las que se puede
      * reasignar la instancia de proceso
      *
+     * @param pin
      * @param model
      * @param principal
      * @return
@@ -3309,7 +3276,10 @@ public class DocumentoController extends UtilController {
      * @param pin
      * @param depId
      * @param usuId
+     * @param observacion
      * @param principal
+     * @param model
+     * @param redirect
      * @return
      */
     @RequestMapping(value = "/reasignar", method = RequestMethod.POST)
@@ -3398,251 +3368,6 @@ public class DocumentoController extends UtilController {
         }
     }
 
-    List<Plantilla> listaPlantilla;
-
-    /* --------------------------- privados -------------------------- */
-    /**
-     * Carga el listado de destinatarios al modelo
-     *
-     * @return
-     */
-    public List<Plantilla> plantillas(Model model) {
-        // 2017-02-27 jgarcia@controltechcg.com Orden de plantillas por nombre.
-        listaPlantilla = plantillaRepository.findByActivo(true, new Sort(Direction.ASC, "nombre"));
-        model.addAttribute("plantillas", listaPlantilla);
-        return listaPlantilla;
-    }
-
-    /**
-     * Carga el listado de dependencias al modelo
-     *
-     * @return
-     */
-    /*
-	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
-	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
-	 * las dependencias.
-     */
-    public List<Dependencia> dependencias(Model model) {
-        List<Dependencia> list = dependenciaRepository.findByActivo(true,
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        model.addAttribute("dependencias", list);
-        return list;
-    }
-
-    /**
-     * Carga el listado de expedientes al modelo
-     *
-     * @return
-     */
-    public List<Expediente> expedientes(Model model, Principal principal) {
-
-        Dependencia dependencia = getUsuario(principal).getDependencia();
-
-        if (dependencia == null) {
-            return new ArrayList<Expediente>();
-        }
-
-        Integer dependenciaId = dependencia.getId();
-        List<Expediente> list = expedienteRepository.findByActivoAndDependenciaId(true, dependenciaId,
-                new Sort(Direction.ASC, "nombre"));
-        model.addAttribute("expedientes", list);
-        return list;
-    }
-
-    /* **************************** FIN REFORMA***************************** */
-    @Autowired
-    ProcesoRepository procesoRepository;
-
-    @Autowired
-    InstanciaRepository instanciaRepository;
-
-    @Autowired
-    HProcesoInstanciaRepository hprocesoInstanciaRepository;
-
-    @Autowired
-    TransicionRepository transicionRepository;
-
-    @Autowired
-    VariableRepository variableRepository;
-
-    @Autowired
-    ClasificacionRepository clasificacionRepository;
-
-    @Autowired
-    TrdRepository trdRepository;
-
-    @Autowired
-    AdjuntoRepository adjuntoRepository;
-
-    private String imagesRoot;
-
-    @Value("${docweb.images.root}")
-    public void setImagesRoot(String imagesRoot) {
-        File file = new File(imagesRoot);
-        if (file.exists() == false) {
-            file.mkdir();
-        }
-        this.imagesRoot = imagesRoot;
-    }
-
-    private String ofsRoot;
-
-    @Value("${docweb.ofs.root}")
-    public void setOfsRoot(String ofsRoot) {
-        File file = new File(ofsRoot);
-        if (file.exists() == false) {
-            file.mkdir();
-        }
-        this.ofsRoot = ofsRoot;
-    }
-
-    @Autowired
-    TipologiaRepository tipologiaRepository;
-
-    /**
-     * ************ DEFINITIVO ***********************
-     */
-    /**
-     * Realiza la transición asignando el jefe de dependencia
-     *
-     * @param pid
-     * @param tid
-     * @param model
-     * @return
-     */
-    @RequestMapping(value = "/solicitud-revision", method = RequestMethod.GET)
-    public String solicitudRevision(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid, Model model) {
-        Instancia instancia = instanciaModel(pin, model);
-        Dependencia dependencia = instancia.getAsignado().getDependencia();
-        /*
-		 * 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01):
-		 * En caso que el usuario en sesión corresponda como Jefe Segundo de la
-		 * Dependencia Destino, se asigna el documento al Jefe principal de la
-		 * Dependencia.
-         */
-        Usuario jefeActivo = getJefeActivoDependencia(dependencia);
-        instancia.setAsignado(jefeActivo);
-        transicion(instancia, tid, null);
-        return "redirect:" + PATH + "?pin=" + pin;
-    }
-
-    /**
-     * ******************** MODEL ATTRIBUTES ****************
-     */
-    /**
-     * Carga el listado de tipologías
-     *
-     * @return
-     */
-    public void tipologias(Trd trd, Model model) {
-        List<Tipologia> t = tipologiaRepository.findByActivo(true, new Sort(Direction.ASC, "nombre"));
-        model.addAttribute("tipologias", t);
-    }
-
-    /**
-     * Carga el listado de clasificaciones al modelo
-     *
-     * @return
-     */
-    @ModelAttribute("clasificaciones")
-    public List<Clasificacion> clasificaciones() {
-        return clasificacionRepository.findByActivo(true, new Sort(Direction.ASC, "orden"));
-    }
-
-    /**
-     * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129
-     * (SICDI-Controltech) feature-129: Carga el listado de restricciones de
-     * difusión
-     *
-     * @return
-     */
-    @ModelAttribute("restriccionesDifusion")
-    public List<RestriccionDifusion> restriccionesDifusion() {
-        return restriccionDifusionRepository.findByActivoTrue(new Sort(Direction.ASC, "resDescripcion"));
-    }
-
-    /**
-     * Carga el listado de TRDs
-     *
-     * @return
-     */
-    @ModelAttribute("trds")
-    public List<Trd> trds() {
-        return trdRepository.findByActivoAndSerieNotNull(true, new Sort(Direction.ASC, "nombre"));
-    }
-
-    /**
-     * Pone el controlador
-     */
-    @ModelAttribute("controller")
-    public DocumentoController controller() {
-        return this;
-    }
-
-    /**
-     * ********************* PRIVADOS *****************
-     */
-    private Instancia instanciaModel(String pin, Model model) {
-        Instancia instancia = procesoService.instancia(pin);
-        model.addAttribute("instancia", instancia);
-        return instancia;
-    }
-
-    private Documento documentoModel(Model model, String docId) {
-        Documento documento = null;
-        if (StringUtils.isNotBlank(docId)) {
-            documento = documentRepository.findOne(docId);
-        } else {
-            documento = new Documento();
-        }
-        model.addAttribute("documento", documento);
-        return documento;
-    }
-
-    private void transicion(Instancia instancia, Integer tid, Map<String, String> params) {
-        Transicion transicion = transicionRepository.findOne(tid);
-
-        Estado estadoFinal = transicion.getEstadoFinal();
-        instancia.setEstado(estadoFinal);
-
-        if (params != null) {
-            for (Entry<String, String> param : params.entrySet()) {
-                String key = param.getKey();
-                String value = param.getValue();
-                Variable v = instancia.findVariable(key);
-                if (v == null) {
-                    v = new Variable();
-                    v.setInstancia(instancia);
-                    v.setKey(key);
-                    instancia.getVariables().add(v);
-                    variableRepository.save(v);
-                }
-                v.setValue(value);
-            }
-        }
-
-        instanciaRepository.save(instancia);
-    }
-
-    @Override
-    public String login(Integer id) {
-        return super.login(id);
-    }
-
-    @Override
-    public String nombre(Integer id) {
-        return super.nombre(id);
-    }
-
-    public String mergePlantilla(String plantilla, Documento doc, Instancia i) {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("documento", doc);
-        map.put("instancia", i);
-        Locale locale = LocaleContextHolder.getLocale();
-        return GeneralUtils.merge(plantilla, map, locale);
-    }
-
     /**
      * Obtiene el nombre y la descripción del documento
      *
@@ -3656,7 +3381,7 @@ public class DocumentoController extends UtilController {
 
         Documento doc = documentRepository.getOne(docId);
 
-        Map<String, String> docInfo = new TreeMap<String, String>();
+        Map<String, String> docInfo = new TreeMap<>();
         docInfo.put(doc.getAsunto(), doc.getDescripcion());
 
         return docInfo;
@@ -3667,7 +3392,7 @@ public class DocumentoController extends UtilController {
      * Actualiza el nombre y la descripción del documento
      *
      * @param docId Es el identificador del documento
-     * @param ausUnto Es el asunto del documento
+     * @param asunto Es el asunto del documento
      * @param desc Es la descripción del documento
      *
      *
@@ -3707,105 +3432,33 @@ public class DocumentoController extends UtilController {
 
     }
 
-    public String getIdPlantillaSeleccionada() {
-        return idPlantillaSeleccionada;
-    }
-
-    public void setIdPlantillaSeleccionada(String idPlantillaSeleccionada) {
-        this.idPlantillaSeleccionada = idPlantillaSeleccionada;
-    }
-
     /**
-     * Construye un texto de asignación del documento que presenta el nombre del
-     * asignado primario y de los jefes de dependencia destino asociados.
+     * ************ DEFINITIVO ***********************
+     */
+    /**
+     * Realiza la transición asignando el jefe de dependencia
      *
-     * @param repository Repositorio de persistencia para las dependencias
-     * adicionales.
-     * @param usuarioService Servicio para usuarios.
-     * @param instancia Instancia del proceso.
-     * @param textoInicial Texto que se colocaría al inicio del resultado.
-     * @param manejarMultiplesDestinos Indica si el texto debe manejar la
-     * presentación de usuarios asignados según múltiples destinos.
-     * @return Texto que comienza con el valor de texto inicial (Si se ha
-     * colocado alguno) seguido del nombre del asignado primario. En caso que el
-     * documento de la instancia del proceso tenga asociados dependencias
-     * destino, presentará en el mismo texto (separado por comas) los jefes de
-     * cada dependencia.
+     * @param pin
+     * @param tid
+     * @param model
+     * @return
      */
-    /*
-	 * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de
-	 * dependencias adicionales a un documento.
-	 * 
-	 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
-	 * feature-78
-	 * 
-	 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
-	 * feature-73
-     */
-    public static String buildAsignadosText(DocumentoDependenciaAdicionalRepository repository,
-            UsuarioService usuarioService, Instancia instancia, String textoInicial, boolean manejarMultiplesDestinos) {
-        final String documentoID = instancia.getVariable(Documento.DOC_ID);
-
-        String text = (textoInicial == null || textoInicial.trim().isEmpty()) ? "" : textoInicial;
+    @RequestMapping(value = "/solicitud-revision", method = RequestMethod.GET)
+    public String solicitudRevision(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid, Model model) {
+        Instancia instancia = instanciaModel(pin, model);
+        Dependencia dependencia = instancia.getAsignado().getDependencia();
         /*
-		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
-		 * feature-78: Presentar información básica de los usuarios asignadores
-		 * y asignados en las bandejas del sistema.
+		 * 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01):
+		 * En caso que el usuario en sesión corresponda como Jefe Segundo de la
+		 * Dependencia Destino, se asigna el documento al Jefe principal de la
+		 * Dependencia.
          */
-        text += usuarioService.mostrarInformacionBasica(instancia.getAsignado());
-
-        /*
-		 * 2017-02-08 jgarcia@controltechcg.com Issue #118 Modificación para que
-		 * los jefes de dependencia destino únicamente se presenten cuando el
-		 * estado corresponde a Enviado.
-		 * 
-		 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
-		 * feature-73: Opción para indicar si la construcción del texto de
-		 * asignados debe manejar múltiples destinos o no.
-         */
-        if (!manejarMultiplesDestinos || instancia.getEstado().getId() != Estado.ENVIADO) {
-            return text;
-        }
-
-        List<DocumentoDependenciaDestino> destinos = repository.findByDocumento(documentoID);
-
-        if (destinos.isEmpty()) {
-            return text;
-        }
-
-        for (int i = 0; i < destinos.size(); i++) {
-            DocumentoDependenciaDestino destino = destinos.get(i);
-            // 2017-02-08 jgarcia@controltechcg.com Issue #118 Corrección en
-            // caso que hayan dependencias sin jefe.
-            Dependencia dependencia = destino.getDependencia();
-            if (dependencia != null) {
-                /*
-				 * 2017-03-23 jgarcia@controltechcg.com Issue #29
-				 * (SIGDI-Incidencias01): Corrección en la presentación del
-				 * mensaje de asignación, para mostrar el jefe encargado cuando
-				 * este esté activo.
-                 */
-                Usuario jefe = getJefeActivoDependencia(dependencia);
-                if (jefe != null) {
-                    /*
-					 * 2017-03-08 jgarcia@controltechcg.com Issue #6
-					 * (SIGDI-Incidencias01): Corrección en presentación de
-					 * información de destinatarios, para que salga el rango del
-					 * jefe de la dependencia.
-					 * 
-					 * 2017-05-15 jgarcia@controltechcg.com Issue #78
-					 * (SICDI-Controltech) feature-78: Presentar información
-					 * básica de los usuarios asignadores y asignados en las
-					 * bandejas del sistema.
-                     */
-                    text += ", " + usuarioService.mostrarInformacionBasica(jefe);
-                }
-            }
-        }
-
-        return text;
+        Usuario jefeActivo = getJefeActivoDependencia(dependencia);
+        instancia.setAsignado(jefeActivo);
+        transicion(instancia, tid, null);
+        return "redirect:" + PATH + "?pin=" + pin;
     }
-
+    
     /**
      * Obtiene la solicitud de asignación cíclica de documento y presenta el
      * formulario correspondiente al usuario.
@@ -4276,5 +3929,431 @@ public class DocumentoController extends UtilController {
                 "El documento respuesta \"" + asuntoRespuesta + "\" ha sido anulado exitosamente.");
 
         return "redirect:/";
+    }
+    
+    /*
+	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
+	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
+	 * las dependencias.
+     */
+    private List<Dependencia> depsHierarchy() {
+        List<Dependencia> root = dependenciaRepository.findByActivoAndPadreIsNull(true,
+                new Sort(Direction.ASC, "pesoOrden", "nombre"));
+        for (Dependencia d : root) {
+            depsHierarchy(d);
+        }
+        return root;
+    }
+
+    /*
+	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
+	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
+	 * las dependencias.
+     */
+    private void depsHierarchy(Dependencia d) {
+        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
+                new Sort(Direction.ASC, "pesoOrden", "nombre"));
+        d.setSubs(subs);
+        for (Dependencia x : subs) {
+            depsHierarchy(x);
+        }
+    }
+
+    private String redirectToInstancia(Instancia i) {
+        if (i.transiciones().size() > 0) {
+            return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, i.getId());
+        } else {
+            return "redirect:/";
+        }
+    }
+
+    private Instancia asignar(String pin, Integer tid, EstrategiaSeleccionUsuario selector) {
+
+        Instancia i = procesoService.instancia(pin);
+        String docId = i.getVariable(Documento.DOC_ID);
+        Documento doc = documentRepository.getOne(docId);
+
+        // Aplica el generador de variables
+        documentoGeneradorVariables.generar(i);
+
+        // Intenta avanzar en el proceso
+        boolean haAvanzado = (tid == null ? i.forward() : i.forward(tid));
+        if (haAvanzado) {
+            i.asignar(selector.select(i, doc));
+        }
+
+        return i;
+    }
+
+    private Instancia asignarNoForward(String pin, Integer tid, EstrategiaSeleccionUsuario selector) {
+
+        Instancia i = procesoService.instancia(pin);
+        String docId = i.getVariable(Documento.DOC_ID);
+        Documento doc = documentRepository.getOne(docId);
+
+        // Aplica el generador de variables
+        documentoGeneradorVariables.generar(i);
+
+        i.asignar(selector.select(i, doc));
+
+        return i;
+    }
+
+    protected Dependencia getSuperDependencia(Dependencia dep) {
+        if (dep.getPadre() == null) {
+            return dep;
+        }
+        Dependencia jefatura = dep;
+        Integer jefaturaId = dep.getPadre();
+        while (jefaturaId != null) {
+            jefatura = dependenciaRepository.getOne(jefaturaId);
+            jefaturaId = jefatura.getPadre();
+        }
+        return jefatura;
+    }
+
+    /**
+     * Obtiene el jefe activo de la dependencia.
+     *
+     * @param dependencia Dependencia.
+     * @return En caso que la dependencia tenga un jefe encargado y la fecha del
+     * sistema se encuentre dentro del rango de asignación del jefe encargado y
+     * este se encuentre activo en el sistema, se retorna el jefe encargado; de
+     * lo contrario, se retorna el jefe principal de la dependencia.
+     */
+    // 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01)
+    // 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01):
+    // Paso a static
+    private static Usuario getJefeActivoDependencia(final Dependencia dependencia) {
+
+        Usuario jefe = dependencia.getJefe();
+
+        Usuario jefeEncargado = dependencia.getJefeEncargado();
+        if (jefeEncargado == null) {
+            return jefe;
+        }
+
+        if (!jefeEncargado.getActivo()) {
+            return jefe;
+        }
+
+        Date fechaInicioJefeEncargado = dependencia.getFchInicioJefeEncargado();
+        if (fechaInicioJefeEncargado == null) {
+            return jefe;
+        }
+
+        fechaInicioJefeEncargado = DateUtil.setTime(fechaInicioJefeEncargado, DateUtil.SetTimeType.START_TIME);
+
+        Date fechaFinJefeEncargado = dependencia.getFchFinJefeEncargado();
+        if (fechaFinJefeEncargado == null) {
+            return jefe;
+        }
+
+        fechaFinJefeEncargado = DateUtil.setTime(fechaFinJefeEncargado, DateUtil.SetTimeType.END_TIME);
+
+        Date fechaActual = new Date(System.currentTimeMillis());
+
+        if (fechaInicioJefeEncargado.compareTo(fechaActual) <= 0 && fechaActual.compareTo(fechaFinJefeEncargado) <= 0) {
+
+            return jefeEncargado;
+        }
+
+        return jefe;
+    }
+
+    /* --------------------------- privados -------------------------- */
+    /**
+     * Carga el listado de destinatarios al modelo
+     *
+     * @param model
+     * @return
+     */
+    public List<Plantilla> plantillas(Model model) {
+        // 2017-02-27 jgarcia@controltechcg.com Orden de plantillas por nombre.
+        listaPlantilla = plantillaRepository.findByActivo(true, new Sort(Direction.ASC, "nombre"));
+        model.addAttribute("plantillas", listaPlantilla);
+        return listaPlantilla;
+    }
+
+    /**
+     * Carga el listado de dependencias al modelo
+     *
+     * @param model
+     * @return
+     */
+    /*
+	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
+	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
+	 * las dependencias.
+     */
+    public List<Dependencia> dependencias(Model model) {
+        List<Dependencia> list = dependenciaRepository.findByActivo(true,
+                new Sort(Direction.ASC, "pesoOrden", "nombre"));
+        model.addAttribute("dependencias", list);
+        return list;
+    }
+
+    /**
+     * Carga el listado de expedientes al modelo
+     *
+     * @param model
+     * @param principal
+     * @return
+     */
+    public List<Expediente> expedientes(Model model, Principal principal) {
+
+        Dependencia dependencia = getUsuario(principal).getDependencia();
+
+        if (dependencia == null) {
+            return new ArrayList<Expediente>();
+        }
+
+        Integer dependenciaId = dependencia.getId();
+        List<Expediente> list = expedienteRepository.findByActivoAndDependenciaId(true, dependenciaId,
+                new Sort(Direction.ASC, "nombre"));
+        model.addAttribute("expedientes", list);
+        return list;
+    }
+
+    /* **************************** FIN REFORMA***************************** */
+    @Value("${docweb.images.root}")
+    public void setImagesRoot(String imagesRoot) {
+        File file = new File(imagesRoot);
+        if (file.exists() == false) {
+            file.mkdir();
+        }
+        this.imagesRoot = imagesRoot;
+    }
+
+    @Value("${docweb.ofs.root}")
+    public void setOfsRoot(String ofsRoot) {
+        File file = new File(ofsRoot);
+        if (file.exists() == false) {
+            file.mkdir();
+        }
+        this.ofsRoot = ofsRoot;
+    }
+
+    /**
+     * ******************** MODEL ATTRIBUTES ****************
+     */
+    /**
+     * Carga el listado de tipologías
+     *
+     * @param trd
+     * @param model
+     */
+    public void tipologias(Trd trd, Model model) {
+        List<Tipologia> t = tipologiaRepository.findByActivo(true, new Sort(Direction.ASC, "nombre"));
+        model.addAttribute("tipologias", t);
+    }
+
+    /**
+     * Carga el listado de clasificaciones al modelo
+     *
+     * @return
+     */
+    @ModelAttribute("clasificaciones")
+    public List<Clasificacion> clasificaciones() {
+        return clasificacionRepository.findByActivo(true, new Sort(Direction.ASC, "orden"));
+    }
+
+    /**
+     * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129
+     * (SICDI-Controltech) feature-129: Carga el listado de restricciones de
+     * difusión
+     *
+     * @return
+     */
+    @ModelAttribute("restriccionesDifusion")
+    public List<RestriccionDifusion> restriccionesDifusion() {
+        return restriccionDifusionRepository.findByActivoTrue(new Sort(Direction.ASC, "resDescripcion"));
+    }
+
+    /**
+     * Carga el listado de TRDs
+     *
+     * @return
+     */
+    @ModelAttribute("trds")
+    public List<Trd> trds() {
+        return trdRepository.findByActivoAndSerieNotNull(true, new Sort(Direction.ASC, "nombre"));
+    }
+
+    /**
+     * Pone el controlador
+     *
+     * @return
+     */
+    @ModelAttribute("controller")
+    public DocumentoController controller() {
+        return this;
+    }
+
+    /**
+     * ********************* PRIVADOS *****************
+     */
+    private Instancia instanciaModel(String pin, Model model) {
+        Instancia instancia = procesoService.instancia(pin);
+        model.addAttribute("instancia", instancia);
+        return instancia;
+    }
+
+    private Documento documentoModel(Model model, String docId) {
+        Documento documento;
+        if (StringUtils.isNotBlank(docId)) {
+            documento = documentRepository.findOne(docId);
+        } else {
+            documento = new Documento();
+        }
+        model.addAttribute("documento", documento);
+        return documento;
+    }
+
+    private void transicion(Instancia instancia, Integer tid, Map<String, String> params) {
+        Transicion transicion = transicionRepository.findOne(tid);
+
+        Estado estadoFinal = transicion.getEstadoFinal();
+        instancia.setEstado(estadoFinal);
+
+        if (params != null) {
+            for (Entry<String, String> param : params.entrySet()) {
+                String key = param.getKey();
+                String value = param.getValue();
+                Variable v = instancia.findVariable(key);
+                if (v == null) {
+                    v = new Variable();
+                    v.setInstancia(instancia);
+                    v.setKey(key);
+                    instancia.getVariables().add(v);
+                    variableRepository.save(v);
+                }
+                v.setValue(value);
+            }
+        }
+
+        instanciaRepository.save(instancia);
+    }
+
+    @Override
+    public String login(Integer id) {
+        return super.login(id);
+    }
+
+    @Override
+    public String nombre(Integer id) {
+        return super.nombre(id);
+    }
+
+    public String mergePlantilla(String plantilla, Documento doc, Instancia i) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("documento", doc);
+        map.put("instancia", i);
+        Locale locale = LocaleContextHolder.getLocale();
+        return GeneralUtils.merge(plantilla, map, locale);
+    }
+    
+    public String getIdPlantillaSeleccionada() {
+        return idPlantillaSeleccionada;
+    }
+
+    public void setIdPlantillaSeleccionada(String idPlantillaSeleccionada) {
+        this.idPlantillaSeleccionada = idPlantillaSeleccionada;
+    }
+
+    private static interface EstrategiaSeleccionUsuario {
+
+        Usuario select(Instancia i, Documento d);
+    }
+    
+        /**
+     * Construye un texto de asignación del documento que presenta el nombre del
+     * asignado primario y de los jefes de dependencia destino asociados.
+     *
+     * @param repository Repositorio de persistencia para las dependencias
+     * adicionales.
+     * @param usuarioService Servicio para usuarios.
+     * @param instancia Instancia del proceso.
+     * @param textoInicial Texto que se colocaría al inicio del resultado.
+     * @param manejarMultiplesDestinos Indica si el texto debe manejar la
+     * presentación de usuarios asignados según múltiples destinos.
+     * @return Texto que comienza con el valor de texto inicial (Si se ha
+     * colocado alguno) seguido del nombre del asignado primario. En caso que el
+     * documento de la instancia del proceso tenga asociados dependencias
+     * destino, presentará en el mismo texto (separado por comas) los jefes de
+     * cada dependencia.
+     */
+    /*
+	 * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de
+	 * dependencias adicionales a un documento.
+	 * 
+	 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+	 * feature-78
+	 * 
+	 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+	 * feature-73
+     */
+    public static String buildAsignadosText(DocumentoDependenciaAdicionalRepository repository,
+            UsuarioService usuarioService, Instancia instancia, String textoInicial, boolean manejarMultiplesDestinos) {
+        final String documentoID = instancia.getVariable(Documento.DOC_ID);
+
+        String text = (textoInicial == null || textoInicial.trim().isEmpty()) ? "" : textoInicial;
+        /*
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78: Presentar información básica de los usuarios asignadores
+		 * y asignados en las bandejas del sistema.
+         */
+        text += usuarioService.mostrarInformacionBasica(instancia.getAsignado());
+
+        /*
+		 * 2017-02-08 jgarcia@controltechcg.com Issue #118 Modificación para que
+		 * los jefes de dependencia destino únicamente se presenten cuando el
+		 * estado corresponde a Enviado.
+		 * 
+		 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+		 * feature-73: Opción para indicar si la construcción del texto de
+		 * asignados debe manejar múltiples destinos o no.
+         */
+        if (!manejarMultiplesDestinos || instancia.getEstado().getId() != Estado.ENVIADO) {
+            return text;
+        }
+
+        List<DocumentoDependenciaDestino> destinos = repository.findByDocumento(documentoID);
+
+        if (destinos.isEmpty()) {
+            return text;
+        }
+
+        for (int i = 0; i < destinos.size(); i++) {
+            DocumentoDependenciaDestino destino = destinos.get(i);
+            // 2017-02-08 jgarcia@controltechcg.com Issue #118 Corrección en
+            // caso que hayan dependencias sin jefe.
+            Dependencia dependencia = destino.getDependencia();
+            if (dependencia != null) {
+                /*
+				 * 2017-03-23 jgarcia@controltechcg.com Issue #29
+				 * (SIGDI-Incidencias01): Corrección en la presentación del
+				 * mensaje de asignación, para mostrar el jefe encargado cuando
+				 * este esté activo.
+                 */
+                Usuario jefe = getJefeActivoDependencia(dependencia);
+                if (jefe != null) {
+                    /*
+					 * 2017-03-08 jgarcia@controltechcg.com Issue #6
+					 * (SIGDI-Incidencias01): Corrección en presentación de
+					 * información de destinatarios, para que salga el rango del
+					 * jefe de la dependencia.
+					 * 
+					 * 2017-05-15 jgarcia@controltechcg.com Issue #78
+					 * (SICDI-Controltech) feature-78: Presentar información
+					 * básica de los usuarios asignadores y asignados en las
+					 * bandejas del sistema.
+                     */
+                    text += ", " + usuarioService.mostrarInformacionBasica(jefe);
+                }
+            }
+        }
+
+        return text;
     }
 }

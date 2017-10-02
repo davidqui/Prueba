@@ -28,10 +28,15 @@ public class DocumentoMode extends HashMap<String, Boolean> {
      */
     private static final long serialVersionUID = 1L;
 
+    /*
+		 * 2017-10-02 edison.gonzalez@controltechcg.com feature #129 : Se adiciona a la lista
+		 * NAMES la clave gradoExterno, marca de agua externo Y restriccion de sdifusion
+                 * para que el componente aparezca,según lo indicado en documento.ftl.
+     */
     private static final List<String> NAMES = Collections
             .unmodifiableList(Arrays.asList("sticker", "trd", "destinatario", "asunto", "remitente", "numeroOficio",
                     "fechaOficio", "numeroFolios", "plazo", "clasificacion", "expediente", "adjuntos", "observaciones",
-                    "contenido", "radicado", "formatos", "plantilla", "radicadoOrfeo", "numeroBolsa", "guardar","gradoExterno","marcaAguaExterno","restriccionDifusion"));
+                    "contenido", "radicado", "formatos", "plantilla", "radicadoOrfeo", "numeroBolsa", "guardar", "gradoExterno", "marcaAguaExterno", "restriccionDifusion"));
 
     public static final String NAME_REGISTRO = "registro";
 
@@ -215,12 +220,125 @@ public class DocumentoMode extends HashMap<String, Boolean> {
      * Valida un documento
      *
      * @param documento
+     * @param i
      * @param bind
      */
     public void validate(Documento documento, Instancia i, BindingResult bind) {
         if (validator != null) {
             validator.validate(documento, i, bind);
         }
+    }
+    
+    /**
+     * Transfiere las propiedades que son editables de source a target
+     *
+     * @param source
+     * @param target
+     */
+    public void transferirEditables(Documento source, Documento target) {
+
+        if (get("trd_edit")) {
+            target.setTrd(source.getTrd());
+        }
+
+        if (get("destinatario_edit")) {
+            target.setDependenciaDestino(source.getDependenciaDestino());
+            target.setDestinatarioNombre(source.getDestinatarioNombre());
+            target.setDestinatarioTitulo(source.getDestinatarioTitulo());
+            target.setDestinatarioDireccion(source.getDestinatarioDireccion());
+        }
+
+        if (get("asunto_edit")) {
+            target.setAsunto(source.getAsunto());
+        }
+
+        if (get("remitente_edit")) {
+            target.setDependenciaRemitente(source.getDependenciaRemitente());
+            target.setRemitenteNombre(source.getRemitenteNombre());
+            target.setRemitenteTitulo(source.getRemitenteTitulo());
+            target.setRemitenteDireccion(source.getRemitenteDireccion());
+        }
+
+        if (get("radicadoOrfeo_edit")) {
+            target.setRadicadoOrfeo(source.getRadicadoOrfeo());
+        }
+
+        if (get("numeroOficio_edit")) {
+            target.setNumeroOficio(source.getNumeroOficio());
+        }
+
+        if (get("numeroBolsa_edit")) {
+            target.setNumeroBolsa(source.getNumeroBolsa());
+        }
+
+        if (get("fechaOficio_edit")) {
+            target.setFechaOficio(source.getFechaOficio());
+        }
+
+        if (get("numeroFolios_edit")) {
+            target.setNumeroFolios(source.getNumeroFolios());
+        }
+
+        if (get("plazo_edit")) {
+            target.setPlazo(source.getPlazo());
+        }
+
+        if (get("clasificacion_edit")) {
+            target.setClasificacion(source.getClasificacion());
+        }
+
+        if (get("expediente_edit")) {
+            target.setExpediente(source.getExpediente());
+        }
+
+        if (get("contenido_edit")) {
+            target.setContenido(source.getContenido());
+        }
+
+        if (get("plantilla_edit")) {
+            target.setPlantilla(source.getPlantilla());
+        }
+
+        /*
+		 * 2017-09-28 edison.gonzalez@controltechcg.com issue #129 : Se adiciona al mapa
+		 * de construcción la clave gradoExterno y marca de agua externo para que el componente aparezca,
+		 * según lo indicado en documento.ftl.
+         */
+        if (get("gradoExterno_edit")) {
+            target.setGradoExterno(source.getGradoExterno());
+        }
+
+        if (get("marcaAguaExterno_edit")) {
+            target.setMarcaAguaExterno(source.getMarcaAguaExterno());
+        }
+
+        if (get("restriccionDifusion_edit")) {
+            target.setRestriccionDifusion(source.getRestriccionDifusion());
+        }
+    }
+
+    public void defaults(Documento target, Usuario user, DependenciaRepository dependenciaRepository,
+            TrdRepository trdRepository) {
+
+        // Si la TRD tiene plazo entonces debe fijarse la fecha de plazo a
+        // partir de este valor y la fecha de creación del documento
+        if (target.getTrd() != null) {
+            Trd trd = trdRepository.getOne(target.getTrd().getId());
+            if (trd.getPlazo() != null) {
+                Date nuevoPlazo = DateUtils.addDays(target.getCuando(), trd.getPlazo());
+                target.setPlazo(nuevoPlazo);
+            }
+        }
+
+        // Si el modo de edición es REGISTRO entonces la dependencia destino
+        // debe ser la super dependencia del usuario
+        if (this == DocumentoMode.REGISTRO) {
+            if (user.getDependencia() == null) {
+                throw new RuntimeException("Usuario no tiene dependencia asignada");
+            }
+            target.setDependenciaDestino(user.getDependencia().obtenerJefatura(dependenciaRepository));
+        }
+
     }
 
     /**
@@ -530,7 +648,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         if (get("marcaAguaExterno_edit") == false) {
             target.setMarcaAguaExterno(source.getMarcaAguaExterno());
         }
-        
+
         if (get("restriccionDifusion_edit") == false) {
             target.setRestriccionDifusion(source.getRestriccionDifusion());
         }
@@ -551,117 +669,4 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         target.setPdf(source.getPdf());
 
     }
-
-    /**
-     * Transfiere las propiedades que son editables de source a target
-     *
-     * @param source
-     * @param target
-     */
-    public void transferirEditables(Documento source, Documento target) {
-
-        if (get("trd_edit")) {
-            target.setTrd(source.getTrd());
-        }
-
-        if (get("destinatario_edit")) {
-            target.setDependenciaDestino(source.getDependenciaDestino());
-            target.setDestinatarioNombre(source.getDestinatarioNombre());
-            target.setDestinatarioTitulo(source.getDestinatarioTitulo());
-            target.setDestinatarioDireccion(source.getDestinatarioDireccion());
-        }
-
-        if (get("asunto_edit")) {
-            target.setAsunto(source.getAsunto());
-        }
-
-        if (get("remitente_edit")) {
-            target.setDependenciaRemitente(source.getDependenciaRemitente());
-            target.setRemitenteNombre(source.getRemitenteNombre());
-            target.setRemitenteTitulo(source.getRemitenteTitulo());
-            target.setRemitenteDireccion(source.getRemitenteDireccion());
-        }
-
-        if (get("radicadoOrfeo_edit")) {
-            target.setRadicadoOrfeo(source.getRadicadoOrfeo());
-        }
-
-        if (get("numeroOficio_edit")) {
-            target.setNumeroOficio(source.getNumeroOficio());
-        }
-
-        if (get("numeroBolsa_edit")) {
-            target.setNumeroBolsa(source.getNumeroBolsa());
-        }
-
-        if (get("fechaOficio_edit")) {
-            target.setFechaOficio(source.getFechaOficio());
-        }
-
-        if (get("numeroFolios_edit")) {
-            target.setNumeroFolios(source.getNumeroFolios());
-        }
-
-        if (get("plazo_edit")) {
-            target.setPlazo(source.getPlazo());
-        }
-
-        if (get("clasificacion_edit")) {
-            target.setClasificacion(source.getClasificacion());
-        }
-
-        if (get("expediente_edit")) {
-            target.setExpediente(source.getExpediente());
-        }
-
-        if (get("contenido_edit")) {
-            target.setContenido(source.getContenido());
-        }
-
-        if (get("plantilla_edit")) {
-            target.setPlantilla(source.getPlantilla());
-        }
-
-        /*
-		 * 2017-09-28 edison.gonzalez@controltechcg.com issue #129 : Se adiciona al mapa
-		 * de construcción la clave gradoExterno y marca de agua externo para que el componente aparezca,
-		 * según lo indicado en documento.ftl.
-         */
-        if (get("gradoExterno_edit")) {
-            target.setGradoExterno(source.getGradoExterno());
-        }
-
-        if (get("marcaAguaExterno_edit")) {
-            target.setMarcaAguaExterno(source.getMarcaAguaExterno());
-        }
-
-        if (get("restriccionDifusion_edit")) {
-            target.setRestriccionDifusion(source.getRestriccionDifusion());
-        }
-    }
-
-    public void defaults(Documento target, Usuario user, DependenciaRepository dependenciaRepository,
-            TrdRepository trdRepository) {
-
-        // Si la TRD tiene plazo entonces debe fijarse la fecha de plazo a
-        // partir de este valor y la fecha de creación del documento
-        if (target.getTrd() != null) {
-            Trd trd = trdRepository.getOne(target.getTrd().getId());
-            if (trd.getPlazo() != null) {
-                Date nuevoPlazo = DateUtils.addDays(target.getCuando(), trd.getPlazo());
-                target.setPlazo(nuevoPlazo);
-            }
-        }
-
-        // Si el modo de edición es REGISTRO entonces la dependencia destino
-        // debe ser la super dependencia del usuario
-        if (this == DocumentoMode.REGISTRO) {
-            if (user.getDependencia() == null) {
-                throw new RuntimeException("Usuario no tiene dependencia asignada");
-            }
-            target.setDependenciaDestino(user.getDependencia().obtenerJefatura(dependenciaRepository));
-        }
-
-    }
-
 }
