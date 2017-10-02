@@ -182,7 +182,7 @@ public class DocumentoController extends UtilController {
     // feature-78
     @Autowired
     UsuarioService usuarioService;
-    
+
     // 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
     // feature-129
     @Autowired
@@ -427,6 +427,8 @@ public class DocumentoController extends UtilController {
          */
         keysValuesAsposeDocxDTO.put("DESTINATARIO_GRADO",
                 documento.getPdfTexto84() != null ? documento.getPdfTexto84() : "");
+
+        keysValuesAsposeDocxDTO.put("EXTERNO_MARCA_AGUA", documento.getPdfTexto85() != null ? documento.getPdfTexto85() : "");
 
         keysValuesAsposeDocxDTO.put("RESTRICCION_DIFUSION",
                 documento.getPdfTexto86() != null ? documento.getPdfTexto86() : "");
@@ -2746,6 +2748,7 @@ public class DocumentoController extends UtilController {
 
                 // TODO: Revisar el tema de la marca de agua...
                 String valor = asposeDocxDTO.getNombres()[indice];
+
                 if ("S_DEP_DESTINO".equalsIgnoreCase(valor)
                         && asposeDocxDTO.getValues()[indice].toString().trim().length() > 0) {
                     // APLICAMOS LA MARCA DE AGUA, EN CASO LA TENGA
@@ -3471,7 +3474,7 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     AdjuntoRepository adjuntoRepository;
-    
+
     private String imagesRoot;
 
     @Value("${docweb.images.root}")
@@ -3546,10 +3549,11 @@ public class DocumentoController extends UtilController {
     public List<Clasificacion> clasificaciones() {
         return clasificacionRepository.findByActivo(true, new Sort(Direction.ASC, "orden"));
     }
-    
+
     /**
-     * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
-     * feature-129: Carga el listado de restricciones de difusión
+     * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129
+     * (SICDI-Controltech) feature-129: Carga el listado de restricciones de
+     * difusión
      *
      * @return
      */
