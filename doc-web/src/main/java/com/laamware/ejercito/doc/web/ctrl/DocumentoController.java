@@ -4189,6 +4189,17 @@ public class DocumentoController extends UtilController {
     public DocumentoController controller() {
         return this;
     }
+    
+    /**
+     * 2017-10-02 edison.gonzalez@controltechcg.com feature #129 :
+     * retorna el Id del proceso externo
+     *
+     * @return
+     */
+    @ModelAttribute("procesoExternoId")
+    public int retornaIdProcesoExterno() {
+        return Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS;
+    }
 
     /**
      * ********************* PRIVADOS *****************

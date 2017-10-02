@@ -87,6 +87,15 @@
         <#if !mode.clasificacion_edit && mode.clasificacion_view && documento.clasificacion?? >
         <tr class="table-danger"><th>Clasificación</th><td>${(documento.clasificacion.nombre)!""}</td></tr>
         </#if>
+        <#if !mode.restriccionDifusion_edit && mode.restriccionDifusion_view && documento.restriccionDifusion?? >
+        <tr><th>Restriccion de difusión</th><td>${(documento.restriccionDifusion.resDescripcion)!""}</td></tr>
+        </#if>
+        <#if !mode.gradoExterno_edit && mode.gradoExterno_view && documento.gradoExterno?? >
+        <tr><th>Grado</th><td>${(documento.gradoExterno)!""}</td></tr>
+        </#if>
+        <#if !mode.marcaAguaExterno_edit && mode.marcaAguaExterno_view && documento.marcaAguaExterno?? >
+        <tr><th>Marca de agua</th><td>${(documento.marcaAguaExterno)!""}</td></tr>
+        </#if>
         </table>
 
     <form action="/documento/savepin?pin=${instancia.id}" method="POST" id="formdoc" enctype='multipart/form-data'>
@@ -919,7 +928,7 @@ Asunto
     2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
     gradoExterno
         -->
-        <#if instancia.proceso.id == 41 && mode.gradoExterno_edit >
+        <#if instancia.proceso.id == procesoExternoId && mode.gradoExterno_edit >
         <fieldset class="form-group">
             <label for="gradoExterno">Grado</label>
                 <@spring.formInput "documento.gradoExterno" 'class="form-control"' />
@@ -933,7 +942,7 @@ Asunto
     2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
     marcaAguaExterna
         -->
-        <#if instancia.proceso.id == 41 && mode.marcaAguaExterno_edit >
+        <#if instancia.proceso.id == procesoExternoId && mode.marcaAguaExterno_edit >
         <fieldset class="form-group">
             <label for="marcaAguaExterno">Marca de Agua</label>
                 <@spring.formInput "documento.marcaAguaExterno" 'class="form-control"' />

@@ -91,27 +91,27 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         REGISTRO.edit("destinatario").editAndView("asunto").editAndView("remitente").editAndView("numeroOficio")
                 .editAndView("fechaOficio").editAndView("numeroFolios").editAndView("clasificacion")
                 .editAndView("radicadoOrfeo").editAndView("numeroBolsa").editAndView("trd").editAndView("observaciones")
-                .editAndView("guardar");
+                .editAndView("guardar").editAndView("restriccionDifusion");
         REGISTRO.validator = new RegistroValidator();
         modes.put(NAME_REGISTRO, REGISTRO);
 
         CON_STICKER.view("sticker").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
                 .view("fechaOficio").view("numeroFolios").view("clasificacion").view("radicado").view("radicadoOrfeo")
-                .view("numeroBolsa").editAndView("trd").editAndView("observaciones").editAndView("guardar");
+                .view("numeroBolsa").editAndView("trd").editAndView("observaciones").editAndView("guardar").view("restriccionDifusion");
         CON_STICKER.validator = new ConStickerValidator();
         modes.put(NAME_CON_STICKER, CON_STICKER);
 
         DIGITALIZANDO.view("sticker").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
                 .view("fechaOficio").view("numeroFolios").view("clasificacion").editAndView("adjuntos")
                 .editAndView("observaciones").view("radicado").view("radicadoOrfeo").view("numeroBolsa")
-                .editAndView("trd").editAndView("guardar");
+                .editAndView("trd").editAndView("guardar").view("restriccionDifusion");
         DIGITALIZANDO.validator = new DigitalizandoValidator();
         modes.put(NAME_DIGITALIZANDO, DIGITALIZANDO);
 
         ENTREGADO.editAndView("trd").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
                 .view("fechaOficio").view("numeroFolios").view("clasificacion").editAndView("expediente")
                 .view("adjuntos").editAndView("observaciones").view("radicado").view("radicadoOrfeo")
-                .view("numeroBolsa").editAndView("trd").editAndView("guardar");
+                .view("numeroBolsa").editAndView("trd").editAndView("guardar").view("restriccionDifusion");
         ENTREGADO.validator = new EntregadoValidator();
         modes.put(NAME_ENTREGADO, ENTREGADO);
 
@@ -315,6 +315,110 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         if (get("restriccionDifusion_edit")) {
             target.setRestriccionDifusion(source.getRestriccionDifusion());
         }
+    }
+    
+    /**
+     * Transfiere las propiedades que no son editables de source a target
+     *
+     * @param source
+     * @param target
+     */
+    public void transferirNoEditables(Documento source, Documento target) {
+
+        if (get("trd_edit") == false) {
+            target.setTrd(source.getTrd());
+        }
+
+        if (get("destinatario_edit") == false) {
+            target.setDependenciaDestino(source.getDependenciaDestino());
+            target.setDestinatarioNombre(source.getDestinatarioNombre());
+            target.setDestinatarioTitulo(source.getDestinatarioTitulo());
+            target.setDestinatarioDireccion(source.getDestinatarioNombre());
+        }
+
+        if (get("asunto_edit") == false) {
+            target.setAsunto(source.getAsunto());
+        }
+
+        if (get("remitente_edit") == false) {
+            target.setDependenciaRemitente(source.getDependenciaRemitente());
+            target.setRemitenteNombre(source.getRemitenteNombre());
+            target.setRemitenteTitulo(source.getRemitenteTitulo());
+            target.setRemitenteDireccion(source.getRemitenteNombre());
+        }
+
+        if (get("radicadoOrfeo_edit") == false) {
+            target.setRadicadoOrfeo(source.getRadicadoOrfeo());
+        }
+
+        if (get("numeroOficio_edit") == false) {
+            target.setNumeroOficio(source.getNumeroOficio());
+        }
+
+        if (get("numeroBolsa_edit") == false) {
+            target.setNumeroBolsa(source.getNumeroBolsa());
+        }
+
+        if (get("fechaOficio_edit") == false) {
+            target.setFechaOficio(source.getFechaOficio());
+        }
+
+        if (get("numeroFolios_edit") == false) {
+            target.setNumeroFolios(source.getNumeroFolios());
+        }
+
+        if (get("plazo_edit") == false) {
+            target.setPlazo(source.getPlazo());
+        }
+
+        if (get("clasificacion_edit") == false) {
+            target.setClasificacion(source.getClasificacion());
+        }
+
+        if (get("expediente_edit") == false) {
+            target.setExpediente(source.getExpediente());
+        }
+
+        if (get("contenido_edit") == false) {
+            target.setContenido(source.getContenido());
+        }
+
+        if (get("plantilla_edit") == false) {
+            target.setPlantilla(source.getPlantilla());
+        }
+
+        /*
+            2017-09-28 edison.gonzalez@controltechcg.com issue #129 : Se adiciona al mapa
+            de construcción la clave gradoExterno, marca de agua externo y restriccion
+            de difusion para que el componente aparezca, según lo indicado en documento.ftl.
+         */
+        if (get("gradoExterno_edit") == false) {
+            target.setGradoExterno(source.getGradoExterno());
+        }
+
+        if (get("marcaAguaExterno_edit") == false) {
+            target.setMarcaAguaExterno(source.getMarcaAguaExterno());
+        }
+
+        if (get("restriccionDifusion_edit") == false) {
+            target.setRestriccionDifusion(source.getRestriccionDifusion());
+        }
+
+        // Información no editable por naturaleza
+        target.setAprueba(source.getAprueba());
+        target.setCuando(source.getCuando());
+        target.setCuandoMod(source.getCuandoMod());
+        target.setElabora(source.getElabora());
+        target.setFirma(source.getFirma());
+        target.setInstancia(source.getInstancia());
+        target.setQuien(source.getQuien());
+        target.setQuienMod(source.getQuienMod());
+        target.setRadicado(source.getRadicado());
+        target.setRelacionado(source.getRelacionado());
+        target.setSticker(source.getSticker());
+        target.setVistoBueno(source.getVistoBueno());
+        target.setPdf(source.getPdf());
+
     }
 
     public void defaults(Documento target, Usuario user, DependenciaRepository dependenciaRepository,
@@ -563,110 +667,6 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         public void validate(Documento target, Instancia i, Errors errors) {
             registroValidator.validate(target, i, errors);
         }
-
-    }
-
-    /**
-     * Transfiere las propiedades que no son editables de source a target
-     *
-     * @param source
-     * @param target
-     */
-    public void transferirNoEditables(Documento source, Documento target) {
-
-        if (get("trd_edit") == false) {
-            target.setTrd(source.getTrd());
-        }
-
-        if (get("destinatario_edit") == false) {
-            target.setDependenciaDestino(source.getDependenciaDestino());
-            target.setDestinatarioNombre(source.getDestinatarioNombre());
-            target.setDestinatarioTitulo(source.getDestinatarioTitulo());
-            target.setDestinatarioDireccion(source.getDestinatarioNombre());
-        }
-
-        if (get("asunto_edit") == false) {
-            target.setAsunto(source.getAsunto());
-        }
-
-        if (get("remitente_edit") == false) {
-            target.setDependenciaRemitente(source.getDependenciaRemitente());
-            target.setRemitenteNombre(source.getRemitenteNombre());
-            target.setRemitenteTitulo(source.getRemitenteTitulo());
-            target.setRemitenteDireccion(source.getRemitenteNombre());
-        }
-
-        if (get("radicadoOrfeo_edit") == false) {
-            target.setRadicadoOrfeo(source.getRadicadoOrfeo());
-        }
-
-        if (get("numeroOficio_edit") == false) {
-            target.setNumeroOficio(source.getNumeroOficio());
-        }
-
-        if (get("numeroBolsa_edit") == false) {
-            target.setNumeroBolsa(source.getNumeroBolsa());
-        }
-
-        if (get("fechaOficio_edit") == false) {
-            target.setFechaOficio(source.getFechaOficio());
-        }
-
-        if (get("numeroFolios_edit") == false) {
-            target.setNumeroFolios(source.getNumeroFolios());
-        }
-
-        if (get("plazo_edit") == false) {
-            target.setPlazo(source.getPlazo());
-        }
-
-        if (get("clasificacion_edit") == false) {
-            target.setClasificacion(source.getClasificacion());
-        }
-
-        if (get("expediente_edit") == false) {
-            target.setExpediente(source.getExpediente());
-        }
-
-        if (get("contenido_edit") == false) {
-            target.setContenido(source.getContenido());
-        }
-
-        if (get("plantilla_edit") == false) {
-            target.setPlantilla(source.getPlantilla());
-        }
-
-        /*
-            2017-09-28 edison.gonzalez@controltechcg.com issue #129 : Se adiciona al mapa
-            de construcción la clave gradoExterno, marca de agua externo y restriccion
-            de difusion para que el componente aparezca, según lo indicado en documento.ftl.
-         */
-        if (get("gradoExterno_edit") == false) {
-            target.setGradoExterno(source.getGradoExterno());
-        }
-
-        if (get("marcaAguaExterno_edit") == false) {
-            target.setMarcaAguaExterno(source.getMarcaAguaExterno());
-        }
-
-        if (get("restriccionDifusion_edit") == false) {
-            target.setRestriccionDifusion(source.getRestriccionDifusion());
-        }
-
-        // Información no editable por naturaleza
-        target.setAprueba(source.getAprueba());
-        target.setCuando(source.getCuando());
-        target.setCuandoMod(source.getCuandoMod());
-        target.setElabora(source.getElabora());
-        target.setFirma(source.getFirma());
-        target.setInstancia(source.getInstancia());
-        target.setQuien(source.getQuien());
-        target.setQuienMod(source.getQuienMod());
-        target.setRadicado(source.getRadicado());
-        target.setRelacionado(source.getRelacionado());
-        target.setSticker(source.getSticker());
-        target.setVistoBueno(source.getVistoBueno());
-        target.setPdf(source.getPdf());
 
     }
 }
