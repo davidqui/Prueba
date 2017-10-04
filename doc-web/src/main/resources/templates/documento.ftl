@@ -88,7 +88,7 @@
         <tr class="table-danger"><th>Clasificación</th><td>${(documento.clasificacion.nombre)!""}</td></tr>
         </#if>
         <#if !mode.restriccionDifusion_edit && mode.restriccionDifusion_view && documento.restriccionDifusion?? >
-        <tr><th>Restriccion de difusión</th><td>${(documento.restriccionDifusion.resDescripcion)!""}</td></tr>
+        <tr><th>Restricción de difusión</th><td>${(documento.restriccionDifusion.resDescripcion)!""}</td></tr>
         </#if>
         <#if !mode.gradoExterno_edit && mode.gradoExterno_view && documento.gradoExterno?? >
         <tr><th>Grado</th><td>${(documento.gradoExterno)!""}</td></tr>
@@ -958,7 +958,7 @@ Asunto
         -->
         <#if mode.restriccionDifusion_edit >
         <fieldset class="form-group">
-            <label for="restriccionDifusion">Restriccion de difusión</label>
+            <label for="restriccionDifusion">Restricción de difusión</label>
                 <@spring.bind "documento.restriccionDifusion" />
             <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
                     <#if restriccionesDifusion??>
