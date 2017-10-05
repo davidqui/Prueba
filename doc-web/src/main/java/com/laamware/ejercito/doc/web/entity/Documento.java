@@ -236,7 +236,7 @@ public class Documento extends AuditModifySupport {
     private Integer estadoCodigoValidaScanner;
 
     /*
-         * 2017-02-02 edison.gonzalez@controltechcg.com Feature #129: Variable que 
+         * 2017-09-28 edison.gonzalez@controltechcg.com Issue #129: Variable que 
 	 * permite almacenar la etiqueta de grado en el documento. Aplica solo para documentos
          * externos.
      */
@@ -245,7 +245,7 @@ public class Documento extends AuditModifySupport {
     private String gradoExterno;
 
     /*
-         * 2017-02-02 edison.gonzalez@controltechcg.com Feature #129: Variable que 
+         * 2017-09-28 edison.gonzalez@controltechcg.com Issue #129: Variable que 
 	 * permite almacenar la etiqueta de gota de agua en el documento. Aplica solo para documentos
          * externos.
      */
@@ -254,7 +254,7 @@ public class Documento extends AuditModifySupport {
     private String marcaAguaExterno;
 
     /*
-         * 2017-02-02 edison.gonzalez@controltechcg.com Feature #129: Variable que 
+         * 2017-09-28 edison.gonzalez@controltechcg.com Issue #129: Variable que 
 	 * permite almacenar la etiqueta para distinguir la restriccion de la difusion en el documento.
          * Aplica para todos los documentos.
      */
