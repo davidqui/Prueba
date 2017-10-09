@@ -1678,13 +1678,10 @@ public class DocumentoController extends UtilController {
                 return redirectToInstancia(i);
             } else {
                 if (did != null) {
-                    Dependencia dep = dependenciaRepository.getOne(did);
-
                     Instancia i = procesoService.instancia(pin);
 
-                    // 2017-02-27 jgarcia@controltechcg.com Issue #148
-                    List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrue(dep,
-                            new Sort(Direction.ASC, "nombre"));
+                    // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131
+                    List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrueOrderByGradoDesc(did);
                     String docId = i.getVariable(Documento.DOC_ID);
                     Documento doc = documentRepository.getOne(docId);
 
@@ -2070,11 +2067,9 @@ public class DocumentoController extends UtilController {
                 List<Dependencia> deps = dependenciaRepository.findByActivoAndPadre(true, depId,
                         new Sort(Direction.ASC, "pesoOrden", "nombre"));
                 model.addAttribute("dependencias", deps);
-                Dependencia dep = new Dependencia();
-                dep.setId(depId);
-                // 2017-02-27 jgarcia@controltechcg.com Issue #148
+                // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131
                 model.addAttribute("usuarios",
-                        usuR.findByDependenciaAndActivoTrue(dep, new Sort(Direction.ASC, "nombre")));
+                        usuR.findByDependenciaAndActivoTrueOrderByGradoDesc(depId));
             }
         } else {
             // Asigna al jefe de la dependencia
@@ -2170,11 +2165,8 @@ public class DocumentoController extends UtilController {
             listaDependencias.add(superDependencia);
 
             if (did != null) {
-
-                Dependencia dep = dependenciaRepository.getOne(did);
-
-                // 2017-02-27 jgarcia@controltechcg.com Issue #148
-                List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrue(dep, new Sort(Direction.ASC, "nombre"));
+                // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131
+                List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrueOrderByGradoDesc(did);
 
                 model.addAttribute("documento", documento);
 
@@ -2976,11 +2968,8 @@ public class DocumentoController extends UtilController {
             listaDependencias.add(unidadDependencia);
 
             if (did != null) {
-
-                Dependencia dep = dependenciaRepository.getOne(did);
-
-                // 2017-02-27 jgarcia@controltechcg.com Issue #148
-                List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrue(dep, new Sort(Direction.ASC, "nombre"));
+                // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131
+                List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrueOrderByGradoDesc(did);
 
                 model.addAttribute("documento", documento);
 
@@ -3458,7 +3447,7 @@ public class DocumentoController extends UtilController {
         transicion(instancia, tid, null);
         return "redirect:" + PATH + "?pin=" + pin;
     }
-    
+
     /**
      * Obtiene la solicitud de asignación cíclica de documento y presenta el
      * formulario correspondiente al usuario.
@@ -3508,10 +3497,8 @@ public class DocumentoController extends UtilController {
             model.addAttribute("dependencias_arbol", listaDependencias);
 
             if (dependenciaID != null) {
-                Dependencia dependencia = dependenciaRepository.getOne(dependenciaID);
-
-                List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrue(dependencia,
-                        new Sort(Direction.ASC, "nombre"));
+                // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131
+                List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrueOrderByGradoDesc(dependenciaID);
 
                 int pesoClasificacionDocumento = documento.getClasificacion().getId();
 
@@ -3930,7 +3917,7 @@ public class DocumentoController extends UtilController {
 
         return "redirect:/";
     }
-    
+
     /*
 	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
 	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
@@ -4189,10 +4176,10 @@ public class DocumentoController extends UtilController {
     public DocumentoController controller() {
         return this;
     }
-    
+
     /**
-     * 2017-10-02 edison.gonzalez@controltechcg.com feature #129 :
-     * retorna el Id del proceso externo
+     * 2017-10-02 edison.gonzalez@controltechcg.com feature #129 : retorna el Id
+     * del proceso externo
      *
      * @return
      */
@@ -4263,7 +4250,7 @@ public class DocumentoController extends UtilController {
         Locale locale = LocaleContextHolder.getLocale();
         return GeneralUtils.merge(plantilla, map, locale);
     }
-    
+
     public String getIdPlantillaSeleccionada() {
         return idPlantillaSeleccionada;
     }
@@ -4276,8 +4263,8 @@ public class DocumentoController extends UtilController {
 
         Usuario select(Instancia i, Documento d);
     }
-    
-        /**
+
+    /**
      * Construye un texto de asignación del documento que presenta el nombre del
      * asignado primario y de los jefes de dependencia destino asociados.
      *

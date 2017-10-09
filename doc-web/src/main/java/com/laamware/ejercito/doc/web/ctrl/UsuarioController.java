@@ -442,10 +442,14 @@ public class UsuarioController extends UtilController {
     }
 
     protected List<Usuario> findAll(boolean all) {
+        /* 
+         *2017-10-05 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech)
+         * feature-131: Ajuste de orden segun el peso de los grados.
+         */
         if (!all) {
-            return usuarioRepository.findByActivo(true);
+            return usuarioRepository.findAllByActivoTrueOrderByGradoDesc();
         } else {
-            return usuarioRepository.findAll();
+            return usuarioRepository.findAllOrderByGradoDesc();
         }
     }
 
