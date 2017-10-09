@@ -94,7 +94,7 @@
         <tr><th>Grado</th><td>${(documento.gradoExterno)!""}</td></tr>
         </#if>
         <#if !mode.marcaAguaExterno_edit && mode.marcaAguaExterno_view && documento.marcaAguaExterno?? >
-        <tr><th>Marca de agua</th><td>${(documento.marcaAguaExterno)!""}</td></tr>
+        <tr><th>Marca de agua</th><td>${(documento.marcaAguaExterno?upper_case)!""}</td></tr>
         </#if>
         </table>
 
@@ -249,6 +249,21 @@ TRD
             </#assign>
             <#assign deferredJS = deferredJS + " " + deferredJSTrd>
         </#if>
+    
+        <!--
+    2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
+    gradoExterno
+        -->
+        <#if instancia.proceso.id == procesoExternoId && mode.gradoExterno_edit >
+        <fieldset class="form-group">
+            <label for="gradoExterno">Grado</label>
+                <@spring.formInput "documento.gradoExterno" 'class="form-control"' />
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        </#if>
+        
             <!--
             
             
@@ -272,6 +287,20 @@ TRD
         <fieldset class="form-group">
             <label for="destinatarioDireccion">Dirección del destinatario</label>
                 <@spring.formTextarea "documento.destinatarioDireccion" 'class="form-control"' />
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        </#if>
+        
+        <!--
+    2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
+    marcaAguaExterna
+        -->
+        <#if instancia.proceso.id == procesoExternoId && mode.marcaAguaExterno_edit >
+        <fieldset class="form-group">
+            <label for="marcaAguaExterno">Marca de Agua</label>
+                <@spring.formInput "documento.marcaAguaExterno" 'class="form-control text-uppercase"' />
             <div class="error">
                     <@spring.showErrors "<br>"/>
                 </div>
@@ -589,6 +618,33 @@ TRD
 
             </#assign>
             <#assign deferredJS = deferredJS + " " + deferredJSDepDestino>
+        </#if>
+        
+        <!--
+    2017-09-29 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
+    Restriccion de difusion
+        -->
+        <#if mode.restriccionDifusion_edit >
+        <fieldset class="form-group">
+            <label for="restriccionDifusion">Restricción de difusión</label>
+                <@spring.bind "documento.restriccionDifusion" />
+            <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
+                    <#if restriccionesDifusion??>
+                <option value=""></option>
+                        <#list restriccionesDifusion as res>
+                        <#if res.id?string == ((documento.restriccionDifusion.id)!"")?string >
+                <option value="${res.id}" selected="selected">${res.resDescripcion}</option>
+                        <#else>
+                <option value="${res.id}">${res.resDescripcion}</option>
+                        </#if>
+                        </#list>
+                    </#if>
+                </select>
+            <small class="text-muted">Establecer la restricción en la difusión  del documento.</small>
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
         </#if>
 <!--
 
@@ -922,60 +978,6 @@ Asunto
                     </div>
                 </fieldset>
             </fieldset>		
-        </#if>
-
-<!--
-    2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
-    gradoExterno
-        -->
-        <#if instancia.proceso.id == procesoExternoId && mode.gradoExterno_edit >
-        <fieldset class="form-group">
-            <label for="gradoExterno">Grado</label>
-                <@spring.formInput "documento.gradoExterno" 'class="form-control"' />
-            <div class="error">
-                    <@spring.showErrors "<br>"/>
-                </div>
-            </fieldset>
-        </#if>
-
-<!--
-    2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
-    marcaAguaExterna
-        -->
-        <#if instancia.proceso.id == procesoExternoId && mode.marcaAguaExterno_edit >
-        <fieldset class="form-group">
-            <label for="marcaAguaExterno">Marca de Agua</label>
-                <@spring.formInput "documento.marcaAguaExterno" 'class="form-control"' />
-            <div class="error">
-                    <@spring.showErrors "<br>"/>
-                </div>
-            </fieldset>
-        </#if>
-
-<!--
-    2017-09-29 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
-    Restriccion de difusion
-        -->
-        <#if mode.restriccionDifusion_edit >
-        <fieldset class="form-group">
-            <label for="restriccionDifusion">Restricción de difusión</label>
-                <@spring.bind "documento.restriccionDifusion" />
-            <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
-                    <#if restriccionesDifusion??>
-                <option value=""></option>
-                        <#list restriccionesDifusion as res>
-                        <#if res.id?string == ((documento.restriccionDifusion.id)!"")?string >
-                <option value="${res.id}" selected="selected">${res.resDescripcion}</option>
-                        <#else>
-                <option value="${res.id}">${res.resDescripcion}</option>
-                        </#if>
-                        </#list>
-                    </#if>
-                </select>
-            <div class="error">
-                    <@spring.showErrors "<br>"/>
-                </div>
-            </fieldset>
         </#if>
 
         <#-- <div class="error">

@@ -468,6 +468,13 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             if (StringUtils.isBlank(doc.getRemitenteTitulo())) {
                 errors.rejectValue("remitenteTitulo", "documento.remitenteTitulo.empty");
             }
+            
+            //2017-09-29 edison.gonzalez@controltechcg.com Issue #129: Se adiciona el mensaje
+            //que controla que la direccion del remitente sea obligatoria.
+            if(StringUtils.isBlank(doc.getRemitenteDireccion())) {
+                errors.rejectValue("remitenteDireccion", "documento.remitenteDireccion.empty");
+            }
+            
             if (StringUtils.isBlank(doc.getNumeroOficio())) {
                 errors.rejectValue("numeroOficio", "documento.numeroOficio.empty");
             }
@@ -600,6 +607,11 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)
                     && StringUtils.isBlank(doc.getMarcaAguaExterno())) {
                 errors.rejectValue("marcaAguaExterno", "documento.marcaAguaExterno.empty");
+            }
+            
+            if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)
+                    && StringUtils.isBlank(doc.getDestinatarioDireccion())) {
+                errors.rejectValue("destinatarioDireccion", "documento.destinatarioDireccion.empty");
             }
 
         }

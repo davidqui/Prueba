@@ -466,7 +466,7 @@ public class DocumentoController extends UtilController {
         keysValuesAsposeDocxDTO.put("DESTINATARIO_GRADO",
                 documento.getPdfTexto84() != null ? documento.getPdfTexto84() : "");
 
-        keysValuesAsposeDocxDTO.put("EXTERNO_MARCA_AGUA", documento.getPdfTexto85() != null ? documento.getPdfTexto85() : "");
+        keysValuesAsposeDocxDTO.put("EXTERNO_MARCA_AGUA", documento.getPdfTexto85() != null ? documento.getPdfTexto85().toUpperCase() : "");
 
         keysValuesAsposeDocxDTO.put("RESTRICCION_DIFUSION",
                 documento.getPdfTexto86() != null ? documento.getPdfTexto86() : "");
