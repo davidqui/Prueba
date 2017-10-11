@@ -619,6 +619,34 @@ TRD
             </#assign>
             <#assign deferredJS = deferredJS + " " + deferredJSDepDestino>
         </#if>
+                <!--
+                
+                
+                        Remitente texto
+        -->
+        <#if ((instancia.variablesAsMap['doc.remitente.mode'])!"") == 'texto' && mode.remitente_edit>
+        <fieldset class="form-group">
+            <label for="remitenteNombre">Nombre del remitente (*)</label>
+                <@spring.formInput "documento.remitenteNombre" 'class="form-control"' />
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        <fieldset class="form-group">
+            <label for="remitenteTitulo">Título o cargo del remitente (*)</label>
+                <@spring.formInput "documento.remitenteTitulo" 'class="form-control"' />
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        <fieldset class="form-group">
+            <label for="remitenteDireccion">Dirección del remitente (*)</label>
+                <@spring.formTextarea "documento.remitenteDireccion" 'class="form-control"' />
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        </#if>
         
         <!--
     2017-09-29 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
@@ -656,34 +684,6 @@ Asunto
             <label for="asunto">Asunto (*)</label>
                 <@spring.formInput "documento.asunto" 'class="form-control"' />
             <small class="text-muted">El asunto del documento es un texto corto que describe el documento, preferiblemente de manera única.</small>
-            <div class="error">
-                    <@spring.showErrors "<br>"/>
-                </div>
-            </fieldset>
-        </#if>
-                <!--
-                
-                
-                        Remitente texto
-        -->
-        <#if ((instancia.variablesAsMap['doc.remitente.mode'])!"") == 'texto' && mode.remitente_edit>
-        <fieldset class="form-group">
-            <label for="remitenteNombre">Nombre del remitente (*)</label>
-                <@spring.formInput "documento.remitenteNombre" 'class="form-control"' />
-            <div class="error">
-                    <@spring.showErrors "<br>"/>
-                </div>
-            </fieldset>
-        <fieldset class="form-group">
-            <label for="remitenteTitulo">Título o cargo del remitente (*)</label>
-                <@spring.formInput "documento.remitenteTitulo" 'class="form-control"' />
-            <div class="error">
-                    <@spring.showErrors "<br>"/>
-                </div>
-            </fieldset>
-        <fieldset class="form-group">
-            <label for="remitenteDireccion">Dirección del remitente (*)</label>
-                <@spring.formTextarea "documento.remitenteDireccion" 'class="form-control"' />
             <div class="error">
                     <@spring.showErrors "<br>"/>
                 </div>
