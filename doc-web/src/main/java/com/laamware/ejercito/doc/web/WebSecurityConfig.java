@@ -237,7 +237,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             Usuario usuarioLdap = ldapService.getUsuarioFromLdapByAccountName(login.toLowerCase());
             if (usuarioLdap != null) {
                 Usuario usuario = usuarioRepository.findByLoginAndActivo(login.toLowerCase(), Boolean.TRUE);
-                usuario.setGrado(usuarioLdap.getGrado());
+                /*
+                    2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+                    feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+                */
+                usuario.setUsuGrado(usuarioLdap.getUsuGrado());
                 usuario.setNombre(usuarioLdap.getNombre());
                 usuario.setDocumento(usuarioLdap.getDocumento());
                 usuario.setTelefono(usuarioLdap.getTelefono());

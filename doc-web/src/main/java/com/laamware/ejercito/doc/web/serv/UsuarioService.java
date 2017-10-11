@@ -15,6 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.data.jpa.domain.Specifications;
 
 /**
@@ -76,8 +78,13 @@ public class UsuarioService {
                 where = where.and(UsuarioSpecifications.filtrosPorToken(token));
             }
         }
-
-        final PageRequest pageRequest = new PageRequest(pageIndex, pageSize);
+        /*
+            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+        */
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "usuGrado.pesoOrden"));
+        
+        final PageRequest pageRequest = new PageRequest(pageIndex, pageSize,sort);
         final Page<Usuario> users = repository.findAll(where, pageRequest);
         return users;
     }
@@ -106,8 +113,11 @@ public class UsuarioService {
         }
 
         StringBuilder builder = new StringBuilder();
-
-        final String grado = usuario.getGrado();
+        /*
+            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+        */
+        final String grado = usuario.getUsuGrado().getNombre();
         if (grado != null && !grado.trim().isEmpty()) {
             builder.append(grado).append(". ");
         }

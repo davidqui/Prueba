@@ -338,7 +338,11 @@ public class TransferenciaArchivoService {
      */
     public String getUsuarioDescripcion(final Usuario usuario,
             final boolean conClasificacion) {
-        String descripcion = usuario.getGrado() + " "
+        /*
+            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+        */
+        String descripcion =  usuario.getUsuGrado().getNombre()+" "
                 + usuario.getNombre();
 
         if (!conClasificacion) {
@@ -406,13 +410,17 @@ public class TransferenciaArchivoService {
             final String tipoTransferencia, final TransferenciaArchivo transferenciaAnterior) {
 
         final Date ahora = new Date(System.currentTimeMillis());
-
+        
+        /*
+            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+        */
         final Grados creadorGrado
-                = gradoRepository.findOne(creadorUsuario.getGrado());
+                = gradoRepository.findOne(creadorUsuario.getUsuGrado().getNombre());
         final Grados origenGrado
-                = gradoRepository.findOne(origenUsuario.getGrado());
+                = gradoRepository.findOne(origenUsuario.getUsuGrado().getNombre());
         final Grados destinoGrado
-                = gradoRepository.findOne(destinoUsuario.getGrado());
+                = gradoRepository.findOne(destinoUsuario.getUsuGrado().getNombre());
 
         final TransferenciaArchivo transferencia = new TransferenciaArchivo(
                 tipoTransferencia,
@@ -625,7 +633,11 @@ public class TransferenciaArchivoService {
 
         final Integer quien = documento.getQuien();
         final Usuario documentoQuien = usuarioRepository.findOne(quien);
-        final String documentoElaboro = (Objects.toString(documentoQuien.getGrado(), "") + " " + documentoQuien.getNombre()).trim();
+        /*
+            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+        */
+        final String documentoElaboro = (Objects.toString(documentoQuien.getUsuGrado().getNombre(), "") + " " + documentoQuien.getNombre()).trim();
 
         /**
          * 2017-09-27 jgarcia@controltechcg.net Issue #128 (SICDI-Controltech)
