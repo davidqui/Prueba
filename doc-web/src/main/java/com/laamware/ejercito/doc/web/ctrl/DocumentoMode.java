@@ -91,27 +91,29 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         REGISTRO.edit("destinatario").editAndView("asunto").editAndView("remitente").editAndView("numeroOficio")
                 .editAndView("fechaOficio").editAndView("numeroFolios").editAndView("clasificacion")
                 .editAndView("radicadoOrfeo").editAndView("numeroBolsa").editAndView("trd").editAndView("observaciones")
-                .editAndView("guardar").editAndView("restriccionDifusion");
+                .editAndView("guardar").editAndView("restriccionDifusion").editAndView("gradoExterno");
         REGISTRO.validator = new RegistroValidator();
         modes.put(NAME_REGISTRO, REGISTRO);
 
         CON_STICKER.view("sticker").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
                 .view("fechaOficio").view("numeroFolios").view("clasificacion").view("radicado").view("radicadoOrfeo")
-                .view("numeroBolsa").editAndView("trd").editAndView("observaciones").editAndView("guardar").view("restriccionDifusion");
+                .view("numeroBolsa").editAndView("trd").editAndView("observaciones").editAndView("guardar").view("restriccionDifusion")
+                .view("gradoExterno");
         CON_STICKER.validator = new ConStickerValidator();
         modes.put(NAME_CON_STICKER, CON_STICKER);
 
         DIGITALIZANDO.view("sticker").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
                 .view("fechaOficio").view("numeroFolios").view("clasificacion").editAndView("adjuntos")
                 .editAndView("observaciones").view("radicado").view("radicadoOrfeo").view("numeroBolsa")
-                .editAndView("trd").editAndView("guardar").view("restriccionDifusion");
+                .editAndView("trd").editAndView("guardar").view("restriccionDifusion").view("gradoExterno");
         DIGITALIZANDO.validator = new DigitalizandoValidator();
         modes.put(NAME_DIGITALIZANDO, DIGITALIZANDO);
 
         ENTREGADO.editAndView("trd").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
                 .view("fechaOficio").view("numeroFolios").view("clasificacion").editAndView("expediente")
                 .view("adjuntos").editAndView("observaciones").view("radicado").view("radicadoOrfeo")
-                .view("numeroBolsa").editAndView("trd").editAndView("guardar").view("restriccionDifusion");
+                .view("numeroBolsa").editAndView("trd").editAndView("guardar").view("restriccionDifusion")
+                .view("gradoExterno");
         ENTREGADO.validator = new EntregadoValidator();
         modes.put(NAME_ENTREGADO, ENTREGADO);
 
@@ -163,7 +165,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         SOLO_LECTURA_INTERNO.view("trd").view("destinatario").view("remitente").view("asunto").view("remitente")
                 .view("numeroOficio").view("fechaOficio").view("numeroFolios").view("plazo").view("clasificacion")
                 .view("expediente").view("adjuntos").editAndView("observaciones").view("radicado").view("contenido")
-                .view("plantilla").view("restriccionDifusion");
+                .view("plantilla").view("restriccionDifusion").view("gradoExterno");
         modes.put(NAME_SOLO_LECTURA_INTERNO, SOLO_LECTURA_INTERNO);
     }
 

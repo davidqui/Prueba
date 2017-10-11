@@ -254,7 +254,7 @@ TRD
     2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
     gradoExterno
         -->
-        <#if instancia.proceso.id == procesoExternoId && mode.gradoExterno_edit >
+        <#if (instancia.proceso.id == procesoExternoId || instancia.proceso.id == procesoRegistroDocumentos) && mode.gradoExterno_edit >
         <fieldset class="form-group">
             <label for="gradoExterno">Grado</label>
                 <@spring.formInput "documento.gradoExterno" 'class="form-control"' />
@@ -285,7 +285,7 @@ TRD
                 </div>
             </fieldset>
         <fieldset class="form-group">
-            <label for="destinatarioDireccion">Dirección del destinatario</label>
+            <label for="destinatarioDireccion">Dirección del destinatario (*)</label>
                 <@spring.formTextarea "documento.destinatarioDireccion" 'class="form-control"' />
             <div class="error">
                     <@spring.showErrors "<br>"/>
@@ -682,7 +682,7 @@ Asunto
                 </div>
             </fieldset>
         <fieldset class="form-group">
-            <label for="remitenteDireccion">Dirección del remitente</label>
+            <label for="remitenteDireccion">Dirección del remitente (*)</label>
                 <@spring.formTextarea "documento.remitenteDireccion" 'class="form-control"' />
             <div class="error">
                     <@spring.showErrors "<br>"/>
