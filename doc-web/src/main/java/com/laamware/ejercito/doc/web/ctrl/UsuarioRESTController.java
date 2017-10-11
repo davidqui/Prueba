@@ -85,7 +85,7 @@ public class UsuarioRESTController {
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
         */
-        busquedaDTO.setGrado(usuario.getUsuGrado().getNombre());
+        busquedaDTO.setGrado(usuario.getUsuGrado().getId());
 
         if (usuario.getClasificacion() != null) {
             busquedaDTO.setClasificacionId(usuario.getClasificacion().getId());

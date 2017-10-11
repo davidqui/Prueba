@@ -61,3 +61,7 @@ begin
     end loop;
 end;
 /
+
+update grado set GRA_PESO_ORDEN = 0 where ACTIVO = 0;
+update grado set GRA_PESO_ORDEN = 0 where GRA_PESO_ORDEN is null;
+commit;

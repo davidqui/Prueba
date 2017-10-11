@@ -303,7 +303,7 @@ public class UsuarioController extends UtilController {
                         2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
                         feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
                     */
-                    map.put("grado", usuarioLdap.getUsuGrado().getNombre());
+                    map.put("grado", usuarioLdap.getUsuGrado().getId());
                     map.put("dependencia", usuarioLdap.getDependencia() != null
                             ? usuarioLdap.getDependencia().getId().toString() : null);
                     map.put("email", usuarioLdap.getEmail());

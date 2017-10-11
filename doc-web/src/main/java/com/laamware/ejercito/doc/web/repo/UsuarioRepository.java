@@ -86,12 +86,7 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      */
     // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
     // segun el peso de los grados.
-    @Query(nativeQuery = true, value = ""
-            + "SELECT A.* "
-            + "FROM USUARIO A, "
-            + "     GRADO B "
-            + "WHERE TRIM(B.GRA_ID(+)) = TRIM(A.USU_GRADO) "
-            + "ORDER BY NVL(B.GRA_PESO_ORDEN,-1) DESC")
+    @Query(value = "select t from Usuario t order by t.usuGrado.pesoOrden DESC")
     List<Usuario> findAllOrderByGradoDesc();
     
     /**
@@ -102,13 +97,7 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      */
     // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
     // segun el peso de los grados.
-    @Query(nativeQuery = true, value = ""
-            + "SELECT A.* "
-            + "FROM USUARIO A, "
-            + "     GRADO B "
-            + "WHERE TRIM(B.GRA_ID(+)) = TRIM(A.USU_GRADO) "
-            + "AND A.ACTIVO = 1 "
-            + "ORDER BY NVL(B.GRA_PESO_ORDEN,-1) DESC")
+    @Query(value = "select t from Usuario t where t.activo = 1 order by t.usuGrado.pesoOrden DESC")
     List<Usuario> findAllByActivoTrueOrderByGradoDesc();
 
     /**
@@ -120,13 +109,6 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      */
     // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
     // segun el peso de los grados.
-    @Query(nativeQuery = true, value = ""
-            + "SELECT A.* "
-            + "FROM USUARIO A, "
-            + "     GRADO B "
-            + "WHERE TRIM(B.GRA_ID(+)) = TRIM(A.USU_GRADO) "
-            + "AND DEP_ID = :depId "
-            + "AND A.ACTIVO = 1 "
-            + "ORDER BY NVL(B.GRA_PESO_ORDEN,-1) DESC")
+    @Query(value = "select t from Usuario t where t.activo = 1 and t.dependencia.id = :depId order by t.usuGrado.pesoOrden DESC")
     List<Usuario> findByDependenciaAndActivoTrueOrderByGradoDesc(@Param(value = "depId") Integer dep);
 }

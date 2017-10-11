@@ -61,6 +61,17 @@ public class Usuario extends AuditActivoModifySupport {
     @LaamCreate(order = 40)
     @Column(name = "USU_TELEFONO")
     private String telefono;
+    
+    /*
+        2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+        feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+     */
+    @LaamLabel("Grado")
+    @LaamCreate(order = 50)
+    @LaamListColumn(order = 50)
+    @JoinColumn(name = "USU_GRADO", referencedColumnName = "GRA_ID")
+    @ManyToOne
+    private Grados usuGrado;
 
     @LaamLabel("Cargo")
     @LaamCreate(order = 55)
@@ -70,7 +81,7 @@ public class Usuario extends AuditActivoModifySupport {
     @LaamLabel("Perfil")
     @LaamCreate(order = 60)
     @LaamListColumn(order = 60)
-    @LaamWidget(list = "perfiles", value = "select")
+    @LaamWidget(list = "grados", value = "select")
     @ManyToOne
     @JoinColumn(name = "PER_ID")
     private Perfil perfil;
@@ -108,14 +119,6 @@ public class Usuario extends AuditActivoModifySupport {
     @Column(name = "USU_EMAIL")
     private String email;
 
-    /*
-        2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
-        feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-     */
-    @JoinColumn(name = "USU_GRADO", referencedColumnName = "GRA_ID")
-    @ManyToOne
-    private Grados usuGrado;
-
     @Transient
     private List<UsuarioHistorialFirmaDTO> historialUsuarios = new ArrayList<UsuarioHistorialFirmaDTO>();
 
@@ -139,8 +142,8 @@ public class Usuario extends AuditActivoModifySupport {
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
          */
-        if (usuGrado != null && !AppConstants.SIN_GRADO.equals(usuGrado.getNombre())) {
-            b.append(usuGrado.getNombre()).append(". ");
+        if (usuGrado != null && !AppConstants.SIN_GRADO.equals(usuGrado.getId())) {
+            b.append(usuGrado.getId()).append(". ");
         }
         b.append(nombre);
         return b.toString();

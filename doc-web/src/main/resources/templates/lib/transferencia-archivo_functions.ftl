@@ -7,7 +7,7 @@
     feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
 -->
 <#function getUsuarioDescripcion usuario >
-    <#return usuario.usuGrado.nombre + " " + usuario.nombre + " - [" + usuario.clasificacion.nombre + "]" />
+    <#return usuario.usuGrado.id + " " + usuario.nombre + " - [" + usuario.clasificacion.nombre + "]" />
 </#function>
 
 <#function getTipoDescripcion tipo >
