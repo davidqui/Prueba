@@ -11,12 +11,10 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
 import com.laamware.ejercito.doc.web.serv.spec.UsuarioSpecifications;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.data.jpa.domain.Specifications;
 
 /**

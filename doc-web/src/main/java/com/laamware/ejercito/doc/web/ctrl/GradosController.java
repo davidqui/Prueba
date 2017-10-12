@@ -21,6 +21,7 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.repo.GradosRepository;
+import org.springframework.data.domain.Sort;
 
 @Controller
 @PreAuthorize("hasRole('ADMIN_GRADOS')")
@@ -50,10 +51,11 @@ public class GradosController extends UtilController {
 	}
 
 	protected List<Grados> findAll(boolean all) {
+                Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "pesoOrden"));
 		if (!all) {
-			return gradosRepository.findByActivo(true);
+			return gradosRepository.findByActivo(true,sort);
 		} else {
-			return gradosRepository.findAll();
+			return gradosRepository.findAll(sort);
 		}
 	}
 
