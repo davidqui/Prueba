@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#assign pageTitle = descriptor.label />
 <#include "gen-macros.ftl">
 <#if templatePrefix??>

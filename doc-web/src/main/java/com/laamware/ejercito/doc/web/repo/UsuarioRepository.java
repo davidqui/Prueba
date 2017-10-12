@@ -2,13 +2,11 @@ package com.laamware.ejercito.doc.web.repo;
 
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 
 public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
@@ -27,19 +25,6 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     Usuario getByLoginAndActivoTrue(String login);
-
-    /**
-     * Obtiene los usuarios que pertenecen a la dependencia
-     *
-     * @param dep
-     * @param sort
-     * @return
-     */
-    /*
-     * 2017-02-27 jgarcia@controltechcg.com Issue #148: Corrección para que
-     * únicamente se puedan seleccionar usuarios activos.
-     */
-    List<Usuario> findByDependenciaAndActivoTrue(Dependencia dep, Sort sort);
 
     @Query(nativeQuery = true, value = "select pr.rol_id from perfil_rol pr join usuario u on u.PER_ID = pr.PER_ID where lower(u.USU_LOGIN) = ?")
     List<String> allByLogin(String login);
@@ -92,18 +77,38 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      * feature-120: Funciones para buscador de usuarios.
      */
     Usuario findByActivoTrueAndDocumento(String documento);
+    
+    /**
+     * Obtiene la lista de todos los usuarios ordenados por el
+     * peso del grado.
+     *
+     * @return
+     */
+    // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
+    // segun el peso de los grados.
+    @Query(value = "select t from Usuario t order by t.usuGrado.pesoOrden DESC")
+    List<Usuario> findAllOrderByGradoDesc();
+    
+    /**
+     * Obtiene la lista de los usuarios activos ordenados por el
+     * peso del grado.
+     *
+     * @return
+     */
+    // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
+    // segun el peso de los grados.
+    @Query(value = "select t from Usuario t where t.activo = 1 order by t.usuGrado.pesoOrden DESC")
+    List<Usuario> findAllByActivoTrueOrderByGradoDesc();
 
     /**
-     * Obtiene la lista de todos los usuarios activos registrados en el sistema,
-     * ordenados según los criterios indicados.
+     * Obtiene los usuarios activos que pertenecen a la dependencia ordenados por el
+     * peso del grado, segun la dependencia.
      *
-     * @param sort Criterios de ordenamiento.
-     * @return Lista de usuarios activos.
+     * @param dep
+     * @return
      */
-    /*
-     * 2017-09-29 jgarcia@controltechcg.com Issue #130 (SICDI-Controltech)
-     * hotfix-130.
-     */
-    List<Usuario> findAllByActivoTrue(Sort sort);
-
+    // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
+    // segun el peso de los grados.
+    @Query(value = "select t from Usuario t where t.activo = 1 and t.dependencia.id = :depId order by t.usuGrado.pesoOrden DESC")
+    List<Usuario> findByDependenciaAndActivoTrueOrderByGradoDesc(@Param(value = "depId") Integer dep);
 }

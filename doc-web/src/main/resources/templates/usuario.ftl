@@ -89,20 +89,23 @@
         <input type="text" class="form-control" id="email" name="email" value="${(usuario.email)!""}"  readonly="readonly" />
       </fieldset>
       
-      
+    <#--
+        2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+        feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+    -->
       <fieldset class="form-group">
-        <@spring.bind "usuario.grado" />
-         <#if usuario.grado??>
-        <input type="hidden" name="${spring.status.expression}" id="${spring.status.expression}" value="${(usuario.grado)}" />
+        <@spring.bind "usuario.usuGrado.id" />
+         <#if usuario.usuGrado.id??>
+        <input type="hidden" name="${spring.status.expression}" id="${spring.status.expression}" value="${(usuario.usuGrado.nombre)}" />
         <#else>
-        <input type="hidden" name="${spring.status.expression}" id="${spring.status.expression}"  />
+        <input type="hidden" name="${spring.status.expression}" id="${spring.status.expression}" />
         </#if>
         <label for="${spring.status.expression}">Grado</label>
         <select class="form-control" id="gradosel" name="gradosel" readonly="readonly" disabled>
         <#if grados??>
             <option value=""></option>
             <#list grados as gr>
-	            <#if gr.id?string == ((usuario.grado)!"")?string >
+	            <#if gr.id?string == ((usuario.usuGrado.id)!"")?string >
 	            	<option value="${gr.id}" selected="selected">${gr.nombre}</option>
 	            <#else>
 	            	<option value="${gr.id}">${gr.nombre}</option>

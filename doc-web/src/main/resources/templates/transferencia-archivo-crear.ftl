@@ -84,7 +84,11 @@
                             <th><input type="radio" name="transferenciaAnterior" value="${transferenciasRecibida.id}" 
                                 <#if transferenciaAnterior?? && transferenciasRecibida.id == transferenciaAnterior.id>checked="checked"</#if> /></th>
                             <td>${transferenciasRecibida.fechaAprobacion?string('yyyy-MM-dd hh:mm:ss a')}</td>
-                            <td>${transferenciasRecibida.origenUsuario.grado + " " + transferenciasRecibida.origenUsuario.nombre}</td>
+                            <#--
+                                2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+                                feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+                            -->
+                            <td>${transferenciasRecibida.origenUsuario.usuGrado.id + " " + transferenciasRecibida.origenUsuario.nombre}</td>
                             <td>${transferenciasRecibida.origenClasificacion.nombre}</td>
                             <td>${transferenciasRecibida.numeroDocumentos}</td>
                             </tr>

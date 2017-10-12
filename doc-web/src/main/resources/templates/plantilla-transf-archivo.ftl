@@ -28,7 +28,11 @@
                 </tr>
             <tr>
                 <td><strong>Cargado por</strong></td>
-                <td>${plantilla.usuario.grado} ${plantilla.usuario.nombre}</td>
+                <#--
+                    2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+                    feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+                -->
+                <td>${plantilla.usuario.usuGrado.id} ${plantilla.usuario.nombre}</td>
                 </tr>
             <tr>
                 <td><strong>Fecha de carga</strong></td>

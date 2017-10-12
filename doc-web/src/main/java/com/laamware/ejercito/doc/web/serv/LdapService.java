@@ -70,7 +70,13 @@ public class LdapService {
 				us.setDocumento(attrs.get(NAME_IDENTIFICACION)!=null ? attrs.get(NAME_IDENTIFICACION).get().toString() : " ");
 				us.setNombre(attrs.get(NAME_NOMBRE_COMPLETO) != null ? attrs.get(NAME_NOMBRE_COMPLETO).get().toString() : null);
 				us.setTelefono(attrs.get(NAME_TELEFONO) != null ? attrs.get(NAME_TELEFONO).get().toString() : null);
-				us.setGrado(getGradoLdap(attrs.get(NAME_GRADO)!= null ? attrs.get(NAME_GRADO).get().toString() : null));
+                                /*
+                                    2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+                                    feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+                                */
+                                Grados grados = new Grados();
+                                grados.setId(getGradoLdap(attrs.get(NAME_GRADO)!= null ? attrs.get(NAME_GRADO).get().toString() : null));
+				us.setUsuGrado(grados);
 				us.setEmail(attrs.get(NAME_CORREO) != null ? attrs.get(NAME_CORREO).get().toString() : null);
 				
 				String txtAdicional = "CN="+us.getNombre()+",";

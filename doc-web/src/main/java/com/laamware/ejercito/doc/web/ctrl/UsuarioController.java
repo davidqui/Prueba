@@ -194,7 +194,11 @@ public class UsuarioController extends UtilController {
                     usu.setNombre(usuario.getNombre());
                     usu.setTelefono(usuario.getTelefono());
                     usu.setEmail(usuario.getEmail());
-                    usu.setGrado(usuario.getGrado());
+                    /*
+                    2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+                    feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+                     */
+                    usu.setUsuGrado(usuario.getUsuGrado());
                     usu.setClasificacion(usuario.getClasificacion());
                     usu.setDependencia(usuario.getDependencia());
                     usu.setPerfil(usuario.getPerfil());
@@ -295,7 +299,11 @@ public class UsuarioController extends UtilController {
                     map.put("documento", usuarioLdap.getDocumento());
                     map.put("nombre", usuarioLdap.getNombre());
                     map.put("telefono", usuarioLdap.getTelefono());
-                    map.put("grado", usuarioLdap.getGrado());
+                    /*
+                        2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+                        feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+                    */
+                    map.put("grado", usuarioLdap.getUsuGrado().getId());
                     map.put("dependencia", usuarioLdap.getDependencia() != null
                             ? usuarioLdap.getDependencia().getId().toString() : null);
                     map.put("email", usuarioLdap.getEmail());
@@ -442,10 +450,14 @@ public class UsuarioController extends UtilController {
     }
 
     protected List<Usuario> findAll(boolean all) {
+        /* 
+         *2017-10-05 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech)
+         * feature-131: Ajuste de orden segun el peso de los grados.
+         */
         if (!all) {
-            return usuarioRepository.findByActivo(true);
+            return usuarioRepository.findAllByActivoTrueOrderByGradoDesc();
         } else {
-            return usuarioRepository.findAll();
+            return usuarioRepository.findAllOrderByGradoDesc();
         }
     }
 
