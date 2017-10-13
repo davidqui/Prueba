@@ -30,111 +30,138 @@ import com.laamware.ejercito.doc.web.util.DateUtil.SetTimeType;
 @RequestMapping(value = BandejaController.PATH)
 public class BandejaController extends UtilController {
 
-	public static final String PATH = "/bandeja";
+    public static final String PATH = "/bandeja";
 
-	@Autowired
-	ProcesoService procesoService;
+    @Autowired
+    ProcesoService procesoService;
 
-	@Autowired
-	DocumentoRepository docR;
+    @Autowired
+    DocumentoRepository docR;
 
-	@Autowired
-	InstanciaBandejaRepository instanciaBandejaR;
+    @Autowired
+    InstanciaBandejaRepository instanciaBandejaR;
 
-	// 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
-	// feature-78
-	@Autowired
-	UsuarioService usuarioService;
+    // 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+    // feature-78
+    @Autowired
+    UsuarioService usuarioService;
 
-	// 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de
-	// dependencias adicionales a un documento.
-	@Autowired
-	DocumentoDependenciaAdicionalRepository documentoDependenciaAdicionalRepository;
+    // 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de
+    // dependencias adicionales a un documento.
+    @Autowired
+    DocumentoDependenciaAdicionalRepository documentoDependenciaAdicionalRepository;
 
-	/*
+    /*
 	 * 2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
 	 * feature-115: Implementación de servicio para manejo de filtros por fecha
 	 * para la presentación de las bandejas diferentes a entrada.
-	 */
-	@Autowired
-	private BandejaService bandejaService;
+     */
+    @Autowired
+    private BandejaService bandejaService;
 
-	@PreAuthorize("hasRole('BANDEJAS')")
-	@RequestMapping(value = "/entrada", method = RequestMethod.GET)
-	public String entrada(Model model, Principal principal,
-			@RequestParam(required = false, value = "action") String action,
-			@RequestParam(required = false, value = "pin") String pin) {
+    @PreAuthorize("hasRole('BANDEJAS')")
+    @RequestMapping(value = "/entrada", method = RequestMethod.GET)
+    public String entrada(Model model, Principal principal,
+            @RequestParam(required = false, value = "action") String action,
+            @RequestParam(required = false, value = "pin") String pin,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "0") Integer pageIndex) {
 
-		if (StringUtils.isNotBlank(action)) {
-			if ("quitar".equals(action)) {
-				if (StringUtils.isNotBlank(pin)) {
-					InstanciaBandeja ib = instanciaBandejaR.findByInstanciaIdAndUsuarioLoginAndBandejaAndActivo(pin,
-							principal.getName(), "ENTRADA", true);
-					ib.setActivo(false);
-					instanciaBandejaR.save(ib);
-				}
-			}
-		}
+        System.err.println("pin= " + pin);
+        System.err.println("pageIndex= " + pageIndex);
+        if (StringUtils.isNotBlank(action)) {
+            if ("quitar".equals(action)) {
+                if (StringUtils.isNotBlank(pin)) {
+                    InstanciaBandeja ib = instanciaBandejaR.findByInstanciaIdAndUsuarioLoginAndBandejaAndActivo(pin,
+                            principal.getName(), "ENTRADA", true);
+                    ib.setActivo(false);
+                    instanciaBandejaR.save(ib);
+                }
+            }
+        }
 
-		List<Documento> docs = docR.findBandejaEntrada(principal.getName());
-		for (Documento d : docs) {
-			d.getInstancia().getCuando();
-			d.getInstancia().setService(procesoService);
-		}
-		model.addAttribute("documentos", docs);
+        List<Documento> docs = null;
+        int BUSQUEDA_PAGE_SIZE = 10;
+        int count = docR.findBandejaEntradaCount();
+        int totalPages = 0;
 
-		/*
+        System.err.println("count= " + count);
+        if (count > 0) {
+            int inicio = 0;
+            int fin = 0;
+            totalPages = (int) Math.ceil((double) count / BUSQUEDA_PAGE_SIZE) - 1;
+            fin = inicio + BUSQUEDA_PAGE_SIZE;
+            System.err.println("totalPages= " + totalPages);
+
+            if (pageIndex > 0) {
+                inicio = (pageIndex * BUSQUEDA_PAGE_SIZE) + 1;
+                fin = (inicio + BUSQUEDA_PAGE_SIZE) - 1;
+            }
+            if (count < BUSQUEDA_PAGE_SIZE) {
+                fin = count;
+            }
+            System.err.println("Inicio= " + inicio + "------fin=" + fin);
+            docs = docR.findBandejaEntradaPaginado(inicio, fin);
+            if (docs != null) {
+                for (Documento d : docs) {
+                    d.getInstancia().getCuando();
+                    d.getInstancia().setService(procesoService);
+                }
+            }
+        }
+
+//		List<Documento> docs = docR.findBandejaEntrada(principal.getName());
+        model.addAttribute("documentos", docs);
+        model.addAttribute("pageIndex", pageIndex);
+        model.addAttribute("totalPages", totalPages);
+
+        /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78: Presentar información básica de los usuarios asignadores
 		 * y asignados en las bandejas del sistema.
-		 */
-		model.addAttribute("usuarioService", usuarioService);
+         */
+        model.addAttribute("usuarioService", usuarioService);
 
-		return "bandeja-entrada";
-	}
+        return "bandeja-entrada";
+    }
 
-	/**
-	 * Presenta los documentos de la bandeja de enviados del usuario en sesión.
-	 * 
-	 * @param model
-	 *            Modelo de presentación.
-	 * @param principal
-	 *            Atributos de autenticación.
-	 * @param fechaInicial
-	 *            Fecha inicial del rango de filtro (Opcional).
-	 * @param fechaFinal
-	 *            Fecha final del rango de filtro (Opcional).
-	 * @return Lista de documentos enviados del usuario.
-	 */
-	/*
+    /**
+     * Presenta los documentos de la bandeja de enviados del usuario en sesión.
+     *
+     * @param model Modelo de presentación.
+     * @param principal Atributos de autenticación.
+     * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
+     * @param fechaFinal Fecha final del rango de filtro (Opcional).
+     * @return Lista de documentos enviados del usuario.
+     */
+    /*
 	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
 	 * feature-115: Modificación de controlador de bandejas para manejo de rango
 	 * de fechas, utilizando un servicio del modelo de negocio.
-	 */
-	@PreAuthorize("hasRole('BANDEJAS')")
-	@RequestMapping(value = "/enviados", method = {RequestMethod.GET, RequestMethod.POST})
-	public String enviados(Model model, Principal principal,
-			@RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-			@RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
+     */
+    @PreAuthorize("hasRole('BANDEJAS')")
+    @RequestMapping(value = "/enviados", method = {RequestMethod.GET, RequestMethod.POST})
+    public String enviados(Model model, Principal principal,
+            @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
 
-		if (fechaFinal == null) {
-			fechaFinal = new Date();
-		}
-		DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
+        if (fechaFinal == null) {
+            fechaFinal = new Date();
+        }
+        DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
 
-		if (fechaInicial == null) {
-			fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
-		}
-		DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
+        if (fechaInicial == null) {
+            fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
+        }
+        DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
-		final String login = principal.getName();
-		List<Documento> documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal);
+        final String login = principal.getName();
+        List<Documento> documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal);
 
-		for (Documento documento : documentos) {
-			documento.getInstancia().getCuando();
-			documento.getInstancia().setService(procesoService);
+        for (Documento documento : documentos) {
+            documento.getInstancia().getCuando();
+            documento.getInstancia().setService(procesoService);
 
-			/*
+            /*
 			 * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de
 			 * jefes de dependencias adicionales a un documento.
 			 * 
@@ -146,147 +173,139 @@ public class BandejaController extends UtilController {
 			 * (SICDI-Controltech) feature-73: Opción para indicar si la
 			 * construcción del texto de asignados debe manejar múltiples
 			 * destinos o no.
-			 */
-			String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
-					usuarioService, documento.getInstancia(), null, true);
-			documento.setTextoAsignado(asignadosText);
-		}
+             */
+            String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
+                    usuarioService, documento.getInstancia(), null, true);
+            documento.setTextoAsignado(asignadosText);
+        }
 
-		model.addAttribute("documentos", documentos);
-		model.addAttribute("fechaInicial", fechaInicial);
-		model.addAttribute("fechaFinal", fechaFinal);
+        model.addAttribute("documentos", documentos);
+        model.addAttribute("fechaInicial", fechaInicial);
+        model.addAttribute("fechaFinal", fechaFinal);
 
-		/*
+        /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78: Presentar información básica de los usuarios asignadores
 		 * y asignados en las bandejas del sistema.
-		 */
-		model.addAttribute("usuarioService", usuarioService);
+         */
+        model.addAttribute("usuarioService", usuarioService);
 
-		return "bandeja-enviados";
-	}
+        return "bandeja-enviados";
+    }
 
-	/**
-	 * Presenta los documentos de la bandeja en trámite del usuario en sesión.
-	 * 
-	 * @param model
-	 *            Modelo de presentación.
-	 * @param principal
-	 *            Atributos de autenticación.
-	 * @param fechaInicial
-	 *            Fecha inicial del rango de filtro (Opcional).
-	 * @param fechaFinal
-	 *            Fecha final del rango de filtro (Opcional).
-	 * @return Lista de documentos en trámite del usuario.
-	 */
-	/*
+    /**
+     * Presenta los documentos de la bandeja en trámite del usuario en sesión.
+     *
+     * @param model Modelo de presentación.
+     * @param principal Atributos de autenticación.
+     * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
+     * @param fechaFinal Fecha final del rango de filtro (Opcional).
+     * @return Lista de documentos en trámite del usuario.
+     */
+    /*
 	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
 	 * feature-115: Modificación de controlador de bandejas para manejo de rango
 	 * de fechas, utilizando un servicio del modelo de negocio.
-	 */
-	@PreAuthorize("hasRole('BANDEJAS')")
-	@RequestMapping(value = "/entramite", method = {RequestMethod.GET, RequestMethod.POST})
-	public String entramite(Model model, Principal principal,
-			@RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-			@RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
+     */
+    @PreAuthorize("hasRole('BANDEJAS')")
+    @RequestMapping(value = "/entramite", method = {RequestMethod.GET, RequestMethod.POST})
+    public String entramite(Model model, Principal principal,
+            @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
 
-		if (fechaFinal == null) {
-			fechaFinal = new Date();
-		}
-		DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
+        if (fechaFinal == null) {
+            fechaFinal = new Date();
+        }
+        DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
 
-		if (fechaInicial == null) {
-			fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
-		}
-		DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
+        if (fechaInicial == null) {
+            fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
+        }
+        DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
-		final String login = principal.getName();
-		List<Documento> documentos = bandejaService.obtenerDocumentosBandejaTramite(login, fechaInicial, fechaFinal);
-		for (Documento documento : documentos) {
-			documento.getInstancia().getCuando();
-			documento.getInstancia().setService(procesoService);
-		}
+        final String login = principal.getName();
+        List<Documento> documentos = bandejaService.obtenerDocumentosBandejaTramite(login, fechaInicial, fechaFinal);
+        for (Documento documento : documentos) {
+            documento.getInstancia().getCuando();
+            documento.getInstancia().setService(procesoService);
+        }
 
-		model.addAttribute("documentos", documentos);
-		model.addAttribute("fechaInicial", fechaInicial);
-		model.addAttribute("fechaFinal", fechaFinal);
+        model.addAttribute("documentos", documentos);
+        model.addAttribute("fechaInicial", fechaInicial);
+        model.addAttribute("fechaFinal", fechaFinal);
 
-		/*
+        /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78: Presentar información básica de los usuarios asignadores
 		 * y asignados en las bandejas del sistema.
-		 */
-		model.addAttribute("usuarioService", usuarioService);
+         */
+        model.addAttribute("usuarioService", usuarioService);
 
-		return "bandeja-tramite";
-	}
+        return "bandeja-tramite";
+    }
 
-	@PreAuthorize("hasRole('BANDEJAS')")
-	@RequestMapping(value = "/consulta", method = RequestMethod.GET)
-	public String consulta(Model model) {
+    @PreAuthorize("hasRole('BANDEJAS')")
+    @RequestMapping(value = "/consulta", method = RequestMethod.GET)
+    public String consulta(Model model) {
 
-		return "bandeja-consulta";
+        return "bandeja-consulta";
 
-	}
+    }
 
-	/**
-	 * Obtiene la información a presentar para la bandeja de apoyo y consulta
-	 * del usuario, y carga la pantalla correspondiente.
-	 * 
-	 * @param model
-	 *            Modelo.
-	 * @param principal
-	 *            Principal.
-	 * @param fechaInicial
-	 *            Fecha inicial del rango de filtro (Opcional).
-	 * @param fechaFinal
-	 *            Fecha final del rango de filtro (Opcional).
-	 * @return Identificador del template de la bandeja.
-	 */
-	@PreAuthorize("hasRole('BANDEJAS')")
-	@RequestMapping(value = "/apoyo-consulta", method = {RequestMethod.GET, RequestMethod.POST})
-	/*
+    /**
+     * Obtiene la información a presentar para la bandeja de apoyo y consulta
+     * del usuario, y carga la pantalla correspondiente.
+     *
+     * @param model Modelo.
+     * @param principal Principal.
+     * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
+     * @param fechaFinal Fecha final del rango de filtro (Opcional).
+     * @return Identificador del template de la bandeja.
+     */
+    @PreAuthorize("hasRole('BANDEJAS')")
+    @RequestMapping(value = "/apoyo-consulta", method = {RequestMethod.GET, RequestMethod.POST})
+    /*
 	 * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
 	 * 
 	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
 	 * feature-115: Modificación de controlador de bandejas para manejo de rango
 	 * de fechas, utilizando un servicio del modelo de negocio.
-	 */
-	public String apoyoConsulta(Model model, Principal principal,
-			@RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-			@RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
+     */
+    public String apoyoConsulta(Model model, Principal principal,
+            @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
 
-		if (fechaFinal == null) {
-			fechaFinal = new Date();
-		}
-		DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
+        if (fechaFinal == null) {
+            fechaFinal = new Date();
+        }
+        DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
 
-		if (fechaInicial == null) {
-			fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
-		}
-		DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
-		
-		final String login = principal.getName();
-		final List<Documento> documentos = bandejaService.obtenerDocumentosBandejaApoyoConsulta(login, fechaInicial, fechaFinal);
+        if (fechaInicial == null) {
+            fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
+        }
+        DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
-		for (Documento documento : documentos) {
-			documento.getInstancia().getCuando();
-			documento.getInstancia().setService(procesoService);
-		}
+        final String login = principal.getName();
+        final List<Documento> documentos = bandejaService.obtenerDocumentosBandejaApoyoConsulta(login, fechaInicial, fechaFinal);
 
-		model.addAttribute("documentos", documentos);
-		model.addAttribute("fechaInicial", fechaInicial);
-		model.addAttribute("fechaFinal", fechaFinal);		
+        for (Documento documento : documentos) {
+            documento.getInstancia().getCuando();
+            documento.getInstancia().setService(procesoService);
+        }
 
-		/*
+        model.addAttribute("documentos", documentos);
+        model.addAttribute("fechaInicial", fechaInicial);
+        model.addAttribute("fechaFinal", fechaFinal);
+
+        /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78: Presentar información básica de los usuarios asignadores
 		 * y asignados en las bandejas del sistema.
-		 */
-		model.addAttribute("usuarioService", usuarioService);
+         */
+        model.addAttribute("usuarioService", usuarioService);
 
-		return "bandeja-apoyo-consulta";
+        return "bandeja-apoyo-consulta";
 
-	}
+    }
 
 }
