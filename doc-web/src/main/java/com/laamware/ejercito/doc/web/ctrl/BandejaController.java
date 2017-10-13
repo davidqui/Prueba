@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import java.security.Principal;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,6 +26,7 @@ import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.DateUtil.SetTimeType;
+import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 
 @Controller
 @RequestMapping(value = BandejaController.PATH)
@@ -80,27 +82,13 @@ public class BandejaController extends UtilController {
         }
 
         List<Documento> docs = null;
-        int BUSQUEDA_PAGE_SIZE = 10;
         int count = docR.findBandejaEntradaCount();
         int totalPages = 0;
 
-        System.err.println("count= " + count);
         if (count > 0) {
-            int inicio = 0;
-            int fin = 0;
-            totalPages = (int) Math.ceil((double) count / BUSQUEDA_PAGE_SIZE) - 1;
-            fin = inicio + BUSQUEDA_PAGE_SIZE;
-            System.err.println("totalPages= " + totalPages);
-
-            if (pageIndex > 0) {
-                inicio = (pageIndex * BUSQUEDA_PAGE_SIZE) + 1;
-                fin = (inicio + BUSQUEDA_PAGE_SIZE) - 1;
-            }
-            if (count < BUSQUEDA_PAGE_SIZE) {
-                fin = count;
-            }
-            System.err.println("Inicio= " + inicio + "------fin=" + fin);
-            docs = docR.findBandejaEntradaPaginado(inicio, fin);
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex);
+            totalPages = paginacionDTO.getTotalPages();
+            docs = docR.findBandejaEntradaPaginado(paginacionDTO.getInicio(), paginacionDTO.getFin());
             if (docs != null) {
                 for (Documento d : docs) {
                     d.getInstancia().getCuando();
