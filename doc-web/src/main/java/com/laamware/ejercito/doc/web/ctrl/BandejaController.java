@@ -66,7 +66,7 @@ public class BandejaController extends UtilController {
     public String entrada(Model model, Principal principal,
             @RequestParam(required = false, value = "action") String action,
             @RequestParam(required = false, value = "pin") String pin,
-            @RequestParam(value = "pageIndex", required = false, defaultValue = "0") Integer pageIndex) {
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex) {
 
         System.err.println("pin= " + pin);
         System.err.println("pageIndex= " + pageIndex);
@@ -81,14 +81,18 @@ public class BandejaController extends UtilController {
             }
         }
 
+        // 2017-10-17 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
+        // la bandeja de entrada.
         List<Documento> docs = null;
-        int count = docR.findBandejaEntradaCount();
+        int count = docR.findBandejaEntradaCount(principal.getName());
         int totalPages = 0;
+        String labelInformacion = "";
 
         if (count > 0) {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex);
             totalPages = paginacionDTO.getTotalPages();
-            docs = docR.findBandejaEntradaPaginado(paginacionDTO.getInicio(), paginacionDTO.getFin());
+            docs = docR.findBandejaEntradaPaginado(principal.getName(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            labelInformacion = paginacionDTO.getRegistroInicio() + " al " + paginacionDTO.getRegistroFin() + " de " + count +" registros";
             if (docs != null) {
                 for (Documento d : docs) {
                     d.getInstancia().getCuando();
@@ -101,6 +105,7 @@ public class BandejaController extends UtilController {
         model.addAttribute("documentos", docs);
         model.addAttribute("pageIndex", pageIndex);
         model.addAttribute("totalPages", totalPages);
+        model.addAttribute("labelInformacion", labelInformacion);
 
         /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)

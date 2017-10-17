@@ -1,18 +1,37 @@
 package com.laamware.ejercito.doc.web.dto;
 
 /**
+ * DTO para ayuda de paginacion de las bandejas.
  *
- * @author Usuario
+ * @author edison.gonzalez@controltechcg.com
+ * @since Oct 17, 2017
+ * @version 1.0.0 (feature-132).
  */
 public class PaginacionDTO {
+    
+    /**
+     * Numero total de paginas.
+     */
     private int totalPages;
-    private int inicio;
-    private int fin;
+    /**
+     * Numero del registro inicial.
+     */
+    private int registroInicio;
+    /**
+     * Numero del registro Final.
+     */
+    private int registroFin;
 
-    public PaginacionDTO(int totalPages, int inicio, int fin) {
+    /**
+     * Constructor.
+     * @param totalPages
+     * @param registroInicio
+     * @param registroFin
+     */
+    public PaginacionDTO(int totalPages, int registroInicio, int registroFin) {
         this.totalPages = totalPages;
-        this.inicio = inicio;
-        this.fin = fin;
+        this.registroInicio = registroInicio;
+        this.registroFin = registroFin;
     }
 
     public int getTotalPages() {
@@ -23,19 +42,19 @@ public class PaginacionDTO {
         this.totalPages = totalPages;
     }
 
-    public int getInicio() {
-        return inicio;
+    public int getRegistroInicio() {
+        return registroInicio;
     }
 
-    public void setInicio(int inicio) {
-        this.inicio = inicio;
+    public void setRegistroInicio(int registroInicio) {
+        this.registroInicio = registroInicio;
     }
 
-    public int getFin() {
-        return fin;
+    public int getRegistroFin() {
+        return registroFin;
     }
 
-    public void setFin(int fin) {
-        this.fin = fin;
+    public void setRegistroFin(int registroFin) {
+        this.registroFin = registroFin;
     }
 }

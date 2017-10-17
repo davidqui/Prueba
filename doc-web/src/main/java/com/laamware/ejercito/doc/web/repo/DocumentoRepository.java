@@ -233,6 +233,12 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     List<Documento> findBandejaConsulta(@Param("login") String usuarioLogin, @Param("fechaInicial") Date fechaInicial,
             @Param("fechaFinal") Date fechaFinal);
 
+    /**
+     * Obtiene el numero de registros de las bandejas de entrada por usuario.
+     *
+     * @param login
+     * @return Numero de registros.
+     */
     @Query(value = "select count(1)\n"
             + "from(\n"
             + "    SELECT documento.*, rownum num_lineas\n"
@@ -245,7 +251,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "                                WHERE 1 = 1\n"
             + "                                AND documento.doc_asunto IS NOT NULL\n"
             + "                                AND proceso_instancia.pes_id NOT IN (48,52,83,101,102)\n"
-            //            + "                                --AND usuario_asignado.usu_login =:login\n"
+            + "                                AND usuario_asignado.usu_login =:login\n"
             + "                                AND NOT (proceso_instancia.pro_id = 41 AND proceso_instancia.pes_id = 49)\n"
             + "                                UNION\n"
             + "                                SELECT documento_dep_destino.doc_id\n"
@@ -260,16 +266,23 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "                                AND proceso_instancia.pes_id = 49\n"
             + "                                AND documento_dep_destino.activo = 1\n"
             + "                                AND ((dependencia.fch_inicio_jefe_encargado <= SYSDATE AND SYSDATE <= dependencia.fch_fin_jefe_encargado\n"
-            //            + "                                    --AND usuario_jefe_2_dep.usu_login =:login\n"
+            + "                                    AND usuario_jefe_2_dep.usu_login =:login\n"
             + "                                     ) OR (((dependencia.fch_inicio_jefe_encargado IS NULL OR dependencia.fch_fin_jefe_encargado IS NULL) \n"
             + "                                        OR ( NOT (dependencia.fch_inicio_jefe_encargado <= SYSDATE AND SYSDATE <= dependencia.fch_fin_jefe_encargado))\n"
             + "                                            )"
-            //            + "-- AND --  usuario_jefe_1_dep.usu_login =:login\n"
+            + " AND usuario_jefe_1_dep.usu_login =:login\n"
             + "                                          )))\n"
             + "    AND (documento_en_consulta.dec_id IS NULL OR (documento_en_consulta.activo = 0)) \n"
             + ") documento\n", nativeQuery = true)
-    int findBandejaEntradaCount();
+    int findBandejaEntradaCount(@Param("login") String login);
 
+    /**
+     * Obtiene los registros de las bandejas de entrada por usuario, de acuerdo a
+     * la fila inicial y final.
+     *
+     * @param login
+     * @return Lista de bandejas de entrada.
+     */
     @Query(value = ""
             + "select documento.*\n"
             + "from(\n"
@@ -283,7 +296,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "                                WHERE 1 = 1\n"
             + "                                AND documento.doc_asunto IS NOT NULL\n"
             + "                                AND proceso_instancia.pes_id NOT IN (48,52,83,101,102)\n"
-            //            + "                                --AND usuario_asignado.usu_login =:login\n"
+            + "                                AND usuario_asignado.usu_login =:login\n"
             + "                                AND NOT (proceso_instancia.pro_id = 41 AND proceso_instancia.pes_id = 49)\n"
             + "                                UNION\n"
             + "                                SELECT documento_dep_destino.doc_id\n"
@@ -298,16 +311,16 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "                                AND proceso_instancia.pes_id = 49\n"
             + "                                AND documento_dep_destino.activo = 1\n"
             + "                                AND ((dependencia.fch_inicio_jefe_encargado <= SYSDATE AND SYSDATE <= dependencia.fch_fin_jefe_encargado\n"
-            //            + "                                    --AND usuario_jefe_2_dep.usu_login =:login\n"
+            + "                                    AND usuario_jefe_2_dep.usu_login =:login\n"
             + "                                     ) OR (((dependencia.fch_inicio_jefe_encargado IS NULL OR dependencia.fch_fin_jefe_encargado IS NULL) \n"
             + "                                        OR ( NOT (dependencia.fch_inicio_jefe_encargado <= SYSDATE AND SYSDATE <= dependencia.fch_fin_jefe_encargado))\n"
             + "                                            )"
-            //            + "-- AND --  usuario_jefe_1_dep.usu_login =:login\n"
+            + "                                             AND usuario_jefe_1_dep.usu_login =:login\n"
             + "                                          )))\n"
             + "    AND (documento_en_consulta.dec_id IS NULL OR (documento_en_consulta.activo = 0)) \n"
             + ") documento\n"
             + "where documento.num_lineas >= :inicio and documento.num_lineas <= :fin\n"
             + "ORDER BY documento.cuando_mod DESC",
             nativeQuery = true)
-    List<Documento> findBandejaEntradaPaginado(@Param("inicio") int inicio, @Param("fin") int fin);
+    List<Documento> findBandejaEntradaPaginado(@Param("login") String login, @Param("inicio") int inicio, @Param("fin") int fin);
 }
