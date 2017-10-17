@@ -96,7 +96,7 @@
       <fieldset class="form-group">
         <@spring.bind "usuario.usuGrado.id" />
          <#if usuario.usuGrado.id??>
-        <input type="hidden" name="${spring.status.expression}" id="${spring.status.expression}" value="${(usuario.usuGrado.nombre)}" />
+        <input type="hidden" name="${spring.status.expression}" id="${spring.status.expression}" value="${(usuario.usuGrado.id)}" />
         <#else>
         <input type="hidden" name="${spring.status.expression}" id="${spring.status.expression}" />
         </#if>
