@@ -117,28 +117,37 @@
         2017-10-17 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech feature-132:
         Se agrega items de visualizacion para la paginacion.
     -->
-    <center>
-            <ul class="pagination">
-                <#if totalPages gt 0>
-                    <li class="page-item"><a href="/bandeja/entrada?pageIndex=1" class="page-link"><<</a></li>
-                </#if>
-                <#if pageIndex gt 1>
-                    <li class="page-item"><a href="/bandeja/entrada?pageIndex=${pageIndex - 1}" class="page-link"><</a></li>
-                </#if>
-                <#if totalPages gt 0>
-                    <li class="page-item"><a href="/bandeja/entrada?pageIndex=${pageIndex}" class="page-link">${pageIndex}</a></li>
-                </#if>
-                <#if pageIndex lt (totalPages)>
-                    <li class="page-item"><a href="/bandeja/entrada?pageIndex=${pageIndex + 1}" class="page-link">></a></li>
-                </#if>
-                <#if totalPages gt 0>
-                    <li class="page-item"><a href="/bandeja/entrada?pageIndex=${totalPages}" class="page-link">>></a></li>
-                </#if>
-                <#if totalPages gt 0>
-                    <strong>&emsp;&emsp;${labelInformacion}</strong>
-                </#if>
-            </ul>
-    </center>
+    <#if totalPages gt 0>
+        <center>
+            <div class="row">
+                <div class="col-sm-5">
+                    <div class="dataTables_info">${labelInformacion}</div>
+                </div>
+                <div class="col-sm-7">
+                    <ul class="dataTables_paginate">
+                        
+                        <#if pageIndex gt 1>
+                            <li class="page-item"><a href="/bandeja/entrada?pageIndex=1" class="page-link"><<</a></li>
+                            <li class="page-item"><a href="/bandeja/entrada?pageIndex=${pageIndex - 1}" class="page-link"><</a></li>
+                        <#else>
+                            <li class="page-item disabled"><a class="page-link"><<</a></li>
+                            <li class="page-item disabled"><a class="page-link"><</a></li>
+                        </#if>
+                            
+                        <li class="page-item"><a href="/bandeja/entrada?pageIndex=${pageIndex}" class="page-link">${pageIndex}</a></li>
+
+                        <#if pageIndex lt (totalPages)>
+                            <li class="page-item"><a href="/bandeja/entrada?pageIndex=${pageIndex + 1}" class="page-link">></a></li>
+                            <li class="page-item"><a href="/bandeja/entrada?pageIndex=${totalPages}" class="page-link">>></a></li>
+                        <#else>
+                            <li class="page-item disabled"><a class="page-link">></a></li>
+                            <li class="page-item disabled"><a class="page-link">>></a></li>
+                        </#if>
+                    </ul>
+                </div>
+            </div>
+        </center>
+    </#if>
 	</#if>
 </#if>
 <#include "bandeja-footer.ftl">

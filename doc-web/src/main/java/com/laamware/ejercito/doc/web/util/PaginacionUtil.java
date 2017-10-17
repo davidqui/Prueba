@@ -36,7 +36,7 @@ public class PaginacionUtil {
             if (count < BUSQUEDA_PAGE_SIZE) {
                 fin = count;
             }
-            return new PaginacionDTO(totalPages, inicio, fin);
+            return new PaginacionDTO(totalPages, inicio, fin, "Mostrando " + inicio + " a " + fin + " de " + count + " registros");
         }
         return null;
     }

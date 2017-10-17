@@ -92,7 +92,7 @@ public class BandejaController extends UtilController {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex);
             totalPages = paginacionDTO.getTotalPages();
             docs = docR.findBandejaEntradaPaginado(principal.getName(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
-            labelInformacion = paginacionDTO.getRegistroInicio() + " al " + paginacionDTO.getRegistroFin() + " de " + count +" registros";
+            labelInformacion = paginacionDTO.getLabelInformacion();
             if (docs != null) {
                 for (Documento d : docs) {
                     d.getInstancia().getCuando();

@@ -21,17 +21,23 @@ public class PaginacionDTO {
      * Numero del registro Final.
      */
     private int registroFin;
+    /**
+     * Visualizacion de la informacion de los registros.
+     */
+    private String labelInformacion;
 
     /**
      * Constructor.
      * @param totalPages
      * @param registroInicio
      * @param registroFin
+     * @param labelInformacion
      */
-    public PaginacionDTO(int totalPages, int registroInicio, int registroFin) {
+    public PaginacionDTO(int totalPages, int registroInicio, int registroFin, String labelInformacion) {
         this.totalPages = totalPages;
         this.registroInicio = registroInicio;
         this.registroFin = registroFin;
+        this.labelInformacion = labelInformacion;
     }
 
     public int getTotalPages() {
@@ -56,5 +62,13 @@ public class PaginacionDTO {
 
     public void setRegistroFin(int registroFin) {
         this.registroFin = registroFin;
+    }
+
+    public String getLabelInformacion() {
+        return labelInformacion;
+    }
+
+    public void setLabelInformacion(String labelInformacion) {
+        this.labelInformacion = labelInformacion;
     }
 }
