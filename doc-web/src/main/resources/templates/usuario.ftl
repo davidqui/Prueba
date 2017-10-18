@@ -202,7 +202,14 @@
             <div class="m-y">
                 <#--
                     2017-17-10 edison.gonzalez@controltechcg.com Issue #133 (SICDI-Controltech) 
-                    Issue-133: Ajuste por no utilizacion de variable mode.
+                    Issue-133: Ajuste por inconsistencia de validacion.
+                -->
+                <!--
+                <#if mode.accion_edit>
+                    <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
+                <#else>
+                    <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
+                </#if>
                 -->
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
                 <a href="/usuarios" class="btn btn-sm btn-danger">Regresar</a>
