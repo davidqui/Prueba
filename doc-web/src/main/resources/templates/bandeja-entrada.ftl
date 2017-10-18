@@ -19,6 +19,10 @@
         <p class="lead">En este momento no existen documentos en esta bandeja</p>
         </div>
     <#else>
+        <#--
+            2017-10-17 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech feature-132:
+            Ajuste visual de informacion en tabla.
+        -->
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
