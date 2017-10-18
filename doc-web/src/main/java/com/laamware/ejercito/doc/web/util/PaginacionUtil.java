@@ -33,7 +33,8 @@ public class PaginacionUtil {
                 inicio = ((pageIndex - 1) * BUSQUEDA_PAGE_SIZE) + 1;
                 fin = (inicio + BUSQUEDA_PAGE_SIZE) - 1;
             }
-            if (count < BUSQUEDA_PAGE_SIZE) {
+
+            if (fin > count) {
                 fin = count;
             }
             return new PaginacionDTO(totalPages, inicio, fin, "Mostrando " + inicio + " a " + fin + " de " + count + " registros");

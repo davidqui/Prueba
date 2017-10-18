@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#if !pageTitle??>
   <#assign pageTitle = "Bandeja de enviados" />
 </#if>
@@ -9,112 +10,128 @@
     <p class="lead">No se puede construir la bandeja debido a un problema interno del sistema. Intente nuevamente por favor.</p>
   </div>
 <#else>
-	<#--
-		2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech) feature-115:
-		Adición de formulario con fitro de fecha en bandejas diferentes a la de entrada.	 
-	 -->
-	<#if fechaInicial??>
-		<#assign fechaInicialValor = fechaInicial?string["yyyy-MM-dd"] />
-	<#else>
-		<#assign fechaInicialValor = "" />
-	</#if>
-	
-	<#if fechaFinal??>
-		<#assign fechaFinalValor = fechaFinal?string["yyyy-MM-dd"] />
-	<#else>
-		<#assign fechaFinalValor = "" />
-	</#if>
+    <#--
+            2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech) feature-115:
+            Adición de formulario con fitro de fecha en bandejas diferentes a la de entrada.	 
+     -->
+    <#if fechaInicial??>
+            <#assign fechaInicialValor = fechaInicial?string["yyyy-MM-dd"] />
+    <#else>
+            <#assign fechaInicialValor = "" />
+    </#if>
+
+    <#if fechaFinal??>
+            <#assign fechaFinalValor = fechaFinal?string["yyyy-MM-dd"] />
+    <#else>
+            <#assign fechaFinalValor = "" />
+    </#if>
 	  
-  	<form action="/bandeja/enviados" method="POST" class="form-inline">
-  		<div class="form-group">
-  			<label for="fechaInicial">Fecha Inicial</label>
-  			<input class="form-control datepicker" id="fechaInicial" name="fechaInicial" value="${fechaInicialValor}" />
-  		</div>
-  		<div class="form-group">
-  			<label>Fecha Final</label>
-  			<input class="form-control datepicker" id="fechaFinal" name="fechaFinal" value="${fechaFinalValor}" />
-  		</div>
-  		<button type="submit" class="btn btn-success">Buscar</button>
-  	</form>
+    <form action="/bandeja/enviados" method="POST" class="form-inline">
+        <div class="form-group">
+            <label for="fechaInicial">Fecha Inicial</label>
+            <input class="form-control datepicker" id="fechaInicial" name="fechaInicial" value="${fechaInicialValor}" />
+        </div>
+        <div class="form-group">
+            <label>Fecha Final</label>
+            <input class="form-control datepicker" id="fechaFinal" name="fechaFinal" value="${fechaFinalValor}" />
+        </div>
+        <button type="submit" class="btn btn-success">Buscar</button>
+    </form>
   	
-  	<#--
-  		2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech) feature-115:
-  		Modificación presentación de mensaje de resultados, para hacer referencia al rango de fechas.
-  	--> 
-	<#if !documentos?? || documentos?size == 0 >
-	  <div class="jumbotron">
-	    <h2 class="display-1">No hay documentos para el rango.</h2>
-	    <p class="lead">No existen documentos en esta bandeja para el rango de fechas seleccionado entre ${fechaInicialValor} y ${fechaFinalValor}.</p>
-	  </div>
-	<#else>	
-		<div style="margin-top:10px; margin-bottom:10px;">
-			<span class="label label-default" style="font-size:12px;">
-				${documentos?size} documentos entre ${fechaInicialValor} y ${fechaFinalValor}.
-			</span>
-		</div>
-		
-      <#list documentos as x>
-      	<div class="card">
-      		<div class="card-block">
-      			<div class="container-fluid">
-      				<div class="row">
-      					<div class="col-sm-<#if (x.radicado)??>7<#else>11</#if>">
-      						<strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
-      					</div>
-		      			<#if (x.radicado)??>
-	      					<div class="col-sm-4">
-				      			<div>
-				      				<strong>Radicado: </strong>${x.radicado}
-				      			</div>
-		    				</div>
-      			  		</#if>
-      					<div class="col-sm-1">
-	    				</div>
-					</div>
-      				<div class="row">
-      					<div class="col-sm-4">
-      						<strong>Enviado:</strong>&nbsp;${x.cuandoMod?string('yyyy-MM-dd hh:mm a')}<#if (x.plazo)?? > <strong>Plazo:&nbsp;</strong><span class="label label-${x.semaforo}">${x.plazo?string('yyyy-MM-dd')}</span></#if> 
-      					</div>
-      					<div class="col-sm-4">
-      					    <#-- 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de dependencias adicionales a un documento. -->
-      						<#-- <#if (x.instancia.asignado)??><strong>Env: </strong>${(x.instancia.asignado)!"&lt;No asignado&gt;"}</#if> -->
-      						<#if (x.textoAsignado)??><strong>Env: </strong>${(x.textoAsignado)!"&lt;No asignado&gt;"}</#if>
-      					</div>
-      					<div class="col-sm-4">
-      						<#--
-      							2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
-      							Presentar información básica de los usuarios asignadores y asignados en las
-      							bandejas del sistema.
-      						-->      					    
-      						<strong>Asignado por: </strong><#if (x.usuarioUltimaAccion)?? > ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)} </#if>
-      					</div>
-					<#--
-						2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
-						Corrección presentación acciones en las bandejas.
-					-->        					
-      				</div>
-      				<div class="row">	      					
-	            		<div class="col-sm-4">
-	            			<#--
-	            				2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
-	            				hotfix-81 -> Validación para determinar si se deben presentar transiciones para los documentos en la bandeja de enviados
-	            				y en trámite. 
-	            			-->
-	            			<#if x.presentarTransiciones() >
-					            <#assign transiciones = x.instancia.transiciones() />
-					            <#if transiciones?? && transiciones?size &gt; 0 >
-					            		<strong>Acciones:</strong>
-										<#list transiciones as t>
-					                  		<a href="${t.replace(x.instancia)}">${t.nombre}...&nbsp;&nbsp;&nbsp;</a>
-						             	</#list>
-					            </#if>
-							</#if>
-						</div>
-					</div>
-				</div>
-      		</div>
-      	</div>
-      </#list>
-	</#if>
+    <#--
+            2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech) feature-115:
+            Modificación presentación de mensaje de resultados, para hacer referencia al rango de fechas.
+    --> 
+    <#if !documentos?? || documentos?size == 0 >
+        <div class="jumbotron">
+          <h2 class="display-1">No hay documentos para el rango.</h2>
+          <p class="lead">No existen documentos en esta bandeja para el rango de fechas seleccionado entre ${fechaInicialValor} y ${fechaFinalValor}.</p>
+        </div>
+    <#else>
+        </br>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <td style="font-weight:bold; text-align: center;">ASUNTO</td>
+                    <td style="font-weight:bold; text-align: center;">RADICADO</td>
+                    <td style="font-weight:bold; text-align: center;">FECHA ENVIO</td>
+                    <td style="font-weight:bold; text-align: center;">PLAZO</td>
+                    <td style="font-weight:bold; text-align: center;">ASIGNADO A</td>
+                    <td style="font-weight:bold; text-align: center;">ASIGNADO POR</td>
+                </tr>
+            </thead>
+            <tbody>
+                <#list documentos as x>
+                    <tr>
+                        <td style="text-align: center;">
+                            <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
+                        </td>
+                        <td style="text-align: center;">
+                            <#if (x.radicado)??>
+                                ${x.radicado}
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            ${x.cuando?string('yyyy-MM-dd hh:mm a')}
+                        </td>  
+                        <td style="text-align: center;">
+                            <#if (x.plazo)?? >
+                                <span class="label label-${x.semaforo}">${x.plazo?string('yyyy-MM-dd')}</span>
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            <#if (x.textoAsignado)??>
+                                <#-- 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de dependencias adicionales a un documento. -->
+                                <#-- <#if (x.instancia.asignado)??><strong>Env: </strong>${(x.instancia.asignado)!"&lt;No asignado&gt;"}</#if> -->
+                                ${(x.textoAsignado)!"&lt;No asignado&gt;"}
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            <#--
+                                2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
+                                Presentar información básica de los usuarios asignadores y asignados en las
+                                bandejas del sistema.
+                            -->
+                            <#if (x.usuarioUltimaAccion)?? >
+                                ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)}
+                            </#if>
+                        </td>
+                    </tr>
+                </#list>
+            </tbody>
+        </table>
+
+        <#if totalPages gt 0>
+            <center>
+                <div class="row">
+                    <div class="col-sm-5">
+                        <div class="dataTables_info">${labelInformacion}</div>
+                    </div>
+                    <div class="col-sm-7">
+                        <ul class="dataTables_paginate">
+
+                            <#if pageIndex gt 1>
+                                <li class="page-item"><a href="/bandeja/enviados?pageIndex=1&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link"><<</a></li>
+                                <li class="page-item"><a href="/bandeja/enviados?pageIndex=${pageIndex - 1}&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link"><</a></li>
+                            <#else>
+                                <li class="page-item disabled"><a class="page-link"><<</a></li>
+                                <li class="page-item disabled"><a class="page-link"><</a></li>
+                            </#if>
+
+                            <li class="page-item"><a href="/bandeja/enviados?pageIndex=${pageIndex}&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link">${pageIndex}</a></li>
+
+                            <#if pageIndex lt (totalPages)>
+                                <li class="page-item"><a href="/bandeja/enviados?pageIndex=${pageIndex + 1}&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link">></a></li>
+                                <li class="page-item"><a href="/bandeja/enviados?pageIndex=${totalPages}&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link">>></a></li>
+                            <#else>
+                                <li class="page-item disabled"><a class="page-link">></a></li>
+                                <li class="page-item disabled"><a class="page-link">>></a></li>
+                            </#if>
+                        </ul>
+                    </div>
+                </div>
+            </center>
+        </#if>
+    </#if>
 </#if>
 <#include "bandeja-footer.ftl">

@@ -277,10 +277,12 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     int findBandejaEntradaCount(@Param("login") String login);
 
     /**
-     * Obtiene los registros de las bandejas de entrada por usuario, de acuerdo a
-     * la fila inicial y final.
+     * Obtiene los registros de las bandejas de entrada por usuario, de acuerdo
+     * a la fila inicial y final.
      *
      * @param login
+     * @param inicio
+     * @param fin
      * @return Lista de bandejas de entrada.
      */
     @Query(value = ""
@@ -323,4 +325,68 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "ORDER BY documento.cuando_mod DESC",
             nativeQuery = true)
     List<Documento> findBandejaEntradaPaginado(@Param("login") String login, @Param("inicio") int inicio, @Param("fin") int fin);
+
+    /**
+     * Obtiene el numero de registros de las bandejas de enviados por usuario y
+     * fechas.
+     *
+     * @param login
+     * @param fechaInicial
+     * @param fechaFinal
+     * @return Numero de registros.
+     */
+    @Query(value = ""
+            + "select count(1)\n"
+            + "from(\n"
+            + "    SELECT\n"
+            + "        est.pes_id,\n"
+            + "        doc.*\n"
+            + "    FROM\n"
+            + "        documento doc\n"
+            + "        JOIN s_instancia_usuario hpin ON doc.pin_id = hpin.pin_id\n"
+            + "        JOIN proceso_instancia pin ON doc.pin_id = pin.pin_id\n"
+            + "        JOIN proceso_estado est ON est.pes_id = pin.pes_id\n"
+            + "        JOIN usuario usu ON hpin.usu_id = usu.usu_id\n"
+            + "        JOIN usuario usu_asignado ON (\n"
+            + "            usu_asignado.usu_id = pin.usu_id_asignado\n"
+            + "        )\n"
+            + "    WHERE usu.usu_login = :login\n"
+            + "    AND usu_asignado.usu_login <> :login\n"
+            + "    AND doc.doc_radicado IS NOT NULL\n"
+            + "    AND est.pes_final = 1\n"
+            + "    AND est.pes_id NOT IN (83,101)\n"
+            + "    AND doc.cuando_mod BETWEEN :fechaInicial AND :fechaFinal)", nativeQuery = true)
+    int findBandejaEnviadosCount(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal);
+
+    /**
+     * Obtiene la lista de registros de las bandejas de enviados por usuario y
+     * fechas paginado.
+     *
+     * @param login
+     * @param fechaInicial
+     * @param fechaFinal
+     * @param inicio
+     * @param fin
+     * @return Numero de registros.
+     */
+    @Query(value = ""
+            + "select doc.*\n"
+            + "from(\n"
+            + "    SELECT doc.*, rownum num_lineas\n"
+            + "    FROM documento doc\n"
+            + "        JOIN s_instancia_usuario hpin ON doc.pin_id = hpin.pin_id\n"
+            + "        JOIN proceso_instancia pin ON doc.pin_id = pin.pin_id\n"
+            + "        JOIN proceso_estado est ON est.pes_id = pin.pes_id\n"
+            + "        JOIN usuario usu ON hpin.usu_id = usu.usu_id\n"
+            + "        JOIN usuario usu_asignado ON (usu_asignado.usu_id = pin.usu_id_asignado)\n"
+            + "    WHERE usu.usu_login = :login\n"
+            + "    AND usu_asignado.usu_login <> :login\n"
+            + "    AND doc.doc_radicado IS NOT NULL\n"
+            + "    AND est.pes_final = 1\n"
+            + "    AND est.pes_id NOT IN (83,101)\n"
+            + "    AND doc.cuando_mod BETWEEN :fechaInicial AND :fechaFinal\n"
+            + ")doc\n"
+            + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n"
+            + "ORDER BY doc.cuando_mod DESC", nativeQuery = true)
+    List<Documento> findBandejaEnviadosPaginado(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal, @Param("inicio") int inicio, @Param("fin") int fin);
 }

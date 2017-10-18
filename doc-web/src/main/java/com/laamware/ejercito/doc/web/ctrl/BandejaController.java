@@ -68,8 +68,6 @@ public class BandejaController extends UtilController {
             @RequestParam(required = false, value = "pin") String pin,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex) {
 
-        System.err.println("pin= " + pin);
-        System.err.println("pageIndex= " + pageIndex);
         if (StringUtils.isNotBlank(action)) {
             if ("quitar".equals(action)) {
                 if (StringUtils.isNotBlank(pin)) {
@@ -101,7 +99,6 @@ public class BandejaController extends UtilController {
             }
         }
 
-//		List<Documento> docs = docR.findBandejaEntrada(principal.getName());
         model.addAttribute("documentos", docs);
         model.addAttribute("pageIndex", pageIndex);
         model.addAttribute("totalPages", totalPages);
@@ -124,6 +121,7 @@ public class BandejaController extends UtilController {
      * @param principal Atributos de autenticación.
      * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
      * @param fechaFinal Fecha final del rango de filtro (Opcional).
+     * @param pageIndex
      * @return Lista de documentos enviados del usuario.
      */
     /*
@@ -135,7 +133,8 @@ public class BandejaController extends UtilController {
     @RequestMapping(value = "/enviados", method = {RequestMethod.GET, RequestMethod.POST})
     public String enviados(Model model, Principal principal,
             @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex) {
 
         if (fechaFinal == null) {
             fechaFinal = new Date();
@@ -148,13 +147,28 @@ public class BandejaController extends UtilController {
         DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
         final String login = principal.getName();
-        List<Documento> documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal);
 
-        for (Documento documento : documentos) {
-            documento.getInstancia().getCuando();
-            documento.getInstancia().setService(procesoService);
+        // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
+        // la bandeja de enviados.
+        List<Documento> documentos = null;
+        System.err.println("fechaInicial= " + fechaInicial + "----fechaFinal= " + fechaFinal);
+        int count = docR.findBandejaEnviadosCount(login, fechaInicial, fechaFinal);
+        int totalPages = 0;
+        String labelInformacion = "";
 
-            /*
+        if (count > 0) {
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex);
+            totalPages = paginacionDTO.getTotalPages();
+            documentos = docR.findBandejaEnviadosPaginado(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            labelInformacion = paginacionDTO.getLabelInformacion();
+        }
+
+        if (documentos != null) {
+            for (Documento documento : documentos) {
+                documento.getInstancia().getCuando();
+                documento.getInstancia().setService(procesoService);
+
+                /*
 			 * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de
 			 * jefes de dependencias adicionales a un documento.
 			 * 
@@ -166,20 +180,24 @@ public class BandejaController extends UtilController {
 			 * (SICDI-Controltech) feature-73: Opción para indicar si la
 			 * construcción del texto de asignados debe manejar múltiples
 			 * destinos o no.
-             */
-            String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
-                    usuarioService, documento.getInstancia(), null, true);
-            documento.setTextoAsignado(asignadosText);
+                 */
+                String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
+                        usuarioService, documento.getInstancia(), null, true);
+                documento.setTextoAsignado(asignadosText);
+            }
         }
 
         model.addAttribute("documentos", documentos);
         model.addAttribute("fechaInicial", fechaInicial);
         model.addAttribute("fechaFinal", fechaFinal);
+        model.addAttribute("pageIndex", pageIndex);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("labelInformacion", labelInformacion);
 
         /*
-		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
-		 * feature-78: Presentar información básica de los usuarios asignadores
-		 * y asignados en las bandejas del sistema.
+            * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+            * feature-78: Presentar información básica de los usuarios asignadores
+            * y asignados en las bandejas del sistema.
          */
         model.addAttribute("usuarioService", usuarioService);
 
@@ -203,8 +221,10 @@ public class BandejaController extends UtilController {
     @PreAuthorize("hasRole('BANDEJAS')")
     @RequestMapping(value = "/entramite", method = {RequestMethod.GET, RequestMethod.POST})
     public String entramite(Model model, Principal principal,
-            @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
+            @RequestParam(required = false, value = "fechaInicial")
+            @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal
+    ) {
 
         if (fechaFinal == null) {
             fechaFinal = new Date();
@@ -239,7 +259,8 @@ public class BandejaController extends UtilController {
 
     @PreAuthorize("hasRole('BANDEJAS')")
     @RequestMapping(value = "/consulta", method = RequestMethod.GET)
-    public String consulta(Model model) {
+    public String consulta(Model model
+    ) {
 
         return "bandeja-consulta";
 
@@ -265,8 +286,10 @@ public class BandejaController extends UtilController {
 	 * de fechas, utilizando un servicio del modelo de negocio.
      */
     public String apoyoConsulta(Model model, Principal principal,
-            @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
+            @RequestParam(required = false, value = "fechaInicial")
+            @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal
+    ) {
 
         if (fechaFinal == null) {
             fechaFinal = new Date();

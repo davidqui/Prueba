@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#if !pageTitle??>
   <#assign pageTitle = "Bandeja de entrada" />
 </#if>
@@ -54,7 +55,14 @@
                             </#if>
                         </td>
                         <td style="text-align: center;">
-                            ${(usuarioService.mostrarInformacionBasica(x.instancia.asignado))!"&lt;No asignado&gt;"}
+                            <#--
+                                2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
+                                Presentar información básica de los usuarios asignadores y asignados en las
+                                bandejas del sistema.
+                            -->
+                            <#if (x.instancia.asignado)??>
+                                ${(usuarioService.mostrarInformacionBasica(x.instancia.asignado))!"&lt;No asignado&gt;"}
+                            </#if>
                         </td>
                         <td style="text-align: center;">
                             <#if (x.usuarioUltimaAccion)?? >
