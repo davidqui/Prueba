@@ -24,7 +24,7 @@ import com.laamware.ejercito.doc.web.repo.GradosRepository;
 
 @Component
 public class LdapService {
-
+    
 	@Value("${docweb.ldap.path}")
 	private String path;
 
@@ -71,12 +71,12 @@ public class LdapService {
 				us.setNombre(attrs.get(NAME_NOMBRE_COMPLETO) != null ? attrs.get(NAME_NOMBRE_COMPLETO).get().toString() : null);
 				us.setTelefono(attrs.get(NAME_TELEFONO) != null ? attrs.get(NAME_TELEFONO).get().toString() : null);
                                 /*
-                                    2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
-                                    feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+                                    2017-11-10 edison.gonzalez@controltechcg.com Issue #133 (SICDI-Controltech) 
+                                    feature-133: Cambio en la entidad usuario, se coloca llave foranea el grado.
                                 */
-                                Grados grados = new Grados();
-                                grados.setId(getGradoLdap(attrs.get(NAME_GRADO)!= null ? attrs.get(NAME_GRADO).get().toString() : null));
+                                Grados grados = getGradoLdap(attrs.get(NAME_GRADO)!= null ? attrs.get(NAME_GRADO).get().toString() : null);
 				us.setUsuGrado(grados);
+                                
 				us.setEmail(attrs.get(NAME_CORREO) != null ? attrs.get(NAME_CORREO).get().toString() : null);
 				
 				String txtAdicional = "CN="+us.getNombre()+",";
@@ -122,9 +122,10 @@ public class LdapService {
 	 * @param codigoDepLdap
 	 * @return
 	 */
-	protected String getGradoLdap(String siglaGradoLdap) {
+	protected Grados getGradoLdap(String siglaGradoLdap) {
 		try {
 			Grados grado = null;
+                        
 			if (siglaGradoLdap != null) {
 				grado = gradosRepository.findByActivoAndId(Boolean.TRUE, siglaGradoLdap, new Sort(Direction.ASC, "id"));
 			}
@@ -132,9 +133,10 @@ public class LdapService {
 				grado = gradosRepository.findByActivoAndId(Boolean.TRUE, AppConstants.SIN_GRADO, new Sort(Direction.ASC, "id"));
 			}
 			if(grado!=null){
-				return grado.getId();
+				return grado;
 			}else{
-				return AppConstants.SIN_GRADO;
+                                grado = gradosRepository.findOne(AppConstants.SIN_GRADO);
+				return grado;
 			}
 			
 		} catch (Exception e) {
