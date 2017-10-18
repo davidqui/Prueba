@@ -198,11 +198,7 @@ public class UsuarioController extends UtilController {
                     2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
                     feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
                      */
-                    /*
-                    2017-18-10 edison.gonzalez@controltechcg.com Issue #133 (SICDI-Controltech) 
-                    Issue-133: Se pone en comentarios, ya quien tiene el grado es la variable usu.
-                     */
-                    //usu.setUsuGrado(usuario.getUsuGrado());
+                    usu.setUsuGrado(usuario.getUsuGrado());
                     usu.setClasificacion(usuario.getClasificacion());
                     usu.setDependencia(usuario.getDependencia());
                     usu.setPerfil(usuario.getPerfil());

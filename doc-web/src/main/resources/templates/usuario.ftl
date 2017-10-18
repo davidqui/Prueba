@@ -50,7 +50,7 @@
                                                         $("#telefono").val(data.telefono);
                                                         if(data.telefono === null || data.telefono == ''){
                                                         }
-                                                        $("#grado").val(data.grado);
+                                                        $("#usuGrado\\.id").val(data.grado);
                                                         $("#gradosel").val(data.grado);
                                                         if(data.grado === null || data.grado == ''){
            						
@@ -204,14 +204,7 @@
                     2017-17-10 edison.gonzalez@controltechcg.com Issue #133 (SICDI-Controltech) 
                     Issue-133: Ajuste por inconsistencia de validacion.
                 -->
-                <!--
-                <#if mode.accion_edit>
-                    <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
-                <#else>
-                    <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
-                </#if>
-                -->
-                <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
+            	<button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
                 <a href="/usuarios" class="btn btn-sm btn-danger">Regresar</a>
                 </div>
 
