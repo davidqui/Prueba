@@ -3,6 +3,7 @@
   <#assign pageTitle = "Bandeja de enviados" />
 </#if>
 <#include "bandeja-header.ftl">
+<#include "gen-paginacion.ftl">
 
 <#if error??> 
   <div class="jumbotron">
@@ -102,35 +103,8 @@
         </table>
 
         <#if totalPages gt 0>
-            <center>
-                <div class="row">
-                    <div class="col-sm-5">
-                        <div class="dataTables_info">${labelInformacion}</div>
-                    </div>
-                    <div class="col-sm-7">
-                        <ul class="dataTables_paginate">
-
-                            <#if pageIndex gt 1>
-                                <li class="page-item"><a href="/bandeja/enviados?pageIndex=1&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link"><<</a></li>
-                                <li class="page-item"><a href="/bandeja/enviados?pageIndex=${pageIndex - 1}&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link"><</a></li>
-                            <#else>
-                                <li class="page-item disabled"><a class="page-link"><<</a></li>
-                                <li class="page-item disabled"><a class="page-link"><</a></li>
-                            </#if>
-
-                            <li class="page-item"><a href="/bandeja/enviados?pageIndex=${pageIndex}&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link">${pageIndex}</a></li>
-
-                            <#if pageIndex lt (totalPages)>
-                                <li class="page-item"><a href="/bandeja/enviados?pageIndex=${pageIndex + 1}&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link">></a></li>
-                                <li class="page-item"><a href="/bandeja/enviados?pageIndex=${totalPages}&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}" class="page-link">>></a></li>
-                            <#else>
-                                <li class="page-item disabled"><a class="page-link">></a></li>
-                                <li class="page-item disabled"><a class="page-link">>></a></li>
-                            </#if>
-                        </ul>
-                    </div>
-                </div>
-            </center>
+            <@printBar "/bandeja/enviados" "&fechaInicial=${fechaInicialValor}&fechaFinal=${fechaFinalValor}"/>
+            
         </#if>
     </#if>
 </#if>
