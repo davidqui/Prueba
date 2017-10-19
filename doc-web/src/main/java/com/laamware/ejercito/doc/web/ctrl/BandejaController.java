@@ -27,6 +27,8 @@ import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.DateUtil.SetTimeType;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
+import java.util.ArrayList;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
 @RequestMapping(value = BandejaController.PATH)
@@ -66,7 +68,8 @@ public class BandejaController extends UtilController {
     public String entrada(Model model, Principal principal,
             @RequestParam(required = false, value = "action") String action,
             @RequestParam(required = false, value = "pin") String pin,
-            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex) {
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
 
         if (StringUtils.isNotBlank(action)) {
             if ("quitar".equals(action)) {
@@ -87,9 +90,9 @@ public class BandejaController extends UtilController {
         String labelInformacion = "";
 
         if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex);
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex,pageSize);
             totalPages = paginacionDTO.getTotalPages();
-            docs = docR.findBandejaEntradaPaginado(principal.getName(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            docs = docR.findBandejaEntradaPaginado(principal.getName(),paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
             if (docs != null) {
                 for (Documento d : docs) {
@@ -103,6 +106,7 @@ public class BandejaController extends UtilController {
         model.addAttribute("pageIndex", pageIndex);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("labelInformacion", labelInformacion);
+        model.addAttribute("pageSize", pageSize);
 
         /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
@@ -121,7 +125,8 @@ public class BandejaController extends UtilController {
      * @param principal Atributos de autenticación.
      * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
      * @param fechaFinal Fecha final del rango de filtro (Opcional).
-     * @param pageIndex
+     * @param pageIndex Indice de la pagina a mostrar (Opcional).
+     * @param pageSize Numero de registros a visualizar (Opcional).
      * @return Lista de documentos enviados del usuario.
      */
     /*
@@ -134,7 +139,8 @@ public class BandejaController extends UtilController {
     public String enviados(Model model, Principal principal,
             @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
             @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal,
-            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex) {
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
 
         if (fechaFinal == null) {
             fechaFinal = new Date();
@@ -157,7 +163,7 @@ public class BandejaController extends UtilController {
         String labelInformacion = "";
 
         if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex);
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex,pageSize);
             totalPages = paginacionDTO.getTotalPages();
             documentos = docR.findBandejaEnviadosPaginado(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
@@ -193,6 +199,7 @@ public class BandejaController extends UtilController {
         model.addAttribute("pageIndex", pageIndex);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("labelInformacion", labelInformacion);
+        model.addAttribute("pageSize", pageSize);
 
         /*
             * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
@@ -322,6 +329,18 @@ public class BandejaController extends UtilController {
 
         return "bandeja-apoyo-consulta";
 
+    }
+    
+    // 2017-10-17 edison.gonzalez@controltechcg.com Issue #132 
+    //Lista desplegable para la paginación.
+    @ModelAttribute("pageSizes")
+    public List<Integer> pageSizes(Model model) {
+        List<Integer> list = new ArrayList<>();
+        list.add(10);
+        list.add(15);
+        list.add(20);
+        model.addAttribute("pageSizes", list);
+        return list;
     }
 
 }

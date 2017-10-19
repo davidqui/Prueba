@@ -31,7 +31,6 @@
                     <td style="font-weight:bold; text-align: center;">ASUNTO</td>
                     <td style="font-weight:bold; text-align: center;">RADICADO</td>
                     <td style="font-weight:bold; text-align: center;">FECHA CREACIÓN</td>
-                    <td style="font-weight:bold; text-align: center;">PLAZO</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO A</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO POR</td>
                 </tr>
@@ -39,23 +38,18 @@
             <tbody>
                 <#list documentos as x>
                     <tr>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; width:40%">
                             <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                         </td>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; width:10%">
                             <#if (x.radicado)??>
                                 ${x.radicado}
                             </#if>
                         </td>    
-                        <td style="text-align: center;">
+                        <td style="text-align: center; width:10%">
                             ${x.cuando?string('yyyy-MM-dd hh:mm a')}
-                        </td>    
-                        <td style="text-align: center;">
-                            <#if (x.plazo)?? >
-                                <span class="label label-${x.semaforo}">${x.plazo?string('yyyy-MM-dd')}</span>
-                            </#if>
                         </td>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; width:20%">
                             <#--
                                 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
                                 Presentar información básica de los usuarios asignadores y asignados en las
@@ -65,7 +59,7 @@
                                 ${(usuarioService.mostrarInformacionBasica(x.instancia.asignado))!"&lt;No asignado&gt;"}
                             </#if>
                         </td>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; width:20%">
                             <#if (x.usuarioUltimaAccion)?? >
                                 ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)}
                             <#else> 

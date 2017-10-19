@@ -12,26 +12,22 @@ import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 public class PaginacionUtil {
 
     /**
-     * Tamaño de la lista de presentación en la página de búsqueda de usuarios.
-     */
-    private static final int BUSQUEDA_PAGE_SIZE = 10;
-
-    /**
      * Se realiza el calculo de los atributos del objeto {@link PaginacionDTO}
      *
      * @param count
      * @param pageIndex
+     * @param pageSize
      * @return PaginacionDTO
      */
-    public static PaginacionDTO retornaParametros(int count, int pageIndex) {
+    public static PaginacionDTO retornaParametros(int count, int pageIndex, int pageSize) {
         if (count > 0) {
             int inicio = 1;
-            int fin = BUSQUEDA_PAGE_SIZE;
-            int totalPages = (int) Math.ceil((double) count / BUSQUEDA_PAGE_SIZE);
+            int fin = pageSize;
+            int totalPages = (int) Math.ceil((double) count / pageSize);
 
             if (pageIndex > 1) {
-                inicio = ((pageIndex - 1) * BUSQUEDA_PAGE_SIZE) + 1;
-                fin = (inicio + BUSQUEDA_PAGE_SIZE) - 1;
+                inicio = ((pageIndex - 1) * pageSize) + 1;
+                fin = (inicio + pageSize) - 1;
             }
 
             if (fin > count) {

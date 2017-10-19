@@ -115,19 +115,20 @@ public class UsuarioService {
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
         */
+
         final String grado = usuario.getUsuGrado().getId();
         if (grado != null && !grado.trim().isEmpty()) {
             builder.append(grado).append(". ");
         }
-
+        
         final String nombre = usuario.getNombre();
         builder.append(nombre).append(" ");
-
+        
         final String cargo = usuario.getCargo();
         if (cargo != null && !cargo.trim().isEmpty()) {
-            builder.append(" - ").append(cargo).append(" ");
+            builder.append("</br>").append(cargo);
         }
-
+        
         final Dependencia dependencia = usuario.getDependencia();
         if (dependencia != null) {
             final Dependencia unidad = buscarUnidad(dependencia);
