@@ -97,7 +97,7 @@
         </table>
 
         <#if totalPages gt 0>
-            <@printBar "/bandeja/enviados" {"fechaInicial": "fechaInicialValor", "fechaFinal": "fechaFinalValor"}/>
+            <@printBar "/bandeja/enviados" {"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor}/>
             
         </#if>
     </#if>

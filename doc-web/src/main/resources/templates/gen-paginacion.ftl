@@ -4,9 +4,12 @@
 -->
 
 <#macro printBar url ori>
-    <#local parametros = "">
+    <#assign parametros = "">
+	<#list ori?keys as key>
+        ${parametros} += ${parametros + "&"+key+"="+ori[key]} 
+    </#list>
     
-    ${concatenar(ori)} dssdsj
+    ${url}?pageIndex=1&pageSize=${pageSize}${parametros}
     <center>
         <div class="row">
             <div class="col-sm-5">
@@ -41,6 +44,8 @@
                         <label>
                             Mostrar
                             <form method="POST">
+                                <#list ori?keys as key>
+                                </#list>
                                 <input class="form-control datepicker" id="fechaInicial" name="fechaInicial" value="${fechaInicialValor}" />
                             <select class="form-control input-sm" id="pageSize" name="pageSize">
                                 <#list pageSizes as cla>
@@ -66,12 +71,3 @@
         });
     </script>
 </#macro>
-    
-<#function concatenar ori>
-    <#local str = "">
-    <#list ori?keys as key>
-		${key}:${ori[key]}  <br/>
-        str += ${key}:${ori[key]}
-    </#list>
-	<#return str>
-</#function>
