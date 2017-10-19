@@ -6,6 +6,7 @@
 <#macro printBar url ori>
     <#assign parametros = "">
 	<#list ori?keys as key>
+        <#assign parametros = 'foo'>
         ${parametros} += ${parametros + "&"+key+"="+ori[key]} 
     </#list>
     
