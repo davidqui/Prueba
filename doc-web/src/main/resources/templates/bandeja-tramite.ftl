@@ -104,6 +104,6 @@
         <#if totalPages gt 0>
             <@printBar url="/bandeja/entramite" params={"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor}/>
         </#if>
-	</#if>
+    </#if>
 </#if>
 <#include "bandeja-footer.ftl">

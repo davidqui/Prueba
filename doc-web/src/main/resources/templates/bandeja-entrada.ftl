@@ -31,8 +31,9 @@
                     <td style="font-weight:bold; text-align: center;">ASUNTO</td>
                     <td style="font-weight:bold; text-align: center;">RADICADO</td>
                     <td style="font-weight:bold; text-align: center;">FECHA CREACIÓN</td>
-                    <td style="font-weight:bold; text-align: center;">ASIGNADO A</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO POR</td>
+                    <td style="font-weight:bold; text-align: center;">PLAZO</td>
+                    <td style="font-weight:bold; text-align: center;">ACCIONES</td>
                 </tr>
             </thead>
             <tbody>
@@ -50,20 +51,31 @@
                             ${x.cuando?string('yyyy-MM-dd hh:mm a')}
                         </td>
                         <td style="text-align: center;">
-                            <#--
-                                2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
-                                Presentar información básica de los usuarios asignadores y asignados en las
-                                bandejas del sistema.
-                            -->
-                            <#if (x.instancia.asignado)??>
-                                ${(usuarioService.mostrarInformacionBasica(x.instancia.asignado))!"&lt;No asignado&gt;"}
-                            </#if>
-                        </td>
-                        <td style="text-align: center;">
                             <#if (x.usuarioUltimaAccion)?? >
                                 ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)}
                             <#else> 
                                 ${usuarioService.mostrarInformacionBasica(x.instancia.asignado)} 
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            <#if (x.plazo)?? >
+                                <span class="label label-${x.semaforo}">
+                                    ${x.plazo?string('yyyy-MM-dd')}
+                                </span>
+                            <#else>
+                                <span class="label label-default">
+                                    Sin plazo
+                                </span>
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            <#assign transiciones = x.instancia.transiciones() />
+                            <#if x.presentarTransiciones()>
+                                <#if transiciones?? && transiciones?size &gt; 0 >
+                                    <#list transiciones as t>
+                                        ${t.nombre}...&nbsp;&nbsp;&nbsp;
+                                    </#list>
+                                </#if>
                             </#if>
                         </td>
                     </tr>
