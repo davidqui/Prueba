@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#if !pageTitle??>
   <#assign pageTitle = "Bandeja en trámite" />
 </#if>
