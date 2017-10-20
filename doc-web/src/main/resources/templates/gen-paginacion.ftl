@@ -3,14 +3,15 @@
     feature-132: Macro para imprimir la barra de ayuda de cada tabla paginada.
 -->
 
-<#macro printBar url ori>
-    <#assign parametros = "">
-	<#list ori?keys as key>
-        <#assign parametros = 'foo'>
-        ${parametros} += ${parametros + "&"+key+"="+ori[key]} 
-    </#list>
+<#macro printBar url params={}>
     
-    ${url}?pageIndex=1&pageSize=${pageSize}${parametros}
+    <#assign parametros = "">
+    <#if params?size gt 0>
+        <#list params?keys as key>
+            <#assign parametros = parametros+"&"+key+"="+params[key]>
+        </#list>
+    </#if>
+
     <center>
         <div class="row">
             <div class="col-sm-5">
@@ -39,15 +40,14 @@
                 </ul>        
             </div>
             <#if pageSizes??>
-                
+                <form action="${url}">
+                <#list params?keys as key>
+                    <input type="hidden" id="${key}" name="${key}" value="${params[key]}" />
+                </#list>
                 <div class="col-sm-3">
                     <div class="form-inline" id="example_length">
                         <label>
                             Mostrar
-                            <form method="POST">
-                                <#list ori?keys as key>
-                                </#list>
-                                <input class="form-control datepicker" id="fechaInicial" name="fechaInicial" value="${fechaInicialValor}" />
                             <select class="form-control input-sm" id="pageSize" name="pageSize">
                                 <#list pageSizes as cla>
                                     <#if (cla = pageSize) >
@@ -57,12 +57,11 @@
                                     </#if>
                                 </#list>
                             </select>
-                            </form>
                             registros
                         </label>
                     </div>
                 </div>
-                
+                </form>
             </#if>
         </div>
     </center>

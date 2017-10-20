@@ -63,25 +63,25 @@
             <tbody>
                 <#list documentos as x>
                     <tr>
-                        <td style="text-align: center; width:40%">
+                        <td style="text-align: center">
                             <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                         </td>
-                        <td style="text-align: center; width:10%">
+                        <td style="text-align: center">
                             <#if (x.radicado)??>
                                 ${x.radicado}
                             </#if>
                         </td>
-                        <td style="text-align: center; width:10%">
+                        <td style="text-align: center">
                             ${x.cuando?string('yyyy-MM-dd hh:mm a')}
                         </td>
-                        <td style="text-align: center; width:20%">
+                        <td style="text-align: center">
                             <#if (x.textoAsignado)??>
                                 <#-- 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de dependencias adicionales a un documento. -->
                                 <#-- <#if (x.instancia.asignado)??><strong>Env: </strong>${(x.instancia.asignado)!"&lt;No asignado&gt;"}</#if> -->
                                 ${(x.textoAsignado)!"&lt;No asignado&gt;"}
                             </#if>
                         </td>
-                        <td style="text-align: center; width:20%">
+                        <td style="text-align: center">
                             <#--
                                 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
                                 Presentar información básica de los usuarios asignadores y asignados en las
@@ -97,7 +97,7 @@
         </table>
 
         <#if totalPages gt 0>
-            <@printBar "/bandeja/enviados" {"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor}/>
+            <@printBar url="/bandeja/enviados" params={"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor}/>
             
         </#if>
     </#if>

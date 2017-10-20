@@ -157,7 +157,6 @@ public class BandejaController extends UtilController {
         // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
         // la bandeja de enviados.
         List<Documento> documentos = null;
-        System.err.println("fechaInicial= " + fechaInicial + "----fechaFinal= " + fechaFinal);
         int count = docR.findBandejaEnviadosCount(login, fechaInicial, fechaFinal);
         int totalPages = 0;
         String labelInformacion = "";

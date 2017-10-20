@@ -75,7 +75,7 @@
             Se agrega items de visualizacion para la paginacion.
         -->
         <#if totalPages gt 0>
-            <@printBar "/bandeja/entrada"/>
+            <@printBar url="/bandeja/entrada" params=null/>
         </#if>
     </#if>
 </#if>
