@@ -85,14 +85,14 @@ public class BandejaController extends UtilController {
         // 2017-10-17 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
         // la bandeja de entrada.
         List<Documento> docs = null;
-        int count = docR.findBandejaEntradaCount(principal.getName());
+        int count = bandejaService.obtenerCountBandejaEntrada(principal.getName());
         int totalPages = 0;
         String labelInformacion = "";
 
         if (count > 0) {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex,pageSize);
             totalPages = paginacionDTO.getTotalPages();
-            docs = docR.findBandejaEntradaPaginado(principal.getName(),paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            docs = bandejaService.obtenerDocumentosBandejaEntrada(principal.getName(),paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
             if (docs != null) {
                 for (Documento d : docs) {
@@ -157,14 +157,14 @@ public class BandejaController extends UtilController {
         // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
         // la bandeja de enviados.
         List<Documento> documentos = null;
-        int count = docR.findBandejaEnviadosCount(login, fechaInicial, fechaFinal);
+        int count = bandejaService.obtenerCountBandejaEnviados(login, fechaInicial, fechaFinal);
         int totalPages = 0;
         String labelInformacion = "";
 
         if (count > 0) {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex,pageSize);
             totalPages = paginacionDTO.getTotalPages();
-            documentos = docR.findBandejaEnviadosPaginado(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 

@@ -41,26 +41,26 @@
             </div>
             <#if pageSizes??>
                 <form action="${url}">
-                <#list params?keys as key>
-                    <input type="hidden" id="${key}" name="${key}" value="${params[key]}" />
-                </#list>
-                <div class="col-sm-3">
-                    <div class="form-inline" id="example_length">
-                        <label>
-                            Mostrar
-                            <select class="form-control input-sm" id="pageSize" name="pageSize">
-                                <#list pageSizes as cla>
-                                    <#if (cla = pageSize) >
-                                        <option value="${cla}" selected="selected">${cla}</option>
-                                    <#else>
-                                        <option value="${cla}">${cla}</option>
-                                    </#if>
-                                </#list>
-                            </select>
-                            registros
-                        </label>
+                    <#list params?keys as key>
+                        <input type="hidden" id="${key}" name="${key}" value="${params[key]}" />
+                    </#list>
+                    <div class="col-sm-3">
+                        <div class="form-inline" id="example_length">
+                            <label>
+                                Mostrar
+                                <select class="form-control input-sm" id="pageSize" name="pageSize">
+                                    <#list pageSizes as cla>
+                                        <#if (cla = pageSize) >
+                                            <option value="${cla}" selected="selected">${cla}</option>
+                                        <#else>
+                                            <option value="${cla}">${cla}</option>
+                                        </#if>
+                                    </#list>
+                                </select>
+                                registros
+                            </label>
+                        </div>
                     </div>
-                </div>
                 </form>
             </#if>
         </div>
