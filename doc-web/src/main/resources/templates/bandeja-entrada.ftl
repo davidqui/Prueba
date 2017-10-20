@@ -38,18 +38,18 @@
             <tbody>
                 <#list documentos as x>
                     <tr>
-                        <td style="text-align: center; width:40%">
+                        <td style="text-align: center;">
                             <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                         </td>
-                        <td style="text-align: center; width:10%">
+                        <td style="text-align: center;">
                             <#if (x.radicado)??>
                                 ${x.radicado}
                             </#if>
                         </td>    
-                        <td style="text-align: center; width:10%">
+                        <td style="text-align: center;">
                             ${x.cuando?string('yyyy-MM-dd hh:mm a')}
                         </td>
-                        <td style="text-align: center; width:20%">
+                        <td style="text-align: center;">
                             <#--
                                 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
                                 Presentar información básica de los usuarios asignadores y asignados en las
@@ -59,7 +59,7 @@
                                 ${(usuarioService.mostrarInformacionBasica(x.instancia.asignado))!"&lt;No asignado&gt;"}
                             </#if>
                         </td>
-                        <td style="text-align: center; width:20%">
+                        <td style="text-align: center;">
                             <#if (x.usuarioUltimaAccion)?? >
                                 ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)}
                             <#else> 
@@ -75,7 +75,7 @@
             Se agrega items de visualizacion para la paginacion.
         -->
         <#if totalPages gt 0>
-            <@printBar url="/bandeja/entrada" params=null/>
+            <@printBar url="/bandeja/entrada" />
         </#if>
     </#if>
 </#if>

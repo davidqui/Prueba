@@ -217,6 +217,8 @@ public class BandejaController extends UtilController {
      * @param principal Atributos de autenticación.
      * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
      * @param fechaFinal Fecha final del rango de filtro (Opcional).
+     * @param pageIndex Pagina para visualizar los registros
+     * @param pageSize Cantidad de registros por pagina
      * @return Lista de documentos en trámite del usuario.
      */
     /*
@@ -229,8 +231,9 @@ public class BandejaController extends UtilController {
     public String entramite(Model model, Principal principal,
             @RequestParam(required = false, value = "fechaInicial")
             @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal
-    ) {
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
 
         if (fechaFinal == null) {
             fechaFinal = new Date();
@@ -243,15 +246,35 @@ public class BandejaController extends UtilController {
         DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
         final String login = principal.getName();
-        List<Documento> documentos = bandejaService.obtenerDocumentosBandejaTramite(login, fechaInicial, fechaFinal);
-        for (Documento documento : documentos) {
-            documento.getInstancia().getCuando();
-            documento.getInstancia().setService(procesoService);
+        
+        // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
+        // la bandeja de enviados.
+        List<Documento> documentos = null;
+        int count = bandejaService.obtenerCountBandejaTramite(login, fechaInicial, fechaFinal);
+        int totalPages = 0;
+        String labelInformacion = "";
+
+        if (count > 0) {
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex,pageSize);
+            totalPages = paginacionDTO.getTotalPages();
+            documentos = bandejaService.obtenerDocumentosBandejaTramite(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            labelInformacion = paginacionDTO.getLabelInformacion();
+        }
+
+        if (documentos != null) {
+            for (Documento documento : documentos) {
+                documento.getInstancia().getCuando();
+                documento.getInstancia().setService(procesoService);
+            }
         }
 
         model.addAttribute("documentos", documentos);
         model.addAttribute("fechaInicial", fechaInicial);
         model.addAttribute("fechaFinal", fechaFinal);
+        model.addAttribute("pageIndex", pageIndex);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("labelInformacion", labelInformacion);
+        model.addAttribute("pageSize", pageSize);
 
         /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
