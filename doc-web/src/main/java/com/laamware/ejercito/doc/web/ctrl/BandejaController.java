@@ -28,6 +28,7 @@ import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.DateUtil.SetTimeType;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
@@ -357,12 +358,8 @@ public class BandejaController extends UtilController {
     //Lista desplegable para la paginación.
     @ModelAttribute("pageSizes")
     public List<Integer> pageSizes(Model model) {
-        List<Integer> list = new ArrayList<>();
-        list.add(10);
-        list.add(15);
-        list.add(20);
+        List<Integer> list = Arrays.asList(10, 30, 50);
         model.addAttribute("pageSizes", list);
         return list;
     }
-
 }

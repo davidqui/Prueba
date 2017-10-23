@@ -56,8 +56,9 @@
                     <td style="font-weight:bold; text-align: center;">ASUNTO</td>
                     <td style="font-weight:bold; text-align: center;">RADICADO</td>
                     <td style="font-weight:bold; text-align: center;">FECHA ENVIO</td>
-                    <td style="font-weight:bold; text-align: center;">ASIGNADO A</td>
+                    <td style="font-weight:bold; text-align: center;">ENVIADO A</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO POR</td>
+                    <td style="font-weight:bold; text-align: center;">PLAZO</td>
                 </tr>
             </thead>
             <tbody>
@@ -89,6 +90,17 @@
                             -->
                             <#if (x.usuarioUltimaAccion)?? >
                                 ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)}
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            <#if (x.plazo)?? >
+                                <span class="label label-${x.semaforo}">
+                                    ${x.plazo?string('yyyy-MM-dd')}
+                                </span>
+                            <#else>
+                                <span class="label label-default">
+                                    Sin plazo
+                                </span>
                             </#if>
                         </td>
                     </tr>

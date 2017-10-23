@@ -62,6 +62,8 @@
                     <td style="font-weight:bold; text-align: center;">FECHA CREACIÓN</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO A</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO POR</td>
+                    <td style="font-weight:bold; text-align: center;">PLAZO</td>
+                    <td style="font-weight:bold; text-align: center;">ACCIONES</td>
                 </tr>
             </thead>
             <tbody>	
@@ -91,6 +93,32 @@
                         <td style="text-align: center;">
                             <#if (x.usuarioUltimaAccion)?? > 
                                 ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)} 
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            <#if (x.plazo)?? >
+                                <span class="label label-${x.semaforo}">
+                                    ${x.plazo?string('yyyy-MM-dd')}
+                                </span>
+                            <#else>
+                                <span class="label label-default">
+                                    Sin plazo
+                                </span>
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            <#--
+                                2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
+                                hotfix-81 -> Validación para determinar si se deben presentar transiciones para los documentos en la bandeja de enviados
+                                y en trámite.
+                            -->
+                            <#if x.presentarTransiciones()>
+                                <#assign transiciones = x.instancia.transiciones()/>
+                                <#if transiciones?? && transiciones?size &gt; 0 >
+                                    <#list transiciones as t>
+                                        ${t.nombre}...&nbsp;
+                                    </#list>
+                                </#if>
                             </#if>
                         </td>
                     </tr>

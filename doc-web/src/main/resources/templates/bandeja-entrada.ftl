@@ -69,11 +69,16 @@
                             </#if>
                         </td>
                         <td style="text-align: center;">
+                            <#--
+                                2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
+                                hotfix-81 -> Validación para determinar si se deben presentar transiciones para los documentos en la bandeja de enviados
+                                y en trámite.
+                            -->
                             <#assign transiciones = x.instancia.transiciones() />
                             <#if x.presentarTransiciones()>
                                 <#if transiciones?? && transiciones?size &gt; 0 >
                                     <#list transiciones as t>
-                                        ${t.nombre}...&nbsp;&nbsp;&nbsp;
+                                        ${t.nombre}...&nbsp;
                                     </#list>
                                 </#if>
                             </#if>
