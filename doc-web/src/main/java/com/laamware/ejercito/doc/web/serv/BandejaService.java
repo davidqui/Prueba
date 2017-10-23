@@ -142,4 +142,32 @@ public final class BandejaService {
     public List<Documento> obtenerDocumentosBandejaTramite(String login, Date fechaInicial, Date fechaFinal, int inicio, int fin) {
         return documentoRepository.findBandejaTramitePaginado(login, fechaInicial, fechaFinal, inicio, fin);
     }
+    
+    /**
+     * Obtiene el numero de registros de las bandejas de consulta por usuario y
+     * fechas
+     *
+     * @param login Login del usuario
+     * @param fechaInicial Fecha inicial del filtro
+     * @param fechaFinal Fecha final del filtro
+     * @return Número de registros
+     */
+    public int obtenerCountBandejaConsulta(String login, Date fechaInicial, Date fechaFinal) {
+        return documentoRepository.findBandejaConsultaCount(login, fechaInicial, fechaFinal);
+    }
+    
+    /**
+     * btiene la lista de registros de las bandejas en consulta por usuario y 
+     * fechas paginado.
+     *
+     * @param login Login del usuario
+     * @param fechaInicial Fecha inicial del filtro
+     * @param fechaFinal Fecha final del filtro
+     * @param inicio Numero de registro inicial
+     * @param fin Numero de registro final
+     * @return Lista de documentos
+     */
+    public List<Documento> obtenerDocumentosBandejaConsulta(String login, Date fechaInicial, Date fechaFinal, int inicio, int fin) {
+        return documentoRepository.findBandejaConsultaPaginado(login, fechaInicial, fechaFinal, inicio, fin);
+    }
 }

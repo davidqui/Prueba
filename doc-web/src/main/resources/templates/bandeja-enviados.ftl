@@ -49,6 +49,10 @@
           <p class="lead">No existen documentos en esta bandeja para el rango de fechas seleccionado entre ${fechaInicialValor} y ${fechaFinalValor}.</p>
         </div>
     <#else>
+        <#--
+            2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech feature-132:
+            Ajuste visual de informacion en tabla.
+        -->
         </br>
         <table class="table table-striped table-bordered">
             <thead>

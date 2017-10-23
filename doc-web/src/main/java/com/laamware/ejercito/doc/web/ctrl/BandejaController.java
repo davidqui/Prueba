@@ -91,9 +91,9 @@ public class BandejaController extends UtilController {
         String labelInformacion = "";
 
         if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex,pageSize);
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
-            docs = bandejaService.obtenerDocumentosBandejaEntrada(principal.getName(),paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            docs = bandejaService.obtenerDocumentosBandejaEntrada(principal.getName(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
             if (docs != null) {
                 for (Documento d : docs) {
@@ -163,7 +163,7 @@ public class BandejaController extends UtilController {
         String labelInformacion = "";
 
         if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex,pageSize);
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
             documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
@@ -247,7 +247,7 @@ public class BandejaController extends UtilController {
         DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
         final String login = principal.getName();
-        
+
         // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
         // la bandeja de enviados.
         List<Documento> documentos = null;
@@ -256,7 +256,7 @@ public class BandejaController extends UtilController {
         String labelInformacion = "";
 
         if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex,pageSize);
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
             documentos = bandejaService.obtenerDocumentosBandejaTramite(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
@@ -304,6 +304,8 @@ public class BandejaController extends UtilController {
      * @param principal Principal.
      * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
      * @param fechaFinal Fecha final del rango de filtro (Opcional).
+     * @param pageIndex Pagina para visualizar los registros
+     * @param pageSize Cantidad de registros por pagina
      * @return Identificador del template de la bandeja.
      */
     @PreAuthorize("hasRole('BANDEJAS')")
@@ -318,8 +320,9 @@ public class BandejaController extends UtilController {
     public String apoyoConsulta(Model model, Principal principal,
             @RequestParam(required = false, value = "fechaInicial")
             @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal
-    ) {
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
 
         if (fechaFinal == null) {
             fechaFinal = new Date();
@@ -332,17 +335,35 @@ public class BandejaController extends UtilController {
         DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
         final String login = principal.getName();
-        final List<Documento> documentos = bandejaService.obtenerDocumentosBandejaApoyoConsulta(login, fechaInicial, fechaFinal);
 
-        for (Documento documento : documentos) {
-            documento.getInstancia().getCuando();
-            documento.getInstancia().setService(procesoService);
+        // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
+        // la bandeja de enviados.
+        List<Documento> documentos = null;
+        int count = bandejaService.obtenerCountBandejaConsulta(login, fechaInicial, fechaFinal);
+        int totalPages = 0;
+        String labelInformacion = "";
+
+        if (count > 0) {
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+            totalPages = paginacionDTO.getTotalPages();
+            documentos = bandejaService.obtenerDocumentosBandejaConsulta(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            labelInformacion = paginacionDTO.getLabelInformacion();
+        }
+
+        if (documentos != null) {
+            for (Documento documento : documentos) {
+                documento.getInstancia().setService(procesoService);
+            }
         }
 
         model.addAttribute("documentos", documentos);
         model.addAttribute("fechaInicial", fechaInicial);
         model.addAttribute("fechaFinal", fechaFinal);
-
+        model.addAttribute("pageIndex", pageIndex);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("labelInformacion", labelInformacion);
+        model.addAttribute("pageSize", pageSize);
+        
         /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78: Presentar información básica de los usuarios asignadores
@@ -353,7 +374,7 @@ public class BandejaController extends UtilController {
         return "bandeja-apoyo-consulta";
 
     }
-    
+
     // 2017-10-17 edison.gonzalez@controltechcg.com Issue #132 
     //Lista desplegable para la paginación.
     @ModelAttribute("pageSizes")
