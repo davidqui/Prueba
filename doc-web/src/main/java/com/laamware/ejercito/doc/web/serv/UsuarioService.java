@@ -98,8 +98,7 @@ public class UsuarioService {
     }
 
     /**
-     * Obtiene la información básica del usuario (Grado, Nombre, Cargo,
-     * Dependencia).
+     * Obtiene la información básica del usuario (Grado, Nombre, Cargo).
      *
      * @param usuario Usuario.
      * @return Información básica, o texto vacío en caso que el usuario sea
@@ -114,6 +113,8 @@ public class UsuarioService {
         /*
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+            2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) 
+            feature-132: Se quita la dependencia, para mostrarla en otra columna
         */
 
         final String grado = usuario.getUsuGrado().getId();
@@ -128,11 +129,31 @@ public class UsuarioService {
         if (cargo != null && !cargo.trim().isEmpty()) {
             builder.append("</br>").append(cargo);
         }
+        return builder.toString().trim();
+    }
+    
+    /**
+     * Obtiene la unidad del usuario (Dependencia).
+     *
+     * @param usuario Usuario.
+     * @return Información básica, o texto vacío en caso que el usuario sea
+     * {@code null}.
+     */
+    public String mostrarInformacionUnidad(Usuario usuario) {
+        if (usuario == null) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        /*
+            2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) 
+            feature-132: Se Agrega la dependencia, para mostrarla en otra columna
+        */
         
         final Dependencia dependencia = usuario.getDependencia();
         if (dependencia != null) {
             final Dependencia unidad = buscarUnidad(dependencia);
-            builder.append("(").append(unidad.getSigla()).append(")");
+            builder.append(unidad.getSigla());
         }
 
         return builder.toString().trim();

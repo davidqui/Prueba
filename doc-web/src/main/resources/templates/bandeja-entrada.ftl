@@ -31,10 +31,10 @@
                     <td style="font-weight:bold; text-align: center;">FECHA CREACIÓN</td>
                     <td style="font-weight:bold; text-align: center;">ASUNTO</td>
                     <td style="font-weight:bold; text-align: center;">RADICADO</td>
+                    <td style="font-weight:bold; text-align: center;">UNIDAD ORIGEN</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO POR</td>
                     <td style="font-weight:bold; text-align: center;">PLAZO</td>
                     <td style="font-weight:bold; text-align: center;">ACCIONES</td>
-                    <td style="font-weight:bold; text-align: center;">PROCESO</td>
                 </tr>
             </thead>
             <tbody>
@@ -49,6 +49,13 @@
                         <td style="text-align: center;">
                             <#if (x.radicado)??>
                                 ${x.radicado}
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            <#if (x.usuarioUltimaAccion)?? >
+                                ${usuarioService.mostrarInformacionUnidad(x.usuarioUltimaAccion)}
+                            <#else> 
+                                ${usuarioService.mostrarInformacionUnidad(x.instancia.asignado)} 
                             </#if>
                         </td>
                         <td style="text-align: center;">
@@ -82,17 +89,6 @@
                                         ${t.nombre}...&nbsp;
                                     </#list>
                                 </#if>
-                            </#if>
-                        </td>
-                        <td style="text-align: center;">
-                            <#if x.instancia.proceso.id == 8>
-                                Documentos Internos
-                            </#if>
-                            <#if x.instancia.proceso.id == 9>
-                                Registrar Documentos
-                            </#if>
-                            <#if x.instancia.proceso.id == 41>
-                                Documentos Externos
                             </#if>
                         </td>
                     </tr>
