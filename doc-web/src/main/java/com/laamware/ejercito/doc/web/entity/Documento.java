@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.laamware.ejercito.doc.web.ctrl.DocumentoMode;
 import com.laamware.ejercito.doc.web.dto.UsuarioVistoBuenoDTO;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
+import java.util.Objects;
 
 @Entity
 @Table(name = "DOCUMENTO")
@@ -546,6 +547,13 @@ public class Documento extends AuditModifySupport {
         if (plazo != null) {
             long diff = plazo.getTime() - new Date().getTime();
             long diffDays = diff / (24 * 60 * 60 * 1000);
+            
+            // 2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SIGDI-feature#132):
+            // Si el docuemnto ya se encuentra en el estado de enviado muestra
+            // la fecha de plazo en verde.
+            if (Objects.equals(getInstancia().getEstado().getId(), Estado.ENVIADO)) {
+                return "success";
+            }
             if (diffDays < 1) {
                 return "danger";
             }
@@ -1110,8 +1118,6 @@ public class Documento extends AuditModifySupport {
     public void setMarcaAguaExterno(String marcaAguaExterno) {
         this.marcaAguaExterno = marcaAguaExterno;
     }
-
-    
 
     public RestriccionDifusion getRestriccionDifusion() {
         return restriccionDifusion;

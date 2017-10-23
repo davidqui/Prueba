@@ -336,7 +336,7 @@ public class BandejaController extends UtilController {
 
         final String login = principal.getName();
 
-        // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
+        // 2017-10-23 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
         // la bandeja de enviados.
         List<Documento> documentos = null;
         int count = bandejaService.obtenerCountBandejaConsulta(login, fechaInicial, fechaFinal);

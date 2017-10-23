@@ -50,24 +50,28 @@
 	</div>
     <#else>
         <#--
-            2017-10-17 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech feature-132:
+            2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech feature-132:
             Ajuste visual de informacion en tabla.
         -->
         </br>
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
+                    <td style="font-weight:bold; text-align: center;">FECHA CREACIÓN</td>
                     <td style="font-weight:bold; text-align: center;">ASUNTO</td>
                     <td style="font-weight:bold; text-align: center;">RADICADO</td>
-                    <td style="font-weight:bold; text-align: center;">FECHA CREACIÓN</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO A</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO POR</td>
                     <td style="font-weight:bold; text-align: center;">PLAZO</td>
+                    <td style="font-weight:bold; text-align: center;">PROCESO</td>
                 </tr>
             </thead>
             <tbody>
                 <#list documentos as x>
                     <tr>
+                        <td style="text-align: center">
+                            ${x.cuando?string('yyyy-MM-dd hh:mm a')}
+                        </td>
                         <td style="text-align: center">
                             <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                         </td>
@@ -75,9 +79,6 @@
                             <#if (x.radicado)??>
                                 ${x.radicado}
                             </#if>
-                        </td>
-                        <td style="text-align: center">
-                            ${x.cuando?string('yyyy-MM-dd hh:mm a')}
                         </td>
                         <td style="text-align: center">
                             <#if (x.instancia.asignado)??>
@@ -102,9 +103,20 @@
                                     ${x.plazo?string('yyyy-MM-dd')}
                                 </span>
                             <#else>
-                                <span class="label label-default">
+                                <span class="label label-success">
                                     Sin plazo
                                 </span>
+                            </#if>
+                        </td>
+                        <td style="text-align: center;">
+                            <#if x.instancia.proceso.id == 8>
+                                Documentos Internos
+                            </#if>
+                            <#if x.instancia.proceso.id == 9>
+                                Registrar Documentos
+                            </#if>
+                            <#if x.instancia.proceso.id == 41>
+                                Documentos Externos
                             </#if>
                         </td>
                     </tr>
