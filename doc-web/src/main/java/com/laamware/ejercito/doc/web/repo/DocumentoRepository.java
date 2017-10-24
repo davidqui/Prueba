@@ -367,4 +367,66 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n"
             + "ORDER BY DOC.CUANDO DESC", nativeQuery = true)
     List<Documento> findBandejaConsultaPaginado(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal, @Param("inicio") int inicio, @Param("fin") int fin);
+    
+    /*
+	 * 2017-03-27 jgarcia@controltechcg.com Issue #22 (SIGDI-Incidencias01):
+	 * Modificación de consulta SQL de la bandeja de enviados para que no
+	 * presente la información de los documentos anulados.
+	 * 
+	 * 2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
+	 * por rango de fechas.
+	 * 
+	 * 2017-07-25 jgarcia@controltechcg.com Issue #118 (SICDI-Controltech)
+	 * hotfix-118: Corrección en la sentencia SQL de la bandeja de enviados,
+	 * para que no presente documentos cuyo usuario asignado actual corresponda
+	 * al usuario en sesión.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT EST.PES_ID,                                                               "
+            + " DOC.*                                                                            "
+            + " FROM DOCUMENTO DOC                                                               "
+            + " JOIN S_INSTANCIA_USUARIO HPIN                                                    "
+            + " ON DOC.PIN_ID = HPIN.PIN_ID                                                      "
+            + " JOIN PROCESO_INSTANCIA PIN                                                       "
+            + " ON DOC.PIN_ID = PIN.PIN_ID                                                       "
+            + " JOIN PROCESO_ESTADO EST                                                          "
+            + " ON EST.PES_ID = PIN.PES_ID                                                       "
+            + " JOIN USUARIO USU                                                                 "
+            + " ON HPIN.USU_ID = USU.USU_ID                                                      "
+            + " JOIN USUARIO USU_ASIGNADO                                                        "
+            + " ON (USU_ASIGNADO.USU_ID     = PIN.USU_ID_ASIGNADO)                               "
+            + " WHERE USU.USU_LOGIN         = ?                                                  "
+            + " AND USU_ASIGNADO.USU_LOGIN <> ?                                                  "
+            + " AND DOC.DOC_RADICADO       IS NOT NULL                                           "
+            + " AND EST.PES_FINAL           = 1                                                  "
+            + " AND EST.PES_ID NOT         IN (83, 101)                                          "
+            + " AND DOC.CUANDO_MOD BETWEEN ? AND ?                                               "
+            + " ORDER BY DOC.CUANDO_MOD DESC                                                     ")
+    List<Documento> findBandejaEnviados(String login, String loginAsignado, Date fechaInicial, Date fechaFinal);
+    
+    /*
+	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
+	 * por rango de fechas.
+	 * 
+	 * 2017-07-11 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación en fecha de filtro de dato de creación por dato
+	 * de última modificación del documento.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT                                                                           "
+            + " DOC.*                                                                            "
+            + " FROM DOCUMENTO DOC                                                               "
+            + " JOIN S_INSTANCIA_USUARIO HPIN ON (DOC.PIN_ID = HPIN.PIN_ID)                      "
+            + " JOIN PROCESO_INSTANCIA   PIN  ON (DOC.PIN_ID = PIN.PIN_ID)                       "
+            + " JOIN PROCESO_ESTADO      EST  ON (EST.PES_ID = PIN.PES_ID)                       "
+            + " JOIN USUARIO             USU  ON (HPIN.USU_ID = USU.USU_ID)                      "
+            + " WHERE                                                                            "
+            + " USU.USU_LOGIN = ?                                                                "
+            + " AND EST.PES_FINAL != 1                                                           "
+            + " AND DOC.CUANDO_MOD BETWEEN ? AND ?                                               "
+            + " ORDER BY                                                                         "
+            + " DOC.CUANDO DESC                                                                  ")
+    List<Documento> findBandejaTramite(String name, Date fechaInicial, Date fechaFinal);
 }

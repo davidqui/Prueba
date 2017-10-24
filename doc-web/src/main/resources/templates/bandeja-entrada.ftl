@@ -31,10 +31,9 @@
                     <td style="font-weight:bold; text-align: center;">FECHA CREACIÓN</td>
                     <td style="font-weight:bold; text-align: center;">ASUNTO</td>
                     <td style="font-weight:bold; text-align: center;">RADICADO</td>
-                    <td style="font-weight:bold; text-align: center;">UNIDAD ORIGEN</td>
+                    <td style="font-weight:bold; text-align: center;">UNIDAD </br>ORIGEN</td>
                     <td style="font-weight:bold; text-align: center;">ASIGNADO POR</td>
                     <td style="font-weight:bold; text-align: center;">PLAZO</td>
-                    <td style="font-weight:bold; text-align: center;">ACCIONES</td>
                 </tr>
             </thead>
             <tbody>
@@ -74,21 +73,6 @@
                                 <span class="label label-success">
                                     Sin plazo
                                 </span>
-                            </#if>
-                        </td>
-                        <td style="text-align: center;">
-                            <#--
-                                2017-05-15 jgarcia@controltechcg.com Issue #81 (SICDI-Controltech):
-                                hotfix-81 -> Validación para determinar si se deben presentar transiciones para los documentos en la bandeja de enviados
-                                y en trámite.
-                            -->
-                            <#assign transiciones = x.instancia.transiciones() />
-                            <#if x.presentarTransiciones()>
-                                <#if transiciones?? && transiciones?size &gt; 0 >
-                                    <#list transiciones as t>
-                                        ${t.nombre}...&nbsp;
-                                    </#list>
-                                </#if>
                             </#if>
                         </td>
                     </tr>

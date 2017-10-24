@@ -126,8 +126,6 @@ public class BandejaController extends UtilController {
      * @param principal Atributos de autenticación.
      * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
      * @param fechaFinal Fecha final del rango de filtro (Opcional).
-     * @param pageIndex Indice de la pagina a mostrar (Opcional).
-     * @param pageSize Numero de registros a visualizar (Opcional).
      * @return Lista de documentos enviados del usuario.
      */
     /*
@@ -139,9 +137,7 @@ public class BandejaController extends UtilController {
     @RequestMapping(value = "/enviados", method = {RequestMethod.GET, RequestMethod.POST})
     public String enviados(Model model, Principal principal,
             @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal,
-            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
-            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
 
         if (fechaFinal == null) {
             fechaFinal = new Date();
@@ -154,27 +150,13 @@ public class BandejaController extends UtilController {
         DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
         final String login = principal.getName();
+        List<Documento> documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal);
 
-        // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
-        // la bandeja de enviados.
-        List<Documento> documentos = null;
-        int count = bandejaService.obtenerCountBandejaEnviados(login, fechaInicial, fechaFinal);
-        int totalPages = 0;
-        String labelInformacion = "";
+        for (Documento documento : documentos) {
+            documento.getInstancia().getCuando();
+            documento.getInstancia().setService(procesoService);
 
-        if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
-            totalPages = paginacionDTO.getTotalPages();
-            documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
-            labelInformacion = paginacionDTO.getLabelInformacion();
-        }
-
-        if (documentos != null) {
-            for (Documento documento : documentos) {
-                documento.getInstancia().getCuando();
-                documento.getInstancia().setService(procesoService);
-
-                /*
+            /*
 			 * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de
 			 * jefes de dependencias adicionales a un documento.
 			 * 
@@ -186,25 +168,20 @@ public class BandejaController extends UtilController {
 			 * (SICDI-Controltech) feature-73: Opción para indicar si la
 			 * construcción del texto de asignados debe manejar múltiples
 			 * destinos o no.
-                 */
-                String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
-                        usuarioService, documento.getInstancia(), null, true);
-                documento.setTextoAsignado(asignadosText);
-            }
+             */
+            String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
+                    usuarioService, documento.getInstancia(), null, true);
+            documento.setTextoAsignado(asignadosText);
         }
 
         model.addAttribute("documentos", documentos);
         model.addAttribute("fechaInicial", fechaInicial);
         model.addAttribute("fechaFinal", fechaFinal);
-        model.addAttribute("pageIndex", pageIndex);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("labelInformacion", labelInformacion);
-        model.addAttribute("pageSize", pageSize);
 
         /*
-            * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
-            * feature-78: Presentar información básica de los usuarios asignadores
-            * y asignados en las bandejas del sistema.
+		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+		 * feature-78: Presentar información básica de los usuarios asignadores
+		 * y asignados en las bandejas del sistema.
          */
         model.addAttribute("usuarioService", usuarioService);
 
@@ -218,8 +195,6 @@ public class BandejaController extends UtilController {
      * @param principal Atributos de autenticación.
      * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
      * @param fechaFinal Fecha final del rango de filtro (Opcional).
-     * @param pageIndex Pagina para visualizar los registros
-     * @param pageSize Cantidad de registros por pagina
      * @return Lista de documentos en trámite del usuario.
      */
     /*
@@ -230,11 +205,8 @@ public class BandejaController extends UtilController {
     @PreAuthorize("hasRole('BANDEJAS')")
     @RequestMapping(value = "/entramite", method = {RequestMethod.GET, RequestMethod.POST})
     public String entramite(Model model, Principal principal,
-            @RequestParam(required = false, value = "fechaInicial")
-            @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal,
-            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
-            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
+            @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
 
         if (fechaFinal == null) {
             fechaFinal = new Date();
@@ -247,35 +219,15 @@ public class BandejaController extends UtilController {
         DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
         final String login = principal.getName();
-
-        // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
-        // la bandeja de enviados.
-        List<Documento> documentos = null;
-        int count = bandejaService.obtenerCountBandejaTramite(login, fechaInicial, fechaFinal);
-        int totalPages = 0;
-        String labelInformacion = "";
-
-        if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
-            totalPages = paginacionDTO.getTotalPages();
-            documentos = bandejaService.obtenerDocumentosBandejaTramite(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
-            labelInformacion = paginacionDTO.getLabelInformacion();
-        }
-
-        if (documentos != null) {
-            for (Documento documento : documentos) {
-                documento.getInstancia().getCuando();
-                documento.getInstancia().setService(procesoService);
-            }
+        List<Documento> documentos = bandejaService.obtenerDocumentosBandejaTramite(login, fechaInicial, fechaFinal);
+        for (Documento documento : documentos) {
+            documento.getInstancia().getCuando();
+            documento.getInstancia().setService(procesoService);
         }
 
         model.addAttribute("documentos", documentos);
         model.addAttribute("fechaInicial", fechaInicial);
         model.addAttribute("fechaFinal", fechaFinal);
-        model.addAttribute("pageIndex", pageIndex);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("labelInformacion", labelInformacion);
-        model.addAttribute("pageSize", pageSize);
 
         /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
@@ -289,8 +241,7 @@ public class BandejaController extends UtilController {
 
     @PreAuthorize("hasRole('BANDEJAS')")
     @RequestMapping(value = "/consulta", method = RequestMethod.GET)
-    public String consulta(Model model
-    ) {
+    public String consulta(Model model) {
 
         return "bandeja-consulta";
 
@@ -304,8 +255,6 @@ public class BandejaController extends UtilController {
      * @param principal Principal.
      * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
      * @param fechaFinal Fecha final del rango de filtro (Opcional).
-     * @param pageIndex Pagina para visualizar los registros
-     * @param pageSize Cantidad de registros por pagina
      * @return Identificador del template de la bandeja.
      */
     @PreAuthorize("hasRole('BANDEJAS')")
@@ -318,11 +267,8 @@ public class BandejaController extends UtilController {
 	 * de fechas, utilizando un servicio del modelo de negocio.
      */
     public String apoyoConsulta(Model model, Principal principal,
-            @RequestParam(required = false, value = "fechaInicial")
-            @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal,
-            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
-            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
+            @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
 
         if (fechaFinal == null) {
             fechaFinal = new Date();
@@ -335,35 +281,17 @@ public class BandejaController extends UtilController {
         DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
 
         final String login = principal.getName();
+        final List<Documento> documentos = bandejaService.obtenerDocumentosBandejaApoyoConsulta(login, fechaInicial, fechaFinal);
 
-        // 2017-10-23 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
-        // la bandeja de enviados.
-        List<Documento> documentos = null;
-        int count = bandejaService.obtenerCountBandejaConsulta(login, fechaInicial, fechaFinal);
-        int totalPages = 0;
-        String labelInformacion = "";
-
-        if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
-            totalPages = paginacionDTO.getTotalPages();
-            documentos = bandejaService.obtenerDocumentosBandejaConsulta(login, fechaInicial, fechaFinal, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
-            labelInformacion = paginacionDTO.getLabelInformacion();
-        }
-
-        if (documentos != null) {
-            for (Documento documento : documentos) {
-                documento.getInstancia().setService(procesoService);
-            }
+        for (Documento documento : documentos) {
+            documento.getInstancia().getCuando();
+            documento.getInstancia().setService(procesoService);
         }
 
         model.addAttribute("documentos", documentos);
         model.addAttribute("fechaInicial", fechaInicial);
         model.addAttribute("fechaFinal", fechaFinal);
-        model.addAttribute("pageIndex", pageIndex);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("labelInformacion", labelInformacion);
-        model.addAttribute("pageSize", pageSize);
-        
+
         /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
 		 * feature-78: Presentar información básica de los usuarios asignadores
