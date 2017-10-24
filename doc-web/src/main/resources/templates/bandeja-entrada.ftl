@@ -9,7 +9,7 @@
  -->
 <#include "lib/documento_functions.ftl" />
 
-<#if error??> 
+<#if error??>
     <div class="jumbotron">
         <h2 class="display-1">Algo anda mal...</h2>
         <p class="lead">No se puede construir la bandeja debido a un problema interno del sistema. Intente nuevamente por favor.</p>
@@ -25,7 +25,7 @@
             2017-10-17 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech feature-132:
             Ajuste visual de informacion en tabla.
         -->
-        <table class="table table-striped table-bordered">
+        <table class="table table-striped table-bordered" style="table-layout: fixed;">
             <thead>
                 <tr>
                     <td style="font-weight:bold; text-align: center;">FECHA CREACIÓN</td>
@@ -39,32 +39,33 @@
             <tbody>
                 <#list documentos as x>
                     <tr>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; vertical-align: middle;">
                             ${x.cuando?string('yyyy-MM-dd hh:mm a')}
                         </td>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; vertical-align: middle;word-wrap:break-word;">
                             <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                         </td>
-                        <td style="text-align: center;">
+                        
+                        <td style="text-align: center; vertical-align: middle;">
                             <#if (x.radicado)??>
                                 ${x.radicado}
                             </#if>
                         </td>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; vertical-align: middle;">
                             <#if (x.usuarioUltimaAccion)?? >
                                 ${usuarioService.mostrarInformacionUnidad(x.usuarioUltimaAccion)}
                             <#else> 
                                 ${usuarioService.mostrarInformacionUnidad(x.instancia.asignado)} 
                             </#if>
                         </td>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; vertical-align: middle;">
                             <#if (x.usuarioUltimaAccion)?? >
-                                ${usuarioService.mostrarInformacionBasica(x.usuarioUltimaAccion)}
+                                ${usuarioService.mostrarInformacionBasicaBandejas(x.usuarioUltimaAccion)}
                             <#else> 
-                                ${usuarioService.mostrarInformacionBasica(x.instancia.asignado)} 
+                                ${usuarioService.mostrarInformacionBasicaBandejas(x.instancia.asignado)} 
                             </#if>
                         </td>
-                        <td style="text-align: center;">
+                        <td style="text-align: center; vertical-align: middle;">
                             <#if (x.plazo)?? >
                                 <span class="label label-${x.semaforo}">
                                     ${x.plazo?string('yyyy-MM-dd')}

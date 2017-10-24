@@ -96,15 +96,56 @@ public class UsuarioService {
     public Usuario findOne(Integer id) {
         return usuarioRepository.findOne(id);
     }
-
+    
     /**
-     * Obtiene la información básica del usuario (Grado, Nombre, Cargo).
+     * Obtiene la información básica del usuario (Grado, Nombre, Cargo,
+     * Dependencia).
      *
      * @param usuario Usuario.
      * @return Información básica, o texto vacío en caso que el usuario sea
      * {@code null}.
      */
     public String mostrarInformacionBasica(Usuario usuario) {
+        if (usuario == null) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        /*
+            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
+            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+        */
+        final String grado = usuario.getUsuGrado().getId();
+        if (grado != null && !grado.trim().isEmpty()) {
+            builder.append(grado).append(". ");
+        }
+
+        final String nombre = usuario.getNombre();
+        builder.append(nombre).append(" ");
+
+        final String cargo = usuario.getCargo();
+        if (cargo != null && !cargo.trim().isEmpty()) {
+            builder.append(" - ").append(cargo).append(" ");
+        }
+
+        final Dependencia dependencia = usuario.getDependencia();
+        if (dependencia != null) {
+            final Dependencia unidad = buscarUnidad(dependencia);
+            builder.append("(").append(unidad.getSigla()).append(")");
+        }
+
+        return builder.toString().trim();
+    }
+
+    /**
+     * Obtiene la información básica del usuario (Grado, Nombre, Cargo) en las
+     * bandejas.
+     *
+     * @param usuario Usuario.
+     * @return Información básica, o texto vacío en caso que el usuario sea
+     * {@code null}.
+     */
+    public String mostrarInformacionBasicaBandejas(Usuario usuario) {
         if (usuario == null) {
             return "";
         }

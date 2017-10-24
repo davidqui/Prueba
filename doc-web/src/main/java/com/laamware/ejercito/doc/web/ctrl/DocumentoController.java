@@ -4357,11 +4357,8 @@ public class DocumentoController extends UtilController {
 					 * (SICDI-Controltech) feature-78: Presentar información
 					 * básica de los usuarios asignadores y asignados en las
 					 * bandejas del sistema.
-                                         * 2017-10-20 edison.gonzalez@controltechcg.com Issue #132
-                                         * (SICDI-Controltech) feature-132: Visualizar la información
-                                         * de cada usuario separado por us espacio.
                      */
-                    text += "</br> " + usuarioService.mostrarInformacionBasica(jefe);
+                    text += ", " + usuarioService.mostrarInformacionBasica(jefe);
                 }
             }
         }

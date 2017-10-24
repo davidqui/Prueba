@@ -168,9 +168,16 @@ public class BandejaController extends UtilController {
 			 * (SICDI-Controltech) feature-73: Opción para indicar si la
 			 * construcción del texto de asignados debe manejar múltiples
 			 * destinos o no.
+                         * 2017-10-24 edison.gonzalez@controltechcg.com Issue #132
+			 * (SICDI-Controltech) feature-132: Se pone en comentarios el
+                         * la signacion de la variable asignadosText al llamado del
+                         * metodo buildAsignadosText mientras se reimplementa el
+                         * multidestino
+                         *.
              */
-            String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
-                    usuarioService, documento.getInstancia(), null, true);
+            /*String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
+                    usuarioService, documento.getInstancia(), null, true);*/
+            String asignadosText = usuarioService.mostrarInformacionBasicaBandejas(documento.getInstancia().getAsignado());
             documento.setTextoAsignado(asignadosText);
         }
 
