@@ -57,31 +57,31 @@
         <table class="table table-striped table-bordered" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <td style="font-weight:bold; text-align: center;width: auto;">FECHA ENVÍO</td>
-                    <td style="font-weight:bold; text-align: center;">ASUNTO</td>
-                    <td style="font-weight:bold; text-align: center;">RADICADO</td>
-                    <td style="font-weight:bold; text-align: center;">UNIDAD </br>DESTINO</td>
-                    <td style="font-weight:bold; text-align: center;">ENVIADO A</td>
-                    <td style="font-weight:bold; text-align: center;">UNIDAD </br>ORIGEN</td>
-                    <td style="font-weight:bold; text-align: center;">ASIGNADO POR</td>
-                    <td style="font-weight:bold; text-align: center;">PLAZO</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 10%">FECHA ENVÍO</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle;">ASUNTO</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 10%">RADICADO</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 5%">UNIDAD DESTINO</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle;">ENVIADO A</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 5%">UNIDAD ORIGEN</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle;">ASIGNADO POR</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 5%">PLAZO</td>
                 </tr>
             </thead>
             <tbody>
                 <#list documentos as x>
                     <tr>
-                        <td style="text-align: center; vertical-align: middle;">
+                        <td style="text-align: center; vertical-align: middle; width : 10%">
                             ${x.cuandoMod?string('yyyy-MM-dd hh:mm a')}
                         </td>
                         <td style="text-align: center; vertical-align: middle;middle; word-wrap: break-word;">
                             <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                         </td>
-                        <td style="text-align: center; vertical-align: middle;">
+                        <td style="text-align: center; vertical-align: middle; width : 10%">
                             <#if (x.radicado)??>
                                 ${x.radicado}
                             </#if>
                         </td>
-                        <td style="text-align: center; vertical-align: middle;">
+                        <td style="text-align: center; vertical-align: middle; width : 5%">
                             <#--
                                 2017-10-24 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) feature-78: Presentar información
                                 de la unidad del usuario destino.
@@ -95,7 +95,7 @@
                                 ${(x.textoAsignado)!"&lt;No asignado&gt;"}
                             </#if>
                         </td>
-                        <td style="text-align: center; vertical-align: middle;">
+                        <td style="text-align: center; vertical-align: middle; width : 5%">
                             <#--
                                 2017-10-24 edison.gonzalez@controltechcg.com Issue #132 
                                 (SICDI-Controltech) feature-78: Presentar información
@@ -115,7 +115,7 @@
                                 ${usuarioService.mostrarInformacionBasicaBandejas(x.usuarioUltimaAccion)}
                             </#if>
                         </td>
-                        <td style="text-align: center; vertical-align: middle;">
+                        <td style="text-align: center; vertical-align: middle; width : 5%">
                             <#if (x.plazo)?? >
                                 <span class="label label-${x.semaforo}">
                                     ${x.plazo?string('yyyy-MM-dd')}
