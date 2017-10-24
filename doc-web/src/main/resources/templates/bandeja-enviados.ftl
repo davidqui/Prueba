@@ -73,7 +73,7 @@
                         <td style="text-align: center; vertical-align: middle;">
                             ${x.cuandoMod?string('yyyy-MM-dd hh:mm a')}
                         </td>
-                        <td style="text-align: center; vertical-align: middle;">
+                        <td style="text-align: center; vertical-align: middle;middle; word-wrap: break-word;">
                             <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
@@ -83,8 +83,7 @@
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
                             <#--
-                                2017-10-24 edison.gonzalez@controltechcg.com Issue #132 
-                                (SICDI-Controltech) feature-78: Presentar información
+                                2017-10-24 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) feature-78: Presentar información
                                 de la unidad del usuario destino.
                             -->
                             ${usuarioService.mostrarInformacionUnidad(x.instancia.asignado)}

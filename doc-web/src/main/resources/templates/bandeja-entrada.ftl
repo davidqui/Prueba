@@ -52,6 +52,10 @@
                             </#if>
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
+                            <#--
+                                2017-10-24 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) feature-78: Presentar información
+                                de la unidad del usuario destino.
+                            -->
                             <#if (x.usuarioUltimaAccion)?? >
                                 ${usuarioService.mostrarInformacionUnidad(x.usuarioUltimaAccion)}
                             <#else> 
