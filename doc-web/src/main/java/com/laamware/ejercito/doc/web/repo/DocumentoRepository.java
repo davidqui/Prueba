@@ -40,7 +40,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * usuario en sesión.
      */
     String CONSULTABANDEJAENTRADA = ""
-            + "SELECT documento.*, rownum num_lineas\n"
+            + "SELECT documento.*\n"
             + "FROM documento\n"
             + "     LEFT JOIN documento_en_consulta ON (documento_en_consulta.doc_id = documento.doc_id)\n"
             + "WHERE documento.doc_id IN ( SELECT DISTINCT documento.doc_id\n"
@@ -87,7 +87,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * al usuario en sesión.
      */
     String CONSULTABANDEJAENVIADOS = ""
-            + "SELECT doc.*, rownum num_lineas\n"
+            + "SELECT doc.*\n"
             + "FROM documento doc\n"
             + "     JOIN s_instancia_usuario hpin ON doc.pin_id = hpin.pin_id\n"
             + "     JOIN proceso_instancia pin ON doc.pin_id = pin.pin_id\n"
@@ -111,7 +111,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 	 * de última modificación del documento.
      */
     String CONSULTABANDEJAENTRAMITE = ""
-            + "SELECT DOC.*, ROWNUM num_lineas\n"
+            + "SELECT DOC.*\n"
             + "FROM DOCUMENTO DOC\n"
             + "    JOIN S_INSTANCIA_USUARIO HPIN ON (DOC.PIN_ID = HPIN.PIN_ID)\n"
             + "    JOIN PROCESO_INSTANCIA   PIN  ON (DOC.PIN_ID = PIN.PIN_ID)\n"
@@ -135,7 +135,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 	 * por rango de fechas.
      */
     String CONSULTABANDEJACONSULTA = ""
-            + "SELECT DOCUMENTO.*, ROWNUM num_lineas\n"
+            + "SELECT DOCUMENTO.*\n"
             + "FROM DOCUMENTO\n"
             + "    JOIN DOCUMENTO_EN_CONSULTA ON (DOCUMENTO_EN_CONSULTA.DOC_ID = DOCUMENTO.DOC_ID)\n"
             + "    JOIN USUARIO USUARIO_QUIEN ON (USUARIO_QUIEN.USU_ID = DOCUMENTO_EN_CONSULTA.QUIEN)\n"
@@ -251,13 +251,15 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * @return Lista de bandejas de entrada.
      */
     @Query(value = ""
-            + "select documento.*\n"
+            + "select doc.*\n"
             + "from(\n"
+            + "     select doc.*, rownum num_lineas\n"
+            + "     from(\n"
             + CONSULTABANDEJAENTRADA
-            + ") documento\n"
-            + "where documento.num_lineas >= :inicio and documento.num_lineas <= :fin\n"
-            + "ORDER BY documento.cuando_mod DESC",
-            nativeQuery = true)
+            + "         ORDER BY documento.cuando_mod DESC\n"
+            + "     )doc\n"
+            + ") doc\n"
+            + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n", nativeQuery = true)
     List<Documento> findBandejaEntradaPaginado(@Param("login") String login, @Param("inicio") int inicio, @Param("fin") int fin);
 
     /**
@@ -290,10 +292,13 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     @Query(value = ""
             + "select doc.*\n"
             + "from(\n"
+            + "     select doc.*, rownum num_lineas\n"
+            + "     from(\n"
             + CONSULTABANDEJAENVIADOS
-            + ")doc\n"
-            + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n"
-            + "ORDER BY doc.cuando_mod DESC", nativeQuery = true)
+            + "         ORDER BY doc.cuando_mod DESC"
+            + "     )doc\n"
+            + ") doc\n"
+            + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n", nativeQuery = true)
     List<Documento> findBandejaEnviadosPaginado(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal, @Param("inicio") int inicio, @Param("fin") int fin);
 
     /**
@@ -324,14 +329,17 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * @return Numero de registros.
      */
     @Query(value = ""
-            + "select doc.*\n"
-            + "from(\n"
+            + "select doc.*"
+            + "from("
+            + "     select doc.*, rownum num_lineas\n"
+            + "     from(\n"
             + CONSULTABANDEJAENTRAMITE
-            + ")doc\n"
-            + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n"
-            + "ORDER BY DOC.CUANDO DESC", nativeQuery = true)
+            + "         ORDER BY doc.CUANDO DESC"
+            + "     )doc\n"
+            + ") doc\n"
+            + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n", nativeQuery = true)
     List<Documento> findBandejaTramitePaginado(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal, @Param("inicio") int inicio, @Param("fin") int fin);
-    
+
     /**
      * Obtiene el numero de registros de las bandejas de consulta por usuario y
      * fechas.
@@ -347,7 +355,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + CONSULTABANDEJACONSULTA
             + ")", nativeQuery = true)
     int findBandejaConsultaCount(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal);
-    
+
     /**
      * Obtiene la lista de registros de las bandejas de consulta por usuario y
      * fechas paginado.
@@ -360,14 +368,17 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * @return Numero de registros.
      */
     @Query(value = ""
-            + "select doc.*\n"
-            + "from(\n"
+            + "select doc.*"
+            + "from("
+            + "     select doc.*, rownum num_lineas\n"
+            + "     from(\n"
             + CONSULTABANDEJACONSULTA
-            + ")doc\n"
-            + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n"
-            + "ORDER BY DOC.CUANDO DESC", nativeQuery = true)
+            + "         ORDER BY DOCUMENTO.CUANDO DESC"
+            + "     )doc\n"
+            + ") doc\n"
+            + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n", nativeQuery = true)
     List<Documento> findBandejaConsultaPaginado(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal, @Param("inicio") int inicio, @Param("fin") int fin);
-    
+
     /*
 	 * 2017-03-27 jgarcia@controltechcg.com Issue #22 (SIGDI-Incidencias01):
 	 * Modificación de consulta SQL de la bandeja de enviados para que no
@@ -404,7 +415,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + " AND DOC.CUANDO_MOD BETWEEN ? AND ?                                               "
             + " ORDER BY DOC.CUANDO_MOD DESC                                                     ")
     List<Documento> findBandejaEnviados(String login, String loginAsignado, Date fechaInicial, Date fechaFinal);
-    
+
     /*
 	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
 	 * feature-115: Modificación de sentencia de bandeja enviados para filtro

@@ -27,8 +27,11 @@ import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.DateUtil.SetTimeType;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
@@ -126,6 +129,8 @@ public class BandejaController extends UtilController {
      * @param principal Atributos de autenticación.
      * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
      * @param fechaFinal Fecha final del rango de filtro (Opcional).
+     * @param pageIndex Indice de la pagina a mostrar (Opcional).
+     * @param pageSize Numero de registros a visualizar (Opcional).
      * @return Lista de documentos enviados del usuario.
      */
     /*
@@ -137,58 +142,90 @@ public class BandejaController extends UtilController {
     @RequestMapping(value = "/enviados", method = {RequestMethod.GET, RequestMethod.POST})
     public String enviados(Model model, Principal principal,
             @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
 
+        // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Ajuste para  
+        // dejar las fechas de filtro no obligatorias.
+        Date fechaInicialFiltro = fechaInicial;
+        Date fechaFinFiltro = fechaFinal;
         if (fechaFinal == null) {
-            fechaFinal = new Date();
+            fechaFinFiltro = new Date();
         }
-        DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
+        DateUtil.setTime(fechaFinFiltro, SetTimeType.END_TIME);
 
         if (fechaInicial == null) {
-            fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+            String dateInString = "01-01-2000 00:00:00";
+            try {
+                fechaInicialFiltro = sdf.parse(dateInString);
+            } catch (ParseException ex) {
+                Logger.getLogger(BandejaController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+;
         }
-        DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
+        DateUtil.setTime(fechaInicialFiltro, SetTimeType.START_TIME);
 
         final String login = principal.getName();
-        List<Documento> documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicial, fechaFinal);
 
-        for (Documento documento : documentos) {
-            documento.getInstancia().getCuando();
-            documento.getInstancia().setService(procesoService);
+        // 2017-10-18 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
+        // la bandeja de enviados.
+        List<Documento> documentos = null;
+        int count = bandejaService.obtenerCountBandejaEnviados(login, fechaInicialFiltro, fechaFinFiltro);
+        int totalPages = 0;
+        String labelInformacion = "";
+
+        if (count > 0) {
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+            totalPages = paginacionDTO.getTotalPages();
+            documentos = bandejaService.obtenerDocumentosBandejaEnviados(login, fechaInicialFiltro, fechaFinFiltro, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            labelInformacion = paginacionDTO.getLabelInformacion();
+        }
+
+        if (documentos != null) {
+            for (Documento documento : documentos) {
+                documento.getInstancia().getCuando();
+                documento.getInstancia().setService(procesoService);
 
             /*
-			 * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de
-			 * jefes de dependencias adicionales a un documento.
-			 * 
-			 * 2017-05-15 jgarcia@controltechcg.com Issue #78
-			 * (SICDI-Controltech) feature-78: Presentar información básica de
-			 * los usuarios asignadores y asignados en las bandejas del sistema.
-			 * 
-			 * 2017-05-24 jgarcia@controltechcg.com Issue #73
-			 * (SICDI-Controltech) feature-73: Opción para indicar si la
-			 * construcción del texto de asignados debe manejar múltiples
-			 * destinos o no.
-                         * 2017-10-24 edison.gonzalez@controltechcg.com Issue #132
-			 * (SICDI-Controltech) feature-132: Se pone en comentarios el
-                         * la signacion de la variable asignadosText al llamado del
-                         * metodo buildAsignadosText mientras se reimplementa el
-                         * multidestino
-                         *.
+             * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de
+             * jefes de dependencias adicionales a un documento.
+             * 
+             * 2017-05-15 jgarcia@controltechcg.com Issue #78
+             * (SICDI-Controltech) feature-78: Presentar información básica de
+             * los usuarios asignadores y asignados en las bandejas del sistema.
+             * 
+             * 2017-05-24 jgarcia@controltechcg.com Issue #73
+             * (SICDI-Controltech) feature-73: Opción para indicar si la
+             * construcción del texto de asignados debe manejar múltiples
+             * destinos o no.
+             *
+             * 2017-10-24 edison.gonzalez@controltechcg.com Issue #132
+             * (SICDI-Controltech) feature-132: Se pone en comentarios 
+             * la signacion de la variable asignadosText al llamado del
+             * metodo buildAsignadosText mientras se reimplementa el
+             * multidestino.
              */
             /*String asignadosText = DocumentoController.buildAsignadosText(documentoDependenciaAdicionalRepository,
                     usuarioService, documento.getInstancia(), null, true);*/
             String asignadosText = usuarioService.mostrarInformacionBasicaBandejas(documento.getInstancia().getAsignado());
             documento.setTextoAsignado(asignadosText);
+            }
         }
 
         model.addAttribute("documentos", documentos);
         model.addAttribute("fechaInicial", fechaInicial);
         model.addAttribute("fechaFinal", fechaFinal);
+        model.addAttribute("pageIndex", pageIndex);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("labelInformacion", labelInformacion);
+        model.addAttribute("pageSize", pageSize);
 
         /*
-		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
-		 * feature-78: Presentar información básica de los usuarios asignadores
-		 * y asignados en las bandejas del sistema.
+            * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+            * feature-78: Presentar información básica de los usuarios asignadores
+            * y asignados en las bandejas del sistema.
          */
         model.addAttribute("usuarioService", usuarioService);
 
