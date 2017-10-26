@@ -106,7 +106,7 @@
                     Botón para acceder al módulo de transferencia de archivo.
                 -->
                 <li class="nav-item">
-                    <a href="/transferencia-archivo/crear" class="btn btn-secondary btn-sm">
+                    <a href="/transferencia-archivo/crear" class="btn btn-warning btn-sm">
                         <span class="hidden-md-down">Transferencia de Archivo</span>
                         <span class="hidden-lg-up">TAR</span>
                         </a>
