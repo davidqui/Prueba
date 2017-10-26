@@ -1,7 +1,9 @@
+<#setting number_format="computer">
 <#if !pageTitle??>
     <#assign pageTitle = "Bandeja de consulta" />
 </#if>
 <#include "bandeja-header.ftl">
+<#include "gen-paginacion.ftl">
 
 <#if error??> 
   <div class="jumbotron">
@@ -26,12 +28,13 @@
     </#if>
 	  
     <form action="/bandeja/apoyo-consulta" method="POST" class="form-inline">
-        <div class="form-group">
-            <label for="fechaInicial">Fecha Inicial</label>
+        <label for="fechaInicial">Fecha Inicial</label>
+        <div class="form-group input-group">
             <input class="form-control datepicker" id="fechaInicial" name="fechaInicial" value="${fechaInicialValor}" />
         </div>
-        <div class="form-group">
-            <label>Fecha Final</label>
+        
+        <label>Fecha Final</label>
+        <div class="form-group input-group">
             <input class="form-control datepicker" id="fechaFinal" name="fechaFinal" value="${fechaFinalValor}" />
         </div>
         <button type="submit" class="btn btn-success">Buscar</button>
@@ -71,7 +74,7 @@
                         <td style="text-align: center; vertical-align: middle; width : 10%">
                             ${x.cuando?string('yyyy-MM-dd hh:mm a')}
                         </td>
-                        <td style="text-align: center">
+                        <td style="text-align: center; vertical-align: middle;">
                             <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                         </td>
                         <td style="text-align: center; vertical-align: middle; width : 5%">
@@ -86,7 +89,7 @@
                             -->
                             ${usuarioService.mostrarInformacionUnidad(x.instancia.asignado)}
                         </td>
-                        <td style="text-align: center">
+                        <td style="text-align: center; vertical-align: middle;">
                             <#if (x.instancia.asignado)??>
                                 <#--
                                     2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78:
@@ -108,7 +111,7 @@
                                 ${usuarioService.mostrarInformacionUnidad(x.instancia.asignado)}
                             </#if>
                         </td>
-                        <td style="text-align: center">
+                        <td style="text-align: center; vertical-align: middle;">
                             <#if (x.usuarioUltimaAccion)?? >
                                 ${usuarioService.mostrarInformacionBasicaBandejas(x.usuarioUltimaAccion)}
                             <#else> 
@@ -130,6 +133,24 @@
                 </#list>
             </tbody>
         </table>
+        <#if totalPages gt 0>
+            <@printBar url="/bandeja/apoyo-consulta" params={"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor}/>
+        </#if>
     </#if>
 </#if>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#fechaInicial').prop('readonly', true);
+        $('#fechaFinal').prop('readonly', true);
+
+        $('#fechaInicial').each(function() {
+            var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn btn-warning\" >Limpiar</div>";
+            $(this).parent().append(buton);
+        });
+        $('#fechaFinal').each(function() {
+            var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn btn-warning\" >Limpiar</div>";
+            $(this).parent().append(buton);
+        });
+    });
+</script>
 <#include "bandeja-footer.ftl">

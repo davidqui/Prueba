@@ -27,11 +27,7 @@ import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.DateUtil.SetTimeType;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
@@ -320,6 +316,8 @@ public class BandejaController extends UtilController {
      * @param principal Principal.
      * @param fechaInicial Fecha inicial del rango de filtro (Opcional).
      * @param fechaFinal Fecha final del rango de filtro (Opcional).
+     * @param pageIndex Indice de la pagina a mostrar (Opcional).
+     * @param pageSize Numero de registros a visualizar (Opcional).
      * @return Identificador del template de la bandeja.
      */
     @PreAuthorize("hasRole('BANDEJAS')")
@@ -333,29 +331,54 @@ public class BandejaController extends UtilController {
      */
     public String apoyoConsulta(Model model, Principal principal,
             @RequestParam(required = false, value = "fechaInicial") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicial,
-            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal) {
+            @RequestParam(required = false, value = "fechaFinal") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinal,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
 
+        // 2017-10-26 edison.gonzalez@controltechcg.com Issue #132 Ajuste para  
+        // dejar las fechas de filtro no obligatorias.
+        Date fechaInicialFiltro = fechaInicial;
+        Date fechaFinFiltro = fechaFinal;
         if (fechaFinal == null) {
-            fechaFinal = new Date();
+            fechaFinFiltro = new Date();
         }
-        DateUtil.setTime(fechaFinal, SetTimeType.END_TIME);
+        DateUtil.setTime(fechaFinFiltro, SetTimeType.END_TIME);
 
         if (fechaInicial == null) {
-            fechaInicial = DateUtil.add(new Date(fechaFinal.getTime()), Calendar.DATE, -bandejaService.getNumeroDias());
+            fechaInicialFiltro = DateUtil.obtenerFechaInicialFiltroBandeja();
         }
-        DateUtil.setTime(fechaInicial, SetTimeType.START_TIME);
+        DateUtil.setTime(fechaInicialFiltro, SetTimeType.START_TIME);
 
         final String login = principal.getName();
-        final List<Documento> documentos = bandejaService.obtenerDocumentosBandejaApoyoConsulta(login, fechaInicial, fechaFinal);
 
-        for (Documento documento : documentos) {
-            documento.getInstancia().getCuando();
-            documento.getInstancia().setService(procesoService);
+        // 2017-10-25 edison.gonzalez@controltechcg.com Issue #132 Paginacion de 
+        // la bandeja de tramites.
+        List<Documento> documentos = null;
+        int count = bandejaService.obtenerCountBandejaConsulta(login, fechaInicialFiltro, fechaFinFiltro);
+        int totalPages = 0;
+        String labelInformacion = "";
+
+        if (count > 0) {
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+            totalPages = paginacionDTO.getTotalPages();
+            documentos = bandejaService.obtenerDocumentosBandejaConsulta(login, fechaInicialFiltro, fechaFinFiltro, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            labelInformacion = paginacionDTO.getLabelInformacion();
+        }
+
+        if (documentos != null) {
+            for (Documento documento : documentos) {
+                documento.getInstancia().getCuando();
+                documento.getInstancia().setService(procesoService);
+            }
         }
 
         model.addAttribute("documentos", documentos);
         model.addAttribute("fechaInicial", fechaInicial);
         model.addAttribute("fechaFinal", fechaFinal);
+        model.addAttribute("pageIndex", pageIndex);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("labelInformacion", labelInformacion);
+        model.addAttribute("pageSize", pageSize);
 
         /*
 		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
