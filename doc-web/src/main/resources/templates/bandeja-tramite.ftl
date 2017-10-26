@@ -135,6 +135,24 @@
             2017-10-20 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech feature-132:
             Se agrega items de visualizacion para la paginacion.
         -->
+        <#if totalPages gt 0>
+            <@printBar url="/bandeja/entramite" params={"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor}/>
+        </#if>
     </#if>
 </#if>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#fechaInicial').prop('readonly', true);
+        $('#fechaFinal').prop('readonly', true);
+
+        $('#fechaInicial').each(function() {
+            var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn btn-warning\" >Limpiar</div>";
+            $(this).parent().append(buton);
+        });
+        $('#fechaFinal').each(function() {
+            var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn btn-warning\" >Limpiar</div>";
+            $(this).parent().append(buton);
+        });
+    });
+</script>
 <#include "bandeja-footer.ftl">
