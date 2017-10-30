@@ -27,8 +27,21 @@
                         <li class="page-item disabled"><a class="page-link"><<</a></li>
                         <li class="page-item disabled"><a class="page-link"><</a></li>
                     </#if>
-
-                    <li class="page-item"><a href="${url}?pageIndex=${pageIndex}&pageSize=${pageSize}${parametros}" class="page-link">${pageIndex}</a></li>
+                    
+                    <#list 1..totalPages as i>
+                        <#if ((pageIndex - 2 == i && pageIndex - 2 gt 0 ) || (pageIndex - 1 == i && pageIndex - 1 gt 0))>
+                            <li class="page-item" ><a href="${url}?pageIndex=${i}&pageSize=${pageSize}${parametros}" class="page-link">${i}</a></li>
+                        </#if>
+                        <#if pageIndex == i>
+                            <li class="page-item" ><a href="${url}?pageIndex=${i}&pageSize=${pageSize}${parametros}" class="page-link" style="background-color: gray; color:white; font-weight: bold;">${i}</a></li>
+                        </#if>
+                        <#if ((pageIndex + 2 == i && pageIndex + 2 lt totalPages+1 ) || (pageIndex + 1 == i && pageIndex + 1 lt totalPages+1))>
+                            <li class="page-item" ><a href="${url}?pageIndex=${i}&pageSize=${pageSize}${parametros}" class="page-link">${i}</a></li>
+                        </#if>
+                        <#if pageIndex + 2 lt totalPages && i == totalPages>
+                            <li class="page-item" ><a href="${url}?pageIndex=${i}&pageSize=${pageSize}${parametros}" class="page-link">${i}</a></li>
+                        </#if>
+                    </#list>
 
                     <#if pageIndex lt (totalPages)>
                         <li class="page-item"><a href="${url}?pageIndex=${pageIndex + 1}&pageSize=${pageSize}${parametros}" class="page-link">></a></li>
