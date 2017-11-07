@@ -54,7 +54,7 @@
             Ajuste visual de informacion en tabla.
         -->
         </br>
-        <table class="table table-striped table-bordered table-responsive" style="table-layout: fixed">
+        <table class="table table-striped table-responsive" style="table-layout: fixed">
             <thead>
                 <tr>
                     <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 10%">FECHA ENVÍO</td>
