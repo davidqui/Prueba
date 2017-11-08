@@ -15,7 +15,7 @@
     <center>
         <div class="row">
             <div class="col-sm-5">
-                <div class="dataTables_info">${labelInformacion}</div>
+                <div class="dataTables_info"><h5><span class = "label label-default">${labelInformacion}</span></h5></div>
             </div>
             <div class="col-sm-3">
                 <ul class="dataTables_paginate">
