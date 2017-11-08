@@ -1,9 +1,7 @@
 -- ------------------------------------------------------------ 
--- 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
--- feature-129: Corrección para agregar la lógica en las funciones 
--- FN_PDF_DOC_PREVIEW y FN_PDF_RADIOGRAMA_MAIN para establecer el valor del 
--- grado, marca de agua y restriccion de difusion, correspondientes al campo 84,
--- 85 y 86 de la tabla DOCUMENTO_PDF.
+-- 2017-11-08 edison.gonzalez@controltechcg.com Issue #137 (SICDI-Controltech)
+-- issue-137: Se agrega las lienas de mando para las dependencias BASEC1, BASEC2,
+-- BASEC3, BASEC4, BASEC5.
 -- ------------------------------------------------------------
 
 create or replace FUNCTION "FN_PDF_DOC_PREVIEW" 
