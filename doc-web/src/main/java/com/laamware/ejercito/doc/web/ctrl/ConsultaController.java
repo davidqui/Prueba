@@ -155,8 +155,6 @@ public class ConsultaController extends UtilController {
             return "consulta-parametros";
         }
 
-        System.err.println("term= " + term);
-
         boolean sameValue = term != null;
 
         /*
@@ -188,7 +186,6 @@ public class ConsultaController extends UtilController {
         model.addAttribute("labelInformacion", labelInformacion);
         model.addAttribute("pageSize", pageSize);
 
-        System.err.println("asunto= " + asunto);
         model.addAttribute("asignado", asignado);
         model.addAttribute("asunto", asunto);
         model.addAttribute("fechaInicio", fechaInicio);
@@ -264,7 +261,7 @@ public class ConsultaController extends UtilController {
         return clasificacionRepository.findByActivo(true, new Sort(Direction.ASC, "orden"));
     }
 
-    // 2017-10-17 edison.gonzalez@controltechcg.com Issue #132 
+    // 2017-11-10 edison.gonzalez@controltechcg.com Issue #136 
     //Lista desplegable para la paginación.
     @ModelAttribute("pageSizes")
     public List<Integer> pageSizes(Model model) {

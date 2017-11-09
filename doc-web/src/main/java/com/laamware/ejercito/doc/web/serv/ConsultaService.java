@@ -17,17 +17,18 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 /**
- * Servicio que permite realizar el motor de busqueda.
+ * Servicio que permite realizar tareas asociadas al motor de busqueda.
  *
  * @author edison.gonzalez@controltechcg.com
- * @since Octrubre 31, 2017
+ * @since November 11, 2017
  *
  */
-// 2017-10-31 edison.gonzalez@controltechcg.com Issue #136 (SICDI-Controltech)
+// 2017-11-09 edison.gonzalez@controltechcg.com Issue #136 (SICDI-Controltech)
 @Service
 public class ConsultaService {
 
@@ -48,6 +49,22 @@ public class ConsultaService {
         AND, OR;
     }
 
+    /**
+     * Metodo que permite retornar la cantidad de registros de la consulta del
+     * motor de busqueda, de acuerdo a los filtros.
+     * @param asignado
+     * @param asunto
+     * @param fechaInicio
+     * @param fechaFin
+     * @param radicado
+     * @param destinatario
+     * @param clasificacion
+     * @param dependenciaDestino
+     * @param dependenciaOrigen
+     * @param sameValue
+     * @param usuarioID
+     * @return 
+     */
     public int retornaCountConsultaMotorBusqueda(String asignado, String asunto, String fechaInicio,
             String fechaFin, String radicado, String destinatario,
             Integer clasificacion, Integer dependenciaDestino, Integer dependenciaOrigen, boolean sameValue, Integer usuarioID) {
@@ -63,17 +80,32 @@ public class ConsultaService {
                 + sql.toString()
                 + ")\n";
 
-        System.err.println("count= " + count);
-        System.err.println("parameters= " + java.util.Arrays.toString(parameters.toArray()));
         int i = 0;
         try {
             i = jdbcTemplate.queryForObject(count, parameters.toArray(), Integer.class);
-        } catch (Exception e) {
-            System.err.println("e= " + e);
+        } catch (DataAccessException e) {
         }
         return i;
     }
 
+    /**
+     * Metodo que permite retornar la lista de registros de la consulta del
+     * motor de busqueda, de acuerdo a los filtros.
+     * @param asignado
+     * @param asunto
+     * @param fechaInicio
+     * @param fechaFin
+     * @param radicado
+     * @param destinatario
+     * @param clasificacion
+     * @param dependenciaDestino
+     * @param dependenciaOrigen
+     * @param sameValue
+     * @param usuarioID
+     * @param inicio
+     * @param fin
+     * @return 
+     */
     public List<DocumentoDTO> retornaConsultaMotorBusqueda(String asignado, String asunto, String fechaInicio,
             String fechaFin, String radicado, String destinatario,
             Integer clasificacion, Integer dependenciaDestino, Integer dependenciaOrigen, boolean sameValue, Integer usuarioID, int inicio, int fin) {
@@ -96,8 +128,6 @@ public class ConsultaService {
         parameters.add(inicio);
         parameters.add(fin);
 
-        System.err.println("CONSULTA PRINCIPAL= " + consulta);
-        System.err.println("parameters= " + java.util.Arrays.toString(parameters.toArray()));
         return jdbcTemplate.query(consulta, parameters.toArray(), new RowMapper<DocumentoDTO>() {
             @Override
             public DocumentoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -111,7 +141,8 @@ public class ConsultaService {
     }
 
     /**
-     * Verifica si los parametros del motor de busqueda se encuentran vacios
+     * Metodo que arma los filtros de la consulta del motor de busqueda de acuerdo
+     * a los filtros de la pantalla.
      *
      * @param sql
      * @param asignado
@@ -120,7 +151,6 @@ public class ConsultaService {
      * @param fechaFin
      * @param radicado
      * @param destinatario
-     * @param remitente
      * @param clasificacion
      * @param sameValue
      * @param dependenciaDestino
@@ -292,7 +322,7 @@ public class ConsultaService {
         // Issue #136
         if (dependenciaOrigen != null) {
             // Issue #136
-            sql.append(hasConditions ? operator.name() : "").append(" DEP_ORIGEN.DEP_ORI_ID = ? \n");
+            sql.append(hasConditions ? operator.name() : "").append(" DEP_ORIGEN.DEP_ID = ? \n");
             parameters.add(dependenciaOrigen);
             hasConditions = true;
         }
@@ -333,6 +363,9 @@ public class ConsultaService {
         }
     }
 
+    /**
+     * Metodo que permite retornar la consulta principal del motor de busqueda.
+    */
     private StringBuilder retornaConsultaPrincipal() {
         // 2017-02-17 jgarcia@controltechcg.com Issue #128: Se corrige sentencia
         // SQL para evitar repetición de la información.
@@ -371,7 +404,7 @@ public class ConsultaService {
                 + "LEFT JOIN USUARIO USU_VBUENO             ON (DOC.USU_ID_VISTO_BUENO      = USU_VBUENO.USU_ID) \n"
                 + "LEFT JOIN USUARIO USU_FIRMA              ON (DOC.USU_ID_FIRMA            = USU_FIRMA.USU_ID) \n"
                 + "LEFT JOIN CLASIFICACION                  ON (DOC.CLA_ID                  = CLASIFICACION.CLA_ID) \n"
-                + "LEFT JOIN (SELECT CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, DEP_ID FROM DEPENDENCIA START WITH DEP_PADRE IS NULL CONNECT BY DEP_PADRE = PRIOR DEP_ID ) DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ULT_ACCION.DEP_ID )\n"
+                + "LEFT JOIN (SELECT CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, DEP_ID FROM DEPENDENCIA START WITH DEP_PADRE IS NULL CONNECT BY DEP_PADRE = PRIOR DEP_ID ) DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ELABORA.DEP_ID )\n"
                 + "WHERE 1 = 1 \n");
     }
 }
