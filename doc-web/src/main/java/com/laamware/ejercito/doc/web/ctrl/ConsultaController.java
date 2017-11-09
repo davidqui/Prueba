@@ -165,9 +165,10 @@ public class ConsultaController extends UtilController {
         Usuario usuario = getUsuario(principal);
         Integer usuarioID = usuario.getId();
         expedientes(model, principal);
-
+        
         List<DocumentoDTO> documentos = null;
         int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID);
+        System.err.println("count= "+count);
         int totalPages = 0;
         String labelInformacion = "";
 

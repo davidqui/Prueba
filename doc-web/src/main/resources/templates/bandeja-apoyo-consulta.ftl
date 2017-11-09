@@ -103,10 +103,10 @@
                             <#--
                                 2017-10-24 edison.gonzalez@controltechcg.com Issue #132 
                                 (SICDI-Controltech) feature-78: Presentar información
-                                de la unidad del usuario asignado.
+                                de la unidad del usuario quien creo el documento.
                             -->
-                            <#if (x.usuarioUltimaAccion)?? >
-                                ${usuarioService.mostrarInformacionUnidad(x.usuarioUltimaAccion)}
+                            <#if (x.elabora)?? >
+                                ${usuarioService.mostrarInformacionUnidad(x.elabora)}
                             <#else> 
                                 ${usuarioService.mostrarInformacionUnidad(x.instancia.asignado)}
                             </#if>

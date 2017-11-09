@@ -80,6 +80,7 @@ public class ConsultaService {
                 + sql.toString()
                 + ")\n";
 
+        System.err.println(sql.toString());
         int i = 0;
         try {
             i = jdbcTemplate.queryForObject(count, parameters.toArray(), Integer.class);

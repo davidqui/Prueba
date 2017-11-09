@@ -383,11 +383,23 @@
 </div>
 
 </div>
-<#include "footer.ftl" />
-
 <script type="text/javascript">
+    
+    $('#fechaInicio').prop('readonly', true);
+    $('#fechaFin').prop('readonly', true);
+
+    $('#fechaInicio').each(function() {
+        var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn btn-warning\" >Limpiar</div>";
+        $(this).parent().append(buton);
+    });
+    $('#fechaFin').each(function() {
+        var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn btn-warning\" >Limpiar</div>";
+        $(this).parent().append(buton);
+    }); 
+        
     $('#clasificacionSelect').change(function () {
         $("#clasificacion").val($('#clasificacionSelect').val());
         $("#clasificacionNombre").val($("#clasificacionSelect option:selected").text());
     });
 </script>
+<#include "footer.ftl" />
