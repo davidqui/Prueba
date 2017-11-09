@@ -163,7 +163,7 @@
             Se agrega items de visualizacion para la paginacion.
         -->
         <#if totalPages gt 0>
-            <@printBar url="/consulta/parametros" params={"asignado":asignado,"asunto": asunto,"fechaInicio":fechaInicio,"fechaFin":fechaFin,"radicado":radicado,"destinatario":destinatario,"clasificacion":clasificacion, "dependenciaDestino":dependenciaDestino,"dependenciaOrigen":dependenciaOrigen,"term":term,"clasificacionNombre":clasificacionNombre,"dependenciaOrigenDescripcion":dependenciaOrigenDescripcion,"dependenciaDestinoDescripcion":dependenciaDestinoDescripcion}/>
+            <@printBar url="/consulta/parametros" params={"asignado":asignado,"asunto": asunto,"fechaInicio":fechaInicio,"fechaFin":fechaFin,"radicado":radicado,"destinatario":destinatario,"clasificacion":clasificacion, "dependenciaDestino":dependenciaDestino,"dependenciaOrigen":dependenciaOrigen,"term":term,"clasificacionNombre":clasificacionNombre,"dependenciaOrigenDescripcion":dependenciaOrigenDescripcion,"dependenciaDestinoDescripcion":dependenciaDestinoDescripcion} metodo="post"/>
         </#if>
     </div>
 </#if>

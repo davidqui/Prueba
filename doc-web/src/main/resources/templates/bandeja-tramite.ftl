@@ -136,7 +136,7 @@
             Se agrega items de visualizacion para la paginacion.
         -->
         <#if totalPages gt 0>
-            <@printBar url="/bandeja/entramite" params={"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor}/>
+            <@printBar url="/bandeja/entramite" params={"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor} metodo="get"/>
         </#if>
     </#if>
 </#if>

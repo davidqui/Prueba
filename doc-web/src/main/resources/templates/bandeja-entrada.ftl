@@ -91,7 +91,7 @@
             Se agrega items de visualizacion para la paginacion.
         -->
         <#if totalPages gt 0>
-            <@printBar url="/bandeja/entrada" />
+            <@printBar url="/bandeja/entrada" metodo="get"/>
         </#if>
     </#if>
 </#if>

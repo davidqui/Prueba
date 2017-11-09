@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -31,6 +33,8 @@ import org.springframework.jdbc.core.RowMapper;
 // 2017-11-09 edison.gonzalez@controltechcg.com Issue #136 (SICDI-Controltech)
 @Service
 public class ConsultaService {
+    
+    private static final Logger LOG = Logger.getLogger(ConsultaService.class.getName());
 
     @Autowired
     private DataSource dataSource;
@@ -68,7 +72,9 @@ public class ConsultaService {
     public int retornaCountConsultaMotorBusqueda(String asignado, String asunto, String fechaInicio,
             String fechaFin, String radicado, String destinatario,
             Integer clasificacion, Integer dependenciaDestino, Integer dependenciaOrigen, boolean sameValue, Integer usuarioID) {
-
+        
+        
+        LOG.log(Level.INFO, "retornaConsultaPrincipal");
         StringBuilder sql = retornaConsultaPrincipal();
         LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID);
 
@@ -86,6 +92,7 @@ public class ConsultaService {
             i = jdbcTemplate.queryForObject(count, parameters.toArray(), Integer.class);
         } catch (DataAccessException e) {
         }
+        LOG.log(Level.INFO, "retorna count");
         return i;
     }
 

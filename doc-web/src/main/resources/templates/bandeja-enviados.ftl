@@ -132,7 +132,7 @@
         </table>
 
         <#if totalPages gt 0>
-            <@printBar url="/bandeja/enviados" params={"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor}/>
+            <@printBar url="/bandeja/enviados" params={"fechaInicial": fechaInicialValor, "fechaFinal": fechaFinalValor} metodo="get"/>
         </#if>
     </#if>
 </#if>

@@ -32,10 +32,14 @@ import com.laamware.ejercito.doc.web.serv.ConsultaService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Controller
 @RequestMapping(value = ConsultaController.PATH)
 public class ConsultaController extends UtilController {
+    
+    private static final Logger LOG = Logger.getLogger(ConsultaController.class.getName());
 
     public static final String PATH = "/consulta";
 
@@ -117,7 +121,7 @@ public class ConsultaController extends UtilController {
          * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Se agrega la 
          * variable dependencia de origen para aplicarla al filtro
      */
-    @RequestMapping(value = "/parametros", method = RequestMethod.GET)
+    @RequestMapping(value = "/parametros", method = {RequestMethod.GET, RequestMethod.POST})
     public String buscar(Model model, @RequestParam(value = "asignado", required = false) String asignado,
             @RequestParam(value = "asunto", required = false) String asunto,
             @RequestParam(value = "fechaInicio", required = false) String fechaInicio,
@@ -138,6 +142,7 @@ public class ConsultaController extends UtilController {
         // Issue #105, Issue #128
         Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen};
 
+        LOG.log(Level.INFO, "iniciando metodo");
         boolean parametrosVacios = true;
         for (Object arg : args) {
             if (arg != null) {
@@ -150,7 +155,7 @@ public class ConsultaController extends UtilController {
                 }
             }
         }
-
+        LOG.log(Level.INFO, "verificando parametros vacios");
         if (parametrosVacios) {
             return "consulta-parametros";
         }
@@ -166,19 +171,23 @@ public class ConsultaController extends UtilController {
         Integer usuarioID = usuario.getId();
         expedientes(model, principal);
         
+        LOG.log(Level.INFO, "verificando count");
         List<DocumentoDTO> documentos = null;
         int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID);
-        System.err.println("count= "+count);
+        LOG.log(Level.INFO, "verificando count ]= "+count);
         int totalPages = 0;
         String labelInformacion = "";
 
         if (count > 0) {
+            LOG.log(Level.INFO, "parametros de paginacion");
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
+            LOG.log(Level.INFO, "consulta completa");
             documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 
+        LOG.log(Level.INFO, "terminando");
         // System.out.println("documentos.size()=" + documentos.size());
         model.addAttribute("totalResultados", documentos != null ? documentos.size() : 0);
         model.addAttribute("documentos", documentos);
