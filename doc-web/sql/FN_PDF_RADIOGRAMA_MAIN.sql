@@ -1,9 +1,7 @@
 -- ------------------------------------------------------------ 
--- 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
--- feature-129: Corrección para agregar la lógica en las funciones 
--- FN_PDF_DOC_PREVIEW y FN_PDF_RADIOGRAMA_MAIN para establecer el valor del 
--- grado, marca de agua y restriccion de difusion, correspondientes al campo 84,
--- 85 y 86 de la tabla DOCUMENTO_PDF.
+-- 2017-11-08 edison.gonzalez@controltechcg.com Issue #137 (SICDI-Controltech)
+-- issue-137: Se agrega las lienas de mando para las dependencias BASEC1, BASEC2,
+-- BASEC3, BASEC4, BASEC5.
 -- ------------------------------------------------------------
 
 create or replace FUNCTION "FN_PDF_RADIOGRAMA_MAIN" 
@@ -382,8 +380,12 @@ BEGIN
     ELSIF V_SIGLA_CORTA_DE = 'BASMI5' THEN
       V_SIGLA_LARGA_DE := 'BATALLÓN DE SEGURIDAD MILITAR No 5';
       V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM2-';
-    ELSIF V_SIGLA_CORTA_DE = 'BASEC' THEN
-      V_SIGLA_LARGA_DE := 'BATALLÓN DE SEGURIDAD CIVIL';
+    /*
+    2017-11-8 edison.gonzalez@controltechcg.com Issue #137 (SICDI-Controltech)
+    Issue-137: Ajuste del nombre de la dependencia BASEC POR BASEC5.
+    */
+    ELSIF V_SIGLA_CORTA_DE = 'BASEC5' THEN
+      V_SIGLA_LARGA_DE := 'BATALLÓN DE SEGURIDAD CIVIL No 5';
       V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM2-';
     ELSIF V_SIGLA_CORTA_DE = 'BAGOP' THEN
       V_SIGLA_LARGA_DE := 'BATALLÓN DE GESTIÓN OPERACIONAL DE INTELIGENCIA Y CONTRAINTELIGENCIA';
@@ -427,6 +429,23 @@ BEGIN
     ELSIF V_SIGLA_CORTA_DE = 'BACIF5' THEN
       V_SIGLA_LARGA_DE := 'BATALLON DE CONTRAINTELIGENCIA DE FRONTERAS N0. 5';
       V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM1-';
+    /*
+    2017-11-8 edison.gonzalez@controltechcg.com Issue #137 (SICDI-Controltech)
+    Issue-137: Se añaden las lineas de mando de las dependencias (BASEC1,BASEC2,
+    BASEC3,BASEC4).
+    */
+    ELSIF V_SIGLA_CORTA_DE = 'BASEC1' THEN
+      V_SIGLA_LARGA_DE := 'BATALLÓN DE SEGURIDAD CIVIL No 1';
+      V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM2-';
+    ELSIF V_SIGLA_CORTA_DE = 'BASEC2' THEN
+      V_SIGLA_LARGA_DE := 'BATALLÓN DE SEGURIDAD CIVIL No 2';
+      V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM2-';
+    ELSIF V_SIGLA_CORTA_DE = 'BASEC3' THEN
+      V_SIGLA_LARGA_DE := 'BATALLÓN DE SEGURIDAD CIVIL No 3';
+      V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM2-';
+    ELSIF V_SIGLA_CORTA_DE = 'BASEC4' THEN
+      V_SIGLA_LARGA_DE := 'BATALLÓN DE SEGURIDAD CIVIL No 4';
+      V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM2-';
     ELSE
       V_SIGLA_LARGA_DE := '';
       V_PADRE_ORIGEN := '';
