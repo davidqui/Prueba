@@ -440,4 +440,12 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + " ORDER BY                                                                         "
             + " DOC.CUANDO DESC                                                                  ")
     List<Documento> findBandejaTramite(String name, Date fechaInicial, Date fechaFinal);
+
+    /*
+	 * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138 (SICDI-Controltech)
+	 * feature-138: Creacion de la nueva funcion para generar el numero de radicado,
+         * segun la dependencia y el id del proceso.
+     */
+    @Query(nativeQuery = true, value = "select FN_GENERA_NUM_RADICADO(?,?) from dual")
+    String getNumeroRadicado(Integer depId, Integer radId);
 }

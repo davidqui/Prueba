@@ -7,33 +7,36 @@
 -- -----------------------------------------------------------------------------
 -- 2017-11-14 edison.gonzalez@controltechcg.com Feature #138 (SICDI-Controntech)
 -- feature-138
--- Creación de la tabla que relaciona el proceso con el indicativo del numero
--- de radicado.
+-- Creación de la tabla en la cual se parametriza la relacion entre el proceso y
+-- el indicativo del numero de radicado.
 -- -----------------------------------------------------------------------------
 
-CREATE TABLE "DOC"."PROCESO_RADICADO"(
-    "ID"            NUMBER(*,0) NOT NULL ENABLE, 
-    "PRO_ID"        NUMBER(*,0), 
-    "INDICATIVO"    NUMBER(1)   NOT NULL ENABLE, 
-    CONSTRAINT "PROCESO_RADICADO_PK" PRIMARY KEY ("ID"),
-    CONSTRAINT FK_PROCESO_RADICADO_1
-    FOREIGN KEY (PRO_ID)
+CREATE TABLE "DOC"."RADICACION"(
+    "RAD_ID"            NUMBER(*,0)     NOT NULL ENABLE,
+    "RAD_NOMBRE"        VARCHAR2(50),
+    "RAD_INDICATIVO"    NUMBER(1)       NOT NULL ENABLE,
+    "SECUENCIA"         VARCHAR2(32)    NOT NULL ENABLE,
+    "PROCESO"           NUMBER(*,0),
+    CONSTRAINT "PROCESO_RADICADO_PK" PRIMARY KEY ("RAD_ID"),
+    CONSTRAINT FK_RADICACION_1
+    FOREIGN KEY (PROCESO)
     REFERENCES PROCESO(PRO_ID)
 );
 
 -- INDEX
 
-CREATE INDEX PROCESO_RADICADO_IDX1 ON PROCESO_RADICADO(PRO_ID);
+CREATE INDEX RADICACION_IDX1 ON RADICACION(PROCESO);
 
 -- SEQUENCE
 
-CREATE SEQUENCE  "DOC"."PROCESO_RADICADO_SEQ"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 100;
+CREATE SEQUENCE  "DOC"."RADICACION_SEQ"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 100;
 
 -- DATOS
 
-INSERT INTO "DOC"."PROCESO_RADICADO" (ID, PRO_ID, INDICATIVO) VALUES ('1', '9', '1');
-INSERT INTO "DOC"."PROCESO_RADICADO" (ID, PRO_ID, INDICATIVO) VALUES ('2', '8', '2');
-INSERT INTO "DOC"."PROCESO_RADICADO" (ID, PRO_ID, INDICATIVO) VALUES ('3', '41', '3');
+INSERT INTO "DOC"."RADICACION" (RAD_ID, RAD_NOMBRE, RAD_INDICATIVO, SECUENCIA, PROCESO) VALUES ('1', 'Radicado para registro de documentos', '1', 'RADICADO_REGISTRO', '9');
+INSERT INTO "DOC"."RADICACION" (RAD_ID, RAD_NOMBRE, RAD_INDICATIVO, SECUENCIA, PROCESO) VALUES ('2', 'Radicado para registro de documentos internos', '2', 'RADICADO_INTERNO', '8');
+INSERT INTO "DOC"."RADICACION" (RAD_ID, RAD_NOMBRE, RAD_INDICATIVO, SECUENCIA, PROCESO) VALUES ('3', 'Radicado para registro de documentos externos', '3', 'RADICADO_EXTERNO', '41');
+INSERT INTO "DOC"."RADICACION" (RAD_ID, RAD_NOMBRE, RAD_INDICATIVO, SECUENCIA, PROCESO) VALUES ('4', 'Radicado para transferencia de archivo', '2', 'RADICADO_INTERNO', null);
 
 COMMIT;
 
