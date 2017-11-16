@@ -28,10 +28,12 @@ begin
     -- Se realiza la independencia de la secuencia del radicado, dependiendo del tipo
     -- de radicado.
 
-    select rad_indicativo, secuencia
+    select a.rad_indicativo, b.seq_nombre
     into v_dig, v_seqn
-    from RADICACION
-    where rad_id = p_rad_id;
+    from RADICACION a,
+         SECUENCIA_RADICACION b
+    where b.seq_id = a.secuencia
+    and a.rad_id = p_rad_id;
 
     v_select := 'select lpad(to_char('||v_seqn||'.nextval), 7, ''0'') from dual';
     execute immediate v_select into v_seq;

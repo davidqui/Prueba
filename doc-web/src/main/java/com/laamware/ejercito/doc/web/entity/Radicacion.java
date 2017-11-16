@@ -9,6 +9,8 @@ import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -16,6 +18,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
 /**
  *
@@ -25,17 +29,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "RADICACION")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Radicacion.findAll", query = "SELECT r FROM Radicacion r")
-    , @NamedQuery(name = "Radicacion.findByRadId", query = "SELECT r FROM Radicacion r WHERE r.radId = :radId")
-    , @NamedQuery(name = "Radicacion.findByRadNombre", query = "SELECT r FROM Radicacion r WHERE r.radNombre = :radNombre")
-    , @NamedQuery(name = "Radicacion.findByRadIndicativo", query = "SELECT r FROM Radicacion r WHERE r.radIndicativo = :radIndicativo")
-    , @NamedQuery(name = "Radicacion.findBySecuencia", query = "SELECT r FROM Radicacion r WHERE r.secuencia = :secuencia")})
+    @NamedQuery(name = "Radicacion.findAll", query = "SELECT r FROM Radicacion r")})
 public class Radicacion implements Serializable {
 
-    private static final long serialVersionUID = -4480362290369650889L;
-
+    private static final long serialVersionUID = 1L;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Id
+    @GenericGenerator(name = "RADICACION_SEQ", strategy = "sequence", parameters = {
+			@Parameter(name = "sequence", value = "RADICACION_SEQ"),
+			@Parameter(name = "allocationSize", value = "1") })
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RADICACION_SEQ")
     @Basic(optional = false)
     @Column(name = "RAD_ID")
     private Integer radId;
@@ -43,13 +46,13 @@ public class Radicacion implements Serializable {
     private String radNombre;
     @Basic(optional = false)
     @Column(name = "RAD_INDICATIVO")
-    private Integer radIndicativo;
-    @Basic(optional = false)
-    @Column(name = "SECUENCIA")
-    private String secuencia;
+    private short radIndicativo;
     @JoinColumn(name = "PROCESO", referencedColumnName = "PRO_ID")
     @ManyToOne
     private Proceso proceso;
+    @JoinColumn(name = "SECUENCIA", referencedColumnName = "SEQ_ID")
+    @ManyToOne(optional = false)
+    private SecuenciaRadicacion secuencia;
 
     public Radicacion() {
     }
@@ -58,10 +61,9 @@ public class Radicacion implements Serializable {
         this.radId = radId;
     }
 
-    public Radicacion(Integer radId, Integer radIndicativo, String secuencia) {
+    public Radicacion(Integer radId, short radIndicativo) {
         this.radId = radId;
         this.radIndicativo = radIndicativo;
-        this.secuencia = secuencia;
     }
 
     public Integer getRadId() {
@@ -80,20 +82,12 @@ public class Radicacion implements Serializable {
         this.radNombre = radNombre;
     }
 
-    public Integer getRadIndicativo() {
+    public short getRadIndicativo() {
         return radIndicativo;
     }
 
-    public void setRadIndicativo(Integer radIndicativo) {
+    public void setRadIndicativo(short radIndicativo) {
         this.radIndicativo = radIndicativo;
-    }
-
-    public String getSecuencia() {
-        return secuencia;
-    }
-
-    public void setSecuencia(String secuencia) {
-        this.secuencia = secuencia;
     }
 
     public Proceso getProceso() {
@@ -102,6 +96,14 @@ public class Radicacion implements Serializable {
 
     public void setProceso(Proceso proceso) {
         this.proceso = proceso;
+    }
+
+    public SecuenciaRadicacion getSecuencia() {
+        return secuencia;
+    }
+
+    public void setSecuencia(SecuenciaRadicacion secuencia) {
+        this.secuencia = secuencia;
     }
 
     @Override
@@ -123,4 +125,10 @@ public class Radicacion implements Serializable {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "com.laamware.ejercito.doc.web.entity.Radicacion[ radId=" + radId + " ]";
+    }
+    
 }

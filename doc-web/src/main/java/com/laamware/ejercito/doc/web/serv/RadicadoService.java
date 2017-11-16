@@ -1,10 +1,14 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.entity.ProcesoReinicioContDetalle;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.util.Date;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +22,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RadicadoService {
+    
+    private static final Logger log = LoggerFactory.getLogger(RadicadoService.class);
 
     /**
      * Fecha en la cual la funcion FN_DOCUMENTO_RADICADO, dejara de generar el
@@ -54,17 +60,20 @@ public class RadicadoService {
         }
     }
 
-    public void reiniciarsecuencia(String nombreSecuencia) {
+    public void reiniciarsecuencia(String nombreSecuencia, ProcesoReinicioContDetalle prcd) {
         try {
+
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             String nextval = "SELECT " + nombreSecuencia + ".NEXTVAL FROM dual";
             Integer secuencia = jdbcTemplate.queryForObject(nextval, Integer.class);
+            prcd.setUltimoValorSeq(secuencia - 1);
+
             jdbcTemplate.execute("ALTER SEQUENCE " + nombreSecuencia + " INCREMENT BY -" + secuencia + " MINVALUE 0");
             jdbcTemplate.queryForObject(nextval, Integer.class);
             jdbcTemplate.execute("ALTER SEQUENCE " + nombreSecuencia + " INCREMENT BY 1");
-        } catch (Exception e) {
-            //Implementar alguna funcion que permita saber si se pudo correr el proceso
-            //para la secuencia.
+            prcd.setNuevoValorSeq(1);
+        } catch (DataAccessException e) {
+            log.error("Error reiniciando la secuencia["+nombreSecuencia+"]", e);
         }
     }
 
@@ -85,3 +94,4 @@ public class RadicadoService {
         }
     }
 }
+

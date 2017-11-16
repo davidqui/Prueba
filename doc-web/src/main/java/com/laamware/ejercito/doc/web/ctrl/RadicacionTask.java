@@ -1,7 +1,11 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
-import com.laamware.ejercito.doc.web.entity.Radicacion;
-import com.laamware.ejercito.doc.web.repo.RadicacionRepository;
+import com.laamware.ejercito.doc.web.entity.ProcesoReinicioContDetalle;
+import com.laamware.ejercito.doc.web.entity.ProcesoReinicioContador;
+import com.laamware.ejercito.doc.web.entity.SecuenciaRadicacion;
+import com.laamware.ejercito.doc.web.repo.ProcesoReinicioContDetalleRepository;
+import com.laamware.ejercito.doc.web.repo.ProcesoReinicioContadorRepository;
+import com.laamware.ejercito.doc.web.repo.SecuenciaRadicacionRepository;
 import com.laamware.ejercito.doc.web.serv.RadicadoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,17 +30,37 @@ public class RadicacionTask {
 
     @Autowired
     private RadicadoService radicadoService;
+
+    @Autowired
+    private SecuenciaRadicacionRepository secuenciaRadicacionRepository;
+
+    @Autowired
+    private ProcesoReinicioContadorRepository procesoReinicioContadorRepository;
     
     @Autowired
-    private RadicacionRepository radicacionRepository;
+    private ProcesoReinicioContDetalleRepository procesoReinicioContDetalleRepository;
 
-    @Scheduled(cron = "0 0 0 16 11 ?")
+    @Scheduled(cron = "*/30 * * * * *")
     //0 0 0 1 1 ? Cada año el primero de enero a las 12:00 am
     public void reportCurrentTime() {
-        List<Radicacion> radicaciones = radicacionRepository.findAll();
-        for (Radicacion s : radicaciones) {
-            log.info("The time is now {}", dateFormat.format(new Date()) + "-----" + s.getSecuencia());
-            radicadoService.reiniciarsecuencia(s.getSecuencia());
+        ProcesoReinicioContador prc = new ProcesoReinicioContador();
+        prc.setFechaHoraEjecucion(new Date());
+        //Verificar
+        prc.setIpEjecucion("193");
+
+        procesoReinicioContadorRepository.save(prc);
+
+        List<SecuenciaRadicacion> secuencias = secuenciaRadicacionRepository.findAll();
+        for (SecuenciaRadicacion s : secuencias) {
+            
+            ProcesoReinicioContDetalle prcd = new ProcesoReinicioContDetalle();
+            prcd.setSecuencia(s);
+            prcd.setSecuenciaNombre(s.getSeqNombre());
+            prcd.setProReinicioContador(prc);
+            log.info("The time is now {}", dateFormat.format(new Date()) + "-----" + s.getSeqNombre());
+            radicadoService.reiniciarsecuencia(s.getSeqNombre(), prcd);
+            
+            procesoReinicioContDetalleRepository.save(prcd);
         }
 
         log.info("The time is now {}", dateFormat.format(new Date()));
