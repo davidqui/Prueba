@@ -5,7 +5,6 @@
 <#import "spring.ftl" as spring />
 <#include "header.ftl" />
 <#include "consulta-parametros-util.ftl"/>
-<#include "gen-paginacion.ftl">
 
 <div class="container-fluid">
     <h4>Consulta de documentos</h4>
@@ -55,7 +54,11 @@
                         <#if clasificaciones??>
                             <option value=""></option>
                             <#list clasificaciones as cla>
-                                <option value="${cla.id}">${cla.nombre}</option>
+                                <#if clasificacion?has_content && clasificacion == cla.id>
+                                    <option value="${clasificacion}" selected="selected">${clasificacionNombre}</option>
+                                <#else> 
+                                    <option value="${cla.id}">${cla.nombre}</option>
+                                </#if>
                             </#list>
                         </#if>
                     </select>
@@ -71,6 +74,9 @@
                         <span class="input-group-btn">
                             <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaOrigenModal">
                                 <span class="hidden-md-down">Seleccionar</span><span class="hidden-lg-up">S</span>
+                            </button>
+                            <button class="btn" type="button" id="dependenciaOrigenLimpiar">
+                                <span>Limpiar</span>
                             </button>
                         </span>
                     </div>
@@ -88,8 +94,13 @@
                         <div class="form-control" id="dependenciaDestinoNombre">Por favor seleccione una dependencia destino...</div>
                         <span class="input-group-btn">
                             <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaDestinoModal">
-                                <span class="hidden-md-down">Seleccionar</span><span class="hidden-lg-up">S</span>
+                                <span class="hidden-md-down">Seleccionar</span>
                             </button>
+                            <button class="btn" type="button" id="dependenciaDestinoLimpiar" >
+                                <span >Limpiar</span>
+                            </button>
+                                
+                            </div>
                         </span>
                     </div>
                 </div>
@@ -381,25 +392,53 @@
   
     <br><br>
 </div>
+    ${dependenciaDestino}
+<#include "consulta.ftl" />
 
 </div>
 <script type="text/javascript">
+    var depOri = "${dependenciaOrigenDescripcion}";
+    if(depOri == null || depOri.length == 0){
+        $("#dependenciaOrigenNombre").text("Por favor seleccione una dependencia origen...");
+    }else{
+        $("#dependenciaOrigenNombre").text(depOri);
+    }
+    
+    var depDes = "${dependenciaDestinoDescripcion}";
+    if(depDes == null || depDes.length == 0){
+        $("#dependenciaDestinoNombre").text("Por favor seleccione una dependencia destino...");
+    }else{
+        $("#dependenciaDestinoNombre").text(depDes);
+    }
+        
     
     $('#fechaInicio').prop('readonly', true);
     $('#fechaFin').prop('readonly', true);
 
     $('#fechaInicio').each(function() {
-        var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn btn-warning\" >Limpiar</div>";
+        var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn\" >Limpiar</div>";
         $(this).parent().append(buton);
     });
     $('#fechaFin').each(function() {
-        var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn btn-warning\" >Limpiar</div>";
+        var buton = "<div onclick='document.getElementById(\""+ $(this).attr("id")+ "\").value = \"\"' class=\"input-group-addon btn\" >Limpiar</div>";
         $(this).parent().append(buton);
     }); 
         
     $('#clasificacionSelect').change(function () {
         $("#clasificacion").val($('#clasificacionSelect').val());
         $("#clasificacionNombre").val($("#clasificacionSelect option:selected").text());
+    });
+        
+    $('#dependenciaOrigenLimpiar').on('click', function() {
+        $("#dependenciaOrigen").val("");
+        $("#dependenciaOrigenNombre").text("Por favor seleccione una dependencia origen...");
+        $("#dependenciaOrigenDescripcion").val("");
+    });
+        
+    $('#dependenciaDestinoLimpiar').on('click', function() {
+      $("#dependenciaDestino").val("");
+      $("#dependenciaDestinoNombre").text("Por favor seleccione una dependencia destino...");
+      $("#dependenciaDestinoDescripcion").val("");   
     });
 </script>
 <#include "footer.ftl" />

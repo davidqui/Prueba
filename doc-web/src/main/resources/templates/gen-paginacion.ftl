@@ -83,6 +83,7 @@
     </center>
     <script type="text/javascript">
         $("#pageSize").change(function() {
+            $("#pageIndex").val(1);
             $(this).parents("form").submit();
         });
             

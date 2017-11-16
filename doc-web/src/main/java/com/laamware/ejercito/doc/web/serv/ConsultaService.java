@@ -142,7 +142,7 @@ public class ConsultaService {
                 DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), rs.getDate("cuandoMod"), rs.getString("nombreProceso"),
                         rs.getString("nombreEstado"), rs.getString("nombreUsuarioAsignado"), rs.getString("nombreUsuarioEnviado"), rs.getString("nombreUsuarioElabora"),
                         rs.getString("nombreUsuarioReviso"), rs.getString("nombreUsuarioVbueno"), rs.getString("nombreUsuarioFirma"), rs.getString("nombreClasificacion"),
-                        rs.getString("numeroRadicado"));
+                        rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"));
                 return c;
             }
         });
@@ -395,7 +395,9 @@ public class ConsultaService {
                 + "       DECODE(USU_VBUENO.USU_NOMBRE, NULL, NULL,USU_VBUENO.USU_GRADO||'. '||USU_VBUENO.USU_NOMBRE)               \"nombreUsuarioVbueno\", \n"
                 + "       DECODE(USU_FIRMA.USU_NOMBRE, NULL, NULL,USU_FIRMA.USU_GRADO||'. '||USU_FIRMA.USU_NOMBRE)                  \"nombreUsuarioFirma\", \n"
                 + "       CLASIFICACION.CLA_NOMBRE     \"nombreClasificacion\", \n"
-                + "       DOC.DOC_RADICADO             \"numeroRadicado\" \n"
+                + "       DOC.DOC_RADICADO             \"numeroRadicado\", \n"
+                + "       DEP_ORIGEN.DEP_ORI_NOMBRE    \"unidadOrigen\", \n"
+                + "       DEP_DESTINO.DEP_DES_NOMBRE   \"unidadDestino\" \n"
                 + "FROM DOCUMENTO DOC \n"
                 + "LEFT JOIN USUARIO USU_ULT_ACCION		ON (DOC.USU_ID_ULTIMA_ACCION	= USU_ULT_ACCION.USU_ID) \n"
                 + "LEFT JOIN DEPENDENCIA DEP 		ON (DOC.DEP_ID_DES 		= DEP.DEP_ID) \n"
@@ -412,7 +414,8 @@ public class ConsultaService {
                 + "LEFT JOIN USUARIO USU_VBUENO             ON (DOC.USU_ID_VISTO_BUENO      = USU_VBUENO.USU_ID) \n"
                 + "LEFT JOIN USUARIO USU_FIRMA              ON (DOC.USU_ID_FIRMA            = USU_FIRMA.USU_ID) \n"
                 + "LEFT JOIN CLASIFICACION                  ON (DOC.CLA_ID                  = CLASIFICACION.CLA_ID) \n"
-                + "LEFT JOIN (SELECT CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, DEP_ID FROM DEPENDENCIA START WITH DEP_PADRE IS NULL CONNECT BY DEP_PADRE = PRIOR DEP_ID ) DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ELABORA.DEP_ID )\n"
+                + "LEFT JOIN (SELECT CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_NOMBRE AS DEP_ORI_NOMBRE, DEP_ID FROM DEPENDENCIA START WITH DEP_PADRE IS NULL CONNECT BY DEP_PADRE = PRIOR DEP_ID ) DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ELABORA.DEP_ID )\n"
+                + "LEFT JOIN (SELECT CONNECT_BY_ROOT DEP_ID AS DEP_DES_ID, CONNECT_BY_ROOT DEP_NOMBRE AS DEP_DES_NOMBRE, DEP_ID FROM DEPENDENCIA START WITH DEP_PADRE IS NULL CONNECT BY DEP_PADRE = PRIOR DEP_ID ) DEP_DESTINO ON (DEP_DESTINO.DEP_ID = DOC.DEP_ID_DES)\n"
                 + "WHERE 1 = 1 \n");
     }
 }

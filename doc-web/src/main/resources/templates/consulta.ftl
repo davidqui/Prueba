@@ -3,92 +3,29 @@
     <#assign pageTitle = 'Resultados' />
 </#if>
 <#include "util-macros.ftl" />
-<#include "bandeja-header.ftl">
-<#include "consulta-parametros-util.ftl"/>
 <#include "gen-paginacion.ftl">
 
-<br>
-<span><a href="/consulta/parametros"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&lt; &nbsp;REGRESAR</strong></a></span>
-<br><br>
-<div style=" border-radius: 10px; margin-bottom: 10px; padding: 10px;">
-    <fieldset>
-        <legend>Parámetros de filtro</legend>
-        <div class="table-responsive" style="width:75%">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <#if term?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Busqueda General</td>
-                        <#else>
-                            <#if fechaInicio?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Fecha Inicial</td>
-                            </#if>
-                            <#if fechaFin?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Fecha Final</td>
-                            </#if> 
-                            <#if asignado?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Asignado a</td>
-                            </#if> 
-                            <#if asunto?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Asunto</td>
-                            </#if> 
-                            <#if radicado?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Radicado</td>
-                            </#if>
-                            <#if destinatario?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Destinatario</td>
-                            </#if>
-                            <#if clasificacion?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Clasificación</td>
-                            </#if>
-                            <#if dependenciaOrigen?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Dependencia Origen</td>
-                            </#if>
-                            <#if dependenciaDestino?has_content>
-                        <td style="font-weight:bold; text-align: center; vertical-align: middle;">Dependencia destino</td>
-                            </#if>
-                        </#if> 
+<#if term?has_content>
+    <div style=" border-radius: 10px; margin-bottom: 10px; padding: 10px;">
+        <fieldset>
+            <legend>Parámetros de filtro</legend>
+            <div class="table-responsive" style="width:75%">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <td style="font-weight:bold; text-align: center; vertical-align: middle;">Busqueda General</td>
                         </tr>
                     </thead>
-                <tbody>
-                    <tr>
-                        <#if term?has_content>
+                    <tbody>
+                        <tr>
                             <td style="text-align: center; vertical-align: middle;">${term}</td>
-                        <#else>
-                            <#if fechaInicio?has_content >
-                                <td style="text-align: center; vertical-align: middle;">${fechaInicio}</td>
-                            </#if> 
-                            <#if fechaFin?has_content >
-                                <td style="text-align: center; vertical-align: middle;">${fechaFin}</td>
-                            </#if> 
-                            <#if asignado?has_content >
-                                <td style="text-align: center; vertical-align: middle;">${asignado}</td>
-                            </#if>
-                            <#if asunto?has_content >
-                                <td style="text-align: center; vertical-align: middle;">${asunto}</td>
-                            </#if>
-                            <#if radicado?has_content >
-                                <td style="text-align: center; vertical-align: middle;">${radicado}</td>
-                            </#if>
-                            <#if destinatario?has_content >
-                                <td style="text-align: center; vertical-align: middle;">${destinatario}</td>
-                            </#if>
-                            <#if clasificacion?has_content >
-                                <td style="text-align: center; vertical-align: middle;">${clasificacionNombre}</td>
-                            </#if>
-                            <#if dependenciaDestino?has_content >
-                                <td style="text-align: center; vertical-align: middle;">${dependenciaDestinoDescripcion}</td>
-                            </#if>
-                            <#if dependenciaOrigen?has_content >
-                                <td style="text-align: center; vertical-align: middle;">${dependenciaOrigenDescripcion}</td>
-                            </#if>
-                        </#if>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </fieldset>
-</div>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</#if>
 
 <#if !documentos?? || documentos?size == 0 >
     <div class="jumbotron">
@@ -101,7 +38,8 @@
                 <tr>
                     <td style="font-weight:bold; text-align: center; vertical-align: middle; ">FECHA ÚLTIMA MODIFICACIÓN</td>
                     <td style="font-weight:bold; text-align: center; vertical-align: middle; ">ASUNTO</td>
-                    <td style="font-weight:bold; text-align: center; vertical-align: middle; ">PROCESO</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle; ">UNIDAD ORIGEN</td>
+                    <td style="font-weight:bold; text-align: center; vertical-align: middle; ">UNIDAD DESTINO</td>
                     <td style="font-weight:bold; text-align: center; vertical-align: middle; ">ESTADO</td>
                     <td style="font-weight:bold; text-align: center; vertical-align: middle; ">USUARIO ASIGNADO</td>
                     <td style="font-weight:bold; text-align: center; vertical-align: middle; ">ENVIADO POR</td>
@@ -125,7 +63,10 @@
                             <strong><a href="/proceso/instancia?pin=${x.idInstancia}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
-                            ${x.nombreProceso}
+                            ${x.unidadOrigen}
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            ${x.unidadDestino!""}
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
                             ${x.nombreEstado}
@@ -167,4 +108,3 @@
         </#if>
     </div>
 </#if>
-<#include "bandeja-footer.ftl">

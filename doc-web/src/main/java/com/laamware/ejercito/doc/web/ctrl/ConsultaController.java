@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 @Controller
 @RequestMapping(value = ConsultaController.PATH)
 public class ConsultaController extends UtilController {
-    
+
     private static final Logger LOG = Logger.getLogger(ConsultaController.class.getName());
 
     public static final String PATH = "/consulta";
@@ -139,6 +139,15 @@ public class ConsultaController extends UtilController {
             @RequestParam(value = "dependenciaDestinoDescripcion", required = false) String dependenciaDestinoDescripcion,
             @RequestParam(value = "dependenciaOrigenDescripcion", required = false) String dependenciaOrigenDescripcion) {
 
+        boolean sameValue = term != null && term.trim().length() > 0;
+
+        if (sameValue) {
+            asignado = term;
+            asunto = term;
+            radicado = term;
+            destinatario = term;
+        }
+
         // Issue #105, Issue #128
         Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen};
 
@@ -160,8 +169,6 @@ public class ConsultaController extends UtilController {
             return "consulta-parametros";
         }
 
-        boolean sameValue = term != null;
-
         /*
          * 2017-02-06 jgarcia@controltechcg.com Issue #128: Modificación en los
 	 * procesos de búsqueda, para que únicamente presente la información de
@@ -170,11 +177,11 @@ public class ConsultaController extends UtilController {
         Usuario usuario = getUsuario(principal);
         Integer usuarioID = usuario.getId();
         expedientes(model, principal);
-        
+
         LOG.log(Level.INFO, "verificando count");
         List<DocumentoDTO> documentos = null;
         int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID);
-        LOG.log(Level.INFO, "verificando count ]= "+count);
+        LOG.log(Level.INFO, "verificando count ]= {0}", count);
         int totalPages = 0;
         String labelInformacion = "";
 
@@ -196,25 +203,25 @@ public class ConsultaController extends UtilController {
         model.addAttribute("labelInformacion", labelInformacion);
         model.addAttribute("pageSize", pageSize);
 
-        model.addAttribute("asignado", asignado);
-        model.addAttribute("asunto", asunto);
-        model.addAttribute("fechaInicio", fechaInicio);
-        model.addAttribute("fechaFin", fechaFin);
-        model.addAttribute("radicado", radicado);
-        model.addAttribute("destinatario", destinatario);
-        model.addAttribute("clasificacion", clasificacion);
-        model.addAttribute("dependenciaDestino", dependenciaDestino);
-        model.addAttribute("dependenciaOrigen", dependenciaOrigen);
-        model.addAttribute("term", term);
-        model.addAttribute("clasificacionNombre", clasificacionNombre);
-        model.addAttribute("dependenciaDestinoDescripcion", dependenciaDestinoDescripcion);
-        model.addAttribute("dependenciaOrigenDescripcion", dependenciaOrigenDescripcion);
-
-        if (documentos != null && documentos.isEmpty()) {
-            return "consulta";
+        System.err.println("sameValue= " + sameValue);
+        if (!sameValue) {
+            model.addAttribute("asignado", asignado);
+            model.addAttribute("asunto", asunto);
+            model.addAttribute("fechaInicio", fechaInicio);
+            model.addAttribute("fechaFin", fechaFin);
+            model.addAttribute("radicado", radicado);
+            model.addAttribute("destinatario", destinatario);
+            model.addAttribute("clasificacion", clasificacion);
+            model.addAttribute("dependenciaDestino", dependenciaDestino);
+            model.addAttribute("dependenciaOrigen", dependenciaOrigen);
+            model.addAttribute("clasificacionNombre", clasificacionNombre);
+            model.addAttribute("dependenciaDestinoDescripcion", dependenciaDestinoDescripcion);
+            model.addAttribute("dependenciaOrigenDescripcion", dependenciaOrigenDescripcion);
         }
 
-        return "consulta";
+        model.addAttribute("term", term);
+
+        return "consulta-parametros";
     }
 
     /**
