@@ -10,7 +10,7 @@
 <div class="container-fluid">
     <h4>Consulta de documentos</h4>
 <div class="container-fluid">
-<form method="GET" action="/consulta/parametros">
+<form method="POST" action="/consulta/parametros">
 
     <!--2017-02-13 jgarcia@controltechcg.com #78: Alinear el formulario de la búsqueda avanzada -->
     <!--2017-02-13 jgarcia@controltechcg.com #142: Reordenamiento de los campos del formulario para que no se crucen entre ellos. -->
