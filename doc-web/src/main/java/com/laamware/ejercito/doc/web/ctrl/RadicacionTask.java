@@ -1,89 +1,45 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
-import com.laamware.ejercito.doc.web.entity.ProcesoReinicioContDetalle;
-import com.laamware.ejercito.doc.web.entity.ProcesoReinicioContador;
-import com.laamware.ejercito.doc.web.entity.SecuenciaRadicacion;
-import com.laamware.ejercito.doc.web.repo.ProcesoReinicioContDetalleRepository;
-import com.laamware.ejercito.doc.web.repo.ProcesoReinicioContadorRepository;
-import com.laamware.ejercito.doc.web.repo.SecuenciaRadicacionRepository;
-import com.laamware.ejercito.doc.web.serv.RadicadoService;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import com.laamware.ejercito.doc.web.serv.ProcesoReinicioContadorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
+ * Componente que controla la ejecución de la tarea programada del reinicio de
+ * las secuencias del numero de radicacion.
  *
- * @author egonzalezm
+ * @author edison.gonzalez@controltechcg.com
+ * @since Nov 17, 2017
+ * @version 1.0.0 (feature-138).
  */
 @Component
 public class RadicacionTask {
 
+    /**
+     * Log del componente.
+     */
     private static final Logger log = LoggerFactory.getLogger(RadicacionTask.class);
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-
+    /**
+     * Servicio del proceso de reinicio de los numeros de radicado.
+     */
     @Autowired
-    private RadicadoService radicadoService;
+    private ProcesoReinicioContadorService procesoReinicioContadorService;
 
-    @Autowired
-    private SecuenciaRadicacionRepository secuenciaRadicacionRepository;
-
-    @Autowired
-    private ProcesoReinicioContadorRepository procesoReinicioContadorRepository;
-
-    @Autowired
-    private ProcesoReinicioContDetalleRepository procesoReinicioContDetalleRepository;
-
-    @Scheduled(cron = "*/30 * * * * *")
+    /**
+     * Metodo que se encarga de ejecutar la tarea programada de reinicio de las
+     * secuencias de los numeros de radicacion, basado en el parametro de configuracion
+     * que se encuentra en el aplication.properties.
+     */
+    @Scheduled(cron = "${job.reinicioSecuenciasRadicacion.cron}")
     //0 0 0 1 1 ? Cada año el primero de enero a las 12:00 am
     public void reportCurrentTime() {
         log.info("Inicia el proceso de reinicio de secuencias de radicado...");
-
-        InetAddress addr = null;
-        String hostname = "";
-        String hostAddress = "";
-
-        try {
-            addr = InetAddress.getLocalHost();
-        } catch (UnknownHostException ex) {
-            log.error("Error encontrando la direccion IP de la maquina", ex);
-        }
-        
-        if (addr != null) {
-            hostname = addr.getHostName();
-            hostAddress = addr.getHostAddress();
-            log.info("Iniciando el proceso en la maquina[" + hostname + "], IP[" + hostAddress + "]");
-        }
-
-        ProcesoReinicioContador prc = new ProcesoReinicioContador();
-        prc.setFechaHoraEjecucion(new Date());
-        prc.setIpEjecucion(hostname + "-" + hostAddress);
-
-        procesoReinicioContadorRepository.save(prc);
-
-        List<SecuenciaRadicacion> secuencias = secuenciaRadicacionRepository.findAll();
-        for (SecuenciaRadicacion s : secuencias) {
-
-            ProcesoReinicioContDetalle prcd = new ProcesoReinicioContDetalle();
-            prcd.setSecuencia(s);
-            prcd.setSecuenciaNombre(s.getSeqNombre());
-            prcd.setProReinicioContador(prc);
-            log.info("The time is now {}", dateFormat.format(new Date()) + "-----" + s.getSeqNombre());
-            radicadoService.reiniciarsecuencia(s.getSeqNombre(), prcd);
-
-            procesoReinicioContDetalleRepository.save(prcd);
-        }
-
-        log.info("The time is now {}", dateFormat.format(new Date()));
-
+        procesoReinicioContadorService.reiniciarSecuenciasRadicacion();
+        log.info("Termina el proceso de reinicio de secuencias de radicado...");
     }
 }
