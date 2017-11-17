@@ -440,4 +440,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + " ORDER BY                                                                         "
             + " DOC.CUANDO DESC                                                                  ")
     List<Documento> findBandejaTramite(String name, Date fechaInicial, Date fechaFinal);
+    
+    @Query(value = "select 1 from S_INSTANCIA_USUARIO where usu_id = :usuId and pin_id = :pinId", nativeQuery = true)
+    Integer verificaAccesoDocumento(@Param("usuId") Integer usuId, @Param("pinId") String pinId);
 }
