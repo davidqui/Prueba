@@ -1,6 +1,5 @@
 package com.laamware.ejercito.doc.web.serv;
 
-import com.laamware.ejercito.doc.web.ctrl.RadicacionTask;
 import com.laamware.ejercito.doc.web.entity.ProcesoReinicioContDetalle;
 import com.laamware.ejercito.doc.web.entity.ProcesoReinicioContador;
 import com.laamware.ejercito.doc.web.entity.SecuenciaRadicacion;
@@ -9,8 +8,10 @@ import com.laamware.ejercito.doc.web.repo.ProcesoReinicioContadorRepository;
 import com.laamware.ejercito.doc.web.repo.SecuenciaRadicacionRepository;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import static org.apache.xalan.lib.ExsltDatetime.date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,18 +76,18 @@ public class ProcesoReinicioContadorService {
         if (addr != null) {
             hostname = addr.getHostName();
             hostAddress = addr.getHostAddress();
-            log.info("Iniciando el proceso en la maquina[" + hostname + "], IP[" + hostAddress + "]");
+            log.info("Iniciando el proceso en la maquina[" + hostname + "], IP[" + hostAddress + "]...");
         }
 
         ProcesoReinicioContador prc = new ProcesoReinicioContador();
         prc.setFechaHoraEjecucion(new Date());
         prc.setIpEjecucion(hostname + "-" + hostAddress);
-
         procesoReinicioContadorRepository.save(prc);
+        log.info("Guardando el encabezado del proceso de reinicio de las secuencias...");
 
         List<SecuenciaRadicacion> secuencias = secuenciaRadicacionRepository.findAll();
         for (SecuenciaRadicacion s : secuencias) {
-
+            log.info("Reiniciando la secuencia [" + s.getSeqNombre() + "]...");
             ProcesoReinicioContDetalle prcd = new ProcesoReinicioContDetalle();
             prcd.setSecuencia(s);
             prcd.setSecuenciaNombre(s.getSeqNombre());
@@ -95,5 +96,19 @@ public class ProcesoReinicioContadorService {
 
             procesoReinicioContDetalleRepository.save(prcd);
         }
+    }
+
+    /**
+     * Metodo que verifica si el proceso de reinicio de la secuencias lo ejecuto
+     * el servidor principal.
+     * @return Variable que identifica si el proceso se realizo.
+     */
+    public Boolean verificaProcesoServidorPrincipal() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+
+        int year = cal.get(Calendar.YEAR);
+        List<ProcesoReinicioContador> list = procesoReinicioContadorRepository.findProcesoReinicioContadorporAño(year);
+        return list.size() > 0;
     }
 }

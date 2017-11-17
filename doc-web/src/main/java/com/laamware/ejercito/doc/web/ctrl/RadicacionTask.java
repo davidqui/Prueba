@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Componente que controla la ejecución de la tarea programada del reinicio de
@@ -30,16 +31,29 @@ public class RadicacionTask {
     @Autowired
     private ProcesoReinicioContadorService procesoReinicioContadorService;
 
+    @Value("${co.mil.imi.sicdi.radicacion.master}")
+    private Boolean reinicioSecuenciaMaster;
+
     /**
      * Metodo que se encarga de ejecutar la tarea programada de reinicio de las
-     * secuencias de los numeros de radicacion, basado en el parametro de configuracion
-     * que se encuentra en el aplication.properties.
+     * secuencias de los numeros de radicacion, basado en el parametro de
+     * configuracion que se encuentra en el aplication.properties.
      */
     @Scheduled(cron = "${job.reinicioSecuenciasRadicacion.cron}")
-    //0 0 0 1 1 ? Cada año el primero de enero a las 12:00 am
     public void reportCurrentTime() {
-        log.info("Inicia el proceso de reinicio de secuencias de radicado...");
-        procesoReinicioContadorService.reiniciarSecuenciasRadicacion();
-        log.info("Termina el proceso de reinicio de secuencias de radicado...");
+
+        if (!reinicioSecuenciaMaster) {
+            Boolean procesoExitoso = procesoReinicioContadorService.verificaProcesoServidorPrincipal();
+
+            if (!procesoExitoso) {
+                log.info("Inicia el proceso de reinicio de secuencias de radicado por el servidor de respaldo...");
+                procesoReinicioContadorService.reiniciarSecuenciasRadicacion();
+                log.info("Termina el proceso de reinicio de secuencias de radicado por el servidor de respaldo...");
+            }
+        } else {
+            log.info("Inicia el proceso de reinicio de secuencias de radicado...");
+            procesoReinicioContadorService.reiniciarSecuenciasRadicacion();
+            log.info("Termina el proceso de reinicio de secuencias de radicado...");
+        }
     }
 }

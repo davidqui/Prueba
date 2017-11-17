@@ -22,7 +22,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RadicadoService {
-    
+
+    /**
+     * Log del servicio.
+     */
     private static final Logger log = LoggerFactory.getLogger(RadicadoService.class);
 
     /**
@@ -37,6 +40,9 @@ public class RadicadoService {
     @Autowired
     DocumentoRepository documentRepository;
 
+    /**
+     * Contexto para acceder a la base de datos.
+     */
     @Autowired
     private DataSource dataSource;
 
@@ -60,23 +66,35 @@ public class RadicadoService {
         }
     }
 
+    /**
+     * Metodo que permite reiniciar la secuencia utilizada por el numero de
+     * radicacion.
+     *
+     * @param nombreSecuencia Nombre de la secuencia
+     * @param prcd Detalle del proceso de reinicio
+     */
     public void reiniciarsecuencia(String nombreSecuencia, ProcesoReinicioContDetalle prcd) {
         try {
-
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
             String nextval = "SELECT " + nombreSecuencia + ".NEXTVAL FROM dual";
             Integer secuencia = jdbcTemplate.queryForObject(nextval, Integer.class);
+            log.info("verificando valor actual de la secuencia [" + (secuencia - 1) + "]...");
             prcd.setUltimoValorSeq(secuencia - 1);
-
+            log.info("Alterando la secuencia [" + nombreSecuencia + "]...");
             jdbcTemplate.execute("ALTER SEQUENCE " + nombreSecuencia + " INCREMENT BY -" + secuencia + " MINVALUE 0");
             jdbcTemplate.queryForObject(nextval, Integer.class);
             jdbcTemplate.execute("ALTER SEQUENCE " + nombreSecuencia + " INCREMENT BY 1");
             prcd.setNuevoValorSeq(1);
+            log.info("Secuencia alterada [" + nombreSecuencia + "]...");
         } catch (DataAccessException e) {
-            log.error("Error reiniciando la secuencia["+nombreSecuencia+"]", e);
+            log.error("Error reiniciando la secuencia[" + nombreSecuencia + "]", e);
         }
     }
 
+    /**
+     * Enum de los tipos de radicación del sistema.
+     */
     public enum EnumRadicacion {
         REGISTRO_DOCUMENTO(1),
         REGISTRO_DOCUMENTO_INTERNO(2),
@@ -94,4 +112,3 @@ public class RadicadoService {
         }
     }
 }
-
