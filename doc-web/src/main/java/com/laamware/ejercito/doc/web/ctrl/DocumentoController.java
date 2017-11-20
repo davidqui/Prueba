@@ -501,12 +501,24 @@ public class DocumentoController extends UtilController {
     public String documento(@RequestParam("pin") String pin,
             @RequestParam(value = "archivoHeader", required = false) String archivoHeader, Model model,
             Principal principal, final RedirectAttributes redirect) {
+
         // Si el request trae información en headerView, se envía a la vista
         // para que se muestre otro header al que está por defecto
         model.addAttribute("archivoHeader", archivoHeader);
 
         Usuario usuarioLogueado = getUsuario(principal);
         model.addAttribute("usuariologueado", usuarioLogueado);
+
+        /*
+         * 2017-11-17 edison.gonzalez@controltechcg.com Issue #139: Verifica permisos
+         * de acceso al documento.
+         */
+        //Verifica permisos de acceso al documento
+        Integer permiso = documentRepository.verificaAccesoDocumento(usuarioLogueado.getId(), pin);
+
+        if (permiso == null || permiso != 1) {
+            return "security-denied";
+        }
 
         // Obtiene la instancia de proceso
         Instancia i = procesoService.instancia(pin);
@@ -4187,10 +4199,10 @@ public class DocumentoController extends UtilController {
     public int retornaIdProcesoExterno() {
         return Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS;
     }
-    
+
     /**
-     * 2017-10-11 edison.gonzalez@controltechcg.com feature #129 :
-     * retorna el Id del proceso de registro de documentos
+     * 2017-10-11 edison.gonzalez@controltechcg.com feature #129 : retorna el Id
+     * del proceso de registro de documentos
      *
      * @return
      */
