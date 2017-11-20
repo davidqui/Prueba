@@ -77,6 +77,8 @@ public class ProcesoReinicioContadorService {
             hostname = addr.getHostName();
             hostAddress = addr.getHostAddress();
             log.info("Iniciando el proceso en la maquina[" + hostname + "], IP[" + hostAddress + "]...");
+        }else{
+            log.info("Error obteniendo la dirección del servidor");
         }
 
         ProcesoReinicioContador prc = new ProcesoReinicioContador();
