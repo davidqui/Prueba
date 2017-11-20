@@ -28,7 +28,7 @@
                 <div class="form-inline col-sm-2 input-group">
                     <input type="text" name="fechaFin" id="fechaFin" class="form-control datepicker" value="${fechaFin}"/>
                 </div>
-                <label for="asignado" class="col-sm-1 col-form-label text-xs-right">Asignado a</label>
+                <label for="asignado" class="col-sm-1 col-form-label text-xs-right">Enviado por</label>
                 <div class="col-sm-2">
                     <input type="text" name="asignado" class="form-control" value="${asignado}"/>
                 </div>
