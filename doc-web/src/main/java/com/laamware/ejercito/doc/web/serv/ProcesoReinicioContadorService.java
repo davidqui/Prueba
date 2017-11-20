@@ -76,13 +76,13 @@ public class ProcesoReinicioContadorService {
             hostname = addr.getHostName();
             hostAddress = addr.getHostAddress();
             log.info("Iniciando el proceso en la maquina[" + hostname + "], IP[" + hostAddress + "]...");
-        }else{
+        } else {
             log.info("Error obteniendo la dirección del servidor");
         }
 
         ProcesoReinicioContador prc = new ProcesoReinicioContador();
         prc.setFechaHoraEjecucion(new Date());
-        prc.setIpEjecucion(hostname + "-" + hostAddress);
+        prc.setIpEjecucion("[" + hostname + "] - [" + hostAddress + "]");
         procesoReinicioContadorRepository.save(prc);
         log.info("Guardando el encabezado del proceso de reinicio de las secuencias...");
 
@@ -102,6 +102,7 @@ public class ProcesoReinicioContadorService {
     /**
      * Metodo que verifica si el proceso de reinicio de la secuencias lo ejecuto
      * el servidor principal.
+     *
      * @return Variable que identifica si el proceso se realizo.
      */
     public Boolean verificaProcesoServidorPrincipal() {
