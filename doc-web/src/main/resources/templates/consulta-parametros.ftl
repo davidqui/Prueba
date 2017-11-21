@@ -148,7 +148,7 @@
             var depPadre = -1;
             var depStack = new Array();
                 
-            function loadSubDependencia(id) {
+            function loadSubDependenciaDestino(id) {
                 if(depStack.length == 0) {
                     depStack.push(id);
                 } else if(depStack.length > 0 && depStack[depStack.length - 1] != id) {
@@ -175,14 +175,14 @@
                         		
                             if(depStack.length > 0) {
                         	prev = depStack[depStack.length - 1];
-                        	loadSubDependencia(prev);
+                        	loadSubDependenciaDestino(prev);
                             } else {
-                        	loadDependencia();
+                        	loadDependenciaDestino();
                             }
                         });
                             
                     } else {
-                        $("#btnRegresar").click(loadDependencia);
+                        $("#btnRegresar").click(loadDependenciaDestino);
                     }
                    
                     // Si no hay resultados
@@ -209,7 +209,7 @@
 
                     $("#dependenciaDestinoModal .modal-body .mark-dep").click(function(){
                         var id = $(this).attr("id").substring(3);
-                        loadSubDependencia(id);
+                        loadSubDependenciaDestino(id);
                     });
                     
                     $("#dependenciaDestinoModal .modal-body .mark-sel").click(function(e) {
@@ -223,12 +223,11 @@
                 });
             };
                 
-            function loadDependencia(e) {
+            function loadDependenciaDestino(e) {
                 $("#dependenciaDestinoModalLabel").text("Dependencias");
                 $("#dependenciaDestinoModal .modal-body").empty();
-                    
+                
                 $.getJSON("/dependencias/dependencias.json", function(deps) {
-                    console.log('inicio loadDependencia javascript 1 getJSON');
                     table = $("<table/>", { class: "table" });
                     
                     $.each(deps, function(i, item){
@@ -249,7 +248,7 @@
 
                     $("#dependenciaDestinoModal .modal-body .mark-dep").click(function(){
                         var id = $(this).attr("id").substring(3);
-                        loadSubDependencia(id);
+                        loadSubDependenciaDestino(id);
                     });
                         
                     $("#dependenciaDestinoModal .modal-body .mark-sel").click(function(e) {
@@ -262,7 +261,7 @@
                     });
                 });
             };
-            $('#dependenciaDestinoModal').on('show.bs.modal', loadDependencia);    
+            $('#dependenciaDestinoModal').on('show.bs.modal', loadDependenciaDestino);    
         </script>
                 
         <script type="text/javascript">
@@ -347,7 +346,7 @@
             function loadDependencia(e) {
                 $("#dependenciaOrigenModalLabel").text("Dependencias");
                 $("#dependenciaOrigenModal .modal-body").empty();
-                    
+                
                 $.getJSON("/dependencias/dependencias.json", function(deps) {
                     table = $("<table/>", { class: "table" });
                     
