@@ -32,7 +32,7 @@ public class RadicadoService {
      * Fecha en la cual la funcion FN_DOCUMENTO_RADICADO, dejara de generar el
      * número de radicación de los documentos.
      */
-    final Date FECHA_CAMBIO = DateUtil.setDateTime(2017, 10, 15, 0, 0, 0);
+    final Date FECHA_CAMBIO = DateUtil.setDateTime(2018, 0, 1, 0, 0, 0);
 
     /**
      * Repositorio de maestro de documentos.
@@ -55,11 +55,8 @@ public class RadicadoService {
      */
     public String retornaNumeroRadicado(Integer dep_id, Integer radId) {
         Date fechaActual = new Date();
-        System.err.println("FECHA_CAMBIO= " + FECHA_CAMBIO + "------" + fechaActual.after(FECHA_CAMBIO) + "-------");
 
         if (fechaActual.compareTo(FECHA_CAMBIO) >= 0) {
-
-            System.err.println("LLamando a FN_GENERA_NUM_RADICADO--" + dep_id + "---" + radId);
             return documentRepository.getNumeroRadicado(dep_id, radId);
         } else {
             return documentRepository.getRadicado(dep_id);
