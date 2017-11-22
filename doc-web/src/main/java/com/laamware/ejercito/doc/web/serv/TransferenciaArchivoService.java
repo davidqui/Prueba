@@ -35,6 +35,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -165,6 +166,12 @@ public class TransferenciaArchivoService {
      */
     @Autowired
     private DocumentoRepository documentoRepository;
+
+    /**
+     * Servicio de generacion de numero de radicado.
+     */
+    @Autowired
+    RadicadoService radicadoService;
 
     /**
      * Busca un registro de transferencia de archivo.
@@ -341,8 +348,8 @@ public class TransferenciaArchivoService {
         /*
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-        */
-        String descripcion =  usuario.getUsuGrado().getId()+" "
+         */
+        String descripcion = usuario.getUsuGrado().getId() + " "
                 + usuario.getNombre();
 
         if (!conClasificacion) {
@@ -410,11 +417,11 @@ public class TransferenciaArchivoService {
             final String tipoTransferencia, final TransferenciaArchivo transferenciaAnterior) {
 
         final Date ahora = new Date(System.currentTimeMillis());
-        
+
         /*
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-        */
+         */
         final Grados creadorGrado
                 = gradoRepository.findOne(creadorUsuario.getUsuGrado().getId());
         final Grados origenGrado
@@ -450,7 +457,13 @@ public class TransferenciaArchivoService {
         transferencia.setFechaAprobacion(ahora);
 
         final Integer unidadDestinoID = dependenciaRepository.findUnidadID(destinoUsuario.getDependencia().getId());
-        final String radicado = documentoRepository.getRadicado(unidadDestinoID);
+        /*
+            * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138: Se llama
+            * al servicio encargado de retornar el numero de radicado, segun el tipo
+            * de proceso, para el caso de transferencia de archivos se toma el proceso
+            * de registro de documentos internos.
+         */
+        final String radicado = radicadoService.retornaNumeroRadicado(unidadDestinoID, RadicadoService.EnumRadicacion.TRANSFERENCIA_ARCHIVO.getValue());
         transferencia.setNumeroRadicado(radicado);
 
         transferenciaRepository.saveAndFlush(transferencia);
@@ -636,7 +649,7 @@ public class TransferenciaArchivoService {
         /*
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-        */
+         */
         final String documentoElaboro = (Objects.toString(documentoQuien.getUsuGrado().getId(), "") + " " + documentoQuien.getNombre()).trim();
 
         /**

@@ -459,4 +459,11 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "    and c.usu_id = :usuId "
             + ")", nativeQuery = true)
     Integer verificaAccesoDocumento(@Param("usuId") Integer usuId, @Param("pinId") String pinId);
+    /*
+	 * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138 (SICDI-Controltech)
+	 * feature-138: Creacion de la nueva funcion para generar el numero de radicado,
+         * segun la dependencia y el id del proceso.
+     */
+    @Query(nativeQuery = true, value = "select FN_GENERA_NUM_RADICADO(?,?) from dual")
+    String getNumeroRadicado(Integer depId, Integer radId);
 }

@@ -73,6 +73,7 @@ import com.laamware.ejercito.doc.web.entity.OFSStage;
 import com.laamware.ejercito.doc.web.entity.PDFDocumento;
 import com.laamware.ejercito.doc.web.entity.Plantilla;
 import com.laamware.ejercito.doc.web.entity.Proceso;
+import com.laamware.ejercito.doc.web.entity.Radicacion;
 import com.laamware.ejercito.doc.web.entity.RestriccionDifusion;
 import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
@@ -93,6 +94,7 @@ import com.laamware.ejercito.doc.web.repo.HProcesoInstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaRepository;
 import com.laamware.ejercito.doc.web.repo.ProcesoRepository;
+import com.laamware.ejercito.doc.web.repo.RadicacionRepository;
 import com.laamware.ejercito.doc.web.repo.RestriccionDifusionRepository;
 import com.laamware.ejercito.doc.web.repo.TipologiaRepository;
 import com.laamware.ejercito.doc.web.repo.TransicionRepository;
@@ -105,6 +107,7 @@ import com.laamware.ejercito.doc.web.serv.JasperService;
 import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
+import com.laamware.ejercito.doc.web.serv.RadicadoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
@@ -228,6 +231,15 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     TipologiaRepository tipologiaRepository;
+
+    /**
+     * Servicio de generacion de numero de radicado.
+     */
+    @Autowired
+    RadicadoService radicadoService;
+
+    @Autowired
+    RadicacionRepository radicacionRepository;
 
     /* ---------------------- públicos ------------------------------- */
     /**
@@ -969,7 +981,14 @@ public class DocumentoController extends UtilController {
         // Si el documento aún no tiene número de radicado entonces le asigna
         // uno nuevo
         if (StringUtils.isBlank(doc.getRadicado())) {
-            doc.setRadicado(documentRepository.getRadicado(getSuperDependencia(doc.getDependenciaDestino()).getId()));
+            /*
+                * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138: Se llama
+                * al servicio encargado de retornar el numero de radicado, segun el tipo
+                * de proceso.
+             */
+
+            Radicacion radicacion = radicacionRepository.findByProceso(doc.getInstancia().getProceso());
+            doc.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(doc.getDependenciaDestino()).getId(), radicacion.getRadId()));
         }
 
         try {
@@ -979,6 +998,7 @@ public class DocumentoController extends UtilController {
             if (StringUtils.isBlank(doc.getSticker())) {
                 Map<String, Object> params = new HashMap<String, Object>();
                 // params.put("P_DOCUMENTO", doc);
+                System.err.println("Radicado numero= " + doc.getRadicado());
                 params.put("radicado", doc.getRadicado() == null ? "" : doc.getRadicado());
                 params.put("asunto", doc.getAsunto() == null ? "" : doc.getAsunto());
                 params.put("cuando", sdf.format(doc.getCuando()));
@@ -2645,7 +2665,15 @@ public class DocumentoController extends UtilController {
         }
 
         doc.setFirma(yo);
-        doc.setRadicado(documentRepository.getRadicado(getSuperDependencia(yo.getDependencia()).getId()));
+
+        /*
+            * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138: Se llama
+            * al servicio encargado de retornar el numero de radicado, segun el tipo
+            * de proceso.
+         */
+        Radicacion radicacion = radicacionRepository.findByProceso(doc.getInstancia().getProceso());
+        System.err.println(doc.getInstancia().getProceso().getId() + "-----------" + radicacion.getRadId());
+        doc.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(yo.getDependencia()).getId(), radicacion.getRadId()));
 
         /*
 		 * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los

@@ -115,4 +115,10 @@ public final class DateUtil {
         }
         return null;
     }
+
+    public static Date setDateTime(int year, int month, int date, int hour, int minute, int second) {
+        Calendar working = GregorianCalendar.getInstance();
+        working.set(year, month, date, hour, minute, second);
+        return working.getTime();
+    }
 }

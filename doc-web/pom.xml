@@ -195,11 +195,11 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<repository>
+<!--		<repository>
 			<id>control2</id>
 			<name>control2</name>
 			<url>http://154.16.127.229:8081/repository/control2/</url>
-		</repository>
+		</repository>-->
 <!-- 		<repository> -->
 <!-- 			<id>pangea-public</id> -->
 <!-- 			<name>Pangea Public</name> -->
