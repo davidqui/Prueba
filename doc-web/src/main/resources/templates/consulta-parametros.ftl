@@ -391,7 +391,7 @@
   
     <br><br>
 </div>
-    ${dependenciaDestino}
+    
 <#include "consulta.ftl" />
 
 </div>
