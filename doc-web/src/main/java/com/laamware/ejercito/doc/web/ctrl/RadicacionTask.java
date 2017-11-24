@@ -43,12 +43,15 @@ public class RadicacionTask {
     public void reportCurrentTime() {
 
         if (!reinicioSecuenciaMaster) {
+            log.info("Verificando el proceso del servidor principal...");
             Boolean procesoExitoso = procesoReinicioContadorService.verificaProcesoServidorPrincipal();
 
             if (!procesoExitoso) {
                 log.info("Inicia el proceso de reinicio de secuencias de radicado por el servidor de respaldo...");
                 procesoReinicioContadorService.reiniciarSecuenciasRadicacion();
                 log.info("Termina el proceso de reinicio de secuencias de radicado por el servidor de respaldo...");
+            }else{
+                log.info("El proceso ya sido hecho en el servidor principal...");
             }
         } else {
             log.info("Inicia el proceso de reinicio de secuencias de radicado...");
