@@ -60,6 +60,8 @@
                         <#else>
                         	<#if p.name == "padre">
                             	<div>${controller.nombreDependenciaPadre((p.value(x)!"")?string)!""}</div>
+                                <#elseif p.name == "padreOrganico">
+                            	<div>${controller.nombreDependenciaPadre((p.value(x)!"")?string)!""}</div>
                             <#else>
                             	<div>${p.value(x)!""}</div>
                             </#if>

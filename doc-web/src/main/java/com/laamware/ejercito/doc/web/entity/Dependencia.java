@@ -27,364 +27,395 @@ import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 @LaamLabel("Dependencias")
 public class Dependencia extends AuditActivoModifySupport {
 
-	@Id
-	@GenericGenerator(name = "DEPENDENCIA_SEQ", strategy = "sequence", parameters = {
-			@Parameter(name = "sequence", value = "DEPENDENCIA_SEQ"),
-			@Parameter(name = "allocationSize", value = "1") })
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "DEPENDENCIA_SEQ")
-	@Column(name = "DEP_ID")
-	private Integer id;
+    @Id
+    @GenericGenerator(name = "DEPENDENCIA_SEQ", strategy = "sequence", parameters = {
+        @Parameter(name = "sequence", value = "DEPENDENCIA_SEQ")
+        ,
+			@Parameter(name = "allocationSize", value = "1")})
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "DEPENDENCIA_SEQ")
+    @Column(name = "DEP_ID")
+    private Integer id;
 
-	@LaamLabel("Código de la dependencia")
-	@LaamCreate(order = 10)
-	@LaamListColumn(order = 20)
-	@Column(name = "DEP_CODIGO")
-	private String codigo;
+    @LaamLabel("Código de la dependencia")
+    @LaamCreate(order = 10)
+    @LaamListColumn(order = 20)
+    @Column(name = "DEP_CODIGO")
+    private String codigo;
 
-	@LaamLabel("Nombre de la dependencia")
-	@LaamCreate(order = 10)
-	@LaamListColumn(order = 20)
-	@Column(name = "DEP_NOMBRE")
-	private String nombre;
+    @LaamLabel("Nombre de la dependencia")
+    @LaamCreate(order = 10)
+    @LaamListColumn(order = 20)
+    @Column(name = "DEP_NOMBRE")
+    private String nombre;
 
-	@LaamLabel("Sigla")
-	@LaamCreate(order = 15)
-	@LaamListColumn(order = 25)
-	@Column(name = "DEP_SIGLA")
-	private String sigla;
+    @LaamLabel("Sigla")
+    @LaamCreate(order = 15)
+    @LaamListColumn(order = 25)
+    @Column(name = "DEP_SIGLA")
+    private String sigla;
 
-	@LaamLabel("Orgánico de")
-	@LaamCreate(order = 20)
-	@LaamListColumn(order = 30)
-	@Column(name = "DEP_PADRE")
-	private Integer padre;
+    @LaamLabel("Orgánico de")
+    @LaamCreate(order = 20)
+    @LaamListColumn(order = 30)
+    @Column(name = "DEP_PADRE")
+    private Integer padre;
 
-	@LaamLabel("Jefe Dependencia")
-	@LaamCreate(order = 30)
-	@LaamListColumn(order = 40)
-	@ManyToOne
-	@JoinColumn(name = "USU_ID_JEFE")
-	@LaamWidget(value = "select", list = "usuarios")
-	private Usuario jefe;
+    @LaamLabel("Orgánico Visual de")
+    @LaamCreate(order = 20)
+    @LaamListColumn(order = 30)
+    @Column(name = "DEP_PADRE_ORGANICO")
+    private Integer padreOrganico;
 
-	@LaamLabel("Firma")
-	@LaamCreate(order = 40)
-	@ManyToOne
-	@JoinColumn(name = "USU_ID_FIRMA_PRINCIPAL")
-	@LaamWidget(value = "select", list = "usuarios")
-	private Usuario firmaPrincipal;
+    @LaamLabel("Jefe Dependencia")
+    @LaamCreate(order = 30)
+    @LaamListColumn(order = 40)
+    @ManyToOne
+    @JoinColumn(name = "USU_ID_JEFE")
+    @LaamWidget(value = "select", list = "usuarios")
+    private Usuario jefe;
 
-	@LaamLabel("Resolución jefe")
-	@LaamCreate(order = 50)
-	@LaamWidget(value = "editor")
-	@Column(name = "DEP_RESOLUCION_JEFE")
-	private String depResolucionJefe;
+    @LaamLabel("Firma")
+    @LaamCreate(order = 40)
+    @ManyToOne
+    @JoinColumn(name = "USU_ID_FIRMA_PRINCIPAL")
+    @LaamWidget(value = "select", list = "usuarios")
+    private Usuario firmaPrincipal;
 
-	@LaamLabel("Segundo Comandante")
-	@LaamCreate(order = 60)
-	@ManyToOne
-	@JoinColumn(name = "USU_ID_JEFE_ENCARGADO")
-	@LaamWidget(value = "select", list = "usuarios")
-	private Usuario jefeEncargado;
+    @LaamLabel("Resolución jefe")
+    @LaamCreate(order = 50)
+    @LaamWidget(value = "editor")
+    @Column(name = "DEP_RESOLUCION_JEFE")
+    private String depResolucionJefe;
 
-	@LaamLabel("Fecha de inicio segundo comandante")
-	@LaamCreate(order = 70)
-	@Column(name = "FCH_INICIO_JEFE_ENCARGADO")
-	@LaamWidget(value = "calendar")
-	private Date fchInicioJefeEncargado;
+    @LaamLabel("Segundo Comandante")
+    @LaamCreate(order = 60)
+    @ManyToOne
+    @JoinColumn(name = "USU_ID_JEFE_ENCARGADO")
+    @LaamWidget(value = "select", list = "usuarios")
+    private Usuario jefeEncargado;
 
-	@LaamLabel("Fecha de fin segundo comandante")
-	@LaamCreate(order = 80)
-	@Column(name = "FCH_FIN_JEFE_ENCARGADO")
-	@LaamWidget(value = "calendar")
-	private Date fchFinJefeEncargado;
+    @LaamLabel("Fecha de inicio segundo comandante")
+    @LaamCreate(order = 70)
+    @Column(name = "FCH_INICIO_JEFE_ENCARGADO")
+    @LaamWidget(value = "calendar")
+    private Date fchInicioJefeEncargado;
 
-	@OneToMany(mappedBy = "dependencia")
-	private List<DependenciaTrd> trds;
+    @LaamLabel("Fecha de fin segundo comandante")
+    @LaamCreate(order = 80)
+    @Column(name = "FCH_FIN_JEFE_ENCARGADO")
+    @LaamWidget(value = "calendar")
+    private Date fchFinJefeEncargado;
 
-	@LaamLabel("Código LDAP")
-	@LaamListColumn(order = 50)
-	@LaamCreate(order = 90)
-	@Column(name = "DEP_CODIGO_LDAP")
-	private String depCodigoLdap;
+    @OneToMany(mappedBy = "dependencia")
+    private List<DependenciaTrd> trds;
 
-	@LaamLabel("Código Orfeo")
-	@LaamListColumn(order = 60)
-	@LaamCreate(order = 100)
-	@Column(name = "DEP_CODIGO_ORFEO")
-	private String depCodigoOrfeo;
+    @LaamLabel("Código LDAP")
+    @LaamListColumn(order = 50)
+    @LaamCreate(order = 90)
+    @Column(name = "DEP_CODIGO_LDAP")
+    private String depCodigoLdap;
 
-	@LaamLabel("Dirección")
-	@LaamCreate(order = 70)
-	@LaamListColumn(order = 120)
-	@Column(name = "DIRECCION")
-	private String direccion;
+    @LaamLabel("Código Orfeo")
+    @LaamListColumn(order = 60)
+    @LaamCreate(order = 100)
+    @Column(name = "DEP_CODIGO_ORFEO")
+    private String depCodigoOrfeo;
 
-	/*
+    @LaamLabel("Dirección")
+    @LaamCreate(order = 70)
+    @LaamListColumn(order = 120)
+    @Column(name = "DIRECCION")
+    private String direccion;
+
+    /*
 	 * 2017-02-06 jgarcia@controltechcg.com Issue #123: Nuevo campo CIUDAD en la
 	 * tabla de DEPENDENCIA.
-	 */
-	@LaamLabel("Ciudad")
-	@LaamCreate(order = 80)
-	@LaamListColumn(order = 150)
-	@Column(name = "CIUDAD")
-	private String ciudad;
-	
-	/*
+     */
+    @LaamLabel("Ciudad")
+    @LaamCreate(order = 80)
+    @LaamListColumn(order = 150)
+    @Column(name = "CIUDAD")
+    private String ciudad;
+
+    /*
 	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS: Ordenamiento por peso.
-	 */
-	@LaamLabel("Peso Orden")
-	@LaamCreate(order = 10)
-	@LaamListColumn(order = 50)
-	@Column(name = "DEP_PESO_ORDEN")
-	private Integer pesoOrden; 
+     */
+    @LaamLabel("Peso Orden")
+    @LaamCreate(order = 10)
+    @LaamListColumn(order = 50)
+    @Column(name = "DEP_PESO_ORDEN")
+    private Integer pesoOrden;
 
-	@Transient
-	private List<Dependencia> subs;
+    @Transient
+    private List<Dependencia> subs;
 
-	@Transient
-	private String siglaNombre;
+    @Transient
+    private String siglaNombre;
 
-	@Transient
-	private String idString;
+    @Transient
+    private String idString;
 
-	@Transient
-	private String idPadreString;
+    @Transient
+    private String idPadreString;
 
-	public Integer getId() {
-		return id;
-	}
+    @Transient
+    private String idPadreOrganicoString;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public String getCodigo() {
-		return codigo;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setCodigo(String codigo) {
-		this.codigo = codigo;
-	}
+    public String getCodigo() {
+        return codigo;
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public String getNombre() {
+        return nombre;
+    }
 
-	public Integer getPadre() {
-		return padre;
-	}
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-	public void setPadre(Integer padre) {
-		this.padre = padre;
-	}
+    public Integer getPadre() {
+        return padre;
+    }
 
-	public Usuario getJefe() {
-		return jefe;
-	}
+    public void setPadre(Integer padre) {
+        this.padre = padre;
+    }
 
-	public void setJefe(Usuario jefe) {
-		this.jefe = jefe;
-	}
+    public Integer getPadreOrganico() {
+        return padreOrganico;
+    }
 
-	public Usuario getFirmaPrincipal() {
-		return firmaPrincipal;
-	}
+    public void setPadreOrganico(Integer padreOrganico) {
+        this.padreOrganico = padreOrganico;
+    }
 
-	public void setFirmaPrincipal(Usuario firmaPrincipal) {
-		this.firmaPrincipal = firmaPrincipal;
-	}
+    public Usuario getJefe() {
+        return jefe;
+    }
 
-	public String getDepResolucionJefe() {
-		return depResolucionJefe;
-	}
+    public void setJefe(Usuario jefe) {
+        this.jefe = jefe;
+    }
 
-	public void setDepResolucionJefe(String depResolucionJefe) {
-		this.depResolucionJefe = depResolucionJefe;
-	}
+    public Usuario getFirmaPrincipal() {
+        return firmaPrincipal;
+    }
 
-	public Usuario getJefeEncargado() {
-		return jefeEncargado;
-	}
+    public void setFirmaPrincipal(Usuario firmaPrincipal) {
+        this.firmaPrincipal = firmaPrincipal;
+    }
 
-	public void setJefeEncargado(Usuario jefeEncargado) {
-		this.jefeEncargado = jefeEncargado;
-	}
+    public String getDepResolucionJefe() {
+        return depResolucionJefe;
+    }
 
-	public Date getFchInicioJefeEncargado() {
-		return fchInicioJefeEncargado;
-	}
+    public void setDepResolucionJefe(String depResolucionJefe) {
+        this.depResolucionJefe = depResolucionJefe;
+    }
 
-	public void setFchInicioJefeEncargado(Date fchInicioJefeEncargado) {
-		this.fchInicioJefeEncargado = fchInicioJefeEncargado;
-	}
+    public Usuario getJefeEncargado() {
+        return jefeEncargado;
+    }
 
-	public Date getFchFinJefeEncargado() {
-		return fchFinJefeEncargado;
-	}
+    public void setJefeEncargado(Usuario jefeEncargado) {
+        this.jefeEncargado = jefeEncargado;
+    }
 
-	public void setFchFinJefeEncargado(Date fchFinJefeEncargado) {
-		this.fchFinJefeEncargado = fchFinJefeEncargado;
-	}
+    public Date getFchInicioJefeEncargado() {
+        return fchInicioJefeEncargado;
+    }
 
-	@Override
-	public String toString() {
-		return nombre;
-	}
+    public void setFchInicioJefeEncargado(Date fchInicioJefeEncargado) {
+        this.fchInicioJefeEncargado = fchInicioJefeEncargado;
+    }
 
-	public List<DependenciaTrd> getTrds() {
-		return trds;
-	}
+    public Date getFchFinJefeEncargado() {
+        return fchFinJefeEncargado;
+    }
 
-	public void setTrds(List<DependenciaTrd> trds) {
-		this.trds = trds;
-	}
+    public void setFchFinJefeEncargado(Date fchFinJefeEncargado) {
+        this.fchFinJefeEncargado = fchFinJefeEncargado;
+    }
 
-	public String getDepCodigoLdap() {
-		return depCodigoLdap;
-	}
+    @Override
+    public String toString() {
+        return nombre;
+    }
 
-	public void setDepCodigoLdap(String depCodigoLdap) {
-		this.depCodigoLdap = depCodigoLdap;
-	}
+    public List<DependenciaTrd> getTrds() {
+        return trds;
+    }
 
-	public String getDepCodigoOrfeo() {
-		return depCodigoOrfeo;
-	}
+    public void setTrds(List<DependenciaTrd> trds) {
+        this.trds = trds;
+    }
 
-	public void setDepCodigoOrfeo(String depCodigoOrfeo) {
-		this.depCodigoOrfeo = depCodigoOrfeo;
-	}
+    public String getDepCodigoLdap() {
+        return depCodigoLdap;
+    }
 
-	public Dependencia jefaturaCompartida(Dependencia dep, DependenciaRepository rep) {
-		// Se obtienen todas las dependencias padre en una lista ordenada para
-		// cada una de las dependencias
-		Dependencia padre = this;
-		List<Dependencia> thisPadres = new ArrayList<>();
-		while (padre.getPadre() != null && (padre = rep.getOne(padre.getPadre())) != null) {
-			thisPadres.add(padre);
-		}
-		padre = dep;
-		List<Dependencia> depPadres = new ArrayList<>();
-		while (padre.getPadre() != null && (padre = rep.getOne(padre.getPadre())) != null) {
-			depPadres.add(padre);
-		}
+    public void setDepCodigoLdap(String depCodigoLdap) {
+        this.depCodigoLdap = depCodigoLdap;
+    }
 
-		// En la intersección deben estar todas las jefaturas comunes en orden
-		// jerárquico. Por lo tanto en la primera posición se encuentra la
-		// jefatura compartida.
-		@SuppressWarnings("unchecked")
-		Collection<Dependencia> intersection = CollectionUtils.intersection(thisPadres, depPadres);
-		if (intersection.isEmpty())
-			return null;
-		return intersection.iterator().next();
-	}
+    public String getDepCodigoOrfeo() {
+        return depCodigoOrfeo;
+    }
 
-	public Dependencia obtenerJefatura(DependenciaRepository repository) {
-		Dependencia padre = this;
-		while (padre.getPadre() != null && (padre = repository.getOne(padre.getPadre())) != null) {
-		}
-		return padre;
-	}
+    public void setDepCodigoOrfeo(String depCodigoOrfeo) {
+        this.depCodigoOrfeo = depCodigoOrfeo;
+    }
 
-	public List<Dependencia> getSubs() {
-		return subs;
-	}
+    public Dependencia jefaturaCompartida(Dependencia dep, DependenciaRepository rep) {
+        // Se obtienen todas las dependencias padre en una lista ordenada para
+        // cada una de las dependencias
+        Dependencia padre = this;
+        List<Dependencia> thisPadres = new ArrayList<>();
+        while (padre.getPadre() != null && (padre = rep.getOne(padre.getPadre())) != null) {
+            thisPadres.add(padre);
+        }
+        padre = dep;
+        List<Dependencia> depPadres = new ArrayList<>();
+        while (padre.getPadre() != null && (padre = rep.getOne(padre.getPadre())) != null) {
+            depPadres.add(padre);
+        }
 
-	public void setSubs(List<Dependencia> subs) {
-		this.subs = subs;
-	}
+        // En la intersección deben estar todas las jefaturas comunes en orden
+        // jerárquico. Por lo tanto en la primera posición se encuentra la
+        // jefatura compartida.
+        @SuppressWarnings("unchecked")
+        Collection<Dependencia> intersection = CollectionUtils.intersection(thisPadres, depPadres);
+        if (intersection.isEmpty()) {
+            return null;
+        }
+        return intersection.iterator().next();
+    }
 
-	public String getSigla() {
-		return sigla;
-	}
+    public Dependencia obtenerJefatura(DependenciaRepository repository) {
+        Dependencia padre = this;
+        while (padre.getPadre() != null && (padre = repository.getOne(padre.getPadre())) != null) {
+        }
+        return padre;
+    }
 
-	public void setSigla(String sigla) {
-		this.sigla = sigla;
-	}
+    public List<Dependencia> getSubs() {
+        return subs;
+    }
 
-	public String getDireccion() {
-		return direccion;
-	}
+    public void setSubs(List<Dependencia> subs) {
+        this.subs = subs;
+    }
 
-	public void setDireccion(String direccion) {
-		this.direccion = direccion;
-	}
+    public String getSigla() {
+        return sigla;
+    }
 
-	public String getSiglaNombre() {
-		if (nombre != null && sigla != null) {
-			return sigla + " - " + nombre;
-		} else {
-			siglaNombre = nombre;
-		}
-		return siglaNombre;
-	}
+    public void setSigla(String sigla) {
+        this.sigla = sigla;
+    }
 
-	public String getIdString() {
-		if (id != null) {
-			idString = id.toString().replaceAll("\\.", "");
-		} else {
-			idString = null;
-		}
-		return idString;
-	}
+    public String getDireccion() {
+        return direccion;
+    }
 
-	public String getIdPadreString() {
-		if (padre != null) {
-			idPadreString = padre.toString().replaceAll("\\.", "");
-		} else {
-			idPadreString = null;
-		}
-		return idPadreString;
-	}
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
 
-	public void setSiglaNombre(String siglaNombre) {
-		this.siglaNombre = siglaNombre;
-	}
+    public String getSiglaNombre() {
+        if (nombre != null && sigla != null) {
+            return sigla + " - " + nombre;
+        } else {
+            siglaNombre = nombre;
+        }
+        return siglaNombre;
+    }
 
-	public void setIdString(String idString) {
-		this.idString = idString;
-	}
+    public String getIdString() {
+        if (id != null) {
+            idString = id.toString().replaceAll("\\.", "");
+        } else {
+            idString = null;
+        }
+        return idString;
+    }
 
-	public void setIdPadreString(String idPadreString) {
-		this.idPadreString = idPadreString;
-	}
+    public String getIdPadreString() {
+        if (padre != null) {
+            idPadreString = padre.toString().replaceAll("\\.", "");
+        } else {
+            idPadreString = null;
+        }
+        return idPadreString;
+    }
+    
+    public String getIdPadreOrganicoString() {
+        if (padreOrganico != null) {
+            idPadreOrganicoString = padreOrganico.toString().replaceAll("\\.", "");
+        } else {
+            idPadreOrganicoString = null;
+        }
+        return idPadreOrganicoString;
+    }
 
-	/**
-	 * @return the ciudad
-	 */
-	// Issue #123
-	public String getCiudad() {
-		return ciudad;
-	}
+    public void setSiglaNombre(String siglaNombre) {
+        this.siglaNombre = siglaNombre;
+    }
 
-	/**
-	 * @param ciudad
-	 *            the ciudad to set
-	 */
-	// Issue #123
-	public void setCiudad(String ciudad) {
-		this.ciudad = ciudad;
-	}
-	
-	/**
-	 * @return the Peso Orden 
-	 */
-	// Issue #45
-	public Integer getPesoOrden(){
-		return pesoOrden;
-	}
-	
-	/**
-	 * @param Peso Orden
-	 */
-	// Issue #45
-	public void setPesoOrden(Integer pesoOrden){
-		this.pesoOrden = pesoOrden;
-	}
+    public void setIdString(String idString) {
+        this.idString = idString;
+    }
+
+    public void setIdPadreString(String idPadreString) {
+        this.idPadreString = idPadreString;
+    }
+
+    public void setIdPadreOrganicoString(String idPadreOrganicoString) {
+        this.idPadreOrganicoString = idPadreOrganicoString;
+    }
+    
+    /**
+     * @return the ciudad
+     */
+    // Issue #123
+    public String getCiudad() {
+        return ciudad;
+    }
+
+    /**
+     * @param ciudad the ciudad to set
+     */
+    // Issue #123
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
+
+    /**
+     * @return the Peso Orden
+     */
+    // Issue #45
+    public Integer getPesoOrden() {
+        return pesoOrden;
+    }
+
+    /**
+     * @param Peso Orden
+     */
+    // Issue #45
+    public void setPesoOrden(Integer pesoOrden) {
+        this.pesoOrden = pesoOrden;
+    }
 
 }

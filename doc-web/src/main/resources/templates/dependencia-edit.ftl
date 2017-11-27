@@ -36,7 +36,23 @@
 		             </#list>
 		        </select>
 		        </fieldset>
-	        <#else>
+	        <#elseif p.name == 'padreOrganico' >
+            <fieldset class="form-group">
+		<label for="${p.name}">Padre</label>
+		<select class="form-control" name="${p.name}" id="${p.name}"  >
+		    <#if dependencias??>
+                        <option value=""></option>
+		        <#list dependencias as dep>
+			    <#if dep.idString?string == ((dependencia.padreOrganicoString)!"")?string >
+                                <option value="${dep.idString}" selected="selected">${dep.nombre}</option>
+			    <#else>
+			        <option value="${dep.idString}">${dep.nombre}</option>
+			    </#if>
+		        </#list>
+		    </#if>
+		</select>
+            </fieldset>
+            <#else>
 		        <fieldset class="form-group">
 		            <label for="${p.name}">${p.label}</label>
 		            <@inputedit p entity />
