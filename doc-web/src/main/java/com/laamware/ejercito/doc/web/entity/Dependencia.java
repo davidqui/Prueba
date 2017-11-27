@@ -60,6 +60,10 @@ public class Dependencia extends AuditActivoModifySupport {
     @Column(name = "DEP_PADRE")
     private Integer padre;
 
+    /*
+     * 2017-11-27 edison.gonzalez@controltechcg.com Issue #140: Se agrega la
+     * nueva columna que permite la organizacion de las unidades.
+     */
     @LaamLabel("Orgánico Visual de")
     @LaamCreate(order = 20)
     @LaamListColumn(order = 30)
@@ -360,7 +364,7 @@ public class Dependencia extends AuditActivoModifySupport {
         }
         return idPadreString;
     }
-    
+
     public String getIdPadreOrganicoString() {
         if (padreOrganico != null) {
             idPadreOrganicoString = padreOrganico.toString().replaceAll("\\.", "");
@@ -385,7 +389,7 @@ public class Dependencia extends AuditActivoModifySupport {
     public void setIdPadreOrganicoString(String idPadreOrganicoString) {
         this.idPadreOrganicoString = idPadreOrganicoString;
     }
-    
+
     /**
      * @return the ciudad
      */
