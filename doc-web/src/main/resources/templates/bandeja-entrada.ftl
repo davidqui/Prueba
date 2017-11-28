@@ -25,8 +25,8 @@
             2017-10-17 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech feature-132:
             Ajuste visual de informacion en tabla.
         -->
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered" style="table-layout: fixed;">
+        <div class="">
+            <table class="table table-striped table-bordered table-responsive" style="table-layout: fixed;">
                 <thead>
                     <tr>
                         <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 10%">FECHA CREACIÓN</td>
