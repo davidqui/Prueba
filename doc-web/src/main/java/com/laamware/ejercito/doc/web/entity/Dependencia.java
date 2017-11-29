@@ -64,7 +64,7 @@ public class Dependencia extends AuditActivoModifySupport {
      * 2017-11-27 edison.gonzalez@controltechcg.com Issue #140: Se agrega la
      * nueva columna que permite la organizacion de las unidades.
      */
-    @LaamLabel("Orgánico Visual de")
+    @LaamLabel("Dependencia Superior")
     @LaamCreate(order = 20)
     @LaamListColumn(order = 30)
     @Column(name = "DEP_PADRE_ORGANICO")

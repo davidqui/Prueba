@@ -38,7 +38,7 @@
             </fieldset>
         <#elseif p.name == 'padreOrganico' >
             <fieldset class="form-group">
-		<label for="${p.name}">Padre</label>
+		<label for="${p.name}">${p.label}</label>
 		<select class="form-control" name="${p.name}" id="${p.name}"  >
 		    <#if dependencias??>
                         <option value=""></option>
