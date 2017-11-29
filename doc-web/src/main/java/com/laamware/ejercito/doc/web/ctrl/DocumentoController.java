@@ -514,9 +514,9 @@ public class DocumentoController extends UtilController {
          * de acceso al documento.
          */
         //Verifica permisos de acceso al documento
-        Integer permiso = documentRepository.verificaAccesoDocumento(usuarioLogueado.getId(), pin);
+        Boolean acceso = usuarioService.verificaAccesoDocumento(usuarioLogueado.getId(), pin);
 
-        if (permiso == null || permiso != 1) {
+        if (!acceso) {
             return "security-denied";
         }
 
