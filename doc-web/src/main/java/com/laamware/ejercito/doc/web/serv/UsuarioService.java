@@ -7,11 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.laamware.ejercito.doc.web.entity.Dependencia;
+import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
 import com.laamware.ejercito.doc.web.serv.spec.UsuarioSpecifications;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -57,6 +61,18 @@ public class UsuarioService {
     private UsuarioSpecificationRepository repository;
 
     /**
+     * Repositorio de documentos.
+     */
+    @Autowired
+    private DocumentoRepository documentoRepository;
+
+    /**
+     * Repositorio de procesos.
+     */
+    @Autowired
+    ProcesoService procesoService;
+
+    /**
      * Obtiene una primera página de usuarios correspondientes a la criteria de
      * búsqueda asignada.
      *
@@ -79,10 +95,10 @@ public class UsuarioService {
         /*
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-        */
+         */
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "usuGrado.pesoOrden"));
-        
-        final PageRequest pageRequest = new PageRequest(pageIndex, pageSize,sort);
+
+        final PageRequest pageRequest = new PageRequest(pageIndex, pageSize, sort);
         final Page<Usuario> users = repository.findAll(where, pageRequest);
         return users;
     }
@@ -96,7 +112,7 @@ public class UsuarioService {
     public Usuario findOne(Integer id) {
         return usuarioRepository.findOne(id);
     }
-    
+
     /**
      * Obtiene la información básica del usuario (Grado, Nombre, Cargo,
      * Dependencia).
@@ -114,7 +130,7 @@ public class UsuarioService {
         /*
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-        */
+         */
         final String grado = usuario.getUsuGrado().getId();
         if (grado != null && !grado.trim().isEmpty()) {
             builder.append(grado).append(". ");
@@ -156,23 +172,23 @@ public class UsuarioService {
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
             2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) 
             feature-132: Se quita la dependencia, para mostrarla en otra columna
-        */
+         */
 
         final String grado = usuario.getUsuGrado().getId();
         if (grado != null && !grado.trim().isEmpty()) {
             builder.append(grado).append(". ");
         }
-        
+
         final String nombre = usuario.getNombre();
         builder.append(nombre).append(" ");
-        
+
         final String cargo = usuario.getCargo();
         if (cargo != null && !cargo.trim().isEmpty()) {
             builder.append("</br>").append(cargo);
         }
         return builder.toString().trim();
     }
-    
+
     /**
      * Obtiene la unidad del usuario (Dependencia).
      *
@@ -189,8 +205,8 @@ public class UsuarioService {
         /*
             2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) 
             feature-132: Se Agrega la dependencia, para mostrarla en otra columna
-        */
-        
+         */
+
         final Dependencia dependencia = usuario.getDependencia();
         if (dependencia != null) {
             final Dependencia unidad = buscarUnidad(dependencia);
@@ -215,5 +231,41 @@ public class UsuarioService {
         final Dependencia unidad = dependenciaService.buscarUnidad(dependencia);
         unidadesMap.put(dependenciaID, unidad);
         return unidad;
+    }
+
+    public Boolean verificaAccesoDocumento(Integer usuId, String pinId) {
+        Integer permiso = documentoRepository.verificaAccesoDocumento(usuId, pinId);
+        if (permiso >= 1) {
+            return true;
+        } else {
+            return verficaAccesoDocumentoCorrelacionado(usuId, pinId);
+        }
+    }
+
+    private boolean verficaAccesoDocumentoCorrelacionado(Integer usuId, String pinId) {
+        Instancia i = procesoService.instancia(pinId);
+        // Obtiene el identificador de documento
+        String docId = i.getVariable(Documento.DOC_ID);
+        //Verifica si el documento existe, sino le permite seguir ya que se
+        //esta creando
+        if (!StringUtils.isBlank(docId)) {
+            Documento doc = documentoRepository.getOne(docId);
+
+            //Verifica que tenga documento relacionado
+            if (doc != null && !StringUtils.isBlank(doc.getRelacionado())) {
+                Documento relacionado = documentoRepository.getOne(doc.getRelacionado());
+                if (relacionado != null) {
+                    Integer permiso = documentoRepository.verificaAccesoDocumento(usuId, relacionado.getInstancia().getId());
+                    if (permiso >= 1) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+
+        } else {
+            return true;
+        }
+
     }
 }
