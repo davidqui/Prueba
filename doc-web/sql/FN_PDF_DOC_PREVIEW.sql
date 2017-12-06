@@ -1,7 +1,6 @@
 -- ------------------------------------------------------------ 
--- 2017-11-08 edison.gonzalez@controltechcg.com Issue #137 (SICDI-Controltech)
--- issue-137: Se agrega las lienas de mando para las dependencias BASEC1, BASEC2,
--- BASEC3, BASEC4, BASEC5.
+-- 2017-12-06 edison.gonzalez@controltechcg.com Issue #142 (SICDI-Controltech)
+-- issue-142: Se modifican las lienas de mando para las dependencias BAGOP y BACCE.
 -- ------------------------------------------------------------
 
 create or replace FUNCTION "FN_PDF_DOC_PREVIEW" 
@@ -380,10 +379,10 @@ BEGIN
       V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM2-';
     ELSIF V_SIGLA_CORTA_DE = 'BAGOP' THEN
       V_SIGLA_LARGA_DE := 'BATALLÓN DE GESTIÓN OPERACIONAL DE INTELIGENCIA Y CONTRAINTELIGENCIA';
-      V_PADRE_ORIGEN := 'JEMOP-CACIM-';
+      V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM2';
     ELSIF V_SIGLA_CORTA_DE = 'BACCE' THEN
       V_SIGLA_LARGA_DE := 'BATALLÓN DE CREDIBILIDAD Y CONFIABILIDAD DEL EJÉRCITO';
-      V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM2-';
+      V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM1-';
     ELSIF V_SIGLA_CORTA_DE = 'BACIM1' THEN
       V_SIGLA_LARGA_DE := 'BATALLÓN DE CONTRAINTELIGENCIA MILITAR No 1';
       V_PADRE_ORIGEN := 'JEMOP-CACIM-BRCIM1-';
