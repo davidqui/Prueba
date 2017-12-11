@@ -38,12 +38,12 @@
 		        </fieldset>
 	        <#elseif p.name == 'padreOrganico' >
             <fieldset class="form-group">
-		<label for="${p.name}">${p.label}</label>
+		<label for="${p.name}">${p.name}</label>
 		<select class="form-control" name="${p.name}" id="${p.name}"  >
 		    <#if dependencias??>
                         <option value=""></option>
 		        <#list dependencias as dep>
-			    <#if dep.idString?string == ((dependencia.padreOrganicoString)!"")?string >
+			    <#if dep.idString?string == ((entity.idPadreOrganicoString)!"")?string >
                                 <option value="${dep.idString}" selected="selected">${dep.nombre}</option>
 			    <#else>
 			        <option value="${dep.idString}">${dep.nombre}</option>
