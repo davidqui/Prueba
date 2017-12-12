@@ -111,6 +111,13 @@
                         <span class="hidden-lg-up">TAR</span>
                         </a>
                     </li>
+                
+                <li class="nav-item">
+                    <a href="/reporteDependencia/init" class="btn btn-warning btn-sm">
+                        <span class="hidden-md-down">Reporte</span>
+                        <span class="hidden-lg-up">TAR</span>
+                        </a>
+                    </li>
 
                 <li class="nav-item hidden-xs-down">
                     <form action="/consulta" method="GET" class="form-inline" id="consulta-form">
