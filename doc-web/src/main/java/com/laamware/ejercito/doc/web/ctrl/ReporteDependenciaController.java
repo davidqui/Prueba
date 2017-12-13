@@ -7,6 +7,8 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.JasperService;
 import com.laamware.ejercito.doc.web.serv.ReporteService;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.security.Principal;
@@ -144,7 +146,7 @@ public class ReporteDependenciaController {
 
         Map<String, Object> params = new HashMap<>();
         byte[] reporteGenerado = null;
-        String nombreRporte = "EstadisticaDependencia";
+        String nombreRporte = "Blank_Letter";
 
         try {
             if (fechaInicialValor != null) {
@@ -159,11 +161,11 @@ public class ReporteDependenciaController {
             Usuario usuario = usuarioRepository.findByLoginAndActivo(login, Boolean.TRUE);
             final DefaultCategoryDataset categoryDataset1 = reporteService.generaDatasetReporteDependencia(usuario, fechaInicialValor, fechaFinalValor);
             final JFreeChart barChart1 = reporteService.generaGraficaReporteDependencia(usuario, fechaInicialValor, fechaFinalValor, categoryDataset1);
-            params.put("dependencia", barChart1.createBufferedImage(400, 335));
-
+            params.put("dependencia", barChart1.createBufferedImage(520, 700,500, 400, null));
+            
             final DefaultCategoryDataset categoryDataset2 = reporteService.generaDatasetReporteDependenciaTrd(usuario, fechaInicialValor, fechaFinalValor);
             final JFreeChart barChart2 = reporteService.generaGraficaReporteDependenciaTrd(usuario, fechaInicialValor, fechaFinalValor, categoryDataset2);
-            params.put("dependenciaTrd", barChart2.createBufferedImage(400, 335));
+            params.put("dependenciaTrd", barChart2.createBufferedImage(520, 700,500, 400, null));
             
             reporteGenerado = jasperService.pdf(nombreRporte, params, null, dataSource.getConnection());
         } catch (Exception e) {
@@ -191,7 +193,14 @@ public class ReporteDependenciaController {
     }
 
     private void writeChartAsPNGImage(final JFreeChart chart, final int width, final int height, HttpServletResponse response) throws IOException {
-        final BufferedImage bufferedImage = chart.createBufferedImage(width, height);
+        final BufferedImage bufferedImage = chart.createBufferedImage(width, height, 500, 400, null);
+        
+//        BufferedImage after = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//        AffineTransform at = new AffineTransform();
+//        at.scale(2.0, 2.0);
+//        AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+//        after = scaleOp.filter(bufferedImage, after);
+        
         response.setContentType(MediaType.IMAGE_PNG_VALUE);
         ChartUtilities.writeBufferedImageAsPNG(response.getOutputStream(), bufferedImage);
     }

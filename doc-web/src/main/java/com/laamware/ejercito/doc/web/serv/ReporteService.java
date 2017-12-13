@@ -142,12 +142,12 @@ public class ReporteService {
         ItemLabelPosition outside12 = new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER);
         categoryItemRenderer.setBasePositiveItemLabelPosition(outside12);
         categoryItemRenderer.setBaseItemLabelPaint(Color.black);
-        categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.BOLD, 14));
+//        categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.BOLD, 14));
 
         //Devuelve el eje del dominio o del eje X
         CategoryAxis domainAxis = categoryPlot.getDomainAxis();
         //Cambia la posición de los labels del eje x
-        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
 
         return barChart;
     }
@@ -193,18 +193,18 @@ public class ReporteService {
         //Otra forma
         categoryItemRenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
         categoryItemRenderer.setBaseItemLabelsVisible(true);
-        ItemLabelPosition outside12 = new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.BASELINE_CENTER);
+        ItemLabelPosition outside12 = new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.BASELINE_CENTER);
         categoryItemRenderer.setBasePositiveItemLabelPosition(outside12);
         categoryItemRenderer.setBaseItemLabelPaint(Color.black);
-        categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.BOLD, 14));
+//        categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.BOLD, 10));
 
         //Devuelve el eje del dominio o del eje X
         CategoryAxis domainAxis = categoryPlot.getDomainAxis();
         //Cambia la posición de los labels del eje x
 
         domainAxis.setCategoryLabelPositions(CategoryLabelPositions.STANDARD);
-
         categoryPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+        categoryPlot.getDomainAxis().setTickLabelFont(new Font("Serif", Font.PLAIN, 4));
 
         return barChart;
     }
