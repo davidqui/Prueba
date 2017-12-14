@@ -23,6 +23,7 @@ import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.TextAnchor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,11 @@ public class ReporteService {
     private ReporteRepository reporteRepository;
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    private final Font fuentePequena = new Font("Serif", Font.HANGING_BASELINE, 4);
+    private final Font fuenteGrande = new Font("Serif", Font.HANGING_BASELINE, 10);
+    private final Font fuenteTituloPequena = new Font("Serif", Font.BOLD, 10);
+    private final Font fuenteTituloGrande = new Font("Serif", Font.BOLD, 20);
 
     public List<ReporteDependenciaDTO> obtenerReporteDependencia(Integer dependencia, Date fechaInicial, Date fechaFinal) {
         DateUtil.setTime(fechaInicial, DateUtil.SetTimeType.START_TIME);
@@ -142,12 +148,23 @@ public class ReporteService {
         ItemLabelPosition outside12 = new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER);
         categoryItemRenderer.setBasePositiveItemLabelPosition(outside12);
         categoryItemRenderer.setBaseItemLabelPaint(Color.black);
-//        categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.BOLD, 14));
-
+        
         //Devuelve el eje del dominio o del eje X
         CategoryAxis domainAxis = categoryPlot.getDomainAxis();
         //Cambia la posición de los labels del eje x
         domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+        
+        if (categoryDataset.getColumnCount() > 15) {
+            categoryItemRenderer.setBaseItemLabelFont(fuentePequena);
+            categoryPlot.getDomainAxis().setTickLabelFont(fuentePequena);
+            TextTitle textTitle = new TextTitle(title, fuenteTituloPequena);
+            barChart.setTitle(textTitle);
+        } else {
+            categoryItemRenderer.setBaseItemLabelFont(fuenteGrande);
+            categoryPlot.getDomainAxis().setTickLabelFont(fuenteGrande);
+            TextTitle textTitle = new TextTitle(title, fuenteTituloGrande);
+            barChart.setTitle(textTitle);
+        }
 
         return barChart;
     }
@@ -196,12 +213,6 @@ public class ReporteService {
         ItemLabelPosition outside12 = new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.BASELINE_CENTER);
         categoryItemRenderer.setBasePositiveItemLabelPosition(outside12);
         categoryItemRenderer.setBaseItemLabelPaint(Color.black);
-        System.err.println("getColumnCount= " + categoryDataset.getColumnCount());
-        if (categoryDataset.getColumnCount() > 15) {
-            categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 6));
-        } else {
-            categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 12));
-        }
 
         //Devuelve el eje del dominio o del eje X
         CategoryAxis domainAxis = categoryPlot.getDomainAxis();
@@ -209,10 +220,17 @@ public class ReporteService {
 
         domainAxis.setCategoryLabelPositions(CategoryLabelPositions.STANDARD);
         categoryPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+
         if (categoryDataset.getColumnCount() > 15) {
-            categoryPlot.getDomainAxis().setTickLabelFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 4));
+            categoryItemRenderer.setBaseItemLabelFont(fuentePequena);
+            categoryPlot.getDomainAxis().setTickLabelFont(fuentePequena);
+            TextTitle textTitle = new TextTitle(title, fuenteTituloPequena);
+            barChart.setTitle(textTitle);
         } else {
-            categoryPlot.getDomainAxis().setTickLabelFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 12));
+            categoryItemRenderer.setBaseItemLabelFont(fuenteGrande);
+            categoryPlot.getDomainAxis().setTickLabelFont(fuenteGrande);
+            TextTitle textTitle = new TextTitle(title, fuenteTituloGrande);
+            barChart.setTitle(textTitle);
         }
 
         return barChart;

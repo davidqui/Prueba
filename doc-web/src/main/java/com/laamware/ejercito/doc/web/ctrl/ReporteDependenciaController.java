@@ -53,10 +53,10 @@ public class ReporteDependenciaController {
 
     @Autowired
     private JasperService jasperService;
-    
+
     @Autowired
     private DataSource dataSource;
-    
+
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @RequestMapping(value = "/init", method = RequestMethod.GET)
@@ -76,8 +76,6 @@ public class ReporteDependenciaController {
             RedirectAttributes redirect,
             @RequestParam(value = "fechaInicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicialValor,
             @RequestParam(value = "fechaFinal", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFinalValor) {
-
-        
 
         if (fechaInicialValor != null) {
             model.addAttribute("fechaInicial", dateFormat.format(fechaInicialValor));
@@ -117,7 +115,7 @@ public class ReporteDependenciaController {
         final DefaultCategoryDataset categoryDataset = reporteService.generaDatasetReporteDependencia(usuario, fechaInicialValor, fechaFinalValor);
         final JFreeChart barChart = reporteService.generaGraficaReporteDependencia(usuario, fechaInicialValor, fechaFinalValor, categoryDataset);
 
-        writeChartAsPNGImage(barChart, 800, 700, resp);
+        writeChartAsPNGImage(barChart, 800, 700, resp, categoryDataset.getColumnCount());
     }
 
     @RequestMapping(value = "/barraDependenciaTrd", method = RequestMethod.GET)
@@ -132,7 +130,7 @@ public class ReporteDependenciaController {
 
         final DefaultCategoryDataset categoryDataset = reporteService.generaDatasetReporteDependenciaTrd(usuario, fechaInicialValor, fechaFinalValor);
         final JFreeChart barChart = reporteService.generaGraficaReporteDependenciaTrd(usuario, fechaInicialValor, fechaFinalValor, categoryDataset);
-        writeChartAsPNGImage(barChart, 800, 700, resp);
+        writeChartAsPNGImage(barChart, 800, 700, resp, categoryDataset.getColumnCount());
     }
 
     @RequestMapping(value = "generarReporte", method = RequestMethod.GET)
@@ -156,17 +154,24 @@ public class ReporteDependenciaController {
             if (fechaFinalValor != null) {
                 model.addAttribute("fechaFinal", dateFormat.format(fechaFinalValor));
             }
-            
+
             final String login = principal.getName();
             Usuario usuario = usuarioRepository.findByLoginAndActivo(login, Boolean.TRUE);
             final DefaultCategoryDataset categoryDataset1 = reporteService.generaDatasetReporteDependencia(usuario, fechaInicialValor, fechaFinalValor);
             final JFreeChart barChart1 = reporteService.generaGraficaReporteDependencia(usuario, fechaInicialValor, fechaFinalValor, categoryDataset1);
-            params.put("dependencia", barChart1.createBufferedImage(520, 700,500, 400, null));
-            
+            params.put("dependencia", barChart1.createBufferedImage(520, 700));
+
+            if (categoryDataset1.getColumnCount() > 15) {
+                params.put("dependencia", barChart1.createBufferedImage(520, 700, 520 / 2, 700 / 2, null));
+            }
+
             final DefaultCategoryDataset categoryDataset2 = reporteService.generaDatasetReporteDependenciaTrd(usuario, fechaInicialValor, fechaFinalValor);
             final JFreeChart barChart2 = reporteService.generaGraficaReporteDependenciaTrd(usuario, fechaInicialValor, fechaFinalValor, categoryDataset2);
-            params.put("dependenciaTrd", barChart2.createBufferedImage(520, 700,500, 400, null));
-            
+            params.put("dependenciaTrd", barChart2.createBufferedImage(520, 700));
+            if (categoryDataset2.getColumnCount() > 15) {
+                params.put("dependenciaTrd", barChart2.createBufferedImage(520, 700, 520 / 2, 700 / 2, null));
+            }
+
             reporteGenerado = jasperService.pdf(nombreRporte, params, null, dataSource.getConnection());
         } catch (Exception e) {
             model.addAttribute(AppConstants.FLASH_ERROR, "Error general el reporte: " + e.getMessage());
@@ -192,15 +197,14 @@ public class ReporteDependenciaController {
         }
     }
 
-    private void writeChartAsPNGImage(final JFreeChart chart, final int width, final int height, HttpServletResponse response) throws IOException {
-        final BufferedImage bufferedImage = chart.createBufferedImage(width, height, 500, 400, null);
-        
-//        BufferedImage after = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-//        AffineTransform at = new AffineTransform();
-//        at.scale(2.0, 2.0);
-//        AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-//        after = scaleOp.filter(bufferedImage, after);
-        
+    private void writeChartAsPNGImage(final JFreeChart chart, final int width, final int height, HttpServletResponse response, int columnCount) throws IOException {
+
+        BufferedImage bufferedImage = chart.createBufferedImage(width, height);
+
+        if (columnCount > 15) {
+            bufferedImage = chart.createBufferedImage(width, height, width / 2, height / 2, null);
+        }
+
         response.setContentType(MediaType.IMAGE_PNG_VALUE);
         ChartUtilities.writeBufferedImageAsPNG(response.getOutputStream(), bufferedImage);
     }
