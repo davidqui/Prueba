@@ -112,4 +112,23 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
             @Param("usuarioID") Integer usuarioID,
             @Param("transferenciaArchivoID") Integer transferenciaArchivoID);
 
+    /**
+     * Obtiene la cantidad de registros para un documento y un usuario.
+     *
+     * @param usuarioID ID del usuario.
+     * @param docId Identificador del documento
+     * @return Cuenta de cantidad de registros.
+     * @see #findAllActivoByUsuario(java.lang.Integer)
+     */
+    /*
+        2017-12-14 edison.gonzalez@controltechcg.com Issue #144 (SICDI-Controltech) 
+        hotfix-144: Duplicidad de registros.
+     */
+    @Query(nativeQuery = true, value = ""
+            + "SELECT * \n"
+            + "FROM DOCUMENTO_DEPENDENCIA \n"
+            + "WHERE ACTIVO = 1 \n"
+            + "AND QUIEN =:usuarioID \n"
+            + "AND DOC_ID = :docId")
+    List<DocumentoDependencia> findAllActivoByUsuarioAndDocumento(@Param("usuarioID") Integer usuarioID, @Param("docId") String docId);
 }
