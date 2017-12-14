@@ -29,10 +29,14 @@ import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping(value = "/ofs")
 public class OFSController extends UtilController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OFSController.class);
 
     @Autowired
     OFS ofs;
@@ -127,6 +131,7 @@ public class OFSController extends UtilController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            LOG.error("Error metodo downloaddocxtopdf: ", e);
         }
     }
 
@@ -151,6 +156,7 @@ public class OFSController extends UtilController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            LOG.error("Error metodo download: ", e);
         }
     }
 
@@ -176,6 +182,7 @@ public class OFSController extends UtilController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            LOG.error("Error metodo downloadAsIs: ", e);
         }
     }
 
@@ -199,6 +206,7 @@ public class OFSController extends UtilController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            LOG.error("Error metodo downloadTmb: ", e);
         }
     }
 
@@ -228,6 +236,7 @@ public class OFSController extends UtilController {
                 return response;
             } catch (Exception e) {
                 e.printStackTrace();
+                LOG.error("Error metodo uploadStage: ", e);
             }
         }
         return null;
