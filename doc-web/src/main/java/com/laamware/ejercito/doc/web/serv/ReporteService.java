@@ -196,7 +196,12 @@ public class ReporteService {
         ItemLabelPosition outside12 = new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.BASELINE_CENTER);
         categoryItemRenderer.setBasePositiveItemLabelPosition(outside12);
         categoryItemRenderer.setBaseItemLabelPaint(Color.black);
-//        categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.BOLD, 10));
+        System.err.println("getColumnCount= " + categoryDataset.getColumnCount());
+        if (categoryDataset.getColumnCount() > 15) {
+            categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 6));
+        } else {
+            categoryItemRenderer.setBaseItemLabelFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 12));
+        }
 
         //Devuelve el eje del dominio o del eje X
         CategoryAxis domainAxis = categoryPlot.getDomainAxis();
@@ -204,7 +209,11 @@ public class ReporteService {
 
         domainAxis.setCategoryLabelPositions(CategoryLabelPositions.STANDARD);
         categoryPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-        categoryPlot.getDomainAxis().setTickLabelFont(new Font("Serif", Font.PLAIN, 4));
+        if (categoryDataset.getColumnCount() > 15) {
+            categoryPlot.getDomainAxis().setTickLabelFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 4));
+        } else {
+            categoryPlot.getDomainAxis().setTickLabelFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 12));
+        }
 
         return barChart;
     }
