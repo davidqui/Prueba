@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.3.final using JasperReports Library version 6.4.3  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_Letter" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0f5b644c-3e67-4d56-965b-7501f7587568">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SICDI"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="ireport.jasperserver.url" value="http://localhost:8082/jasperserver/"/>
+	<property name="ireport.jasperserver.user" value="jasperadmin"/>
+	<property name="ireport.jasperserver.reportUnit" value="/reports/Blank_Letter"/>
+	<property name="ireport.jasperserver.report.resource" value="/reports/Blank_Letter_files/main_jrxml"/>
+	<parameter name="dependencia" class="java.lang.Object"/>
+	<parameter name="dependenciaTrd" class="java.lang.Object"/>
+	<queryString>
+		<![CDATA[select 1 from dual]]>
+	</queryString>
+	<group name="dependenciaTrd">
+		<groupFooter>
+			<band height="729">
+				<image>
+					<reportElement x="0" y="0" width="570" height="729" uuid="f1a4e234-19b0-4331-a129-5b6786041184">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<imageExpression><![CDATA[$P{dependenciaTrd}]]></imageExpression>
+				</image>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="dependencia">
+		<groupFooter>
+			<band height="730">
+				<image>
+					<reportElement x="0" y="0" width="570" height="700" uuid="e15f2fa2-fb09-4bdf-83f7-0be84d428569">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<imageExpression><![CDATA[$P{dependencia}]]></imageExpression>
+				</image>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="22" splitType="Stretch"/>
+	</title>
+</jasperReport>

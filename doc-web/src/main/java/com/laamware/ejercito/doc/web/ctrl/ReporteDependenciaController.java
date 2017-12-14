@@ -144,7 +144,7 @@ public class ReporteDependenciaController {
 
         Map<String, Object> params = new HashMap<>();
         byte[] reporteGenerado = null;
-        String nombreRporte = "Blank_Letter";
+        String nombreRporte = "ReporteEstadistica";
 
         try {
             if (fechaInicialValor != null) {
