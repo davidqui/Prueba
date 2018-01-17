@@ -1,6 +1,6 @@
 -- ------------------------------------------------------------ 
--- 2017-12-06 edison.gonzalez@controltechcg.com Issue #142 (SICDI-Controltech)
--- issue-142: Se modifican las lienas de mando para las dependencias BAGOP y BACCE.
+-- 2018-01-17 edison.gonzalez@controltechcg.com Issue #146 (SICDI-Controltech)
+-- issue-146: Ajuste de letra en la linea de mando.
 -- ------------------------------------------------------------
 
 create or replace FUNCTION "FN_PDF_DOC_PREVIEW" 
@@ -84,7 +84,7 @@ RETURN VARCHAR2 is
   V_DEPENCIA_DIR_ELABORA    	DEPENDENCIA.DIRECCION%TYPE;
   V_JEFE_DEP_N_DESTINO        USUARIO.USU_NOMBRE%TYPE;
   V_JEFE_DEP_G_DESTINO        USUARIO.USU_GRADO%TYPE;
-  
+
   --
   -- 2017-06-07 jgarcia@controltechcg.com Issue #101 (SICDI-Controltech)
   -- hotfix-101: Corrección para agregar la lógica en las funciones 
@@ -93,7 +93,7 @@ RETURN VARCHAR2 is
   -- tabla DOCUMENTO_PDF.
   --
   V_JEFE_DEP_SG_DESTINO       USUARIO.USU_GRADO%TYPE;
-  
+
   V_JEFE_DEP_DIR_DESTINO      DEPENDENCIA.DIRECCION%TYPE;
   V_USU_ID_JEFE           		DEPENDENCIA.USU_ID_JEFE%TYPE;
   V_JEFE_DEP_CARGO_DESTINO    USUARIO.USU_CARGO%TYPE;
@@ -102,7 +102,7 @@ RETURN VARCHAR2 is
   -- Issue #123
   V_DEPENDENCIA_CIUDAD_ELABORA  DEPENDENCIA.CIUDAD%TYPE;
   V_DEPENDENCIA_CIUDAD_DESTINO  DEPENDENCIA.CIUDAD%TYPE;
-  
+
   /*
     2017-09-29 edison.gonzalez@controltechcg.com Issue #129 (SICDI-Controltech)
     feature-129: Se añade las variables para almacenar la descripcion del campo 
@@ -127,7 +127,7 @@ BEGIN
       -- SELECT CLA_NOMBRE INTO V_CLASIFICACION_NOMBRE FROM CLASIFICACION WHERE CLA_ID = v_documento.CLA_ID;
       DBMS_OUTPUT.PUT_LINE('Consulta OK CLASIFICACION.CLA_NOMBRE : ' || V_CLASIFICACION_NOMBRE);
     END IF;
-    
+
     --
     -- 2017-03-08 jgarcia@controltechcg.com Issue #1: Se modifica la función
     -- para que en todos los procesos aparezca la clasificación del documento.
@@ -139,7 +139,7 @@ BEGIN
       SELECT DIRECCION,USU_ID_JEFE,CIUDAD INTO V_JEFE_DEP_DIR_DESTINO, V_USU_ID_JEFE, V_DEPENDENCIA_CIUDAD_DESTINO FROM DEPENDENCIA WHERE DEP_ID = v_documento.DEP_ID_DES;
       IF V_USU_ID_JEFE IS NOT NULL THEN
         SELECT USU_NOMBRE,USU_CARGO INTO V_JEFE_DEP_N_DESTINO,V_JEFE_DEP_CARGO_DESTINO FROM USUARIO WHERE USU_ID = V_USU_ID_JEFE;
-        
+
           --
           -- 2017-06-07 jgarcia@controltechcg.com Issue #101 (SICDI-Controltech)
           -- hotfix-101: Corrección para agregar la lógica en las funciones 
@@ -323,10 +323,10 @@ BEGIN
       V_SIGLA_LARGA_DE := 'BATALLÓN DE INTELIGENCIA MILITAR ESTRATÉGICO No.5';
       V_PADRE_ORIGEN := 'JEMOP-CAIMI-BRIMI1-';
     ELSIF V_SIGLA_CORTA_DE = 'BINGE' THEN
-      V_SIGLA_LARGA_DE := 'BATALLÓN DE INTELIGENCIA DE GUERRA ELECTRÉNICA';
+      V_SIGLA_LARGA_DE := 'BATALLÓN DE INTELIGENCIA DE GUERRA ELECTRÓNICA';
       V_PADRE_ORIGEN := 'JEMOP-CAIMI-BRIMI1-';
     ELSIF V_SIGLA_CORTA_DE = 'BIGAM' THEN
-      V_SIGLA_LARGA_DE := 'BATALLÓN DE INTELIGENCIA DE GUERRA ELECTRÉNICA ALTA MOVILIDAD';
+      V_SIGLA_LARGA_DE := 'BATALLÓN DE INTELIGENCIA DE GUERRA ELECTRÓNICA ALTA MOVILIDAD';
       V_PADRE_ORIGEN := 'JEMOP-CAIMI-BRIMI1-';
     ELSIF V_SIGLA_CORTA_DE = 'BACIB' THEN
       V_SIGLA_LARGA_DE := 'BATALLÓN DE CIBERINTELIGENCIA';
@@ -452,7 +452,7 @@ BEGIN
         FROM RESTRICCION_DIFUSION
         WHERE RES_ID = v_documento.RESTRICCION_DIFUSION;
     END IF;
-    
+
     V_CONTADOR := 1;
     FOR rec IN (select USU_ID_VISTO_BUENO from DOCUMENTO_USU_VISTOS_BUENOS where DOC_ID = P_DOC_ID order by CUANDO ASC )
        LOOP
@@ -471,7 +471,7 @@ BEGIN
           END IF;
           V_CONTADOR := V_CONTADOR + 1;
     END LOOP;
-    
+
     IF V_USU_VISTO_BUENO_1 IS NOT NULL THEN
         SELECT USU_GRADO,USU_NOMBRE,USU_CARGO INTO V_USU_GRADO_VoBo_1,V_USU_NOMBRE_VoBo_1,V_USU_CARGO_VoBo_1 FROM USUARIO WHERE USU_ID = V_USU_VISTO_BUENO_1;
     END IF;
@@ -490,7 +490,7 @@ BEGIN
     IF V_USU_VISTO_BUENO_6 IS NOT NULL THEN
         SELECT USU_GRADO,USU_NOMBRE,USU_CARGO INTO V_USU_GRADO_VoBo_6,V_USU_NOMBRE_VoBo_6,V_USU_CARGO_VoBo_6 FROM USUARIO WHERE USU_ID = V_USU_VISTO_BUENO_6;
     END IF;
-    
+
     DBMS_OUTPUT.PUT_LINE('Procesa LLEGO ');
 
    V_CONTENIDO_PARTE1 := REPLACE(' MDN-CGFM-COEJC-SECEJ-' || V_PADRE_ORIGEN || '-' || V_DEPENCIAS_ARRIBA_ABAJO, '--','-');
@@ -550,10 +550,10 @@ BEGIN
       PDF_TEXTO43 = V_SIGLA_CORTA_DE,
       PDF_TEXTO44 = V_DEPENCIA_DIR_ELABORA,
       PDF_TEXTO46 = V_JEFE_DEP_G_DESTINO,
-      
+
       -- 2017-06-07 jgarcia@controltechcg.com Issue #101 (SICDI-Controltech) hotfix-101:
       PDF_TEXTO47 = V_JEFE_DEP_SG_DESTINO,
-      
+
       PDF_TEXTO48 = V_JEFE_DEP_N_DESTINO,
       PDF_TEXTO49 = V_JEFE_DEP_DIR_DESTINO,
       PDF_TEXTO50 = v_documento.DOC_ASUNTO,
@@ -592,7 +592,7 @@ BEGIN
       PDF_TEXTO84 = v_documento.GRADO_EXTERNO,
       PDF_TEXTO85 = v_documento.MARCA_AGUA_EXTERNO,
       PDF_TEXTO86 = V_RES_DESCRIPCION
-      
+
     WHERE DOCPDF_ID = P_DOC_ID;
 
     commit;
@@ -613,6 +613,7 @@ BEGIN
       RETURN 'ERROR: ' || v_code || ', ' || v_errm;
 
 END FN_PDF_DOC_PREVIEW;
+
 
 -- ------------------------------------------------------------
 -- 2017-02-06 jgarcia@controltechcg.com
