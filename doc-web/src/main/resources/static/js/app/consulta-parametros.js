@@ -1,3 +1,5 @@
+// 2018-01-29 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
+// feature-147
 function initParameters(dependenciaOrigenDescripcion, dependenciaDestinoDescripcion){
     var depOri = dependenciaOrigenDescripcion;
     

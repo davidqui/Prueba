@@ -1,4 +1,4 @@
-// 2018-01-29 edison.gonzalez@controltechcg.com Issue #120 (SICDI-Controltech)
+// 2018-01-29 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
 // feature-147
 var depPadre = -1;
 var depStack = new Array();
