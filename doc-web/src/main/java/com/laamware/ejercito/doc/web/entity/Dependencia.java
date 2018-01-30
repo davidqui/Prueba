@@ -153,8 +153,9 @@ public class Dependencia extends AuditActivoModifySupport {
     @LaamLabel("Indicador Envió documentos")
     @LaamCreate(order = 60)
     @LaamListColumn(order = 50)
-    @Column(name = "DEP_IND_ENVIO_DOCUMNETOS")
-    private Integer depIndEnvioDocumnetos;
+    @LaamWidget(value = "checkbox")
+    @Column(name = "DEP_IND_ENVIO_DOCUMENTOS")
+    private Boolean depIndEnvioDocumentos;
 
     @Transient
     private List<Dependencia> subs;
@@ -432,15 +433,15 @@ public class Dependencia extends AuditActivoModifySupport {
      * @return the Indicador de envio documentos
      */
     // Issue #147
-    public Integer getDepIndEnvioDocumnetos() {
-        return depIndEnvioDocumnetos;
+    public Boolean getDepIndEnvioDocumentos() {
+        return depIndEnvioDocumentos;
     }
 
     /**
-     * @param depIndEnvioDocumnetos
+     * @param depIndEnvioDocumentos
      */
     // Issue #147
-    public void setDepIndEnvioDocumnetos(Integer depIndEnvioDocumnetos) {
-        this.depIndEnvioDocumnetos = depIndEnvioDocumnetos;
+    public void setDepIndEnvioDocumnetos(Boolean depIndEnvioDocumentos) {
+        this.depIndEnvioDocumentos = depIndEnvioDocumentos;
     }
 }
