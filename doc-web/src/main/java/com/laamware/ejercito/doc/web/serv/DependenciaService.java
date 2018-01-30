@@ -11,7 +11,7 @@ import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 
 /**
  * Servicio para las operaciones de negocio de dependencias.
- * 
+ *
  * @author jgarcia@controltechcg.com
  * @since May 15, 2017
  */
@@ -19,76 +19,84 @@ import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 @Service
 public class DependenciaService {
 
-	@Autowired
-	private DependenciaRepository dependenciaRepository;
+    @Autowired
+    private DependenciaRepository dependenciaRepository;
 
-	/**
-	 * Busca la unidad de una dependencia.
-	 * 
-	 * @param dependencia
-	 *            Dependencia.
-	 * @return Dependencia unidad.
-	 */
-	public Dependencia buscarUnidad(Dependencia dependencia) {
-		Dependencia unidad = dependencia;
-		Integer padreID = dependencia.getPadre();
+    /**
+     * Busca la unidad de una dependencia.
+     *
+     * @param dependencia Dependencia.
+     * @return Dependencia unidad.
+     */
+    public Dependencia buscarUnidad(Dependencia dependencia) {
+        Dependencia unidad = dependencia;
+        Integer padreID = dependencia.getPadre();
 
-		while (padreID != null) {
-			unidad = dependenciaRepository.findOne(padreID);
-			padreID = unidad.getPadre();
-		}
+        /*
+        * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Se realiza la validacion
+        * para que muestre la unidad segun el indicador de envio documentos.
+         */
+        if (dependencia.getDepIndEnvioDocumentos() != null && dependencia.getDepIndEnvioDocumentos()) {
+            return dependencia;
+        }
 
-		return unidad;
-	}
+        while (padreID != null) {
+            unidad = dependenciaRepository.findOne(padreID);
+            if (unidad.getDepIndEnvioDocumentos() != null && unidad.getDepIndEnvioDocumentos()) {
+                return unidad;
+            }
+            
+            padreID = unidad.getPadre();
+        }
 
-	/**
-	 * Retira el usuario como jefe asignado (jefe principal o jefe encargado) de
-	 * las dependencias asociadas.
-	 * 
-	 * @param usuario
-	 *            Usuario a retirar como jefe encargado.
-	 * @return Lista de las dependencias activas de las cuales el usuario se
-	 *         retiró como jefe asignado.
-	 */
-	// 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
-	// hotfix-99
-	public List<Dependencia> retirarUsuarioComoJefeAsignado(Usuario usuario) {
-		final Integer usuarioId = usuario.getId();
-		List<Dependencia> dependenciasAsignadas = dependenciaRepository.findActivoByJefeAsignado(usuarioId);
+        return unidad;
+    }
 
-		for (Dependencia dependencia : dependenciasAsignadas) {
-			try {
-				retirarUsuarioComoJefeAsignado(usuarioId, dependencia);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
+    /**
+     * Retira el usuario como jefe asignado (jefe principal o jefe encargado) de
+     * las dependencias asociadas.
+     *
+     * @param usuario Usuario a retirar como jefe encargado.
+     * @return Lista de las dependencias activas de las cuales el usuario se
+     * retiró como jefe asignado.
+     */
+    // 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
+    // hotfix-99
+    public List<Dependencia> retirarUsuarioComoJefeAsignado(Usuario usuario) {
+        final Integer usuarioId = usuario.getId();
+        List<Dependencia> dependenciasAsignadas = dependenciaRepository.findActivoByJefeAsignado(usuarioId);
 
-		return dependenciasAsignadas;
-	}
+        for (Dependencia dependencia : dependenciasAsignadas) {
+            try {
+                retirarUsuarioComoJefeAsignado(usuarioId, dependencia);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
 
-	/**
-	 * Retira el usuario como jefe asignado (jefe principal o jefe encargado) de
-	 * la dependencia asociada.
-	 * 
-	 * @param usuarioId
-	 *            ID del usuario a retirar como jefe encargado.
-	 * @param dependencia
-	 *            Dependencia.
-	 */
-	// 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
-	// hotfix-99
-	private void retirarUsuarioComoJefeAsignado(final Integer usuarioId, Dependencia dependencia) {
-		final Usuario jefe = dependencia.getJefe();
-		if (jefe != null && jefe.getId().equals(usuarioId)) {
-			dependencia.setJefe(null);
-		}
+        return dependenciasAsignadas;
+    }
 
-		final Usuario jefeEncargado = dependencia.getJefeEncargado();
-		if (jefeEncargado != null && jefeEncargado.getId().equals(usuarioId)) {
-			dependencia.setJefeEncargado(null);
-		}
+    /**
+     * Retira el usuario como jefe asignado (jefe principal o jefe encargado) de
+     * la dependencia asociada.
+     *
+     * @param usuarioId ID del usuario a retirar como jefe encargado.
+     * @param dependencia Dependencia.
+     */
+    // 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
+    // hotfix-99
+    private void retirarUsuarioComoJefeAsignado(final Integer usuarioId, Dependencia dependencia) {
+        final Usuario jefe = dependencia.getJefe();
+        if (jefe != null && jefe.getId().equals(usuarioId)) {
+            dependencia.setJefe(null);
+        }
 
-		dependenciaRepository.saveAndFlush(dependencia);
-	}
+        final Usuario jefeEncargado = dependencia.getJefeEncargado();
+        if (jefeEncargado != null && jefeEncargado.getId().equals(usuarioId)) {
+            dependencia.setJefeEncargado(null);
+        }
+
+        dependenciaRepository.saveAndFlush(dependencia);
+    }
 }

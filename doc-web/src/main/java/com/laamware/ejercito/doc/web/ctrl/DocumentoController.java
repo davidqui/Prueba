@@ -4027,13 +4027,23 @@ public class DocumentoController extends UtilController {
     }
 
     protected Dependencia getSuperDependencia(Dependencia dep) {
-        if (dep.getPadre() == null) {
+        /*
+	 * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
+	 * campo Indicador de envio documentos.
+         */
+        if (dep.getPadre() == null || (dep.getDepIndEnvioDocumentos() != null && dep.getDepIndEnvioDocumentos())) {
             return dep;
         }
+
         Dependencia jefatura = dep;
         Integer jefaturaId = dep.getPadre();
         while (jefaturaId != null) {
             jefatura = dependenciaRepository.getOne(jefaturaId);
+
+            if (jefatura.getDepIndEnvioDocumentos() != null && jefatura.getDepIndEnvioDocumentos()) {
+                return jefatura;
+            }
+            
             jefaturaId = jefatura.getPadre();
         }
         return jefatura;

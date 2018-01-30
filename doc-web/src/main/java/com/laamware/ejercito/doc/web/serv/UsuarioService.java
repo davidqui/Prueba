@@ -147,7 +147,15 @@ public class UsuarioService {
         final Dependencia dependencia = usuario.getDependencia();
         if (dependencia != null) {
             final Dependencia unidad = buscarUnidad(dependencia);
-            builder.append("(").append(unidad.getSigla()).append(")");
+            /*
+             * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Se realiza la validacion
+             * para que muestre el nombre de la dependencia en caso de que la sigla sea nula.
+            */
+            if(unidad.getSigla() == null || unidad.getSigla().trim().length() == 0){
+                builder.append("(").append(unidad.getNombre()).append(")");
+            }else{
+                builder.append("(").append(unidad.getSigla()).append(")");
+            }
         }
 
         return builder.toString().trim();
@@ -210,7 +218,15 @@ public class UsuarioService {
         final Dependencia dependencia = usuario.getDependencia();
         if (dependencia != null) {
             final Dependencia unidad = buscarUnidad(dependencia);
-            builder.append(unidad.getSigla());
+            /*
+             * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Se realiza la validacion
+             * para que muestre el nombre de la dependencia en caso de que la sigla sea nula.
+            */
+            if(unidad.getSigla() == null || unidad.getSigla().trim().length() == 0){
+                builder.append(unidad.getNombre());
+            }else{
+                builder.append(unidad.getSigla());
+            }
         }
 
         return builder.toString().trim();

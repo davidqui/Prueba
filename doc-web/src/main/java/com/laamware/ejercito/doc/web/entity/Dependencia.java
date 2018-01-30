@@ -149,7 +149,7 @@ public class Dependencia extends AuditActivoModifySupport {
     @LaamListColumn(order = 50)
     @Column(name = "DEP_PESO_ORDEN")
     private Integer pesoOrden;
-    
+
     @LaamLabel("Indicador Envió documentos")
     @LaamCreate(order = 60)
     @LaamListColumn(order = 50)
@@ -316,7 +316,11 @@ public class Dependencia extends AuditActivoModifySupport {
 
     public Dependencia obtenerJefatura(DependenciaRepository repository) {
         Dependencia padre = this;
-        while (padre.getPadre() != null && (padre = repository.getOne(padre.getPadre())) != null) {
+        /*
+	 * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
+	 * campo Indicador de envio documentos.
+        */
+        while (padre.getPadre() != null && (padre = repository.getOne(padre.getPadre())) != null && (padre.getDepIndEnvioDocumentos() == null || !padre.getDepIndEnvioDocumentos())) {
         }
         return padre;
     }
@@ -441,7 +445,7 @@ public class Dependencia extends AuditActivoModifySupport {
      * @param depIndEnvioDocumentos
      */
     // Issue #147
-    public void setDepIndEnvioDocumnetos(Boolean depIndEnvioDocumentos) {
+    public void setDepIndEnvioDocumentos(Boolean depIndEnvioDocumentos) {
         this.depIndEnvioDocumentos = depIndEnvioDocumentos;
     }
 }
