@@ -4,26 +4,7 @@
 <#assign pageTitle = "Selección de asignación" />
 
 <#include "header.ftl" />
-
-<#macro listDependencias dependencias selected=0>
-	<ul>		 
-		<#list dependencias as d>	
-			<#assign tamanio = d.subs?size>						
-			<#if d.subs?has_content >
-				<li data-jstree='{ "opened" : false }'><a href="?pin=${pin}&tid=${tid}&did=${d.id}&mode=${mode}"><#if d.sigla?? > ${d.sigla} - </#if>${d.nombre} </a>				
-					<@listDependencias d.subs selected />
-				</li>	
-			<#else>
-				<#if d.id == selected>
-					<li data-jstree='{ "opened" : false }'><strong style="background-color:#A9F5F2; padding:5px;"> <#if d.sigla?? > ${d.sigla} - </#if> ${d.nombre} </strong></li>
-				<#else>
-					<li data-jstree='{ "opened" : false }'><a href="?pin=${pin}&tid=${tid}&did=${d.id}&mode=${mode}"> <#if d.sigla?? > ${d.sigla} - </#if> ${d.nombre} </a></li>
-				</#if>		
-			</#if>			
-		</#list>
-	</ul>
-</#macro>
-
+<#include "gen-arbol-dependencias.ftl">
 
 <div class="container-fluid">
 	<#if mode == 'nomode'>
@@ -48,40 +29,39 @@
 				<h4>Selección de usuario <#if documento?? > - Nivel de clasifición del documento: ${documento.clasificacion.nombre} </#if> </h4>
 			</div>			
 			<form action="?pin=${pin}&tid=${tid}&mode=${mode}" method="POST">
-			<div class="card-block
-				<div class="container-fluid>
-					<div class="row">
-						<div class="col-md-7">							
-							<div id="arbol_list_dependenciasj">
-									<#if did?? >
-										<@listDependencias dependencias did />
-									<#else>
-										<@listDependencias dependencias />
-									</#if>
-							</div>
-						</div>
-						<div class="col-md-5">
-							<h5>Usuarios</h5>
-							<#if usuarios??>
-								<#list usuarios as u>
-								<div>
-									<#if u.restriccionDocumentoNivelAcceso == true >
-										<label style="color:#FF0000">								
-									        ${u} ${u.mensajeNivelAcceso}
-									    </label> 
-							        <#else>
-							        	<label class="c-input c-radio" style="color:#5cb85c">
-									        <input type="radio" name="uid" value="${u.id}"><span class="c-indicator"></span>${u} ${u.mensajeNivelAcceso}
-									    </label>
-							        </#if>
-								</div>
-								</#list>
-							</#if>
-						</div>
-					</div>
-				</div>
-				<div class="clearfix"></div>
-			</div>
+			<div class="card-block">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div id="arbol_list_dependenciasj">
+                                        <#if did??>
+                                            <@listDependencias dependencias did />
+                                            <#else>
+                                                <@listDependencias dependencias />
+                                        </#if>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <h5>Usuarios</h5>
+                                    <#if usuarios??>
+                                        <#list usuarios as u>
+                                            <div>
+                                                <#if u.restriccionDocumentoNivelAcceso== true>
+                                                    <label style="color:#FF0000">								
+                                                                                                        ${u} ${u.mensajeNivelAcceso}
+                                                                                                    </label>
+                                                    <#else>
+                                                        <label class="c-input c-radio" style="color:#5cb85c">
+                                                                                                        <input type="radio" name="uid" value="${u.id}"><span class="c-indicator"></span>${u} ${u.mensajeNivelAcceso}
+                                                                                                    </label>
+                                                </#if>
+                                            </div>
+                                        </#list>
+                                    </#if>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        </div>
 			<br /><br />
 			<nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
 			    <button type="submit" class="btn btn-success">Asignar</button>
