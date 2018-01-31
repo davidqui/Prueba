@@ -221,3 +221,8 @@ begin
     COMMIT;
 end;
 /
+
+update DEPENDENCIA
+set dep_padre = dep_padre_organico;
+COMMIT;
+/
