@@ -60,16 +60,6 @@ public class Dependencia extends AuditActivoModifySupport {
     @Column(name = "DEP_PADRE")
     private Integer padre;
 
-    /*
-     * 2017-11-27 edison.gonzalez@controltechcg.com Issue #140: Se agrega la
-     * nueva columna que permite la organizacion de las unidades.
-     */
-    @LaamLabel("Dependencia inmediatamente Superior")
-    @LaamCreate(order = 20)
-    @LaamListColumn(order = 30)
-    @Column(name = "DEP_PADRE_ORGANICO")
-    private Integer padreOrganico;
-
     @LaamLabel("Jefe Dependencia")
     @LaamCreate(order = 30)
     @LaamListColumn(order = 40)
@@ -169,9 +159,6 @@ public class Dependencia extends AuditActivoModifySupport {
     @Transient
     private String idPadreString;
 
-    @Transient
-    private String idPadreOrganicoString;
-
     public Integer getId() {
         return id;
     }
@@ -202,14 +189,6 @@ public class Dependencia extends AuditActivoModifySupport {
 
     public void setPadre(Integer padre) {
         this.padre = padre;
-    }
-
-    public Integer getPadreOrganico() {
-        return padreOrganico;
-    }
-
-    public void setPadreOrganico(Integer padreOrganico) {
-        this.padreOrganico = padreOrganico;
     }
 
     public Usuario getJefe() {
@@ -376,15 +355,6 @@ public class Dependencia extends AuditActivoModifySupport {
         return idPadreString;
     }
 
-    public String getIdPadreOrganicoString() {
-        if (padreOrganico != null) {
-            idPadreOrganicoString = padreOrganico.toString().replaceAll("\\.", "");
-        } else {
-            idPadreOrganicoString = null;
-        }
-        return idPadreOrganicoString;
-    }
-
     public void setSiglaNombre(String siglaNombre) {
         this.siglaNombre = siglaNombre;
     }
@@ -395,10 +365,6 @@ public class Dependencia extends AuditActivoModifySupport {
 
     public void setIdPadreString(String idPadreString) {
         this.idPadreString = idPadreString;
-    }
-
-    public void setIdPadreOrganicoString(String idPadreOrganicoString) {
-        this.idPadreOrganicoString = idPadreOrganicoString;
     }
 
     /**
