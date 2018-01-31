@@ -48,15 +48,14 @@ public interface DependenciaRepository extends GenJpaRepository<Dependencia, Int
      * feature-120: Campos para acta de transferencia.
      */
     @Query(nativeQuery = true, value = ""
-            + "SELECT \n"
-            + "  CONNECT_BY_ROOT DEP_ID AS ROOT_KEY \n"
-            + "FROM \n"
-            + "  DEPENDENCIA \n"
-            + "  WHERE DEP_ID = :dependenciaID \n"
-            + "START WITH \n"
-            + "  DEP_PADRE IS NULL \n"
-            + "CONNECT BY \n"
-            + "  DEP_PADRE = PRIOR DEP_ID "
-            + "")
+            + "select ROOT_KEY \n"
+            + "FROM("
+            + "     SELECT rownum row_num, CONNECT_BY_ROOT DEP_ID AS ROOT_KEY \n"
+            + "     FROM DEPENDENCIA \n"
+            + "     WHERE DEP_ID = :dependenciaID \n"
+            + "     and (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 or CONNECT_BY_ROOT dep_padre is null) \n"
+            + "     CONNECT BY DEP_PADRE = PRIOR DEP_ID \n"
+            + ") \n"
+            + "where row_num = 1")
     public Integer findUnidadID(@Param("dependenciaID") Integer dependenciaID);
 }
