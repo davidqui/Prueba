@@ -23,6 +23,7 @@
     2017-04-07 jgarcia@controltechcg.com Issue #37 (SIGDI-Controltech): Importación de template de funciones de documento. 
  -->
 <#include "lib/documento_functions.ftl" />
+<#include "gen-arbol-dependencias_destino.ftl">
 
 <div class="col-md-8">
     <#if relacionado??>
@@ -321,7 +322,7 @@ TRD
                     <div class="input-group">
                         <div class="form-control" id="dependenciaDestinoNombre">${(documento.dependenciaDestino)!"Por favor seleccione una dependencia destino..."}</div>
                         <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaDestinoModal">
+                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaDestinoModalArbol">
                                 <span class="hidden-md-down">Seleccionar</span><span class="hidden-lg-up">S</span>
                                 </button>
                             </span>
@@ -331,7 +332,49 @@ TRD
             <div class="error">
                     <@spring.showErrors "<br>"/>
                 </div>
-            </fieldset>            
+            </fieldset>     
+        
+        <div class="modal fade" id="dependenciaDestinoModalArbol" tabindex="-1" role="dialog" aria-labelledby="dependenciaDestinoModalArbolLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                    <span aria-hidden="true">&times;</span>
+                                    <span class="sr-only">Cerrar</span>
+                                    </button>
+                        <h4 class="modal-title" id="dependenciaDestinoModalLabel">Selección de dependencia destino</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="card">
+                            <div class="card-block">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <div id="arbol_list_dependenciasj">
+                                            <#if did??>
+                                                <@listDependencias dependencias did />
+                                                <#else>
+                                                    <@listDependencias dependencias />
+                                            </#if>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <br /><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <#assign deferredJSDepDestinoArbol>
+            <!-- 4 include the jQuery library -->
+            <!-- 5 include the minified jstree source -->
+            <script src="/js/jstree.min.js"></script>
+            <script src="/js/app/gen-arbol-dependencias-destino.js"></script>
+        </#assign>
+        <#assign deferredJS = deferredJS + " " + deferredJSDepDestinoArbol>
 
 <!-- dependenciaDestinoModal -->            
         <div class="modal fade" id="dependenciaDestinoModal" tabindex="-1" role="dialog" aria-labelledby="dependenciaDestinoModalLabel" aria-hidden="true">
