@@ -520,6 +520,10 @@ public class DocumentoController extends UtilController {
 
         Usuario usuarioLogueado = getUsuario(principal);
         model.addAttribute("usuariologueado", usuarioLogueado);
+        
+        // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
+        List<Dependencia> listaDependencias = depsHierarchy();
+        model.addAttribute("dependencias", listaDependencias);
 
         /*
          * 2017-11-17 edison.gonzalez@controltechcg.com Issue #139: Verifica permisos
@@ -623,10 +627,6 @@ public class DocumentoController extends UtilController {
 
         // 2017-04-26 jgarcia@controltechcg.com Issue #58 (SICDI-Controltech)
         addConsultaTemplateModelAttributes(model, usuarioLogueado, doc);
-
-        // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
-        model.addAttribute("dependencias", listaDependencias);
         return "documento";
     }
 
@@ -811,6 +811,10 @@ public class DocumentoController extends UtilController {
             @RequestParam(value = "archivoContenido", required = false) MultipartFile file, @Valid Documento doc,
             BindingResult docBind, final RedirectAttributes redirect, Model model, Principal principal) {
 
+        // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
+        List<Dependencia> listaDependencias = depsHierarchy();
+        model.addAttribute("dependencias", listaDependencias);
+        
         // Obtiene la instancia de proceso
         Instancia i = procesoService.instancia(pin);
 

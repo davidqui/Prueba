@@ -148,11 +148,8 @@
 		</#if>
 
 
-<!--
-
-
-TRD
-        -->
+        <!--
+        TRD-->
         <#if mode.trd_edit >
         <fieldset class="form-group">
             <label for="trd">Tabla de retención documental</label>
@@ -191,62 +188,7 @@ TRD
                 </div>
             </div>
             <#assign deferredJSTrd>
-        <script type="text/javascript">
-            <!--
-            function subserie(e) {
-            var id = $(this).attr("id").substring(5);
-            var nombre = $(this).text();
-
-            $("#trdModal .modal-body").empty();
-            $("#myModalLabel").text("Selección de subserie");
-
-            $.getJSON("/trd/subseries.json?serieId=" + id, function(subseries) {
-            var subseriesList = [];
-            $.each(subseries, function(i, item){
-            subseriesList.push('<div><a href="#" id="serie' + item.id + '" class="mark-serie">' + item.codigo + " - " + item.nombre + '</a></div>');
-            });
-
-            $("<h5/>", { html: nombre }).appendTo("#trdModal .modal-body");
-
-            // 2017-03-15 jgarcia@controltechcg.com Issue #21: Cambio de id del botón Regresar de la TRD
-            // para evitar confusiones con el botón Regresar de las dependencias.
-
-            $("<a/>", {html: "Regresar", id:'btnRegresarSerie'}).appendTo("#trdModal .modal-body");
-            $("<div/>", {html: subseriesList.join("") }).appendTo("#trdModal .modal-body");
-
-            // 2017-03-15 jgarcia@controltechcg.com Issue #21: Cambio de id del botón Regresar de la TRD
-            // para evitar confusiones con el botón Regresar de las dependencias.
-            $("#btnRegresarSerie").click(serie);
-
-
-
-            $("#trdModal .modal-body .mark-serie").click(function(e) {
-            var id = $(this).attr("id").substring(5);
-            var nombre = $(this).text();
-
-            $("#trd").val(id);
-            $("#trdNombre").text(nombre);
-            $("#trdModal").modal('hide');
-            });
-            });
-            };
-
-            function serie(e) {
-            $("#trdModal .modal-body").empty();
-            $("#myModalLabel").text("Selección de serie");
-            $.getJSON("/trd/series.json", function(series) {
-            var divTagList = [];
-            $.each(series, function(i, item){
-            divTagList.push('<div><a href="#" id="serie' + item.id + '" class="mark-serie">' + item.codigo + " - " + item.nombre + '</a></div>');
-            });
-            $("<div/>", { html: divTagList.join("") }).appendTo("#trdModal .modal-body");
-
-            $("#trdModal .modal-body .mark-serie").click(subserie);
-            });
-            };
-            $('#trdModal').on('show.bs.modal', serie);
-            -->
-            </script>
+                <script type="text/javascript" src="/js/app/trd-modal.js"></script>
             </#assign>
             <#assign deferredJS = deferredJS + " " + deferredJSTrd>
         </#if>
@@ -265,11 +207,7 @@ TRD
             </fieldset>
         </#if>
         
-            <!--
-            
-            
-                    Destinatario texto
-        -->
+        <!--Destinatario texto-->
         <#if ((instancia.variablesAsMap['doc.destinatario.mode'])!"") == 'texto' && mode.destinatario_edit>
         <fieldset class="form-group">
             <label for="destinatarioNombre">Nombre del destinatario (*)</label>
@@ -307,11 +245,8 @@ TRD
                 </div>
             </fieldset>
         </#if>
-                <!--
-                
-                
-                        Dependencia destino
-        -->
+        
+        <!--Dependencia destino-->
         <#if ((instancia.variablesAsMap['doc.destinatario.mode'])!"") != 'texto' && mode.destinatario_view && mode.destinatario_edit >
         <fieldset class="form-group">
             <label for="depDestino">Dependencia destino</label>
@@ -369,54 +304,15 @@ TRD
         </div>
 
         <#assign deferredJSDepDestinoArbol>
-            <!-- 4 include the jQuery library -->
-            <!-- 5 include the minified jstree source -->
             <script src="/js/jstree.min.js"></script>
             <script src="/js/app/gen-arbol-dependencias-destino.js"></script>
         </#assign>
         <#assign deferredJS = deferredJS + " " + deferredJSDepDestinoArbol>
 
-<!-- dependenciaDestinoModal -->            
-        <div class="modal fade" id="dependenciaDestinoModal" tabindex="-1" role="dialog" aria-labelledby="dependenciaDestinoModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                            <span aria-hidden="true">&times;</span>
-                            <span class="sr-only">Cerrar</span>
-                            </button>
-                        <h4 class="modal-title" id="dependenciaDestinoModalLabel">Selección de dependencia destino</h4>
-                        </div>
-                    <div class="modal-body">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <div class="modal fade" id="dependenciaDestinoAdicionalModal" tabindex="-1" role="dialog" aria-labelledby="dependenciaDestinoModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                            <span aria-hidden="true">&times;</span>
-                            <span class="sr-only">Cerrar</span>
-                            </button>
-                        <h4 class="modal-title" id="dependenciaDestinoModalLabel">Selección de copia dependencia destino</h4>
-                        </div>
-                    <div class="modal-body">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <#assign deferredJSDepDestino>
-                <script src="/js/app/dependencia-destino-modal.js"></script>
-            </#assign>
-            <#assign deferredJS = deferredJS + " " + deferredJSDepDestino>
         </#if>
-                <!--
-                
-                
-                        Remitente texto
-        -->
+            
+        <!--Remitente texto-->
+            
         <#if ((instancia.variablesAsMap['doc.remitente.mode'])!"") == 'texto' && mode.remitente_edit>
         <fieldset class="form-group">
             <label for="remitenteNombre">Nombre del remitente (*)</label>
@@ -467,11 +363,8 @@ TRD
                 </div>
             </fieldset>
         </#if>
-<!--
-
-
-Asunto
-        -->
+        
+        <!--Asunto-->
         <#if mode.asunto_edit>
         <fieldset class="form-group">
             <label for="asunto">Asunto (*)</label>
@@ -482,11 +375,8 @@ Asunto
                 </div>
             </fieldset>
         </#if>
-                <!--
-                
-                
-                        Dependencia remitente
-        -->
+        
+        <!--Dependencia remitente-->
         <#if ((instancia.variablesAsMap['doc.remitente.mode'])!"") != 'texto' && mode.remitente_view && mode.remitente_edit >
         <fieldset class="form-group">
             <label for="depRemitente">Dependencia remitente</label>
@@ -639,11 +529,8 @@ Asunto
             </#assign>
             <#assign deferredJS = deferredJS + " " + deferredJSDepRemintente>
         </#if>
-    <!--
-
-
-        Número de oficio y fecha de oficio
-        -->
+    
+        <!--Número de oficio y fecha de oficio-->
         <#if mode.numeroOficio_edit >
         <fieldset class="form-group">
             <label for="numeroOficio">Número de oficio (*)</label>
