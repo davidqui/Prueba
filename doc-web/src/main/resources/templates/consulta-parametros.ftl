@@ -5,6 +5,7 @@
 <#import "spring.ftl" as spring />
 <#include "header.ftl" />
 <#include "consulta-parametros-util.ftl"/>
+<#include "gen-arbol-dependencias_destino.ftl">
 
 <div class="container-fluid">
     <h4>Consulta de documentos</h4>
@@ -123,6 +124,23 @@
                     <h4 class="modal-title" id="dependenciaDestinoModalLabel">Selección de dependencia destino</h4>
                     </div>
                 <div class="modal-body">
+                    <div class="card">
+                            <div class="card-block">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <div id="arbol_list_dependenciasj">
+                                            <#if did??>
+                                                <@listDependencias dependencias did />
+                                                <#else>
+                                                    <@listDependencias dependencias />
+                                            </#if>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <br /><br />
                     </div>
                 </div>
             </div>
@@ -139,13 +157,31 @@
                     <h4 class="modal-title" id="dependenciaOrigenModalLabel">Selección de dependencia origen</h4>
                     </div>
                 <div class="modal-body">
+                    <div class="card">
+                            <div class="card-block">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <div id="arbol_list_dependenciasjOrigen">
+                                            <#if did??>
+                                                <@listDependencias dependencias did />
+                                                <#else>
+                                                    <@listDependencias dependencias />
+                                            </#if>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <br /><br />
                     </div>
                 </div>
             </div>
         </div>
     <#assign deferredJSDepDestino>
-    <script src="/js/app/dependencia-destino-modal-parametros.js"></script>
+    <script src="/js/jstree.min.js"></script>
     <script src="/js/app/dependencia-origen-modal-parametros.js"></script>
+    <script src="/js/app/dependencia-destino-modal-parametros.js"></script>
     </#assign>
     <#assign deferredJS = deferredJS + " " + deferredJSDepDestino>
     </form>

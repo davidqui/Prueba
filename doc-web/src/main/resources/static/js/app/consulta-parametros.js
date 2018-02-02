@@ -10,6 +10,7 @@ function initParameters(dependenciaOrigenDescripcion, dependenciaDestinoDescripc
     }
 
     var depDes = dependenciaDestinoDescripcion;
+
     if(depDes === null || depDes.length === 0){
         $("#dependenciaDestinoNombre").text("Por favor seleccione una dependencia destino...");
     }else{

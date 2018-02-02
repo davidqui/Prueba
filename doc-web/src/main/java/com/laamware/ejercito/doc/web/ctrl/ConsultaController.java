@@ -26,6 +26,7 @@ import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.BandejaRepository;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
+import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.serv.ConsultaService;
@@ -64,6 +65,9 @@ public class ConsultaController extends UtilController {
     @Autowired
     ConsultaService consultaService;
 
+    @Autowired
+    DependenciaRepository dependenciaRepository;
+
     /**
      * Ejecuta la búsqueda de documentos cuyo asunto o contenido contenga el
      * texto ingresado como términos de búsqueda
@@ -76,7 +80,11 @@ public class ConsultaController extends UtilController {
     @PreAuthorize("hasRole('BANDEJAS')")
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
     public String consulta(@RequestParam(value = "term") String term, Model model, Principal principal) {
-        // System.out.println("ConsultaController.consulta()>>>");
+
+        // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
+        List<Dependencia> listaDependencias = depsHierarchy();
+        model.addAttribute("dependencias", listaDependencias);
+
         System.out.println("term=" + term);
 
         if (StringUtils.isBlank(term)) {
@@ -85,9 +93,6 @@ public class ConsultaController extends UtilController {
 
         model.addAttribute("term", term);
         return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null);
-
-        // System.out.println("<<<ConsultaController.consulta()");
-//        return "consulta-parametros";
     }
 
     /**
@@ -140,6 +145,10 @@ public class ConsultaController extends UtilController {
             @RequestParam(value = "dependenciaOrigenDescripcion", required = false) String dependenciaOrigenDescripcion) {
 
         boolean sameValue = term != null && term.trim().length() > 0;
+
+        // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
+        List<Dependencia> listaDependencias = depsHierarchy();
+        model.addAttribute("dependencias", listaDependencias);
 
         if (sameValue) {
             asignado = term;
@@ -285,5 +294,23 @@ public class ConsultaController extends UtilController {
         List<Integer> list = Arrays.asList(10, 30, 50);
         model.addAttribute("pageSizes", list);
         return list;
+    }
+
+    private List<Dependencia> depsHierarchy() {
+        List<Dependencia> root = dependenciaRepository.findByActivoAndPadreIsNull(true,
+                new Sort(Direction.ASC, "pesoOrden", "nombre"));
+        for (Dependencia d : root) {
+            depsHierarchy(d);
+        }
+        return root;
+    }
+
+    private void depsHierarchy(Dependencia d) {
+        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
+                new Sort(Direction.ASC, "pesoOrden", "nombre"));
+        d.setSubs(subs);
+        for (Dependencia x : subs) {
+            depsHierarchy(x);
+        }
     }
 }
