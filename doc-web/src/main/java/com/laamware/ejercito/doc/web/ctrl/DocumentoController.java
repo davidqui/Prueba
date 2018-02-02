@@ -3803,27 +3803,19 @@ public class DocumentoController extends UtilController {
     // feature-73.
     @RequestMapping(value = "/reasignar-ciclico", method = RequestMethod.GET)
     public String reasignarCiclico(@RequestParam("pin") String instanciaID, Model model, Principal principal) {
-
+        
         model.addAttribute("pin", instanciaID);
 
         final Instancia instancia = procesoService.instancia(instanciaID);
         final String documentoID = instancia.getVariable(Documento.DOC_ID);
         final Documento documento = documentRepository.findOne(documentoID);
         model.addAttribute("documento", documento);
-
-        final Usuario usuarioSesion = getUsuario(principal);
-        final Dependencia dependenciaDestino = usuarioSesion.getDependencia();
-        final Dependencia dependenciaUnidad = getSuperDependencia(dependenciaDestino);
-
-        List<Dependencia> unidadesList = dependenciaRepository.findByActivoAndPadreIsNull(true,
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-
-        List<Dependencia> unidades = new ArrayList<>();
-        for (Dependencia unidad : unidadesList) {
-            if (!unidad.getId().equals(dependenciaUnidad.getId())) {
-                unidades.add(unidad);
-            }
-        }
+        
+        /*
+	 * 2018-02-02 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
+	 * campo Indicador de envio documentos.
+         */
+        List<Dependencia> unidades = dependenciaRepository.encontrarUnidadesConIndicador();
 
         model.addAttribute("unidades", unidades);
 

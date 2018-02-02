@@ -58,4 +58,14 @@ public interface DependenciaRepository extends GenJpaRepository<Dependencia, Int
             + ") \n"
             + "where row_num = 1")
     public Integer findUnidadID(@Param("dependenciaID") Integer dependenciaID);
+
+    @Query(nativeQuery = true, value = ""
+            + "select *\n"
+            + "from dependencia\n"
+            + "where (dep_ind_envio_documentos = 1 or dep_padre is null)\n"
+            + "and activo = 1\n"
+            + "start with dep_padre is null\n"
+            + "connect by dep_padre = prior dep_id\n"
+            + "order by level")
+    List<Dependencia> encontrarUnidadesConIndicador();
 }
