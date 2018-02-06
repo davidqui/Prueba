@@ -140,7 +140,7 @@ public class Dependencia extends AuditActivoModifySupport {
     @Column(name = "DEP_PESO_ORDEN")
     private Integer pesoOrden;
 
-    @LaamLabel("Indicador Envió documentos")
+    @LaamLabel("Convertir en unidad padre")
     @LaamCreate(order = 60)
     @LaamListColumn(order = 50)
     @LaamWidget(value = "checkbox")
