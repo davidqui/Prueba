@@ -49,7 +49,9 @@
                 <@link_admin  "ADMIN_CAPACITACION" "/admin/juego" 'capacitacion' 'Capacitación'/>
                 
                 <@link_admin  "ADMIN_GRADOS" "/grados" 'grados' 'Grados'/>
-                
+                  
+                <@link_admin  "ADMIN_CARGOS" "/admin/cargos" 'cargos' 'Cargos'/>
+                  
                 <@link_admin  "ADMIN_INFORMES" "/admin/informes/init" 'informes' 'Informes'/>
                 
                 <@link_admin  "ADMIN_FORMATOS" "/admin/formatos" 'formatos' 'Formatos'/>

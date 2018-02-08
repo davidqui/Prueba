@@ -118,6 +118,40 @@ public class Usuario extends AuditActivoModifySupport {
     @LaamCreate(order = 100)
     @Column(name = "USU_EMAIL")
     private String email;
+    
+    @JoinColumn(name = "USU_CARGO7_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo7Id;
+    @JoinColumn(name = "USU_CARGO10_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo10Id;
+    @JoinColumn(name = "USU_CARGO9_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo9Id;
+    @JoinColumn(name = "USU_CARGO8_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo8Id;
+    @JoinColumn(name = "USU_CARGO6_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo6Id;
+    @JoinColumn(name = "USU_CARGO5_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo5Id;
+    @JoinColumn(name = "USU_CARGO4_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo4Id;
+    @JoinColumn(name = "USU_CARGO3_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo3Id;
+    @JoinColumn(name = "USU_CARGO2_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo2Id;
+    @JoinColumn(name = "USU_CARGO1_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargo1Id;
+    @JoinColumn(name = "USU_CARGO_PRINCIPAL_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCargoPrincipalId;
 
     @Transient
     private List<UsuarioHistorialFirmaDTO> historialUsuarios = new ArrayList<UsuarioHistorialFirmaDTO>();
@@ -327,5 +361,95 @@ public class Usuario extends AuditActivoModifySupport {
     public void setUsuGrado(Grados usuGrado) {
         this.usuGrado = usuGrado;
     }
+
+    public Cargo getUsuCargo7Id() {
+        return usuCargo7Id;
+    }
+
+    public void setUsuCargo7Id(Cargo usuCargo7Id) {
+        this.usuCargo7Id = usuCargo7Id;
+    }
+
+    public Cargo getUsuCargo10Id() {
+        return usuCargo10Id;
+    }
+
+    public void setUsuCargo10Id(Cargo usuCargo10Id) {
+        this.usuCargo10Id = usuCargo10Id;
+    }
+
+    public Cargo getUsuCargo9Id() {
+        return usuCargo9Id;
+    }
+
+    public void setUsuCargo9Id(Cargo usuCargo9Id) {
+        this.usuCargo9Id = usuCargo9Id;
+    }
+
+    public Cargo getUsuCargo8Id() {
+        return usuCargo8Id;
+    }
+
+    public void setUsuCargo8Id(Cargo usuCargo8Id) {
+        this.usuCargo8Id = usuCargo8Id;
+    }
+
+    public Cargo getUsuCargo6Id() {
+        return usuCargo6Id;
+    }
+
+    public void setUsuCargo6Id(Cargo usuCargo6Id) {
+        this.usuCargo6Id = usuCargo6Id;
+    }
+
+    public Cargo getUsuCargo5Id() {
+        return usuCargo5Id;
+    }
+
+    public void setUsuCargo5Id(Cargo usuCargo5Id) {
+        this.usuCargo5Id = usuCargo5Id;
+    }
+
+    public Cargo getUsuCargo4Id() {
+        return usuCargo4Id;
+    }
+
+    public void setUsuCargo4Id(Cargo usuCargo4Id) {
+        this.usuCargo4Id = usuCargo4Id;
+    }
+
+    public Cargo getUsuCargo3Id() {
+        return usuCargo3Id;
+    }
+
+    public void setUsuCargo3Id(Cargo usuCargo3Id) {
+        this.usuCargo3Id = usuCargo3Id;
+    }
+
+    public Cargo getUsuCargo2Id() {
+        return usuCargo2Id;
+    }
+
+    public void setUsuCargo2Id(Cargo usuCargo2Id) {
+        this.usuCargo2Id = usuCargo2Id;
+    }
+
+    public Cargo getUsuCargo1Id() {
+        return usuCargo1Id;
+    }
+
+    public void setUsuCargo1Id(Cargo usuCargo1Id) {
+        this.usuCargo1Id = usuCargo1Id;
+    }
+
+    public Cargo getUsuCargoPrincipalId() {
+        return usuCargoPrincipalId;
+    }
+
+    public void setUsuCargoPrincipalId(Cargo usuCargoPrincipalId) {
+        this.usuCargoPrincipalId = usuCargoPrincipalId;
+    }
+    
+    
 
 }
