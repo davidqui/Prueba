@@ -198,6 +198,195 @@
                 <label for="file">Imagen de la firma <#if usuario.usuarioTieneFirmaCargada() > <label style="color:#d9534f;">(Exíste una firma cargada.) </label> </#if>  </label>
                 <input class="form-control" type="file" name="file" id="file">
                 </fieldset>
+            
+            <#if usuario.usuCargoPrincipalId??>
+                <input type="text" class="form-control" id="login" name="usuCargoPrincipalId" value="${(usuario.usuCargoPrincipalId.carNombre)!""}" readonly="readonly" /><br />
+	    
+	    </#if>
+                        
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargoPrincipalId" />
+                    <label for="${spring.status.expression}">Cargo principal</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
+                <#if cargos??>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargoPrincipalId.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+                        
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo1Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 1</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo1Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+            
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo2Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 2</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo2Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+            
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo3Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 3</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo3Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+            
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo4Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 4</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo4Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+            
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo5Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 5</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo5Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+            
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo6Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 6</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo6Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+            
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo7Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 7</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo7Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+            
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo8Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 8</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo8Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+            
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo9Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 9</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo9Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
+            
+            <fieldset class="form-group">
+                <@spring.bind "usuario.usuCargo10Id" />
+                    <label for="${spring.status.expression}">Cargo Alterno # 10</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if cargos??>
+                    <option value=""></option>
+                    <#list cargos as cla>
+                       <#if cla.id?string == ((usuario.usuCargo10Id.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.carNombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
 
             <div class="m-y">
                 <#--

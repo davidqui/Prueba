@@ -26,12 +26,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.laamware.ejercito.doc.web.dto.UsuarioHistorialFirmaDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.entity.Perfil;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.GradosRepository;
@@ -40,6 +42,7 @@ import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.LdapService;
 import com.laamware.ejercito.doc.web.serv.OFS;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 @PreAuthorize("hasRole('ADMIN_USUARIOS')")
@@ -60,6 +63,9 @@ public class UsuarioController extends UtilController {
 
     @Autowired
     GradosRepository gradosRepository;
+
+    @Autowired
+    CargosRepository cargosRepository;
 
     @Autowired
     OFS ofs;
@@ -302,7 +308,7 @@ public class UsuarioController extends UtilController {
                     /*
                         2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
                         feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-                    */
+                     */
                     map.put("grado", usuarioLdap.getUsuGrado().getId());
                     map.put("dependencia", usuarioLdap.getDependencia() != null
                             ? usuarioLdap.getDependencia().getId().toString() : null);
@@ -441,6 +447,17 @@ public class UsuarioController extends UtilController {
         List<Grados> list = gradosRepository.findByActivo(true, new Sort(Direction.ASC, "id"));
         model.addAttribute("grados", list);
         return list;
+    }
+
+    /**
+     * Carga el listado de cargos al modelo
+     *
+     * @param id
+     * @return
+     */
+    @ModelAttribute("cargos")
+    public List<Cargo> cargos() {
+        return cargosRepository.findAll(new Sort(Direction.ASC, "carNombre"));
     }
 
     @ModelAttribute("descriptor")

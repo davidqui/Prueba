@@ -39,7 +39,9 @@
             <thead class="thead-inverse">
                 <tr>
                 <#list descriptor.listProperties() as p>
-                    <th>${p.label}</th>
+                    <#if !p.label?contains('Cargo')>
+                        <th>${p.label}</th>
+                    </#if>
                 </#list>
                     <th>Acciones</th>
                 </tr>
@@ -53,6 +55,7 @@
                     <#if !x.activo?? || x.activo == false >
                         <#assign vclasses = "cus-deleted" />
                     </#if>
+                    <#if !p.label?contains('Cargo')>
                     <td class="${vclasses}">
                         <#if p.type == "Boolean">
                             <#assign pvalue = p.value(x)!false />
@@ -69,6 +72,7 @@
                         </#if>
                         <#assign first = false />
                     </td>
+                    </#if>
                 </#list>
                 	<td nowrap="nowrap">
                         <#if x.activo?? && x.activo == true >
