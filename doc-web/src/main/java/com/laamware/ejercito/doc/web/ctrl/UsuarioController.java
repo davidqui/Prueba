@@ -313,7 +313,20 @@ public class UsuarioController extends UtilController {
                     map.put("dependencia", usuarioLdap.getDependencia() != null
                             ? usuarioLdap.getDependencia().getId().toString() : null);
                     map.put("email", usuarioLdap.getEmail());
-                    map.put("cargo", usuarioLdap.getCargo());
+                    
+                    /*
+                        2018-02-13 edison.gonzalez@controltechcg.com Issue #149 (SICDI-Controltech) 
+                        feature-149: Se coloca en comentarios la columna de cargo, la cual se remplaza
+                        por la columna usuCArgoPrincipalId.
+                     */
+//                    map.put("cargo", usuarioLdap.getCargo());
+
+                    if (usuarioLdap.getUsuCargoPrincipalId() != null) {
+                        map.put("cargoId", usuarioLdap.getUsuCargoPrincipalId().getId().toString());
+                    } else {
+                        map.put("cargoId", null);
+                    }
+
                     return map;
                 } else {
                     return null;
