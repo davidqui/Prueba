@@ -11,6 +11,7 @@ import com.aspose.words.Table;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
@@ -21,6 +22,7 @@ import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
@@ -172,6 +174,12 @@ public class TransferenciaArchivoService {
      */
     @Autowired
     RadicadoService radicadoService;
+
+    /**
+     * Repositorio de cargos.
+     */
+    @Autowired
+    CargosRepository cargosRepository;
 
     /**
      * Busca un registro de transferencia de archivo.
@@ -428,15 +436,22 @@ public class TransferenciaArchivoService {
                 = gradoRepository.findOne(origenUsuario.getUsuGrado().getId());
         final Grados destinoGrado
                 = gradoRepository.findOne(destinoUsuario.getUsuGrado().getId());
+        /*
+            2018-02-13 edison.gonzalez@controltechcg.com Issue #149 (SICDI-Controltech) 
+            feature-149: Se remplaza la columna cargo por la columna usuCArgoPrincipalId.
+        */
+        final Cargo cargoCreador = cargosRepository.findOne(creadorUsuario.getUsuCargoPrincipalId().getId());
+        final Cargo cargoOrigen = cargosRepository.findOne(origenUsuario.getUsuCargoPrincipalId().getId());
+        final Cargo cargoDestino = cargosRepository.findOne(destinoUsuario.getUsuCargoPrincipalId().getId());
 
         final TransferenciaArchivo transferencia = new TransferenciaArchivo(
                 tipoTransferencia,
                 creadorUsuario, creadorUsuario.getDependencia(),
-                creadorGrado, creadorUsuario.getCargo(), ahora, origenUsuario,
+                creadorGrado, cargoCreador.getCarNombre(), ahora, origenUsuario,
                 origenUsuario.getDependencia(), origenUsuario.getClasificacion(),
-                origenGrado, origenUsuario.getCargo(), destinoUsuario,
+                origenGrado, cargoOrigen.getCarNombre(), destinoUsuario,
                 destinoUsuario.getDependencia(), destinoUsuario.getClasificacion(),
-                destinoGrado, destinoUsuario.getCargo(),
+                destinoGrado, cargoDestino.getCarNombre(),
                 transferenciaAnterior == null ? null
                         : transferenciaAnterior.getId(),
                 transferenciaAnterior == null ? null
