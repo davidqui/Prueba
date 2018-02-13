@@ -61,8 +61,10 @@
                                                         $("#email").val(data.email);
                                                         if(data.email === null || data.email == ''){
                                                         }
-                                                        $("#cargo").val(data.cargo);
-                                                        if(data.cargo === null || data.cargo == ''){
+                                                        
+                                                        $("#usuCargoPrincipalId").val(data.cargoId);
+                                                        $("#cargosel").val(data.cargoId);
+                                                        if(data.cargoId === null || data.cargoId == ''){
                                                         }  
                                                         $('#btnGuardar').prop('disabled', false);
            						
@@ -152,14 +154,6 @@
                     </div>
                 </fieldset>
 
-            <fieldset class="form-group">       
-                <label for="cargo">Cargo</label>
-                <input type="text" class="form-control" id="cargo" name="cargo" value="${(usuario.cargo)!""}" readonly="readonly"/>
-                <div class="error">
-        	<@spring.showErrors "<br>"/>
-                    </div>
-                </fieldset>
-
             <fieldset class="form-group">
         <@spring.bind "usuario.perfil" />
                 <label for="${spring.status.expression}">Perfil</label>
@@ -199,25 +193,29 @@
                 <input class="form-control" type="file" name="file" id="file">
                 </fieldset>
             
-            <#if usuario.usuCargoPrincipalId??>
-                <input type="text" class="form-control" id="login" name="usuCargoPrincipalId" value="${(usuario.usuCargoPrincipalId.carNombre)!""}" readonly="readonly" /><br />
-	    
-	    </#if>
-                        
             <fieldset class="form-group">
                 <@spring.bind "usuario.usuCargoPrincipalId" />
-                    <label for="${spring.status.expression}">Cargo principal</label>
-                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
-                <#if cargos??>
-                    <#list cargos as cla>
-                       <#if cla.id?string == ((usuario.usuCargoPrincipalId.id)!"")?string >
-                            <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
-                        </#if>
-                    </#list>
+                <#if usuario.usuCargoPrincipalId??>
+                    <input type="hidden" name="${spring.status.expression}" id="${spring.status.expression}" value="${(usuario.usuCargoPrincipalId.id)}" />
+                <#else>
+                    <input type="hidden" name="${spring.status.expression}" id="${spring.status.expression}"  />
                 </#if>
+                <label for="${spring.status.expression}">Cargo Principal</label>
+                <select class="form-control" id="cargosel" name="cargosel" readonly="readonly" disabled>
+
+                    <#if cargos??>
+                        <option value=""></option>
+                        <#list cargos as cla>
+                            <#if cla.id?string == ((usuario.usuCargoPrincipalId.id)!"")?string >
+                                <option value="${cla.id}" selected="selected">${cla.carNombre}</option>
+                            <#else>
+                                <option value="${cla.id}">${cla.carNombre}</option>
+                            </#if>
+                         </#list>
+                    </#if>
                 </select>
             </fieldset>
-                        
+                                            
             <fieldset class="form-group">
                 <@spring.bind "usuario.usuCargo1Id" />
                     <label for="${spring.status.expression}">Cargo Alterno # 1</label>
