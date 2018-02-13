@@ -139,7 +139,13 @@ public class UsuarioService {
         final String nombre = usuario.getNombre();
         builder.append(nombre).append(" ");
 
-        final String cargo = usuario.getCargo();
+        /*
+            2018-02-13 edison.gonzalez@controltechcg.com Issue #149 (SICDI-Controltech) 
+            feature-149: Se coloca en comentarios la columna de cargo, la cual se remplaza
+            por la columna usuCArgoPrincipalId.
+         */
+//        final String cargo = usuario.getCargo();
+        final String cargo = (usuario.getUsuCargoPrincipalId() != null) ? usuario.getUsuCargoPrincipalId().getCarNombre() : null;
         if (cargo != null && !cargo.trim().isEmpty()) {
             builder.append(" - ").append(cargo).append(" ");
         }
@@ -150,10 +156,10 @@ public class UsuarioService {
             /*
              * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Se realiza la validacion
              * para que muestre el nombre de la dependencia en caso de que la sigla sea nula.
-            */
-            if(unidad.getSigla() == null || unidad.getSigla().trim().length() == 0){
+             */
+            if (unidad.getSigla() == null || unidad.getSigla().trim().length() == 0) {
                 builder.append("(").append(unidad.getNombre()).append(")");
-            }else{
+            } else {
                 builder.append("(").append(unidad.getSigla()).append(")");
             }
         }
@@ -190,7 +196,13 @@ public class UsuarioService {
         final String nombre = usuario.getNombre();
         builder.append(nombre).append(" ");
 
-        final String cargo = usuario.getCargo();
+        /*
+            2018-02-13 edison.gonzalez@controltechcg.com Issue #149 (SICDI-Controltech) 
+            feature-149: Se coloca en comentarios la columna de cargo, la cual se remplaza
+            por la columna usuCArgoPrincipalId.
+         */
+//        final String cargo = usuario.getCargo();
+        final String cargo = (usuario.getUsuCargoPrincipalId() != null) ? usuario.getUsuCargoPrincipalId().getCarNombre() : null;
         if (cargo != null && !cargo.trim().isEmpty()) {
             builder.append("</br>").append(cargo);
         }
@@ -221,10 +233,10 @@ public class UsuarioService {
             /*
              * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Se realiza la validacion
              * para que muestre el nombre de la dependencia en caso de que la sigla sea nula.
-            */
-            if(unidad.getSigla() == null || unidad.getSigla().trim().length() == 0){
+             */
+            if (unidad.getSigla() == null || unidad.getSigla().trim().length() == 0) {
                 builder.append(unidad.getNombre());
-            }else{
+            } else {
                 builder.append(unidad.getSigla());
             }
         }
