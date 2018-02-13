@@ -73,10 +73,15 @@ public class Usuario extends AuditActivoModifySupport {
     @ManyToOne
     private Grados usuGrado;
 
-    @LaamLabel("Cargo")
-    @LaamCreate(order = 55)
-    @Column(name = "USU_CARGO")
-    private String cargo;
+    /*
+        2018-02-13 edison.gonzalez@controltechcg.com Issue #149 (SICDI-Controltech) 
+        feature-149: Se coloca en comentarios la columna de cargo, la cual se remplaza
+        por la columna usuCArgoPrincipalId.
+     */
+//    @LaamLabel("Cargo")
+//    @LaamCreate(order = 55)
+//    @Column(name = "USU_CARGO")
+//    private String cargo;
 
     @LaamLabel("Perfil")
     @LaamCreate(order = 60)
@@ -348,13 +353,18 @@ public class Usuario extends AuditActivoModifySupport {
         this.email = email;
     }
 
-    public String getCargo() {
-        return cargo;
-    }
-
-    public void setCargo(String cargo) {
-        this.cargo = cargo;
-    }
+    /*
+        2018-02-13 edison.gonzalez@controltechcg.com Issue #149 (SICDI-Controltech) 
+        feature-149: Se coloca en comentarios la columna de cargo, la cual se remplaza
+        por la columna usuCArgoPrincipalId.
+     */
+//    public String getCargo() {
+//        return cargo;
+//    }
+//
+//    public void setCargo(String cargo) {
+//        this.cargo = cargo;
+//    }
 
     public boolean usuarioTieneFirmaCargada() {
         return imagenFirma != null && imagenFirma.trim().length() > 0;
