@@ -62,7 +62,6 @@ public class CargosController extends UtilController {
             } catch (NumberFormatException e) {
             }
         }
-        System.err.println("idedit= " + id);
         Cargo cargo = cargosRepository.findOne(id);
         model.addAttribute("cargo", cargo);
         return "cargos-create";

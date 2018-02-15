@@ -25,7 +25,6 @@ public class CargoService {
 
             if (cargo.getId() != null) {
                 int numRegistros = cargosRepository.findregistrosNombreRepetido(cargo.getCarNombre(), cargo.getId());
-                System.err.println("numRegistros= " + numRegistros);
                 if (numRegistros > 0) {
                     mensaje = "Error-El nombre del cargo ya se encuentra registrado en el sistema.";
                     return mensaje;
