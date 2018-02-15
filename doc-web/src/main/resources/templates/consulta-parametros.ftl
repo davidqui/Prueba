@@ -5,7 +5,7 @@
 <#import "spring.ftl" as spring />
 <#include "header.ftl" />
 <#include "consulta-parametros-util.ftl"/>
-<#include "gen-arbol-dependencias_destino.ftl">
+<#include "gen-arbol-dependencias.ftl">
 
 <div class="container-fluid">
     <h4>Consulta de documentos</h4>
@@ -130,9 +130,9 @@
                                     <div class="col-md-7">
                                         <div id="arbol_list_dependenciasj">
                                             <#if did??>
-                                                <@listDependencias dependencias did />
-                                                <#else>
-                                                    <@listDependencias dependencias />
+                                                <@listDependencias dependencias=dependencias selected=did href=false/>
+                                            <#else>
+                                                <@listDependencias dependencias=dependencias href=false/>
                                             </#if>
                                         </div>
                                     </div>
@@ -163,9 +163,9 @@
                                     <div class="col-md-7">
                                         <div id="arbol_list_dependenciasjOrigen">
                                             <#if did??>
-                                                <@listDependencias dependencias did />
-                                                <#else>
-                                                    <@listDependencias dependencias />
+                                                <@listDependencias dependencias=dependencias selected=did href=false/>
+                                            <#else>
+                                                <@listDependencias dependencias=dependencias href=false/>
                                             </#if>
                                         </div>
                                     </div>

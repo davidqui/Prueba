@@ -23,7 +23,7 @@
     2017-04-07 jgarcia@controltechcg.com Issue #37 (SIGDI-Controltech): Importación de template de funciones de documento. 
  -->
 <#include "lib/documento_functions.ftl" />
-<#include "gen-arbol-dependencias_destino.ftl">
+<#include "gen-arbol-dependencias.ftl">
 
 <div class="col-md-8">
     <#if relacionado??>
@@ -287,9 +287,9 @@
                                     <div class="col-md-7">
                                         <div id="arbol_list_dependenciasj">
                                             <#if did??>
-                                                <@listDependencias dependencias did />
+                                                <@listDependencias dependencias=dependencias selected=did href=false/>
                                                 <#else>
-                                                    <@listDependencias dependencias />
+                                                    <@listDependencias dependencias=dependencias href=false/>
                                             </#if>
                                         </div>
                                     </div>
