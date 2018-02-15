@@ -2,7 +2,11 @@
 
 <#assign pageTitle = "Reasignar" />
 
+<#if !unidadId??>
+    <#assign unidadId = "" />
+</#if>
 <#include "bandeja-header.ftl" />
+<#include "gen-arbol-dependencias.ftl">
 
 <form action="/documento/reasignar-ciclico?pin=${pin}" method="POST">
 <#assign hayUnidades = unidades?? && (unidades?size > 0) />
@@ -15,14 +19,15 @@
         
         <div class="card-block">
         	<#if hayUnidades >
-	            <#list unidades as unidad >
-	                <label class="c-input c-radio">
-	                    <input type="radio" name="depId" value="${unidad.id}">
-	                    <span class="c-indicator"></span>
-	                    ${unidad}
-	                </label>
-	                <br/>
-	            </#list>
+	            <div class="row">
+                        <div class="col-md-7">
+                            <div id="arbol_list_dependenciasj">
+                                <@listDependencias dependencias=unidades href=false/>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="depId" id="depId" value="${unidadId}"/>
+                    <br/>
             <div class="m-y">
                 <fieldset class="form-group">
                     <textarea name="observacion" placeholder="Escriba un comentario para el nuevo asignado..." class="form-control"></textarea>
@@ -42,4 +47,8 @@
     </div>
 </form>
 
+<#assign deferredJS>
+  <script src="/js/jstree.min.js"></script>
+  <script src="/js/app/gen-arbol-reasignar-ciclico.js"></script>
+</#assign>
 <#include "bandeja-footer.ftl" />
