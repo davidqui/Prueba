@@ -59,13 +59,10 @@ public interface DependenciaRepository extends GenJpaRepository<Dependencia, Int
             + "where row_num = 1")
     public Integer findUnidadID(@Param("dependenciaID") Integer dependenciaID);
 
-    @Query(nativeQuery = true, value = ""
-            + "select *\n"
-            + "from dependencia\n"
-            + "where (dep_ind_envio_documentos = 1 or dep_padre is null)\n"
-            + "and activo = 1\n"
-            + "start with dep_padre is null\n"
-            + "connect by dep_padre = prior dep_id\n"
-            + "order by level")
-    List<Dependencia> encontrarUnidadesConIndicador();
+    /*
+    * 2018-02-14 edison.gonzalez@controltechcg.com issue #150
+    * (SICDI-Controltech) hotfix-150: Ajuste para desplegar visualmente  las 
+    * unidades padres en el arbol, cuando se reasigna un documento.
+    */
+    List<Dependencia> findByActivoAndPadreAndDepIndEnvioDocumentos(boolean activo, Integer padreId, boolean indUnidadPadre, Sort sort);
 }

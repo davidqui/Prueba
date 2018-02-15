@@ -3,24 +3,8 @@
 
 <#assign pageTitle = transicion.nombre />
 <#include "header.ftl" />
+<#include "gen-arbol-dependencias.ftl">
 
-<#macro listDependencias dependencias selected=0>
-	<ul>		 
-		<#list dependencias as dependencia >									
-			<#if dependencia.subs?has_content >
-				<li data-jstree='{ "opened" : false }'><a href="?pin=${pin}&tid=${tid}&did=${dependencia.id}"><#if dependencia.sigla?? > ${dependencia.sigla} - </#if>${dependencia.nombre} </a>				
-					<@listDependencias dependencia.subs selected />
-				</li>	
-			<#else>
-				<#if dependencia.id == selected>
-					<li data-jstree='{ "opened" : false }'><strong style="background-color:#A9F5F2; padding:5px;"> <#if dependencia.sigla?? > ${dependencia.sigla} - </#if> ${dependencia.nombre} </strong></li>
-				<#else>
-					<li data-jstree='{ "opened" : false }'><a href="?pin=${pin}&tid=${tid}&did=${dependencia.id}"> <#if dependencia.sigla?? > ${dependencia.sigla} - </#if> ${dependencia.nombre} </a></li>
-				</#if>		
-			</#if>			
-		</#list>
-	</ul>
-</#macro>
 
 <div class="container-fluid">
 	<div class="card">
@@ -41,9 +25,9 @@
 						<div class="col-md-7">							
 							<div id="arbol_list_dependenciasj">
 								<#if did?? >
-									<@listDependencias dependencias_arbol did />
+									<@listDependencias dependencias_arbol did/>
 								<#else>									
-									<@listDependencias dependencias_arbol />
+									<@listDependencias dependencias_arbol/>
 								</#if>
 							</div>
 						</div>
@@ -85,46 +69,8 @@
 </div>
 
 <#assign deferredJS>  
-  
-  <!-- 4 include the jQuery library -->
-  <script src="/js/jquery.min.js.1.12.1.js"></script>
-  <!-- 5 include the minified jstree source -->
   <script src="/js/jstree.min.js"></script>
-  
-  <script>
-  		var getUrlParameter = function getUrlParameter(sParam) {
-		    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-		        sURLVariables = sPageURL.split('&'),
-		        sParameterName,
-		        i;
-		
-		    for (i = 0; i < sURLVariables.length; i++) {
-		        sParameterName = sURLVariables[i].split('=');
-		
-		        if (sParameterName[0] === sParam) {
-		            return sParameterName[1] === undefined ? true : sParameterName[1];
-		        }
-		    }
-		};
-		
-		$("#arbol_list_dependenciasj").jstree().bind('ready.jstree', function (event, data) {
-			var idS = getUrlParameter('idseleccionado');  
-			if( idS != undefined && idS != null ){
-				data.instance._open_to( idS );	
-			} 
-		  	
-		});
-		  		
-  		$('#arbol_list_dependenciasj')  			
-  			.on("select_node.jstree", function (e, data) {
-                    var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
-                    var id = data.instance.get_node(data.node, true).attr('id');                    
-                    if(window.location.href != newLoc){                                  	  	
-                        document.location = newLoc + ("&idseleccionado="+id);
-                    }
-                })	  		
-		  .jstree();
-  </script>
+  <script src="/js/app/gen-arbol-asignar-documento-ciclico.js"></script>
 </#assign>
 
 <#include "footer.ftl" />

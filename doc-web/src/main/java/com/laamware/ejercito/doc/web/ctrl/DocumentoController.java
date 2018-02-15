@@ -520,7 +520,7 @@ public class DocumentoController extends UtilController {
 
         Usuario usuarioLogueado = getUsuario(principal);
         model.addAttribute("usuariologueado", usuarioLogueado);
-        
+
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
         List<Dependencia> listaDependencias = depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
@@ -814,7 +814,7 @@ public class DocumentoController extends UtilController {
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
         List<Dependencia> listaDependencias = depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
-        
+
         // Obtiene la instancia de proceso
         Instancia i = procesoService.instancia(pin);
 
@@ -3753,6 +3753,14 @@ public class DocumentoController extends UtilController {
         }
     }
 
+    @RequestMapping(value = {"/seleccionarDependencia"}, method = {org.springframework.web.bind.annotation.RequestMethod.GET})
+    @ResponseBody
+    public Integer seleccionarDependencia(Model model, Principal principal, HttpServletRequest req) {
+        Usuario usuarioSesion = getUsuario(principal);
+        Dependencia dependenciaDestino = usuarioSesion.getDependencia();
+        return dependenciaDestino.getId();
+    }
+
     /**
      * Obtiene la solicitud para la presentación de la pantalla de selección de
      * proceso para construir la respuesta de un proceso cíclico.
@@ -3803,19 +3811,19 @@ public class DocumentoController extends UtilController {
     // feature-73.
     @RequestMapping(value = "/reasignar-ciclico", method = RequestMethod.GET)
     public String reasignarCiclico(@RequestParam("pin") String instanciaID, Model model, Principal principal) {
-        
+
         model.addAttribute("pin", instanciaID);
 
         final Instancia instancia = procesoService.instancia(instanciaID);
         final String documentoID = instancia.getVariable(Documento.DOC_ID);
         final Documento documento = documentRepository.findOne(documentoID);
         model.addAttribute("documento", documento);
-        
+
         /*
 	 * 2018-02-02 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
 	 * campo Indicador de envio documentos.
          */
-        List<Dependencia> unidades = dependenciaRepository.encontrarUnidadesConIndicador();
+        List<Dependencia> unidades = depsHierarchyPadre();
 
         model.addAttribute("unidades", unidades);
 
@@ -3982,6 +3990,23 @@ public class DocumentoController extends UtilController {
         d.setSubs(subs);
         for (Dependencia x : subs) {
             depsHierarchy(x);
+        }
+    }
+
+    private List<Dependencia> depsHierarchyPadre() {
+        List<Dependencia> root = this.dependenciaRepository.findByActivoAndPadreIsNull(true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
+        for (Dependencia d : root) {
+            depsHierarchyPadre(d);
+        }
+        return root;
+    }
+
+    private void depsHierarchyPadre(Dependencia d) {
+        List<Dependencia> subs = this.dependenciaRepository.findByActivoAndPadreAndDepIndEnvioDocumentos(true, d.getId(), true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
+
+        d.setSubs(subs);
+        for (Dependencia x : subs) {
+            depsHierarchyPadre(x);
         }
     }
 
