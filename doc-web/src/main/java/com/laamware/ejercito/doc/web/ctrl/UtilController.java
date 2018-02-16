@@ -131,7 +131,7 @@ public abstract class UtilController {
         /*
             2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-        */
+         */
         String grado = u.getUsuGrado().getId();
         if (StringUtils.isNotBlank(grado) && !AppConstants.SIN_GRADO.equals(grado)) {
             nombre = grado + ". " + nombre;
@@ -146,7 +146,7 @@ public abstract class UtilController {
     }
 
     public boolean isAuthorized(String roles) {
-
+        
         String[] split = roles.split(",");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Collection<? extends GrantedAuthority> granted = authentication.getAuthorities();
@@ -386,6 +386,9 @@ public abstract class UtilController {
         }
         if (grantsMap.containsKey(AppConstants.ADMIN_FORMATOS)) {
             return String.format("redirect:%s", AppConstants.PATH_ADMIN_FORMATOS);
+        }
+        if (grantsMap.containsKey(AppConstants.ADMIN_CARGOS)) {
+            return String.format("redirect:%s", AppConstants.PATH_ADMIN_CARGOS);
         }
         if (grantsMap.containsKey(AppConstants.ADMIN_LOG)) {
             return String.format("redirect:%s", AppConstants.PATH_ADMIN_LOG);

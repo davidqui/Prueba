@@ -190,5 +190,11 @@ public class AppConstants {
 
 	public static final String ADMIN_LOG = "ADMIN_LOG";
 	public static final String PATH_ADMIN_LOG = "/admin/logs";
+        
+        /**
+	 * Rol de administración de cargos
+	 */
+	public static final String ADMIN_CARGOS = "ADMIN_CARGOS";
+	public static final String PATH_ADMIN_CARGOS = "/admin/cargos";
 
 }
