@@ -48,7 +48,13 @@
 </form>
 
 <#assign deferredJS>
-  <script src="/js/jstree.min.js"></script>
-  <script src="/js/app/gen-arbol-reasignar-ciclico.js"></script>
+    <script src="/js/jstree.min.js"></script>
+    <script src="/js/app/gen-arbol.js"></script>
+    
+    <script type="text/javascript">
+      validarArbol("#arbol_list_dependenciasj",false,true);
+    </script>
+    
 </#assign>
 <#include "bandeja-footer.ftl" />
+<script src="/js/app/gen-arbol-reasignar-ciclico.js"></script>

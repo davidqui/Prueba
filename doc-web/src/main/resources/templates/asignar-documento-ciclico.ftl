@@ -69,8 +69,12 @@
 </div>
 
 <#assign deferredJS>  
-  <script src="/js/jstree.min.js"></script>
-  <script src="/js/app/gen-arbol-asignar-documento-ciclico.js"></script>
+    <script src="/js/jstree.min.js"></script>
+    <script src="/js/app/gen-arbol.js"></script>
+
+    <script type="text/javascript">
+        validarArbol("#arbol_list_dependenciasj",true,true);
+    </script>
 </#assign>
 
 <#include "footer.ftl" />
