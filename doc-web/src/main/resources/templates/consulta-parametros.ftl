@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#assign pageTitle = "Parámetros de busqueda" />
 
 <#assign deferredJS = "" />
@@ -178,12 +179,19 @@
                 </div>
             </div>
         </div>
-    <#assign deferredJSDepDestino>
-    <script src="/js/jstree.min.js"></script>
-    <script src="/js/app/dependencia-origen-modal-parametros.js"></script>
-    <script src="/js/app/dependencia-destino-modal-parametros.js"></script>
+    <#assign deferredJSDepOrigen>
+        <script src="/js/jstree.min.js"></script>
+        <script src="/js/app/gen-arbol.js"></script>
+        
+        <script type="text/javascript">
+            validarArbol("#arbol_list_dependenciasjOrigen",false);
+        </script>
+        <script type="text/javascript">
+            validarArbol("#arbol_list_dependenciasj",false);
+        </script>
+        
     </#assign>
-    <#assign deferredJS = deferredJS + " " + deferredJSDepDestino>
+    <#assign deferredJS = deferredJS + " " + deferredJSDepOrigen>
     </form>
 
 <br><br>
@@ -194,5 +202,5 @@
 <#include "footer.ftl" />
 <script src="/js/app/consulta-parametros.js"></script>
 <script type="text/javascript">
-   initParameters("${dependenciaOrigenDescripcion}","${dependenciaDestinoDescripcion}");
-    </script>
+    initParameters("${dependenciaOrigenDescripcion}","${dependenciaDestinoDescripcion}");
+ </script>
