@@ -11,23 +11,56 @@ function getUrlParameter(sParam) {
     }
 };
 
-function validarArbol(myVar){
+function validarArbol(myVar, selectVar = true, dependenciaPropia = false){
+    
     $(myVar).jstree().bind('ready.jstree', function(event, data) {
-        alert('ready generico');
         var idS = getUrlParameter('idseleccionado');
         if (idS !== undefined && idS !== null) {
             data.instance._open_to(idS);
-        } 
-    });
-
-    $(myVar)
-        .on("select_node.jstree", function(e, data) {
-            alert('select_node generico');
-            var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
-            var id = data.instance.get_node(data.node, true).attr('id');
-            if (window.location.href !== newLoc) {
-                document.location = newLoc + ("&idseleccionado=" + id);
+        } else {
+            if(dependenciaPropia){
+                abrirArbolXdependencia();
             }
-        })
-        .jstree();
+        }
+    });
+    
+    if(selectVar){
+        $(myVar)
+            .on("select_node.jstree", function(e, data) {
+                var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
+                var id = data.instance.get_node(data.node, true).attr('id');
+                if (window.location.href !== newLoc) {
+                    document.location = newLoc + ("&idseleccionado=" + id);
+                }
+            })
+            .jstree();
+    }
+
+    function abrirArbolXdependencia() {
+        $.ajax({
+            url: "/documento/seleccionarDependencia",
+            success: function(data) {
+                var ret;
+                $(myVar).jstree().open_all();
+                $(myVar+' li').each(function(index, value) {
+                    var node = $(myVar).jstree().get_node(this.id);
+                    if (data === node.data.jstree.id) {
+                        ret = node.id;
+                    }
+                });
+                $(myVar).jstree().close_all();
+                if(ret !== undefined){
+                    expandNode(ret);
+                }
+            }
+        });
+    };
+    
+    function expandNode(nodeID) {
+        while (nodeID !== '#') {
+            $(myVar).jstree("open_node", nodeID);
+            var thisNode = $(myVar).jstree("get_node", nodeID);
+            nodeID = $(myVar).jstree("get_parent", thisNode);
+        }
+    };
 };
