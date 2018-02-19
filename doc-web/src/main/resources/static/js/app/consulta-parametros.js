@@ -47,3 +47,30 @@ $('#dependenciaDestinoLimpiar').on('click', function() {
   $("#dependenciaDestinoDescripcion").val("");   
 });
 
+// 2018-02-19 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
+// feature-150 Se centraliza en un solo archivo por template
+$('#arbol_list_dependenciasjOrigen').on("select_node.jstree", function(e, data) {
+    var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
+    var id = data.instance.get_node(data.node, true).attr('id');
+    if (window.location.href !== newLoc) {
+        document.location = newLoc + ("&idseleccionado=" + id);
+    }
+
+    $("#dependenciaOrigen").val(data.node.data.jstree.id);
+    $("#dependenciaOrigenDescripcion").val(data.node.text);
+    $("#dependenciaOrigenNombre").text(data.node.text);
+    $("#dependenciaOrigenModal").modal('hide');
+}).jstree();
+    
+$('#arbol_list_dependenciasj').on("select_node.jstree", function(e, data) {
+    var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
+    var id = data.instance.get_node(data.node, true).attr('id');
+    if (window.location.href !== newLoc) {
+        document.location = newLoc + ("&idseleccionado=" + id);
+    }
+
+    $("#dependenciaDestino").val(data.node.data.jstree.id);
+    $("#dependenciaDestinoDescripcion").val(data.node.text);
+    $("#dependenciaDestinoNombre").text(data.node.text);
+    $("#dependenciaDestinoModal").modal('hide');
+}).jstree();
