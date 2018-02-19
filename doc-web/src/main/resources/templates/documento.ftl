@@ -305,7 +305,12 @@
 
         <#assign deferredJSDepDestinoArbol>
             <script src="/js/jstree.min.js"></script>
-            <script src="/js/app/gen-arbol-dependencias-destino.js"></script>
+            <script src="/js/app/gen-arbol.js"></script>
+        
+            <script type="text/javascript">
+                validarArbol("#arbol_list_dependenciasj",false);
+            </script>
+            <script src="/js/app/documento.js"></script>
         </#assign>
         <#assign deferredJS = deferredJS + " " + deferredJSDepDestinoArbol>
 
