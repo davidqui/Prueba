@@ -15,12 +15,12 @@ function validarArbol(myVar, selectVar = true, dependenciaPropia = false){
     
     $(myVar).jstree().bind('ready.jstree', function(event, data) {
         var idS = getUrlParameter('idseleccionado');
-        if (idS !== undefined && idS !== null) {
+        if (idS !== undefined && idS !== null && !dependenciaPropia) {
             data.instance._open_to(idS);
-        } else {
-            if(dependenciaPropia){
-                abrirArbolXdependencia();
-            }
+        } 
+        
+        if(dependenciaPropia){
+            abrirArbolXdependencia(idS);
         }
     });
     
@@ -35,8 +35,8 @@ function validarArbol(myVar, selectVar = true, dependenciaPropia = false){
             })
             .jstree();
     }
-
-    function abrirArbolXdependencia() {
+    
+    function abrirArbolXdependencia(selId) {
         $.ajax({
             url: "/documento/seleccionarDependencia",
             success: function(data) {
@@ -45,6 +45,13 @@ function validarArbol(myVar, selectVar = true, dependenciaPropia = false){
                 $(myVar+' li').each(function(index, value) {
                     var node = $(myVar).jstree().get_node(this.id);
                     if (data === node.data.jstree.id) {
+                        var $style = "color: blue; font-weight:bold";
+                        node.a_attr['style'] = $style;
+                        if(selId === undefined){
+                            ret = node.id;
+                        }
+                    }
+                    if(selId !== undefined && selId === node.id){
                         ret = node.id;
                     }
                 });
