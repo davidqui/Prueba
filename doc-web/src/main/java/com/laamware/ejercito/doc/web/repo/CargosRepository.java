@@ -21,7 +21,7 @@ public interface CargosRepository extends JpaRepository<Cargo, Integer> {
     @Query(nativeQuery = true, value = ""
             + "SELECT count(1) "
             + "FROM CARGO "
-            + "WHERE UPPER(CAR_NOMBRE) = UPPER(:carNombre) ")
+            + "WHERE CAR_NOMBRE = :carNombre ")
     public Integer findregistrosByNombre(@Param("carNombre") String carNombre);
 
     public Cargo findBycarNombre(String carNombre);
