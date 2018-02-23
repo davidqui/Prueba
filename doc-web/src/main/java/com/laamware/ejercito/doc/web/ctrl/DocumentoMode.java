@@ -33,10 +33,16 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		 * NAMES la clave gradoExterno, marca de agua externo Y restriccion de sdifusion
                  * para que el componente aparezca,según lo indicado en documento.ftl.
      */
+    /*
+		 * 2018-02-22 edison.gonzalez@controltechcg.com feature #150 : Se adiciona a la lista
+		 * NAMES la clave cargoElabora, cargoFirma para que el componente 
+                 * aparezca,según lo indicado en documento.ftl.
+     */
     private static final List<String> NAMES = Collections
             .unmodifiableList(Arrays.asList("sticker", "trd", "destinatario", "asunto", "remitente", "numeroOficio",
                     "fechaOficio", "numeroFolios", "plazo", "clasificacion", "expediente", "adjuntos", "observaciones",
-                    "contenido", "radicado", "formatos", "plantilla", "radicadoOrfeo", "numeroBolsa", "guardar", "gradoExterno", "marcaAguaExterno", "restriccionDifusion"));
+                    "contenido", "radicado", "formatos", "plantilla", "radicadoOrfeo", "numeroBolsa", "guardar", "gradoExterno",
+                    "marcaAguaExterno", "restriccionDifusion","cargoIdElabora", "cargoIdFirma"));
 
     public static final String NAME_REGISTRO = "registro";
 
@@ -91,21 +97,23 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         REGISTRO.edit("destinatario").editAndView("asunto").editAndView("remitente").editAndView("numeroOficio")
                 .editAndView("fechaOficio").editAndView("numeroFolios").editAndView("clasificacion")
                 .editAndView("radicadoOrfeo").editAndView("numeroBolsa").editAndView("trd").editAndView("observaciones")
-                .editAndView("guardar").editAndView("restriccionDifusion").editAndView("gradoExterno");
+                .editAndView("guardar").editAndView("restriccionDifusion").editAndView("gradoExterno")
+                .editAndView("cargoIdElabora").editAndView("cargoIdFirma");
         REGISTRO.validator = new RegistroValidator();
         modes.put(NAME_REGISTRO, REGISTRO);
 
         CON_STICKER.view("sticker").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
                 .view("fechaOficio").view("numeroFolios").view("clasificacion").view("radicado").view("radicadoOrfeo")
                 .view("numeroBolsa").editAndView("trd").editAndView("observaciones").editAndView("guardar").view("restriccionDifusion")
-                .view("gradoExterno");
+                .view("gradoExterno").view("cargoIdElabora").view("cargoIdFirma");;
         CON_STICKER.validator = new ConStickerValidator();
         modes.put(NAME_CON_STICKER, CON_STICKER);
 
         DIGITALIZANDO.view("sticker").view("destinatario").view("asunto").view("remitente").view("numeroOficio")
                 .view("fechaOficio").view("numeroFolios").view("clasificacion").editAndView("adjuntos")
                 .editAndView("observaciones").view("radicado").view("radicadoOrfeo").view("numeroBolsa")
-                .editAndView("trd").editAndView("guardar").view("restriccionDifusion").view("gradoExterno");
+                .editAndView("trd").editAndView("guardar").view("restriccionDifusion").view("gradoExterno")
+                .view("cargoIdElabora").view("cargoIdFirma");;
         DIGITALIZANDO.validator = new DigitalizandoValidator();
         modes.put(NAME_DIGITALIZANDO, DIGITALIZANDO);
 
@@ -113,7 +121,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                 .view("fechaOficio").view("numeroFolios").view("clasificacion").editAndView("expediente")
                 .view("adjuntos").editAndView("observaciones").view("radicado").view("radicadoOrfeo")
                 .view("numeroBolsa").editAndView("trd").editAndView("guardar").view("restriccionDifusion")
-                .view("gradoExterno");
+                .view("gradoExterno").view("cargoIdElabora").view("cargoIdFirma");;
         ENTREGADO.validator = new EntregadoValidator();
         modes.put(NAME_ENTREGADO, ENTREGADO);
 
@@ -126,7 +134,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                 .editAndView("clasificacion").editAndView("adjuntos").editAndView("observaciones")
                 .editAndView("contenido").editAndView("formatos").editAndView("plantilla").editAndView("plazo")// .editAndView("docx4jDocumento")
                 .editAndView("guardar").editAndView("expediente").editAndView("restriccionDifusion")
-                .editAndView("marcaAguaExterno").editAndView("gradoExterno");
+                .editAndView("marcaAguaExterno").editAndView("gradoExterno").editAndView("cargoIdElabora").editAndView("cargoIdFirma");;
         EN_CONSTRUCCION.validator = new EnConstruccionValidator();
         modes.put(NAME_EN_CONSTRUCCION, EN_CONSTRUCCION);
 
@@ -138,7 +146,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         EN_CONSTRUCCION_INTERNO.editAndView("trd").editAndView("destinatario").editAndView("asunto")
                 .editAndView("clasificacion").editAndView("adjuntos").editAndView("observaciones")
                 .editAndView("contenido").editAndView("formatos").editAndView("plantilla").editAndView("guardar")
-                .editAndView("expediente").editAndView("restriccionDifusion");
+                .editAndView("expediente").editAndView("restriccionDifusion").editAndView("cargoIdElabora").editAndView("cargoIdFirma");;
         EN_CONSTRUCCION_INTERNO.validator = new EnConstruccionValidator();
         modes.put(NAME_EN_CONSTRUCCION_INTERNO, EN_CONSTRUCCION_INTERNO);
 
@@ -151,7 +159,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                 .editAndView("plazo").editAndView("clasificacion").editAndView("adjuntos").editAndView("observaciones")
                 .editAndView("contenido").editAndView("formatos").editAndView("plantilla").editAndView("guardar")
                 .editAndView("expediente").editAndView("gradoExterno").editAndView("marcaAguaExterno")
-                .editAndView("restriccionDifusion");
+                .editAndView("restriccionDifusion").editAndView("cargoIdElabora").editAndView("cargoIdFirma");;
         EN_CONSTRUCCION_EXTERNO.validator = new EnConstruccionExternoValidator();
         modes.put(NAME_EN_CONSTRUCCION_EXTERNO, EN_CONSTRUCCION_EXTERNO);
 
@@ -159,13 +167,13 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                 .view("fechaOficio").view("numeroFolios").view("plazo").view("clasificacion").view("expediente")
                 .view("adjuntos").editAndView("observaciones").view("radicado").view("contenido").view("plantilla")
                 .view("radicadoOrfeo").view("numeroBolsa").view("restriccionDifusion")
-                .view("gradoExterno").view("marcaAguaExterno");
+                .view("gradoExterno").view("marcaAguaExterno").view("cargoIdElabora").view("cargoIdFirma");;
         modes.put(NAME_SOLO_LECTURA, SOLO_LECTURA);
 
         SOLO_LECTURA_INTERNO.view("trd").view("destinatario").view("remitente").view("asunto").view("remitente")
                 .view("numeroOficio").view("fechaOficio").view("numeroFolios").view("plazo").view("clasificacion")
                 .view("expediente").view("adjuntos").editAndView("observaciones").view("radicado").view("contenido")
-                .view("plantilla").view("restriccionDifusion").view("gradoExterno");
+                .view("plantilla").view("restriccionDifusion").view("gradoExterno").view("cargoIdElabora").view("cargoIdFirma");;
         modes.put(NAME_SOLO_LECTURA_INTERNO, SOLO_LECTURA_INTERNO);
     }
 
@@ -317,6 +325,20 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         if (get("restriccionDifusion_edit")) {
             target.setRestriccionDifusion(source.getRestriccionDifusion());
         }
+        
+        /*
+		 * 2018-02-22 edison.gonzalez@controltechcg.com issue #150 : Se adiciona al mapa
+		 * de construcción la clave cargoIdElabora y cargoIdFirma para que el componente aparezca,
+		 * según lo indicado en documento.ftl.
+         */
+        
+        if (get("cargoIdElabora_edit")) {
+            target.setCargoIdElabora(source.getCargoIdElabora());
+        }
+
+        if (get("cargoIdFirma")) {
+            target.setCargoIdFirma(source.getCargoIdFirma());
+        }
     }
     
     /**
@@ -377,6 +399,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             target.setClasificacion(source.getClasificacion());
         }
 
+        System.err.println("expediente_edit= "+get("expediente_edit"));
         if (get("expediente_edit") == false) {
             target.setExpediente(source.getExpediente());
         }
@@ -404,6 +427,21 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 
         if (get("restriccionDifusion_edit") == false) {
             target.setRestriccionDifusion(source.getRestriccionDifusion());
+        }
+        
+        /*
+		 * 2018-02-22 edison.gonzalez@controltechcg.com issue #150 : Se adiciona al mapa
+		 * de construcción la clave cargoIdElabora y cargoIdFirma para que el componente aparezca,
+		 * según lo indicado en documento.ftl.
+         */
+        
+        if (get("cargoIdElabora_edit") == false) {
+            target.setCargoIdElabora(source.getCargoIdElabora());
+        }
+
+        System.err.println("cargoIdFirma= "+get("cargoIdFirma"));
+        if (get("cargoIdFirma") == false) {
+            target.setCargoIdFirma(source.getCargoIdFirma());
         }
 
         // Información no editable por naturaleza

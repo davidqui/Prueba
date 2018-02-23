@@ -54,6 +54,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.aspose.words.Document;
+import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.UsuarioVistoBuenoDTO;
 import com.laamware.ejercito.doc.web.entity.Adjunto;
@@ -82,6 +83,7 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.Variable;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepository;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepositoryCustom;
+import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaAdicionalRepository;
@@ -111,6 +113,7 @@ import com.laamware.ejercito.doc.web.serv.RadicadoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
+import java.math.BigDecimal;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
@@ -240,6 +243,9 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     RadicacionRepository radicacionRepository;
+    
+    @Autowired
+    CargosRepository cargosRepository;
 
     /* ---------------------- públicos ------------------------------- */
     /**
@@ -4239,6 +4245,24 @@ public class DocumentoController extends UtilController {
     @ModelAttribute("trds")
     public List<Trd> trds() {
         return trdRepository.findByActivoAndSerieNotNull(true, new Sort(Direction.ASC, "nombre"));
+    }
+    
+    /**
+     * Carga el listado de cargos
+     *
+     * @param principal
+     * @return
+     */
+    @ModelAttribute("cargosElabora")
+    public List<CargoDTO> cargosElabora(Principal principal) {
+        Usuario usuarioSesion = getUsuario(principal);
+        List<Object[]> list = cargosRepository.findCargosXusuario(usuarioSesion.getId());
+        List<CargoDTO> cargoDTOs= new ArrayList<>();
+        for(Object[] os: list){
+            CargoDTO cargoDTO = new CargoDTO(((BigDecimal)os[0]).intValue(),(String)os[1]);
+            cargoDTOs.add(cargoDTO);
+        }
+        return cargoDTOs;
     }
 
     /**

@@ -647,6 +647,44 @@
             </fieldset>
         </#if>
         <!--
+            cargo
+        -->
+        <#if mode.cargoIdElabora_edit >
+        <fieldset class="form-group">
+            <label for="cargoIdElabora">Cargo (*)</label>
+                <@spring.bind "documento.cargoIdElabora" />
+            <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
+                    <#if cargosElabora??>   
+                        <#list cargosElabora as cla>
+                        <#if cla.id?string == ((documento.cargoIdElabora.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.nombre}</option>
+                        </#if>
+                        </#list>
+                    </#if>
+                </select>
+            <small class="text-muted">Cargo con el cual se creara el documento.</small>
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        </#if>
+        
+        <#if mode.cargoIdFirma_edit >
+        <fieldset class="form-group">
+            <label for="cargoIdFirma">Cargo (*)</label>
+                <@spring.bind "documento.cargoIdFirma" />
+            <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
+                    
+                </select>
+            <small class="text-muted">Cargo con el cual se creara el documento.</small>
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        </#if>
+        <!--
             Contenido
         -->
         <#if mode.plantilla_edit >
