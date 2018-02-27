@@ -649,7 +649,7 @@
         <!--
             cargo
         -->
-        <#if mode.cargoIdElabora_edit >
+        <#if mode.cargoIdElabora_edit && cambiarIdCargoElabora!false>
         <fieldset class="form-group">
             <label for="cargoIdElabora">Cargo (*)</label>
                 <@spring.bind "documento.cargoIdElabora" />
@@ -991,6 +991,13 @@
             <strong>Usuario asignado:</strong> ${instancia.asignado}<br/>
             <strong>Enviado por:</strong> ${documento.usuarioUltimaAccion!"&lt;Nadie&gt;"}<br/>
             <strong>Elabora:</strong> ${documento.elabora!"&lt;Nadie&gt;"}<br/>
+            <strong>Cargo elabora:</strong>
+                <#if (documento.cargoIdElabora??)>
+                    ${documento.cargoIdElabora.carNombre!"&lt;Ninguno&gt;"}
+                <#else>
+                    ${"&lt;Ninguno&gt;"}
+                </#if>
+            <br/>
             <strong>Revisó:</strong> ${documento.aprueba!"&lt;Nadie&gt;"}<br/>
             <strong>Visto bueno:</strong> ${documento.vistoBueno!"&lt;Nadie&gt;"}<br/>
             <strong>Firma:</strong> ${documento.firma!"&lt;Nadie&gt;"}<br/>
