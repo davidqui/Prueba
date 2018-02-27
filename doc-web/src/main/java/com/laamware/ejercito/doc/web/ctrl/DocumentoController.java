@@ -114,6 +114,7 @@ import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
@@ -243,7 +244,7 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     RadicacionRepository radicacionRepository;
-    
+
     @Autowired
     CargosRepository cargosRepository;
 
@@ -572,6 +573,29 @@ public class DocumentoController extends UtilController {
             doc.setEstadoTemporal(null);
         }
 
+        //2018-02-27 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech)
+        model.addAttribute("cambiarIdCargoElabora", false);
+
+        if (Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)
+                || Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)) {
+            if (i.getVariables().size() <= 5 && Objects.equals(usuarioLogueado.getId(), doc.getElabora().getId())) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+
+            if (DocumentoMode.NAME_EN_CONSTRUCCION.equals(i.getVariable(Documento.DOC_MODE)) && Objects.equals(getUsuario(principal).getId(), doc.getElabora().getId())) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+        }
+
+        if (Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
+            if (i.getVariables().size() <= 4 && Objects.equals(usuarioLogueado.getId(), doc.getElabora().getId())) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+            if (DocumentoMode.NAME_REGISTRO.equals(i.getVariable(Documento.DOC_MODE)) && Objects.equals(getUsuario(principal).getId(), doc.getElabora().getId())) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+        }
+
         // Cargamos los vistos buenos del documentos
         List<Object[]> vistosBuenosValores = documentRepository.findVistosBuenosDocumentos(doc.getId());
         for (Object[] obVistoBueno : vistosBuenosValores) {
@@ -832,6 +856,36 @@ public class DocumentoController extends UtilController {
         String modeName = i.getVariable(Documento.DOC_MODE);
 
         DocumentoMode mode = DocumentoMode.getByName(modeName);
+
+        Usuario logueado = getUsuario(principal);
+        Integer elaboraDocumento = null;
+        if (doc.getElabora() != null) {
+            elaboraDocumento = doc.getElabora().getId();
+        }
+
+        //2018-02-27 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech)
+        model.addAttribute("cambiarIdCargoElabora", false);
+
+        if (Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)
+                || Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)) {
+            if (i.getVariables().size() <= 5) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+
+            if (DocumentoMode.NAME_EN_CONSTRUCCION.equals(modeName) && Objects.equals(logueado.getId(), elaboraDocumento)) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+        }
+
+        if (Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
+            if (i.getVariables().size() <= 4 && Objects.equals(logueado.getId(), elaboraDocumento)) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+
+            if (DocumentoMode.NAME_REGISTRO.equals(i.getVariable(Documento.DOC_MODE)) && Objects.equals(logueado.getId(), elaboraDocumento)) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+        }
 
         // Obtiene el documento previamente almacenado en la base de datos o
         // crea uno nuevo (sin almacenarlo) para que sirva como objeto anterior
@@ -4246,7 +4300,7 @@ public class DocumentoController extends UtilController {
     public List<Trd> trds() {
         return trdRepository.findByActivoAndSerieNotNull(true, new Sort(Direction.ASC, "nombre"));
     }
-    
+
     /**
      * Carga el listado de cargos
      *
@@ -4257,9 +4311,9 @@ public class DocumentoController extends UtilController {
     public List<CargoDTO> cargosElabora(Principal principal) {
         Usuario usuarioSesion = getUsuario(principal);
         List<Object[]> list = cargosRepository.findCargosXusuario(usuarioSesion.getId());
-        List<CargoDTO> cargoDTOs= new ArrayList<>();
-        for(Object[] os: list){
-            CargoDTO cargoDTO = new CargoDTO(((BigDecimal)os[0]).intValue(),(String)os[1]);
+        List<CargoDTO> cargoDTOs = new ArrayList<>();
+        for (Object[] os : list) {
+            CargoDTO cargoDTO = new CargoDTO(((BigDecimal) os[0]).intValue(), (String) os[1]);
             cargoDTOs.add(cargoDTO);
         }
         return cargoDTOs;
