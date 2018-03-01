@@ -665,7 +665,7 @@
                         </#list>
                     </#if>
                 </select>
-            <small class="text-muted">Cargo con el cual se creara el documento.</small>
+            <small class="text-muted">Cargo con el cual se creará el documento.</small>
             <div class="error">
                     <@spring.showErrors "<br>"/>
                 </div>
