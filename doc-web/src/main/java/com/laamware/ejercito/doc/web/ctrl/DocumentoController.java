@@ -59,6 +59,7 @@ import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.UsuarioVistoBuenoDTO;
 import com.laamware.ejercito.doc.web.entity.Adjunto;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
@@ -596,6 +597,13 @@ public class DocumentoController extends UtilController {
             }
         }
 
+        model.addAttribute("cambiarIdCargoFirma", false);
+        if (i.getEstado() != null && Objects.equals(Estado.PENDIENTE, i.getEstado().getId())) {
+            if (i.getAsignado() != null && Objects.equals(i.getAsignado().getId(), usuarioLogueado.getId())) {
+                model.addAttribute("cambiarIdCargoFirma", true);
+            }
+        }
+
         // Cargamos los vistos buenos del documentos
         List<Object[]> vistosBuenosValores = documentRepository.findVistosBuenosDocumentos(doc.getId());
         for (Object[] obVistoBueno : vistosBuenosValores) {
@@ -857,13 +865,13 @@ public class DocumentoController extends UtilController {
 
         DocumentoMode mode = DocumentoMode.getByName(modeName);
 
+        //2018-02-27 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech)
         Usuario logueado = getUsuario(principal);
         Integer elaboraDocumento = null;
         if (doc.getElabora() != null) {
             elaboraDocumento = doc.getElabora().getId();
         }
 
-        //2018-02-27 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech)
         model.addAttribute("cambiarIdCargoElabora", false);
 
         if (Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)
@@ -884,6 +892,17 @@ public class DocumentoController extends UtilController {
 
             if (DocumentoMode.NAME_REGISTRO.equals(i.getVariable(Documento.DOC_MODE)) && Objects.equals(logueado.getId(), elaboraDocumento)) {
                 model.addAttribute("cambiarIdCargoElabora", true);
+            }
+        }
+
+        model.addAttribute("cambiarIdCargoFirma", false);
+        if (i.getEstado() != null && Objects.equals(Estado.PENDIENTE, i.getEstado().getId())) {
+            Integer firmaDocumento = null;
+            if (i.getAsignado() != null) {
+                firmaDocumento = i.getAsignado().getId();
+            }
+            if (Objects.equals(firmaDocumento, logueado.getId())) {
+                model.addAttribute("cambiarIdCargoFirma", true);
             }
         }
 
@@ -2617,6 +2636,7 @@ public class DocumentoController extends UtilController {
      * @param pin
      * @param tid
      * @param expId
+     * @param cargoIdFirma
      * @param model
      * @param principal
      * @param redirect
@@ -2624,8 +2644,8 @@ public class DocumentoController extends UtilController {
      */
     @RequestMapping(value = "/firmar", method = RequestMethod.GET)
     public String firmar(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid,
-            @RequestParam(value = "expId", required = false) Integer expId, Model model, Principal principal,
-            RedirectAttributes redirect) {
+            @RequestParam(value = "expId", required = false) Integer expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma, 
+            Model model, Principal principal, RedirectAttributes redirect) {
 
         if (expId == null) {
             try {
@@ -2646,7 +2666,7 @@ public class DocumentoController extends UtilController {
 
                 if (expId == null) {
                     return String.format("redirect:/documento/seleccionar-expediente?returnUrl=%s&cancelUrl=%s",
-                            URLEncoder.encode(String.format("/documento/firmar?pin=%s&tid=%d", pin, tid), "UTF-8"),
+                            URLEncoder.encode(String.format("/documento/firmar?pin=%s&tid=%d&cargoIdFirma=%d", pin, tid,cargoIdFirma), "UTF-8"),
                             URLEncoder.encode(String.format("/proceso/instancia?pin=%s", pin), "UTF-8"));
                 }
             } catch (Exception e) {
@@ -2730,9 +2750,15 @@ public class DocumentoController extends UtilController {
             exp.setId(expId);
             doc.setExpediente(exp);
         }
+        
+        //2017-03-01 edison.gonzalez@controltech.com Issue #151
+        if(cargoIdFirma != null){
+            Cargo cargoFirma = new Cargo(cargoIdFirma);
+            doc.setCargoIdFirma(cargoFirma);
+        }
 
         doc.setFirma(yo);
-
+        
         /*
             * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138: Se llama
             * al servicio encargado de retornar el numero de radicado, segun el tipo
@@ -2766,7 +2792,10 @@ public class DocumentoController extends UtilController {
 
             // DEJAMOS EL DOC, COMO SU ESTADO ANTERIOR
             doc.setFirma(null);
+            doc.setCargoIdFirma(null);
             doc.setRadicado(null);
+            //2018-02-28 edison.gonzalez@controltechcg.com Issue #151.
+            doc.setCargoIdFirma(null);
             i.setEstado(estadoIntanciaTMP);
             i.setAsignado(usuarioAsiganoTMP);
 
@@ -2849,7 +2878,10 @@ public class DocumentoController extends UtilController {
             try {
 
                 doc.setFirma(null);
+                doc.setCargoIdFirma(null);
                 doc.setRadicado(null);
+                //2018-02-28 edison.gonzalez@controltechcg.com Issue #151.
+                doc.setCargoIdFirma(null);
                 i.setEstado(estadoIntanciaTMP);
                 i.setAsignado(usuarioAsiganoTMP);
 
@@ -4302,13 +4334,13 @@ public class DocumentoController extends UtilController {
     }
 
     /**
-     * Carga el listado de cargos
+     * Carga el listado de cargos del usuario en sesión.
      *
      * @param principal
      * @return
      */
-    @ModelAttribute("cargosElabora")
-    public List<CargoDTO> cargosElabora(Principal principal) {
+    @ModelAttribute("cargosXusuario")
+    public List<CargoDTO> cargosXusuario(Principal principal) {
         Usuario usuarioSesion = getUsuario(principal);
         List<Object[]> list = cargosRepository.findCargosXusuario(usuarioSesion.getId());
         List<CargoDTO> cargoDTOs = new ArrayList<>();
