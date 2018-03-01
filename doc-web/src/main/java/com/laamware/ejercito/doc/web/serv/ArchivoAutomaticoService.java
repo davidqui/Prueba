@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.entity.Cargo;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +13,11 @@ import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -38,6 +41,9 @@ public class ArchivoAutomaticoService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private CargosRepository cargosRepository;
 
     /**
      * Permite aplicar el archivo automático para los procesos de generación de
@@ -67,6 +73,7 @@ public class ArchivoAutomaticoService {
         documentoDependenciaArchivar.setDependencia(usuarioArchivador.getDependencia());
         documentoDependenciaArchivar.setDocumento(documento);
         documentoDependenciaArchivar.setTrd(documento.getTrd());
+        documentoDependenciaArchivar.setCargo(getCargoArchivadorAutomatico(documento));
         documentoDependenciaRepository.save(documentoDependenciaArchivar);
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -97,6 +104,29 @@ public class ArchivoAutomaticoService {
         final Integer usuarioCreadorID = documento.getQuien();
         Usuario usuario = usuarioRepository.findOne(usuarioCreadorID);
         return usuario;
+    }
+    
+    /**
+     * Obtiene el cargo que quedará asociado al documento archivado de forma
+     * automática, según el proceso del documento.
+     *
+     * @param documento Documento.
+     * @return Cargo archivador.
+     */
+    private Cargo getCargoArchivadorAutomatico(Documento documento) {
+        final Instancia instancia = documento.getInstancia();
+        final Proceso proceso = instancia.getProceso();
+
+        if (Objects.equals(proceso.getId(), Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
+            //Se debe implementar despues
+        }
+
+        /*
+           * Para proceso de generación de documentos internos y externos.
+        */
+        final Integer cargoID = documento.getCargoIdElabora().getId();
+        Cargo cargo = cargosRepository.findOne(cargoID);
+        return cargo;
     }
 
 }
