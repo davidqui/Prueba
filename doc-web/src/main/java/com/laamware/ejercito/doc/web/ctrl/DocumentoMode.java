@@ -167,7 +167,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                 .view("fechaOficio").view("numeroFolios").view("plazo").view("clasificacion").view("expediente")
                 .view("adjuntos").editAndView("observaciones").view("radicado").view("contenido").view("plantilla")
                 .view("radicadoOrfeo").view("numeroBolsa").view("restriccionDifusion")
-                .view("gradoExterno").view("marcaAguaExterno").view("cargoIdElabora");
+                .view("gradoExterno").view("marcaAguaExterno").view("cargoIdElabora").editAndView("cargoIdFirma");
         modes.put(NAME_SOLO_LECTURA, SOLO_LECTURA);
 
         SOLO_LECTURA_INTERNO.view("trd").view("destinatario").view("remitente").view("asunto").view("remitente")
@@ -439,7 +439,6 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             target.setCargoIdElabora(source.getCargoIdElabora());
         }
 
-        System.err.println("cargoIdFirma_edit= "+get("cargoIdFirma"));
         if (get("cargoIdFirma_edit") == false) {
             target.setCargoIdFirma(source.getCargoIdFirma());
         }
