@@ -9,7 +9,9 @@
         el filtro por el cargo que archiva el documento.
     -->
     <form action = "/expediente/carpeta" method="POST">
-        <div class="form-inline">            
+        <div class="form-inline">
+            <input type="hidden" name="sub" id="sub" value="${(sub)!""}" />
+            <input type="hidden" name="ser" id="ser" value="${(ser)!""}" />
             <label for="cargoIdFirma" class="col-sm-2 text-xs-right">Cargo con el cual se filtrara el archivo</label>
             <select class="form-control" id="cargoFiltro" name="cargoFiltro">
                 <#if cargosXusuario??>
@@ -25,6 +27,12 @@
             <button type="submit" class="btn btn-primary">Buscar</button>
         </div>
     </form>
+    </br>
+    </br>
+    <#if retornaSerie??>
+        <td><a href="carpeta?ser=${retornaSerie}&cargoFiltro=${cargoFiltro!"0"}">Regresar</a></td> 
+    </#if>
+    </br>
     </br>
     <#if series?? && (series?size > 0) >
         <table class="table">

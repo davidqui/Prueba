@@ -227,6 +227,9 @@ public class ExpedienteController extends UtilController {
             @RequestParam(value = "sub", required = false) Integer sub, Model model, Principal principal,
             @RequestParam(value = "cargoFiltro", required = false) Integer cargoFiltro) {
 
+        model.addAttribute("ser", ser);
+        model.addAttribute("sub", sub);
+        model.addAttribute("cargoFiltro", cargoFiltro);
         Usuario usuario = getUsuario(principal);
         Dependencia dependencia = usuario.getDependencia();
 
@@ -266,7 +269,8 @@ public class ExpedienteController extends UtilController {
 
             Trd subserie = trdRepository.findOne(sub);
             model.addAttribute("subserie", subserie);
-        } else if (ser != null) {
+            model.addAttribute("retornaSerie", subserie.getSerie());
+        } else if (ser != null && ser > 0) {
             /*
 			 * 2017-05-17 jgarcia@controltechcg.com Issue #86
 			 * (SICDI-Controltech) hotfix-86: Corrección para presentar
@@ -314,6 +318,7 @@ public class ExpedienteController extends UtilController {
             model.addAttribute("subseries", subseries);
             Trd serie = trdRepository.findById(ser);
             model.addAttribute("serie", serie);
+            model.addAttribute("retornaSerie", 0);
         } else {
             List<Trd> trds = trdRepository.findSeriesByDependencia(dependencia.getId());
 
