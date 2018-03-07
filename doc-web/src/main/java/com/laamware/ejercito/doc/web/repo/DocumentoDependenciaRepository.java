@@ -131,4 +131,19 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
             + "AND QUIEN =:usuarioID \n"
             + "AND DOC_ID = :docId")
     List<DocumentoDependencia> findAllActivoByUsuarioAndDocumento(@Param("usuarioID") Integer usuarioID, @Param("docId") String docId);
+    
+    /**
+     * Obtiene los documentos archivados por usuario, TRD y cargo, ordenados de forma
+     * descendiente por la fecha de creacíón.
+     *
+     * @param quien ID del usuario.
+     * @param trd ID de la TRD.
+     * @param cargo ID del cargo
+     * @return Lista de documentos archivados.
+     */
+    /*
+	 * 2018-03-06 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech):
+	 * Presentación de documentos archivados por usuario en sesión, TRD y cargo.
+     */
+    List<DocumentoDependencia> findByQuienAndTrdIdAndCargoIdOrderByCuandoDesc(Integer quien, Integer trd, Integer cargo);
 }
