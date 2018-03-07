@@ -1951,6 +1951,13 @@ public class DocumentoController extends UtilController {
         i.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_ENTREGADO);
 
         /*
+		 * 2018-03-06 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech):
+		 * Se ejecuta el proceso de archivo automático, tras aplicar la
+		 * transición de entregar documentos.
+         */
+        archivoAutomaticoService.archivarAutomaticamente(documento, yo);
+
+        /*
 		 * 2017-05-30 jgarcia@controltechcg.com Issue #98 (SICDI-Controltech)
 		 * hotfix-98: Corrección en texto de mensaje de asignación de usuario a
 		 * siguiente transición del documento.
@@ -2644,7 +2651,7 @@ public class DocumentoController extends UtilController {
      */
     @RequestMapping(value = "/firmar", method = RequestMethod.GET)
     public String firmar(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid,
-            @RequestParam(value = "expId", required = false) Integer expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma, 
+            @RequestParam(value = "expId", required = false) Integer expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma,
             Model model, Principal principal, RedirectAttributes redirect) {
 
         if (expId == null) {
@@ -2666,7 +2673,7 @@ public class DocumentoController extends UtilController {
 
                 if (expId == null) {
                     return String.format("redirect:/documento/seleccionar-expediente?returnUrl=%s&cancelUrl=%s",
-                            URLEncoder.encode(String.format("/documento/firmar?pin=%s&tid=%d&cargoIdFirma=%d", pin, tid,cargoIdFirma), "UTF-8"),
+                            URLEncoder.encode(String.format("/documento/firmar?pin=%s&tid=%d&cargoIdFirma=%d", pin, tid, cargoIdFirma), "UTF-8"),
                             URLEncoder.encode(String.format("/proceso/instancia?pin=%s", pin), "UTF-8"));
                 }
             } catch (Exception e) {
@@ -2750,15 +2757,15 @@ public class DocumentoController extends UtilController {
             exp.setId(expId);
             doc.setExpediente(exp);
         }
-        
+
         //2017-03-01 edison.gonzalez@controltech.com Issue #151
-        if(cargoIdFirma != null){
+        if (cargoIdFirma != null) {
             Cargo cargoFirma = new Cargo(cargoIdFirma);
             doc.setCargoIdFirma(cargoFirma);
         }
 
         doc.setFirma(yo);
-        
+
         /*
             * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138: Se llama
             * al servicio encargado de retornar el numero de radicado, segun el tipo
@@ -2906,7 +2913,7 @@ public class DocumentoController extends UtilController {
 		 * Se ejecuta el proceso de archivo automático, tras aplicar la
 		 * transición de firmar y enviar.
          */
-        archivoAutomaticoService.archivarAutomaticamente(doc);
+        archivoAutomaticoService.archivarAutomaticamente(doc, null);
 
         /*
 		 * Issue #118
