@@ -22,9 +22,17 @@
                         <td>${getUsuarioDescripcion(origenUsuario)}</td>
                         </tr>    
                     <tr>
+                        <td><strong>Cargo Origen:</strong></td>
+                        <td>${nombreCargoOrigen}</td>
+                        </tr> 
+                    <tr>
                         <td><strong>Usuario destino:</strong></td>
                         <td>${getUsuarioDescripcion(destinoUsuario)}</td>
                         </tr>    
+                    <tr>
+                        <td><strong>Cargo Destino:</strong></td>
+                        <td>${nombreCargoDestino}</td>
+                        </tr> 
                     <tr>
                         <td><strong>Tipo de transferencia:</strong></td>
                         <td>${getTipoDescripcion(tipoTransferencia)}</td>
@@ -55,7 +63,9 @@
                 <button id="btnOK" name="btnOK" type="submit" class="btn btn-success btn-lg">Aceptar</button>
                 <a href="/transferencia-archivo/crear" class="btn btn-secondary btn-lg">Cancelar</a>
                 </div>
-
+            
+            <input type="hidden" id="cargoOrigen" name="cargoOrigen" value="${cargoOrigen}"/>
+            <input type="hidden" id="cargoDestino" name="cargoDestino" value="${cargoDestino}"/>
             <input type="hidden" id="origenUsuario" name="origenUsuario" value="${origenUsuario.id}"/>
             <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="${destinoUsuario.id}"/>
             <input type="hidden" id="tipoTransferencia" name="tipoTransferencia" value="${tipoTransferencia}"/>
