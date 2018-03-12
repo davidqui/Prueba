@@ -114,11 +114,6 @@ public class TransferenciaArchivo implements Serializable {
     @JoinColumn(name = "CREADOR_GRA_ID")
     private Grados creadorGrado;
 
-    /**
-     * Cargo del usuario creador.
-     */
-    @Column(name = "CREADOR_USU_CARGO")
-    private String creadorCargo;
 
     /**
      * Fecha de creación.
@@ -156,12 +151,6 @@ public class TransferenciaArchivo implements Serializable {
     private Grados origenGrado;
 
     /**
-     * Cargo del usuario origen.
-     */
-    @Column(name = "ORIGEN_USU_CARGO")
-    private String origenCargo;
-
-    /**
      * Usuario destino.
      */
     @ManyToOne
@@ -188,12 +177,6 @@ public class TransferenciaArchivo implements Serializable {
     @ManyToOne
     @JoinColumn(name = "DESTINO_GRA_ID")
     private Grados destinoGrado;
-
-    /**
-     * Cargo del usuario destino.
-     */
-    @Column(name = "DESTINO_USU_CARGO")
-    private String destinoCargo;
 
     /**
      * Número de documentos.
@@ -234,6 +217,27 @@ public class TransferenciaArchivo implements Serializable {
      */
     @Column(name = "NUM_RADICADO")
     private String numeroRadicado;
+    
+    // 2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SIGDI-Controltech):
+    // Se añade las columnas de los cargos de los usuarios de origen, creador y destino.
+    /**
+     * Cargo del usuario destino.
+     */
+    @JoinColumn(name = "USU_DESTINO_CARGO", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuDestinoCargo;
+    /**
+     * Cargo del usuario origen.
+     */
+    @JoinColumn(name = "USU_ORIGEN_CARGO", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuOrigenCargo;
+    /**
+     * Cargo del usuario creador.
+     */
+    @JoinColumn(name = "USU_CREADOR_CARGO", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo usuCreadorCargo;
 
     /**
      * Constructor vacío.
@@ -251,47 +255,47 @@ public class TransferenciaArchivo implements Serializable {
      * @param creadorUsuario Usuario creador.
      * @param creadorDependencia Dependencia del usuario creador.
      * @param creadorGrado Grado del usuario creador.
-     * @param creadorCargo Cargo del usuario creador.
+     * @param usuCreadorCargo Cargo del usuario creador.
      * @param fechaCreacion Fecha de creación.
      * @param origenUsuario Usuario origen.
      * @param origenDependencia Depependencia del usuario origen.
      * @param origenClasificacion Clasificación del usuario origen.
      * @param origenGrado Grado del usuario origen.
-     * @param origenCargo Cargo del usuario origen.
+     * @param usuOrigenCargo Cargo del usuario origen.
      * @param destinoUsuario Usuario destino.
      * @param destinoDependencia Dependencia del usuario destino.
      * @param destinoClasificacion Clasificación del usuario destino.
      * @param destinoGrado Grado del usuario destino.
-     * @param destinoCargo Cargo del usuario destino.
+     * @param usuDestinoCargo Cargo del usuario destino.
      * @param transferenciaAnteriorID ID de la transferencia anterior.
      * @param transferenciaAnteriorOrigenClasificacion Clasificación de origen
      * de la transferencia anterior.
      */
     public TransferenciaArchivo(String tipo, Usuario creadorUsuario,
             Dependencia creadorDependencia, Grados creadorGrado,
-            String creadorCargo, Date fechaCreacion, Usuario origenUsuario,
+            Cargo usuCreadorCargo, Date fechaCreacion, Usuario origenUsuario,
             Dependencia origenDependencia, Clasificacion origenClasificacion,
-            Grados origenGrado, String origenCargo, Usuario destinoUsuario,
+            Grados origenGrado, Cargo usuOrigenCargo, Usuario destinoUsuario,
             Dependencia destinoDependencia, Clasificacion destinoClasificacion,
-            Grados destinoGrado, String destinoCargo,
+            Grados destinoGrado, Cargo usuDestinoCargo,
             Integer transferenciaAnteriorID,
             Clasificacion transferenciaAnteriorOrigenClasificacion) {
         this.tipo = tipo;
         this.creadorUsuario = creadorUsuario;
         this.creadorDependencia = creadorDependencia;
         this.creadorGrado = creadorGrado;
-        this.creadorCargo = creadorCargo;
+        this.usuCreadorCargo = usuCreadorCargo;
         this.fechaCreacion = new Date(fechaCreacion.getTime());
         this.origenUsuario = origenUsuario;
         this.origenDependencia = origenDependencia;
         this.origenClasificacion = origenClasificacion;
         this.origenGrado = origenGrado;
-        this.origenCargo = origenCargo;
+        this.usuOrigenCargo = usuOrigenCargo;
         this.destinoUsuario = destinoUsuario;
         this.destinoDependencia = destinoDependencia;
         this.destinoClasificacion = destinoClasificacion;
         this.destinoGrado = destinoGrado;
-        this.destinoCargo = destinoCargo;
+        this.usuDestinoCargo = usuDestinoCargo;
         this.transferenciaAnteriorID = transferenciaAnteriorID;
         this.transferenciaAnteriorOrigenClasificacion
                 = transferenciaAnteriorOrigenClasificacion;
@@ -413,24 +417,6 @@ public class TransferenciaArchivo implements Serializable {
     }
 
     /**
-     * Obtiene el cargo del usuario creador.
-     *
-     * @return Cargo.
-     */
-    public String getCreadorCargo() {
-        return creadorCargo;
-    }
-
-    /**
-     * Establece el cargo del usuario creador.
-     *
-     * @param creadorCargo Cargo.
-     */
-    public void setCreadorCargo(String creadorCargo) {
-        this.creadorCargo = creadorCargo;
-    }
-
-    /**
      * Obtiene la fecha de creación.
      *
      * @return Fecha.
@@ -521,24 +507,6 @@ public class TransferenciaArchivo implements Serializable {
     }
 
     /**
-     * Obtiene el cargo del usuario origen.
-     *
-     * @return Cargo.
-     */
-    public String getOrigenCargo() {
-        return origenCargo;
-    }
-
-    /**
-     * Establece el cargo del usuario origen.
-     *
-     * @param origenCargo Cargo.
-     */
-    public void setOrigenCargo(String origenCargo) {
-        this.origenCargo = origenCargo;
-    }
-
-    /**
      * Obtiene el usuario destino.
      *
      * @return Usuario.
@@ -608,24 +576,6 @@ public class TransferenciaArchivo implements Serializable {
      */
     public void setDestinoGrado(Grados destinoGrado) {
         this.destinoGrado = destinoGrado;
-    }
-
-    /**
-     * Obtiene el cargo del usuario destino.
-     *
-     * @return Cargo.
-     */
-    public String getDestinoCargo() {
-        return destinoCargo;
-    }
-
-    /**
-     * Establece el cargo del usuario destino.
-     *
-     * @param destinoCargo Cargo.
-     */
-    public void setDestinoCargo(String destinoCargo) {
-        this.destinoCargo = destinoCargo;
     }
 
     /**
@@ -757,6 +707,60 @@ public class TransferenciaArchivo implements Serializable {
         this.numeroRadicado = numeroRadicado;
     }
 
+    /**
+     * Obtiene el cargo del usuario destino.
+     *
+     * @return Cargo.
+     */
+    public Cargo getUsuDestinoCargo() {
+        return usuDestinoCargo;
+    }
+
+    /**
+     * Establece el cargo del usuario destino.
+     *
+     * @param usuDestinoCargo Cargo
+     */
+    public void setUsuDestinoCargo(Cargo usuDestinoCargo) {
+        this.usuDestinoCargo = usuDestinoCargo;
+    }
+
+    /**
+     * Obtiene el cargo del usuario origen.
+     *
+     * @return Cargo.
+     */
+    public Cargo getUsuOrigenCargo() {
+        return usuOrigenCargo;
+    }
+
+    /**
+     * Establece el cargo del usuario origen.
+     *
+     * @param usuOrigenCargo Cargo
+     */
+    public void setUsuOrigenCargo(Cargo usuOrigenCargo) {
+        this.usuOrigenCargo = usuOrigenCargo;
+    }
+
+    /**
+     * Obtiene el cargo del usuario creador.
+     *
+     * @return Cargo.
+     */
+    public Cargo getUsuCreadorCargo() {
+        return usuCreadorCargo;
+    }
+
+    /**
+     * Establece el cargo del usuario creador.
+     *
+     * @param usuCreadorCargo Cargo
+     */
+    public void setUsuCreadorCargo(Cargo usuCreadorCargo) {
+        this.usuCreadorCargo = usuCreadorCargo;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 5;
@@ -767,18 +771,18 @@ public class TransferenciaArchivo implements Serializable {
         hash = 79 * hash + Objects.hashCode(this.creadorUsuario);
         hash = 79 * hash + Objects.hashCode(this.creadorDependencia);
         hash = 79 * hash + Objects.hashCode(this.creadorGrado);
-        hash = 79 * hash + Objects.hashCode(this.creadorCargo);
+        hash = 79 * hash + Objects.hashCode(this.usuCreadorCargo);
         hash = 79 * hash + Objects.hashCode(this.fechaCreacion);
         hash = 79 * hash + Objects.hashCode(this.origenUsuario);
         hash = 79 * hash + Objects.hashCode(this.origenDependencia);
         hash = 79 * hash + Objects.hashCode(this.origenClasificacion);
         hash = 79 * hash + Objects.hashCode(this.origenGrado);
-        hash = 79 * hash + Objects.hashCode(this.origenCargo);
+        hash = 79 * hash + Objects.hashCode(this.usuOrigenCargo);
         hash = 79 * hash + Objects.hashCode(this.destinoUsuario);
         hash = 79 * hash + Objects.hashCode(this.destinoDependencia);
         hash = 79 * hash + Objects.hashCode(this.destinoClasificacion);
         hash = 79 * hash + Objects.hashCode(this.destinoGrado);
-        hash = 79 * hash + Objects.hashCode(this.destinoCargo);
+        hash = 79 * hash + Objects.hashCode(this.usuDestinoCargo);
         hash = 79 * hash + Objects.hashCode(this.numeroDocumentos);
         hash = 79 * hash + Objects.hashCode(this.fechaAprobacion);
         hash = 79 * hash + Objects.hashCode(this.actaOFS);
@@ -806,13 +810,13 @@ public class TransferenciaArchivo implements Serializable {
         if (!Objects.equals(this.estado, other.estado)) {
             return false;
         }
-        if (!Objects.equals(this.creadorCargo, other.creadorCargo)) {
+        if (!Objects.equals(this.usuCreadorCargo, other.usuCreadorCargo)) {
             return false;
         }
-        if (!Objects.equals(this.origenCargo, other.origenCargo)) {
+        if (!Objects.equals(this.usuOrigenCargo, other.usuOrigenCargo)) {
             return false;
         }
-        if (!Objects.equals(this.destinoCargo, other.destinoCargo)) {
+        if (!Objects.equals(this.usuDestinoCargo, other.usuDestinoCargo)) {
             return false;
         }
         if (!Objects.equals(this.actaOFS, other.actaOFS)) {
