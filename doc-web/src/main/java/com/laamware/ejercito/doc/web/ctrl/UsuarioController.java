@@ -42,7 +42,6 @@ import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.LdapService;
 import com.laamware.ejercito.doc.web.serv.OFS;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 @PreAuthorize("hasRole('ADMIN_USUARIOS')")
@@ -163,6 +162,11 @@ public class UsuarioController extends UtilController {
                 return "usuario";
             }
             
+            /*
+            * 2018-03-13 edison.gonzalez@controltechcg.com Issue #151
+            * (SICDI-Controltech) feature-151: Validación del cargo principal para
+            * crear o actualizar el usuario en el sistema.
+             */
             if(usuario.getUsuCargoPrincipalId() == null || usuario.getUsuCargoPrincipalId().getId() == null){
                 model.addAttribute(AppConstants.FLASH_ERROR, "El cargo principal del usuario es requerido");
                 usuario.setMode(UsuarioMode.getByName(UsuarioMode.REGISTRO_NAME));
