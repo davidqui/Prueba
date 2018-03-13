@@ -162,6 +162,13 @@ public class UsuarioController extends UtilController {
                 model.addAttribute("usuario", usuario);
                 return "usuario";
             }
+            
+            if(usuario.getUsuCargoPrincipalId() == null || usuario.getUsuCargoPrincipalId().getId() == null){
+                model.addAttribute(AppConstants.FLASH_ERROR, "El cargo principal del usuario es requerido");
+                usuario.setMode(UsuarioMode.getByName(UsuarioMode.REGISTRO_NAME));
+                model.addAttribute("usuario", usuario);
+                return "usuario";
+            }
 
             String fileId = null;
             if ("ad".equals(authMode)) {
