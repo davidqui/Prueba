@@ -79,3 +79,9 @@ COMMENT ON COLUMN DOC.DOCUMENTO_USU_FIRMA.CARGO_ID_FIRMA   IS 'Identificador del
 ALTER TABLE DOC.DOCUMENTO_USU_FIRMA ADD CONSTRAINT DOCUMENTO_USU_FIRMA_FK1 FOREIGN KEY (CARGO_ID_FIRMA) REFERENCES CARGO (CAR_ID);
 
 CREATE INDEX DOCUMENTO_USU_FIRMA_IDX_1 ON DOC.DOCUMENTO_USU_FIRMA(CARGO_ID_FIRMA);
+
+-- -----------------------------------------------------------------------------
+-- TABLA: USUARIO
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE USUARIO DROP COLUMN USU_CARGO;
