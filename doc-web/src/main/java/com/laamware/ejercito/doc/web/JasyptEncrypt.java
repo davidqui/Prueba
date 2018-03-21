@@ -56,7 +56,6 @@ public class JasyptEncrypt {
 
         String texto = commandLine.getOptionValue(P_OPTION);
         String clave = commandLine.getOptionValue(C_OPTION);
-        System.err.println("clave= " + clave);
         StringEncryptor stringEncryptor = stringEncryptor(clave);
         String encrypted = stringEncryptor.encrypt(texto);
         System.out.println("ORIGINAL: " + texto);
@@ -83,7 +82,6 @@ public class JasyptEncrypt {
     static private StringEncryptor stringEncryptor(String clave) {
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        System.err.println("clave= " + clave);
         config.setPassword((clave == null || clave.trim().length() == 0) ? claveEncriptacion : clave);
         config.setAlgorithm("PBEWithMD5AndDES");
         config.setKeyObtentionIterations("1000");
