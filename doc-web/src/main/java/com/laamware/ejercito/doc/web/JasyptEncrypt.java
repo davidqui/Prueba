@@ -31,6 +31,17 @@ public class JasyptEncrypt {
      * Opcioń "p": Clave a utilizar en .
      */
     private static final String P_OPTION = "p";
+    
+    /**
+     * Opcioń "llaveCifrado": LLave para descifrar propiedades del archivo de propiedades.
+     */
+    public static final String KEY_OPTION = "llaveCifrado";
+    
+    /**
+     * "jasypt.encryptor.password": LLave para descifrar propiedades del
+     * archivo de propiedades.
+     */
+    public static final String KEY_SYSTEM = "jasypt.encryptor.password";
 
     private static final HelpFormatter HELP_FORMATTER = new HelpFormatter();
 
@@ -47,9 +58,11 @@ public class JasyptEncrypt {
         try {
             commandLine = parser.parse(options, args);
         } catch (MissingOptionException ex) {
+            System.err.println(ex);
             HELP_FORMATTER.printHelp("java -jar doc-web.jar", options, true);
             return;
         } catch (ParseException ex) {
+            System.err.println(ex);
             HELP_FORMATTER.printHelp("java -jar doc-web.jar", options, true);
             return;
         }
@@ -91,5 +104,40 @@ public class JasyptEncrypt {
         config.setStringOutputType("base64");
         encryptor.setConfig(config);
         return encryptor;
+    }
+    
+    /**
+     * Método de ejecución para setear la variable en el sistema.
+     *
+     * @param args Argumentos.
+     */
+    @SuppressWarnings("UseSpecificCatch")
+    public void execEnvironmentKey(String[] args) {
+        final Options options = buildOptionKey();
+        CommandLineParser parser = new DefaultParser();
+        CommandLine commandLine;
+        try {
+            commandLine = parser.parse(options, args);
+        } catch (MissingOptionException ex) {
+            HELP_FORMATTER.printHelp("java -jar doc-web.jar", options, true);
+            return;
+        } catch (ParseException ex) {
+            HELP_FORMATTER.printHelp("java -jar doc-web.jar", options, true);
+            return;
+        }
+
+        String texto = commandLine.getOptionValue(KEY_OPTION);
+        System.setProperty(KEY_SYSTEM, texto);
+    }
+    
+    /**
+     * Construye las opciones de la aplicación para setear variable de entorno.
+     *
+     * @return Conjunto de opciones.
+     */
+    private Options buildOptionKey() {
+        Options options = new Options();
+        options.addRequiredOption(KEY_OPTION, null, true, "LLave a utilizar en el sistema.");
+        return options;
     }
 }
