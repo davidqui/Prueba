@@ -1,14 +1,19 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.aspose.words.License;
+import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
+import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,6 +23,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -62,6 +68,12 @@ public class TransferenciaArchivoController extends UtilController {
     private UsuarioService usuarioService;
 
     /**
+     * Servicio de cargos.
+     */
+    @Autowired
+    CargosRepository cargosRepository;
+
+    /**
      * Presenta el formulario de búsqueda de usuario destino, para el finder
      * correspondiente.
      *
@@ -97,6 +109,8 @@ public class TransferenciaArchivoController extends UtilController {
         final Usuario origenUsuario = getUsuario(principal);
         model.addAttribute("origenUsuario", origenUsuario);
 
+        model.addAttribute("cargoOrigen", origenUsuario.getUsuCargoPrincipalId().getId());
+
         final List<TransferenciaArchivo> transferenciasRecibidas
                 = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
@@ -125,6 +139,8 @@ public class TransferenciaArchivoController extends UtilController {
      * @param transferenciaAnteriorID ID de la transferencia anterior
      * seleccionada. Este valor únicamente es obligatorio cuando el tipo de
      * transferencia es {@link TransferenciaArchivo#PARCIAL_TIPO}.
+     * @param cargoOrigen
+     * @param cargoDestino
      * @param principal Objeto principal de A&A.
      * @param model Modelo de UI.
      * @return Nombre del template Freemarker redirigido.
@@ -135,10 +151,15 @@ public class TransferenciaArchivoController extends UtilController {
             @RequestParam("destinoUsuario") Integer destinoUsuarioID,
             @RequestParam("tipoTransferencia") String tipoTransferencia,
             @RequestParam(value = "transferenciaAnterior", required = false) Integer transferenciaAnteriorID,
+            @RequestParam(value = "cargoOrigen") Integer cargoOrigen,
+            @RequestParam(value = "cargoDestino", required = false) Integer cargoDestino,
             Principal principal, Model model) {
 
         final Usuario origenUsuario = getUsuario(principal);
         model.addAttribute("origenUsuario", origenUsuario);
+        
+        model.addAttribute("cargoOrigen", cargoOrigen);
+        model.addAttribute("cargoDestino", cargoDestino);
 
         final List<TransferenciaArchivo> transferenciasRecibidas
                 = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
@@ -166,6 +187,16 @@ public class TransferenciaArchivoController extends UtilController {
 
         final Usuario destinoUsuario = usuarioService.findOne(destinoUsuarioID);
         model.addAttribute("destinoUsuario", destinoUsuario);
+        
+        // 2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SIGDI-Controltech):
+        // Se añade la lista de cargos del usuario destino
+        List<Object[]> list = cargosRepository.findCargosXusuario(destinoUsuario.getId());
+        List<CargoDTO> cargoDTOs = new ArrayList<>();
+        for (Object[] os : list) {
+            CargoDTO cargoDTO = new CargoDTO(((BigDecimal) os[0]).intValue(), (String) os[1]);
+            cargoDTOs.add(cargoDTO);
+        }
+        model.addAttribute("cargosXusuarioDestino", cargoDTOs);
 
         final TransferenciaArchivoValidacionDTO validacionDTO
                 = transferenciaService.validarTransferencia(origenUsuario,
@@ -187,10 +218,20 @@ public class TransferenciaArchivoController extends UtilController {
                     + "transferir.");
             return "transferencia-archivo-crear";
         }
-
+        
+        Cargo cOrigen = cargosRepository.findOne(cargoOrigen);
+        Cargo cDestino = cargosRepository.findOne(cargoDestino);
+        
+        model.addAttribute("nombreCargoOrigen", cOrigen.getCarNombre());
+        model.addAttribute("nombreCargoDestino", cDestino.getCarNombre());
+        
         return "transferencia-archivo-confirmar";
     }
 
+    /*
+        2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) 
+        feature-151: Se añaden los campos de los cargos de los usuarios origen y destino.
+    */
     /**
      * Procesa la transferencia de archivo.
      *
@@ -201,6 +242,8 @@ public class TransferenciaArchivoController extends UtilController {
      * @param transferenciaAnteriorID ID de la transferencia anterior
      * seleccionada. Este valor únicamente es obligatorio cuando el tipo de
      * transferencia es {@link TransferenciaArchivo#PARCIAL_TIPO}.
+     * @param cargoOrigen ID del cargo del usuario origen
+     * @param cargoDestino ID del cargo del usuario destino
      * @param principal Objeto principal de A&A.
      * @param model Modelo de UI.
      * @return Nombre del template Freemarker redirigido.
@@ -211,6 +254,8 @@ public class TransferenciaArchivoController extends UtilController {
             @RequestParam("destinoUsuario") Integer destinoUsuarioID,
             @RequestParam("tipoTransferencia") String tipoTransferencia,
             @RequestParam(value = "transferenciaAnterior", required = false) Integer transferenciaAnteriorID,
+            @RequestParam(value = "cargoOrigen") Integer cargoOrigen,
+            @RequestParam(value = "cargoDestino") Integer cargoDestino,
             Principal principal, Model model) {
 
         final Usuario creadorUsuario = getUsuario(principal);
@@ -240,7 +285,7 @@ public class TransferenciaArchivoController extends UtilController {
             nuevatransferencia = transferenciaService
                     .crearTransferenciaConActa(creadorUsuario,
                             origenUsuario, destinoUsuario, tipoTransferencia,
-                            transferenciaAnterior, asposeLicense);
+                            transferenciaAnterior, asposeLicense,cargoOrigen,cargoDestino);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR,
@@ -283,6 +328,24 @@ public class TransferenciaArchivoController extends UtilController {
         }
 
         return builder.toString().trim();
+    }
+
+    /**
+     * Carga el listado de cargos del usuario en sesión.
+     *
+     * @param principal
+     * @return
+     */
+    @ModelAttribute("cargosXusuario")
+    public List<CargoDTO> cargosXusuario(Principal principal) {
+        Usuario usuarioSesion = getUsuario(principal);
+        List<Object[]> list = cargosRepository.findCargosXusuario(usuarioSesion.getId());
+        List<CargoDTO> cargoDTOs = new ArrayList<>();
+        for (Object[] os : list) {
+            CargoDTO cargoDTO = new CargoDTO(((BigDecimal) os[0]).intValue(), (String) os[1]);
+            cargoDTOs.add(cargoDTO);
+        }
+        return cargoDTOs;
     }
 
 }

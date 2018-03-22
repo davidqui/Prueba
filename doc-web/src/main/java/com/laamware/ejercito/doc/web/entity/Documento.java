@@ -209,7 +209,7 @@ public class Documento extends AuditModifySupport {
     @Size(max = 32)
     @Column(name = "PRO_NUM_BOLSA")
     private String numeroBolsa;
-
+    
     @Column(name = "DOC_PRESTADO")
     private Boolean prestado;
 
@@ -262,6 +262,19 @@ public class Documento extends AuditModifySupport {
     @JoinColumn(name = "RESTRICCION_DIFUSION", referencedColumnName = "RES_ID")
     @ManyToOne
     private RestriccionDifusion restriccionDifusion;
+    
+    /*
+         * 2018-02-22 edison.gonzalez@controltechcg.com Issue #150: Variables que 
+	 * permite almacenar los cargos de los usuarios que crean y firman
+         * los documentos.
+     */
+    @JoinColumn(name = "CARGO_ID_FIRMA", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo cargoIdFirma;
+    
+    @JoinColumn(name = "CARGO_ID_ELABORA", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo cargoIdElabora;
 
     @Transient
     private List<UsuarioVistoBuenoDTO> vistosBuenos = new ArrayList<UsuarioVistoBuenoDTO>();
@@ -1125,5 +1138,21 @@ public class Documento extends AuditModifySupport {
 
     public void setRestriccionDifusion(RestriccionDifusion restriccionDifusion) {
         this.restriccionDifusion = restriccionDifusion;
+    }
+
+    public Cargo getCargoIdFirma() {
+        return cargoIdFirma;
+    }
+
+    public void setCargoIdFirma(Cargo cargoIdFirma) {
+        this.cargoIdFirma = cargoIdFirma;
+    }
+
+    public Cargo getCargoIdElabora() {
+        return cargoIdElabora;
+    }
+
+    public void setCargoIdElabora(Cargo cargoIdElabora) {
+        this.cargoIdElabora = cargoIdElabora;
     }
 }

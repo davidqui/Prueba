@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.dto;
 
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -53,6 +54,13 @@ public class UsuarioBusquedaDTO implements Serializable {
      * Nombre de la clasificación.
      */
     private String clasificacionNombre;
+    
+    // 2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SIGDI-Controltech):
+    // Se añade la lista de cargos del usuario destino
+    /**
+     * Cargos del usuario.
+     */
+    private List<CargoDTO> cargosDestino;
 
     /**
      * Obtiene el estado de búsqueda exitosa.
@@ -180,6 +188,24 @@ public class UsuarioBusquedaDTO implements Serializable {
      */
     public void setClasificacionNombre(String clasificacionNombre) {
         this.clasificacionNombre = clasificacionNombre;
+    }
+
+    /**
+     * Obtiene los cargos del usuario.
+     *
+     * @return Lista de cargos.
+     */
+    public List<CargoDTO> getCargosDestino() {
+        return cargosDestino;
+    }
+
+    /**
+     * Establece los cargos del usuario.
+     *
+     * @param cargosDestino Cargos
+     */
+    public void setCargosDestino(List<CargoDTO> cargosDestino) {
+        this.cargosDestino = cargosDestino;
     }
 
     @Override

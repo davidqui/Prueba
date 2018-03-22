@@ -20,6 +20,27 @@
                     <input type="hidden" name="origenUsuario" value="${origenUsuario.id}" />
                     </div>
                 </div>
+            
+            <#--
+                2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) 
+                feature-151: Se agrega el campo del cargo del usuario origen.
+            -->
+            <div class="form-group row">
+                <label for="cargoOrigen" class="col-sm-2 col-form-label text-xs-right">Cargo</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="cargoOrigen" name="cargoOrigen">
+                        <#if cargosXusuario??>   
+                            <#list cargosXusuario as cla>
+                            <#if cla.id?string == (cargoOrigen!"")?string >
+                                <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                            <#else>
+                                <option value="${cla.id}">${cla.nombre}</option>
+                            </#if>
+                            </#list>
+                        </#if>
+                    </select>
+                </div>
+            </div>
 
 <!--            Busqueda con número de documento -->
 <!--            <div class="form-group row">
@@ -49,6 +70,27 @@
                     </div>
                 <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="<#if destinoUsuario??>${destinoUsuario.id}</#if>" />
                 </div> 
+            
+            <#--
+                2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) 
+                feature-151: Se agrega el campo del cargo del usuario destino.
+            -->
+            <div class="form-group row" id="divCargoDestino">
+                <label for="cargoDestino" class="col-sm-2 col-form-label text-xs-right">Cargo</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="cargoDestino" name="cargoDestino">
+                        <#if cargosXusuarioDestino??>   
+                            <#list cargosXusuarioDestino as cla>
+                                <#if cla.id?string == (cargoDestino!"")?string >
+                                    <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                                <#else>
+                                    <option value="${cla.id}">${cla.nombre}</option>
+                                </#if>
+                            </#list>
+                        </#if>
+                    </select>
+                </div>
+            </div>
 
             <#assign tipoTransferenciaTotal = !tipoTransferencia?? || transferenciasRecibidas?size == 0 || tipoTransferencia == "T" />
 
