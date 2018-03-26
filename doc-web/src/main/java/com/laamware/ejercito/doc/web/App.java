@@ -3,10 +3,6 @@ package com.laamware.ejercito.doc.web;
 import com.laamware.ejercito.doc.web.serv.SpringSecurityAuditorAware;
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
@@ -33,14 +29,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
 import oracle.ucp.jdbc.PoolDataSourceImpl;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.MissingOptionException;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.jasypt.encryption.StringEncryptor;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -61,23 +49,14 @@ public class App {
     public static void main(String[] args) {
         // 2018-03-21 edison.gonzalez@controltechcg.com Issue #154: Ajuste
         // para ejecutar la aplicación para encriptar texto.
-
+        JasyptEncrypt.setVariableAmbiente();
         if (args != null && args.length > 0) {
-            Boolean continua = Boolean.FALSE;
-            for (String a : args) {
-                if (a.contains(JasyptEncrypt.KEY_OPTION)) {
-                    new JasyptEncrypt().execEnvironmentKey(args);
-                    continua = Boolean.TRUE;
-                }
-            }
-
-            if (!continua) {
-                new JasyptEncrypt().exec(args);
-                return;
-            }
+            new JasyptEncrypt().exec(args);
+            return;
         }
 
         SpringApplication.run(App.class, args);
+        
     }
 
     @Bean
