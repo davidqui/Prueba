@@ -55,7 +55,6 @@ public class App {
     public static void main(String[] args) {
         // 2018-03-21 edison.gonzalez@controltechcg.com Issue #154: Ajuste
         // para ejecutar la aplicación para encriptar texto.
-        Security.setProperty("crypto.policy", "unlimited");
         JasyptEncrypt.setVariableAmbiente();
         if (args != null && args.length > 0) {
             new JasyptEncrypt().exec(args);
@@ -132,7 +131,7 @@ public class App {
     
     /**
      * Construye la clase StringEncryptor con sus atributos, la cual permite
-     * desencriptar los datos del archivo de propiedades.
+     * cifrar y descifrar los datos del archivo de propiedades.
      *
      * @return Configuracion del encriptador.
      */
