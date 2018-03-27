@@ -1,7 +1,9 @@
 package com.laamware.ejercito.doc.web;
 
+import static com.laamware.ejercito.doc.web.JasyptEncrypt.CLAVE_ENCRIPTACION;
 import com.laamware.ejercito.doc.web.serv.SpringSecurityAuditorAware;
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+import java.security.Security;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -29,6 +31,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
 import oracle.ucp.jdbc.PoolDataSourceImpl;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -49,6 +55,7 @@ public class App {
     public static void main(String[] args) {
         // 2018-03-21 edison.gonzalez@controltechcg.com Issue #154: Ajuste
         // para ejecutar la aplicación para encriptar texto.
+        Security.setProperty("crypto.policy", "unlimited");
         JasyptEncrypt.setVariableAmbiente();
         if (args != null && args.length > 0) {
             new JasyptEncrypt().exec(args);
@@ -121,6 +128,27 @@ public class App {
     @Bean
     public SessionFactory sessionFactory(HibernateEntityManagerFactory hemf) {
         return hemf.getSessionFactory();
+    }
+    
+    /**
+     * Construye la clase StringEncryptor con sus atributos, la cual permite
+     * desencriptar los datos del archivo de propiedades.
+     *
+     * @return Configuracion del encriptador.
+     */
+    @Bean(name="jasyptStringEncryptor")
+    static public StringEncryptor stringEncryptor() {
+        StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
+        config.setPassword(CLAVE_ENCRIPTACION);
+        config.setAlgorithm("PBEWithSHA256And256BitAES-CBC-BC");
+        config.setKeyObtentionIterations("1000");
+        config.setPoolSize("1");
+        config.setProvider(new BouncyCastleProvider());
+        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
+        config.setStringOutputType("base64");
+        encryptor.setConfig(config);
+        return encryptor;
     }
 
 }

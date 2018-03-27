@@ -9,8 +9,6 @@ import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.jasypt.encryption.StringEncryptor;
-import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
-import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 
 /**
  * Clase para el proceso de encriptación.
@@ -21,7 +19,7 @@ import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
  */
 public class JasyptEncrypt {
 
-    private static final String CLAVE_ENCRIPTACION = "clave";
+    public static final String CLAVE_ENCRIPTACION = "clave";
 
     /**
      * Opcioń "p": Texto a encriptar.
@@ -66,7 +64,7 @@ public class JasyptEncrypt {
                 console.printf("Por favor digite la contaseña: ");
                 char[] passwordChars = console.readPassword();
                 String passwordString = new String(passwordChars);
-                StringEncryptor stringEncryptor = stringEncryptor();
+                StringEncryptor stringEncryptor = App.stringEncryptor();
                 String encrypted = stringEncryptor.encrypt(passwordString);
                 System.out.println("Contraseña encriptada: " + encrypted);
                 Boolean valido;
@@ -77,8 +75,8 @@ public class JasyptEncrypt {
                     cifrar = opcion.equalsIgnoreCase("s") || opcion.equalsIgnoreCase("si");
                 } while (!valido);
             } while (cifrar);
-        } else {
-            System.err.println("Para encriptar, agregue el parametro -c cifrado");
+        }else {
+            System.err.println("Para desencriptar, agregue el parametro -c descifrado");
         }
     }
 
@@ -93,25 +91,7 @@ public class JasyptEncrypt {
         return options;
     }
 
-    /**
-     * Construye la clase StringEncryptor con los atributos por default.
-     *
-     * @return Configuracion del encriptador.
-     */
-    private StringEncryptor stringEncryptor() {
-        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
-        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(CLAVE_ENCRIPTACION);
-        config.setAlgorithm("PBEWithMD5AndDES");
-        config.setKeyObtentionIterations("1000");
-        config.setPoolSize("1");
-        config.setProviderName("SunJCE");
-        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
-        config.setStringOutputType("base64");
-        encryptor.setConfig(config);
-        return encryptor;
-    }
-
+ 
     /**
      * Método de ejecución para setear la variable en el sistema.
      *
