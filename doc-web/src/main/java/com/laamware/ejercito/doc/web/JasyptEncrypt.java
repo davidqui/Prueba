@@ -19,7 +19,12 @@ import org.jasypt.encryption.StringEncryptor;
  */
 public class JasyptEncrypt {
 
-    public static final String CLAVE_ENCRIPTACION = "clave";
+    /*
+    * Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files.
+    * Se reemplazan los archivos: local_policy.jar y US_export_policy.jar, para que
+    * genere cifrado mas fuerte.
+    */
+    public static final String CLAVE_ENCRIPTACION = "QA[H]%S0SwNE$hWpcZ:h,P_#/J[V8?w?FRACaxe9VAVx8?7Sy0<R'lZj{^}'AM^";
 
     /**
      * Opcioń "p": Texto a encriptar.
