@@ -5,3 +5,5 @@ mvn install:install-file -Dfile=local_aspose_words-16.11.0.local.jar -DgroupId=c
 --Se colocan las propiedades Dmaven.wagon.http.ssl.insecure y Dmaven.wagon.http.ssl.allowall para que no genere problemas con el proxy si es utilizado
 mvn install:install-file -Dfile=ojdbc6-11.2.0.4.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.4 -Dpackaging=jar -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
 mvn install:install-file -Dfile=ucp-11.2.0.4.jar -DgroupId=com.oracle -DartifactId=ucp -Dversion=11.2.0.4 -Dpackaging=jar -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
+mvn install:install-file -Dfile=ons.jar -DgroupId=com.oracle -DartifactId=ons -Dversion=11.2.0.4.0  -Dpackaging=jar
+mvn install:install-file -Dfile=jasypt-spring-boot-starter-2.0.0.jar -DgroupId=com.github.ulisesbocchio -DartifactId=jasypt-spring-boot-starter -Dversion=2.0.0  -Dpackaging=jar
