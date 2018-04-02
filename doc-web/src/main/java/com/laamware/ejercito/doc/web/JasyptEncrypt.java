@@ -66,22 +66,20 @@ public class JasyptEncrypt {
             Boolean cifrar = Boolean.FALSE;
             do {
                 Console console = System.console();
-                console.printf("Por favor digite la contaseña: ");
+                console.printf("Por favor digite el texto que desea cifrar: ");
                 char[] passwordChars = console.readPassword();
                 String passwordString = new String(passwordChars);
                 StringEncryptor stringEncryptor = App.stringEncryptor();
                 String encrypted = stringEncryptor.encrypt(passwordString);
-                System.out.println("Contraseña encriptada: " + encrypted);
+                System.out.println("Texto cifrado: " + encrypted);
                 Boolean valido;
                 do {
-                    console.printf("Desea encriptar otra contaseña(S/N)");
+                    console.printf("Desea cifrar otro texto(S/N)");
                     String opcion = console.readLine();
                     valido = opcion.equalsIgnoreCase("n") || opcion.equalsIgnoreCase("no") || opcion.equalsIgnoreCase("s") || opcion.equalsIgnoreCase("si");
                     cifrar = opcion.equalsIgnoreCase("s") || opcion.equalsIgnoreCase("si");
                 } while (!valido);
             } while (cifrar);
-        }else {
-            System.err.println("Para desencriptar, agregue el parametro -c descifrado");
         }
     }
 
