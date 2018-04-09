@@ -1,0 +1,2 @@
+Colocar los jar en la siguiente ruta:
+jdk\jre\lib\security
