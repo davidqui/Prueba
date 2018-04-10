@@ -85,8 +85,14 @@
                         <#--
                             2017-10-24 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) feature-78: Presentar información
                             de la unidad del usuario destino.
+                            2018-03-22 edison.gonzalez@controltechcg.com Issue #155 (SICDI-Controltech) hotfix-155: Presentar información
+                            del destinatario, cuando es un proceso externo.
                         -->
-                        ${usuarioService.mostrarInformacionUnidad(x.instancia.asignado)}
+                        <#if x.instancia.proceso.id == 41>
+                            ${x.destinatarioNombre}
+                        <#else>
+                            ${usuarioService.mostrarInformacionUnidad(x.instancia.asignado)}
+                        </#if>
                     </td>
                     <td style="text-align: center; vertical-align: middle;">
                         <#if (x.textoAsignado)??>

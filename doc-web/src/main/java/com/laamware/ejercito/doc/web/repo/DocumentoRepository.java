@@ -85,6 +85,11 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * hotfix-118: Corrección en la sentencia SQL de la bandeja de enviados,
      * para que no presente documentos cuyo usuario asignado actual corresponda
      * al usuario en sesión.
+     *
+     * 2018-03-22 edison.gonzalez@controltechcg.com Issue #155 (SICDI-Controltech)
+     * hotfix-155: Corrección en la sentencia SQL de la bandeja de enviados,
+     * para que presente los documentos de procesos externos a pesar de que sea 
+     * usuario asignado y sea el usuario en sesión.
      */
     String CONSULTABANDEJAENVIADOS = ""
             + "SELECT doc.*\n"
@@ -95,7 +100,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "     JOIN usuario usu ON hpin.usu_id = usu.usu_id\n"
             + "     JOIN usuario usu_asignado ON (usu_asignado.usu_id = pin.usu_id_asignado)\n"
             + "WHERE usu.usu_login = :login\n"
-            + "AND usu_asignado.usu_login <> :login\n"
+            + "AND ((usu_asignado.usu_login <> :login) OR ((pin.pro_id = 41 AND pin.pes_id = 49 AND usu_asignado.usu_login = :login )))\n"
             + "AND doc.doc_radicado IS NOT NULL\n"
             + "AND est.pes_final = 1\n"
             + "AND est.pes_id NOT IN (83,101)\n"
