@@ -16,56 +16,72 @@ import org.hibernate.annotations.Parameter;
 @Table(name = "DOCUMENTO_DEPENDENCIA")
 public class DocumentoDependencia extends AuditActivoCreateSupport {
 
-	@Id
-	@GenericGenerator(name = "DOCUMENTO_DEPENDENCIA_SEQ", strategy = "sequence", parameters = {
-			@Parameter(name = "sequence", value = "DOCUMENTO_DEPENDENCIA_SEQ"),
-			@Parameter(name = "allocationSize", value = "1") })
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "DOCUMENTO_DEPENDENCIA_SEQ")
-	@Column(name = "DCDP_ID")
-	private Integer id;
+    @Id
+    @GenericGenerator(name = "DOCUMENTO_DEPENDENCIA_SEQ", strategy = "sequence", parameters = {
+        @Parameter(name = "sequence", value = "DOCUMENTO_DEPENDENCIA_SEQ")
+        ,
+			@Parameter(name = "allocationSize", value = "1")})
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "DOCUMENTO_DEPENDENCIA_SEQ")
+    @Column(name = "DCDP_ID")
+    private Integer id;
 
-	@ManyToOne
-	@JoinColumn(name = "DOC_ID")
-	private Documento documento;
+    @ManyToOne
+    @JoinColumn(name = "DOC_ID")
+    private Documento documento;
 
-	@ManyToOne
-	@JoinColumn(name = "DEP_ID")
-	private Dependencia dependencia;
+    @ManyToOne
+    @JoinColumn(name = "DEP_ID")
+    private Dependencia dependencia;
 
-	@ManyToOne
-	@JoinColumn(name = "TRD_ID")
-	private Trd trd;
+    @ManyToOne
+    @JoinColumn(name = "TRD_ID")
+    private Trd trd;
 
-	public Integer getId() {
-		return id;
-	}
+    /*
+        * 2017-03-01 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech):
+        * Se adiciona el cargo con el cual se archiva el documento.
+    */
+    @JoinColumn(name = "CARGO_ID", referencedColumnName = "CAR_ID")
+    @ManyToOne
+    private Cargo cargo;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public Documento getDocumento() {
-		return documento;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setDocumento(Documento documento) {
-		this.documento = documento;
-	}
+    public Documento getDocumento() {
+        return documento;
+    }
 
-	public Dependencia getDependencia() {
-		return dependencia;
-	}
+    public void setDocumento(Documento documento) {
+        this.documento = documento;
+    }
 
-	public void setDependencia(Dependencia dependencia) {
-		this.dependencia = dependencia;
-	}
+    public Dependencia getDependencia() {
+        return dependencia;
+    }
 
-	public Trd getTrd() {
-		return trd;
-	}
+    public void setDependencia(Dependencia dependencia) {
+        this.dependencia = dependencia;
+    }
 
-	public void setTrd(Trd trd) {
-		this.trd = trd;
-	}
+    public Trd getTrd() {
+        return trd;
+    }
 
+    public void setTrd(Trd trd) {
+        this.trd = trd;
+    }
+
+    public Cargo getCargo() {
+        return cargo;
+    }
+
+    public void setCargo(Cargo cargo) {
+        this.cargo = cargo;
+    }
 }

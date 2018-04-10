@@ -9,6 +9,7 @@
 
 <#assign headScripts>
 <script src="/js/eventos_documento.js"></script>
+<script src="/js/app/funciones-documento.js"></script>
 <script src="/js/tinymce.min.js"></script>
 </#assign>
 
@@ -647,6 +648,51 @@
             </fieldset>
         </#if>
         <!--
+            cargo
+        -->
+        <#if mode.cargoIdElabora_edit && cambiarIdCargoElabora!false>
+        <fieldset class="form-group">
+            <label for="cargoIdElabora">Cargo (*)</label>
+                <@spring.bind "documento.cargoIdElabora" />
+            <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
+                    <#if cargosXusuario??>   
+                        <#list cargosXusuario as cla>
+                        <#if cla.id?string == ((documento.cargoIdElabora.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.nombre}</option>
+                        </#if>
+                        </#list>
+                    </#if>
+                </select>
+            <small class="text-muted">Cargo con el cual se creará el documento.</small>
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        </#if>
+        
+        <#if mode.cargoIdFirma_edit && cambiarIdCargoFirma!false>
+            <fieldset class="form-group">
+                <label for="cargoIdFirma">Cargo (*)</label>
+                <select class="form-control" id="cargoIdFirma" name="cargoIdFirma" onchange="onChangeDocumentoCargoFirma(this, '17')">
+                    <#if cargosXusuario??>   
+                        <#list cargosXusuario as cla>
+                        <#if cla.id?string == ((documento.cargoIdFirma.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.nombre}</option>
+                        </#if>
+                        </#list>
+                    </#if>    
+                </select>
+                <small class="text-muted">Cargo con el cual se firmará el documento.</small>
+            </fieldset>
+            <div>
+                
+            
+        </#if>
+        <!--
             Contenido
         -->
         <#if mode.plantilla_edit >
@@ -805,9 +851,20 @@
         									2017-06-12 jgarcia@controltechcg.com Issue #93 (SICDI-Controltech) feature-93
         								-->
         								<#if !isTransicionAnularRespuesta(transicion) >
-                <a href="${transicion.replace(instancia)}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
-					                    </#if>
-					        		</#if>
+                                                                                <#--
+                                                                                2018-02-28 jgarcia@controltechcg.com Issue #151  (SICDI-Controltech) feature-151
+                                                                                Se establecen las mismas condiciones para determinar la selección de cargo en tiempo de firma y envío
+                                                                                validando además que la transición a presentar sea la correspondiente para establecer como parámetro
+                                                                                el cargo a seleccionar por defecto.
+                                                                                Este valor es cambiado en la acción de selección del selector de cargos.
+                                                                                -->
+                                                                                <#if (mode.cargoIdFirma_edit && cambiarIdCargoFirma!false) && isTransicionFirmar(transicion)>
+                                                                                <a id="trx_${transicion.id}" href="${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
+                                                                                <#else>
+                                                                                <a href="${transicion.replace(instancia)}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
+                                                                                </#if>
+                                                                            </#if>
+                                                                        </#if>
 				                </#list>
 				            </#if>
 				        <#--
@@ -953,9 +1010,23 @@
             <strong>Usuario asignado:</strong> ${instancia.asignado}<br/>
             <strong>Enviado por:</strong> ${documento.usuarioUltimaAccion!"&lt;Nadie&gt;"}<br/>
             <strong>Elabora:</strong> ${documento.elabora!"&lt;Nadie&gt;"}<br/>
+            <strong>Cargo elabora:</strong>
+                <#if (documento.cargoIdElabora??)>
+                    ${documento.cargoIdElabora.carNombre!"&lt;Ninguno&gt;"}
+                <#else>
+                    ${"&lt;Ninguno&gt;"}
+                </#if>
+            <br/>
             <strong>Revisó:</strong> ${documento.aprueba!"&lt;Nadie&gt;"}<br/>
             <strong>Visto bueno:</strong> ${documento.vistoBueno!"&lt;Nadie&gt;"}<br/>
             <strong>Firma:</strong> ${documento.firma!"&lt;Nadie&gt;"}<br/>
+            <strong>Cargo firma:</strong>
+                <#if (documento.cargoIdFirma??)>
+                    ${documento.cargoIdFirma.carNombre!"&lt;Ninguno&gt;"}
+                <#else>
+                    ${"&lt;Ninguno&gt;"}
+                </#if>
+            <br/>
             </div>
         </div>
 

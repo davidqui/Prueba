@@ -54,10 +54,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.aspose.words.Document;
+import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.UsuarioVistoBuenoDTO;
 import com.laamware.ejercito.doc.web.entity.Adjunto;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
@@ -82,6 +84,7 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.Variable;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepository;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepositoryCustom;
+import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaAdicionalRepository;
@@ -111,6 +114,8 @@ import com.laamware.ejercito.doc.web.serv.RadicadoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
+import java.math.BigDecimal;
+import java.util.Objects;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
@@ -240,6 +245,9 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     RadicacionRepository radicacionRepository;
+
+    @Autowired
+    CargosRepository cargosRepository;
 
     /* ---------------------- públicos ------------------------------- */
     /**
@@ -566,6 +574,36 @@ public class DocumentoController extends UtilController {
             doc.setEstadoTemporal(null);
         }
 
+        //2018-02-27 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech)
+        model.addAttribute("cambiarIdCargoElabora", false);
+
+        if (Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)
+                || Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)) {
+            if (i.getVariables().size() <= 5 && Objects.equals(usuarioLogueado.getId(), doc.getElabora().getId())) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+
+            if (DocumentoMode.NAME_EN_CONSTRUCCION.equals(i.getVariable(Documento.DOC_MODE)) && Objects.equals(getUsuario(principal).getId(), doc.getElabora().getId())) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+        }
+
+        if (Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
+            if (i.getVariables().size() <= 4 && Objects.equals(usuarioLogueado.getId(), doc.getElabora().getId())) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+            if (DocumentoMode.NAME_REGISTRO.equals(i.getVariable(Documento.DOC_MODE)) && Objects.equals(getUsuario(principal).getId(), doc.getElabora().getId())) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+        }
+
+        model.addAttribute("cambiarIdCargoFirma", false);
+        if (i.getEstado() != null && Objects.equals(Estado.PENDIENTE, i.getEstado().getId())) {
+            if (i.getAsignado() != null && Objects.equals(i.getAsignado().getId(), usuarioLogueado.getId())) {
+                model.addAttribute("cambiarIdCargoFirma", true);
+            }
+        }
+
         // Cargamos los vistos buenos del documentos
         List<Object[]> vistosBuenosValores = documentRepository.findVistosBuenosDocumentos(doc.getId());
         for (Object[] obVistoBueno : vistosBuenosValores) {
@@ -826,6 +864,47 @@ public class DocumentoController extends UtilController {
         String modeName = i.getVariable(Documento.DOC_MODE);
 
         DocumentoMode mode = DocumentoMode.getByName(modeName);
+
+        //2018-02-27 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech)
+        Usuario logueado = getUsuario(principal);
+        Integer elaboraDocumento = null;
+        if (doc.getElabora() != null) {
+            elaboraDocumento = doc.getElabora().getId();
+        }
+
+        model.addAttribute("cambiarIdCargoElabora", false);
+
+        if (Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)
+                || Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)) {
+            if (i.getVariables().size() <= 5) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+
+            if (DocumentoMode.NAME_EN_CONSTRUCCION.equals(modeName) && Objects.equals(logueado.getId(), elaboraDocumento)) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+        }
+
+        if (Objects.equals(i.getProceso().getId(), Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
+            if (i.getVariables().size() <= 4 && Objects.equals(logueado.getId(), elaboraDocumento)) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+
+            if (DocumentoMode.NAME_REGISTRO.equals(i.getVariable(Documento.DOC_MODE)) && Objects.equals(logueado.getId(), elaboraDocumento)) {
+                model.addAttribute("cambiarIdCargoElabora", true);
+            }
+        }
+
+        model.addAttribute("cambiarIdCargoFirma", false);
+        if (i.getEstado() != null && Objects.equals(Estado.PENDIENTE, i.getEstado().getId())) {
+            Integer firmaDocumento = null;
+            if (i.getAsignado() != null) {
+                firmaDocumento = i.getAsignado().getId();
+            }
+            if (Objects.equals(firmaDocumento, logueado.getId())) {
+                model.addAttribute("cambiarIdCargoFirma", true);
+            }
+        }
 
         // Obtiene el documento previamente almacenado en la base de datos o
         // crea uno nuevo (sin almacenarlo) para que sirva como objeto anterior
@@ -1872,6 +1951,13 @@ public class DocumentoController extends UtilController {
         i.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_ENTREGADO);
 
         /*
+		 * 2018-03-06 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech):
+		 * Se ejecuta el proceso de archivo automático, tras aplicar la
+		 * transición de entregar documentos.
+         */
+        archivoAutomaticoService.archivarAutomaticamente(documento, yo);
+
+        /*
 		 * 2017-05-30 jgarcia@controltechcg.com Issue #98 (SICDI-Controltech)
 		 * hotfix-98: Corrección en texto de mensaje de asignación de usuario a
 		 * siguiente transición del documento.
@@ -2557,6 +2643,7 @@ public class DocumentoController extends UtilController {
      * @param pin
      * @param tid
      * @param expId
+     * @param cargoIdFirma
      * @param model
      * @param principal
      * @param redirect
@@ -2564,8 +2651,8 @@ public class DocumentoController extends UtilController {
      */
     @RequestMapping(value = "/firmar", method = RequestMethod.GET)
     public String firmar(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid,
-            @RequestParam(value = "expId", required = false) Integer expId, Model model, Principal principal,
-            RedirectAttributes redirect) {
+            @RequestParam(value = "expId", required = false) Integer expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma,
+            Model model, Principal principal, RedirectAttributes redirect) {
 
         if (expId == null) {
             try {
@@ -2586,7 +2673,7 @@ public class DocumentoController extends UtilController {
 
                 if (expId == null) {
                     return String.format("redirect:/documento/seleccionar-expediente?returnUrl=%s&cancelUrl=%s",
-                            URLEncoder.encode(String.format("/documento/firmar?pin=%s&tid=%d", pin, tid), "UTF-8"),
+                            URLEncoder.encode(String.format("/documento/firmar?pin=%s&tid=%d&cargoIdFirma=%d", pin, tid, cargoIdFirma), "UTF-8"),
                             URLEncoder.encode(String.format("/proceso/instancia?pin=%s", pin), "UTF-8"));
                 }
             } catch (Exception e) {
@@ -2671,6 +2758,12 @@ public class DocumentoController extends UtilController {
             doc.setExpediente(exp);
         }
 
+        //2017-03-01 edison.gonzalez@controltech.com Issue #151
+        if (cargoIdFirma != null) {
+            Cargo cargoFirma = new Cargo(cargoIdFirma);
+            doc.setCargoIdFirma(cargoFirma);
+        }
+
         doc.setFirma(yo);
 
         /*
@@ -2706,7 +2799,10 @@ public class DocumentoController extends UtilController {
 
             // DEJAMOS EL DOC, COMO SU ESTADO ANTERIOR
             doc.setFirma(null);
+            doc.setCargoIdFirma(null);
             doc.setRadicado(null);
+            //2018-02-28 edison.gonzalez@controltechcg.com Issue #151.
+            doc.setCargoIdFirma(null);
             i.setEstado(estadoIntanciaTMP);
             i.setAsignado(usuarioAsiganoTMP);
 
@@ -2789,7 +2885,10 @@ public class DocumentoController extends UtilController {
             try {
 
                 doc.setFirma(null);
+                doc.setCargoIdFirma(null);
                 doc.setRadicado(null);
+                //2018-02-28 edison.gonzalez@controltechcg.com Issue #151.
+                doc.setCargoIdFirma(null);
                 i.setEstado(estadoIntanciaTMP);
                 i.setAsignado(usuarioAsiganoTMP);
 
@@ -2814,7 +2913,7 @@ public class DocumentoController extends UtilController {
 		 * Se ejecuta el proceso de archivo automático, tras aplicar la
 		 * transición de firmar y enviar.
          */
-        archivoAutomaticoService.archivarAutomaticamente(doc);
+        archivoAutomaticoService.archivarAutomaticamente(doc, null);
 
         /*
 		 * Issue #118
@@ -4239,6 +4338,24 @@ public class DocumentoController extends UtilController {
     @ModelAttribute("trds")
     public List<Trd> trds() {
         return trdRepository.findByActivoAndSerieNotNull(true, new Sort(Direction.ASC, "nombre"));
+    }
+
+    /**
+     * Carga el listado de cargos del usuario en sesión.
+     *
+     * @param principal
+     * @return
+     */
+    @ModelAttribute("cargosXusuario")
+    public List<CargoDTO> cargosXusuario(Principal principal) {
+        Usuario usuarioSesion = getUsuario(principal);
+        List<Object[]> list = cargosRepository.findCargosXusuario(usuarioSesion.getId());
+        List<CargoDTO> cargoDTOs = new ArrayList<>();
+        for (Object[] os : list) {
+            CargoDTO cargoDTO = new CargoDTO(((BigDecimal) os[0]).intValue(), (String) os[1]);
+            cargoDTOs.add(cargoDTO);
+        }
+        return cargoDTOs;
     }
 
     /**

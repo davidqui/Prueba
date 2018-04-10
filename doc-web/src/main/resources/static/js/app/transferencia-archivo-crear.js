@@ -1,4 +1,7 @@
-// 2017-08-30 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
+$("#divCargoDestino").hide();
+
+// 
+// // 2017-08-30 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
 // feature-120
 
 /**
@@ -86,5 +89,12 @@ function setFindResult(id) {
                 + busquedaDTO.clasificacionNombre + "]";
         $("#destinoUsuario_visible").val(descripcion);
         $("#destinoUsuario").val(busquedaDTO.id);
+        $("#divCargoDestino").show();
+        
+        $("#cargoDestino option").remove();
+        $.each(busquedaDTO.cargosDestino, function(index, item) {
+            console.log(item.id);
+            $("#cargoDestino").append("<option value="+item.id+">"+item.nombre+"</option>");
+        });
     });
 }

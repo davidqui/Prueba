@@ -66,3 +66,12 @@
 	<#local id = transaccion.id />
 	<#return (id == 127) />
 </#function>
+
+<#--
+    2018-03-01 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) feature-151:
+    Funcionalidad que indica si una transición corresponde a la firma del documento. 
+  -->
+<#function isTransicionFirmar transaccion >
+	<#local id = transaccion.id />
+	<#return (id == 17) />
+</#function>

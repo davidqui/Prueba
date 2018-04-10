@@ -1,9 +1,15 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.UsuarioBusquedaDTO;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +29,12 @@ public class UsuarioRESTController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    
+    /**
+     * Servicio de cargos.
+     */
+    @Autowired
+    CargosRepository cargosRepository;
 
     /**
      * Servicio REST que busca un usuario activo por el número de documento.
@@ -86,12 +98,22 @@ public class UsuarioRESTController {
             feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
         */
         busquedaDTO.setGrado(usuario.getUsuGrado().getId());
-
+        
         if (usuario.getClasificacion() != null) {
             busquedaDTO.setClasificacionId(usuario.getClasificacion().getId());
             busquedaDTO.setClasificacionNombre(usuario.getClasificacion()
                     .getNombre());
         }
+        
+        // 2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SIGDI-Controltech):
+        // Se añade la lista de cargos del usuario destino
+        List<Object[]> list = cargosRepository.findCargosXusuario(usuario.getId());
+        List<CargoDTO> cargoDTOs = new ArrayList<>();
+        for (Object[] os : list) {
+            CargoDTO cargoDTO = new CargoDTO(((BigDecimal) os[0]).intValue(), (String) os[1]);
+            cargoDTOs.add(cargoDTO);
+        }
+        busquedaDTO.setCargosDestino(cargoDTOs);
 
         return busquedaDTO;
     }

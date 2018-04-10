@@ -1,7 +1,40 @@
+<#setting number_format="computer">
 <#assign pageTitle = "Carpetas"/>
 <#include "bandeja-header.ftl">
 
 <div class="container-fluid">
+    </br>
+    <#--
+        2018-03-07 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) feature-151:
+        Modificación en la pantalla de presentación de registros de archivo, para realizar
+        el filtro por el cargo que archiva el documento.
+    -->
+    <form action = "/expediente/carpeta" method="POST">
+        <div class="form-inline">
+            <input type="hidden" name="sub" id="sub" value="${(sub)!""}" />
+            <input type="hidden" name="ser" id="ser" value="${(ser)!""}" />
+            <label for="cargoIdFirma" class="col-sm-2 text-xs-right">Cargo con el cual se filtrara el archivo</label>
+            <select class="form-control" id="cargoFiltro" name="cargoFiltro">
+                <#if cargosXusuario??>
+                    <#list cargosXusuario as cla>
+                        <#if cla.id?string == ((cargoFiltro)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.nombre} -prue</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.nombre}</option>
+                        </#if>
+                    </#list>
+                </#if>    
+            </select>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </form>
+    </br>
+    </br>
+    <#if retornaSerie??>
+        <td><a href="carpeta?ser=${retornaSerie}&cargoFiltro=${cargoFiltro!"0"}">Regresar</a></td> 
+    </#if>
+    </br>
+    </br>
     <#if series?? && (series?size > 0) >
         <table class="table">
         <thead>
@@ -14,7 +47,7 @@
         	<#list series as s>
             	<tr>
                 	<td nowrap>${s.codigo}</td>
-                	<td><a href="carpeta?ser=${s.id}">${s.nombre}</a></td> 
+                	<td><a href="carpeta?ser=${s.id}&cargoFiltro=${cargoFiltro!"0"}">${s.nombre}</a></td> 
                 </tr>
             </#list>            
         </tbody>
@@ -36,9 +69,9 @@
                     <td nowrap="">${x.codigo}</td>
                     
                     <#if x.documentos?? && (x.documentos?size > 0) >                		
-                		<td><a href="carpeta?sub=${x.id}">${x.nombre} ( ${x.documentos?size} ) </a></td>
+                		<td><a href="carpeta?sub=${x.id}&cargoFiltro=${cargoFiltro!"0"}">${x.nombre} ( ${x.documentos?size} ) </a></td>
                 	<#else>
-                		<td><a href="carpeta?sub=${x.id}">${x.nombre} ( 0 )</a></td>
+                		<td><a href="carpeta?sub=${x.id}&cargoFiltro=${cargoFiltro!"0"}">${x.nombre} ( 0 )</a></td>
                 	</#if> 
                     
                     
@@ -62,6 +95,7 @@
                     <th>Asunto</th>
                     <th>Fecha Creación</th>
                     <th>Fecha Archivo</th>
+                    <th>Cargo</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,6 +106,11 @@
                         <td nowrap>${x.cuando?string('yyyy-MM-dd hh:mm aa')}</td>
                         <#assign registroArchivo = registrosArchivoMapa[x.id]>
                         <td nowrap>${registroArchivo.cuando?string('yyyy-MM-dd hh:mm aa')}</td>
+                        <#if registroArchivo.cargo??>
+                            <td nowrap>${registroArchivo.cargo.carNombre!""}</td>
+                        <#else>
+                            <td nowrap></td>
+                        </#if>
                     </tr>
                 </#list>            
             </tbody>
