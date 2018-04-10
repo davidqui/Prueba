@@ -303,18 +303,6 @@
                 </div>
             </div>
         </div>
-
-        <#assign deferredJSDepDestinoArbol>
-            <script src="/js/jstree.min.js"></script>
-            <script src="/js/app/gen-arbol.js"></script>
-        
-            <script type="text/javascript">
-                validarArbol("#arbol_list_dependenciasj",false);
-            </script>
-            <script src="/js/app/documento.js"></script>
-        </#assign>
-        <#assign deferredJS = deferredJS + " " + deferredJSDepDestinoArbol>
-
         </#if>
             
         <!--Remitente texto-->
@@ -1030,37 +1018,64 @@
             </div>
         </div>
 
-    <#--
-        2017-04-07 jgarcia@controltechcg.com Issue #42 (SIGDI-Controltech):
-        Se deshabilita la opción de "Copia Dependencia" de forma temporal, comentando el componente en el template de documento.
-          
-    <#if documento.mostrarCopiaDependecia() == "S" >     
-    
+    <#if documento.mostrarMultidestino()>
     	<input type="hidden" id="idDocumentoDependenciaDestinoAdicionalModal" value="${documento.id}" />
     	
     	<div class="card">
-	        <div class="card-header">
-	            Copia dependencias
-	            <#if mode.guardar_view >
-		            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaDestinoAdicionalModal">
-		                <span class="hidden-md-down"> Adicionar </span><span class="hidden-lg-up">S</span>
-		            </button>
-		        </#if>    
-	        </div>
-	        <div class="card-block">
-		            <#list documento.documentoDependenciaDestinos as dependenciaDocumentoAdicional> 
-		            		<strong>Dependencia:</strong> ${dependenciaDocumentoAdicional.dependencia}<br/>
-	                        <strong>Fecha:</strong> ${dependenciaDocumentoAdicional.cuandoInserta?string('yyyy-MM-dd hh:mm a:ss')}<br/>
-	                        <strong>Modificado por:</strong> ${dependenciaDocumentoAdicional.elabora}<br/>
-	                        <#if mode.guardar_view >
-	                        	<a href="#" onclick="eliminarDocumentoDependenciaAdicional( '${dependenciaDocumentoAdicional.id}' );return false;" class="btn btn-sm btn-danger">Eliminar</a><br/>
-	                        </#if>	
-	                        <hr/>
-	                </#list>
-	        </div>
+	    <div class="card-header">
+                Copia dependencias
+	        <#if mode.guardar_view >
+		    <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaDestinoAdicionalModal">
+		        <span class="hidden-md-down"> Adicionar </span><span class="hidden-lg-up">S</span>
+		    </button>
+		</#if>    
 	    </div>
-	 </#if>
-    -->
+	    <div class="card-block">
+		<#list documento.documentoDependenciaDestinos as dependenciaDocumentoAdicional> 
+		    <strong>Dependencia:</strong> ${dependenciaDocumentoAdicional.dependencia}<br/>
+	            <strong>Fecha:</strong> ${dependenciaDocumentoAdicional.cuandoInserta?string('yyyy-MM-dd hh:mm a:ss')}<br/>
+	            <strong>Modificado por:</strong> ${dependenciaDocumentoAdicional.elabora}<br/>
+	            <#if mode.guardar_view >
+                        <a href="#" onclick="eliminarDocumentoDependenciaAdicional( '${dependenciaDocumentoAdicional.id}' );return false;" class="btn btn-sm btn-danger">Eliminar</a><br/>
+	            </#if>	
+	            <hr/>
+	        </#list>
+	    </div>
+	</div>
+        
+        <div class="modal fade" id="dependenciaDestinoAdicionalModal" tabindex="-1" role="dialog" aria-labelledby="dependenciaDestinoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Cerrar</span>
+                        </button>
+                        <h4 class="modal-title" id="dependenciaDestinoModalLabel">Selección de copia dependencia destino</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-block">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <div id="arbol_list_dependenciasadi">
+                                            <#if did??>
+                                                <@listDependencias dependencias=dependencias selected=did href=false/>
+                                                <#else>
+                                                    <@listDependencias dependencias=dependencias href=false/>
+                                            </#if>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <br /><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </#if>
 
     <#if (documento.vistosBuenos?size > 0) >
     <div class="card">
@@ -1375,4 +1390,17 @@
     });
     </script>
 
+<#assign deferredJSDependencias>
+    <script src="/js/jstree.min.js"></script>
+    <script src="/js/app/gen-arbol.js"></script>
+
+    <script type="text/javascript">
+        validarArbol("#arbol_list_dependenciasj",false);
+    </script>
+    <script type="text/javascript">
+        validarArbol("#arbol_list_dependenciasadi",false);
+    </script>
+    <script src="/js/app/documento.js"></script>
+</#assign>
+<#assign deferredJS = deferredJS + " " + deferredJSDependencias>
 <#include "bandeja-footer.ftl" />
