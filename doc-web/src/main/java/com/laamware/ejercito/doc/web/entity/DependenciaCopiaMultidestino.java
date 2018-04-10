@@ -24,7 +24,7 @@ import org.hibernate.annotations.Parameter;
  * @version 04/10/2018 (SICDI-Controltech Issue #156)
  */
 @Entity
-@Table(name = "DOCUMENTO_DEP_DESTINO")
+@Table(name = "DEPENDENCIA_COPIA_MULTIDESTINO")
 @SuppressWarnings("PersistenceUnitPresent")
 public class DependenciaCopiaMultidestino extends AuditModifySupport implements Serializable {
 
@@ -83,12 +83,27 @@ public class DependenciaCopiaMultidestino extends AuditModifySupport implements 
      *
      * @param documentoOriginal Documento original.
      * @param dependenciaDestino Dependencia destino de la copia.
+     * @param quien ID del usuario creador.
+     * @param cuando Fecha y hora de creación del registro.
      */
-    public DependenciaCopiaMultidestino(Documento documentoOriginal, Dependencia dependenciaDestino) {
+    public DependenciaCopiaMultidestino(Documento documentoOriginal, Dependencia dependenciaDestino, Integer quien, Date cuando) {
         this.documentoOriginal = documentoOriginal;
         this.dependenciaDestino = dependenciaDestino;
 
+        setQuien(quien);
+        setCuando(cuando);
+
         activo = Boolean.TRUE;
+    }
+
+    @Override
+    public final void setQuien(Integer quien) {
+        super.setQuien(quien);
+    }
+
+    @Override
+    public final void setCuando(Date cuando) {
+        super.setCuando(cuando);
     }
 
     public Integer getId() {
