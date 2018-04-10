@@ -1,0 +1,3 @@
+Ajuste para descifrar y cifrar las contraseñas mas fuertes. Se realizo la descarga de Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files.
+Url: http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
+Se reemplazan las librerias en la siguiente ruta: JAVA_HOME\jre\lib\security
