@@ -1018,6 +1018,12 @@
             </div>
         </div>
 
+    <!--
+        2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech):
+        Se reactiva la sección de multidestino, modificando los componentes de
+        selección para utilizar el árbol de dependencias y la nueva entidad
+        DependenciaCopiaMultidestino.
+    -->
     <#if documento.mostrarMultidestino()>
     	<input type="hidden" id="idDocumentoDependenciaDestinoAdicionalModal" value="${documento.id}" />
     	

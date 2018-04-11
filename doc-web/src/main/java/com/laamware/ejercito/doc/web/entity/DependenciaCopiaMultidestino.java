@@ -15,10 +15,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 
 /**
  * Registro de copia de documento a dependencia multidestino.
@@ -103,7 +99,7 @@ public class DependenciaCopiaMultidestino implements Serializable {
      *
      * @param documentoOriginal Documento original.
      * @param dependenciaDestino Dependencia destino de la copia.
-     * @param quien ID del usuario creador.
+     * @param quien Usuario creador.
      * @param cuando Fecha y hora de creación del registro.
      */
     public DependenciaCopiaMultidestino(Documento documentoOriginal, Dependencia dependenciaDestino, Usuario quien, Date cuando) {

@@ -57,6 +57,10 @@ public class DependenciaCopiaMultidestinoService {
             throw new BusinessLogicException("El ID de la dependencia destino no es válido en el sistema.");
         }
 
+        if (documentoOriginal.getDependenciaDestino().getId().equals(dependenciaDestino.getId())) {
+            throw new BusinessLogicException("La dependencia seleccionada corresponde a la misma dependencia destino del documento original.");
+        }
+
         final DependenciaCopiaMultidestino registroActual = multidestinoRepository.findByDocumentoOriginalAndDependenciaDestinoAndActivoTrue(documentoOriginal, dependenciaDestino);
         if (registroActual != null) {
             throw new BusinessLogicException("Ya existe un registro activo para el documento original y la dependencia destino seleccionados (" + registroActual.getId() + ").");

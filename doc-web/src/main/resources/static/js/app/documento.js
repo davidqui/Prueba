@@ -23,6 +23,11 @@ $('#arbol_list_dependenciasadi').on("select_node.jstree", function (e, data) {
     $("#dependenciaDestinoAdicionalModal").modal('hide');
 }).jstree();
 
+/**
+ * Adiciona una dependencia multidestino a un documento original.
+ * @param {type} idDocumento ID del documento original.
+ * @param {type} idDependencia ID de la dependencia copia destino.
+ */
 function adicionarDepenendeciaMultidestino(idDocumento, idDependencia) {
     $.ajax({
         type: "POST",
@@ -36,12 +41,17 @@ function adicionarDepenendeciaMultidestino(idDocumento, idDependencia) {
         }
     });
 }
-;
 
-function eliminarDocumentoDependenciaAdicional(idDependencia) {
+
+/**
+ * Elimina en un registro de dependencia copia multidestino.
+ * @param {type} idCopiaMultidestino ID dle registro de dependencia copia multidestino.
+ * @returns {Boolean} Siempre retorna false.
+ */
+function eliminarDocumentoDependenciaAdicional(idCopiaMultidestino) {
     $.ajax({
         type: "DELETE",
-        url: "/dependencia-copia-multidestino/" + idDependencia,
+        url: "/dependencia-copia-multidestino/" + idCopiaMultidestino,
         success: function (data) {
             alert(data.message);
             window.location.reload(true);
@@ -52,4 +62,3 @@ function eliminarDocumentoDependenciaAdicional(idDependencia) {
     });
     return false;
 }
-;
