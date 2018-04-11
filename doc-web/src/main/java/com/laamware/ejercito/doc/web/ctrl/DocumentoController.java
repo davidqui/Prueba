@@ -2659,6 +2659,46 @@ public class DocumentoController extends UtilController {
     }
 
     /**
+     * Aplica sobre el documento, el proceso de firma y envío. En caso que el
+     * documento corresponda al proceso de generación interna y además tenga
+     * dependencias copia multidestino, ejecuta el proceso correspondiente al
+     * envío de copias del documento original a los múltiples destinos
+     * seleccionados.
+     *
+     * @param pinID ID de la instancia del proceso del documento.
+     * @param transicionID ID de la transición a aplicar.
+     * @param expedienteID ID del expediente a asignar al documento. Opcional.
+     * @param cargoIdFirma ID del cargo con el que el usuario en sesión firmará
+     * el documento.
+     * @param model Modelo de interfaz de usuario.
+     * @param principal Instancia de información de usuario en sesión.
+     * @param redirect Modelo de atributos de redirecciones.
+     * @return Nombre del template o URL de redirección a presentar posterior a
+     * la ejecución de la funcionalidad.
+     */
+    /*
+     * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+     * feature-156: Se realiza separación entre el método que recibe la
+     * información para el proceso de firma y entre los métodos que realizan
+     * el proceso de firma y envío del documento.
+     */
+    @RequestMapping(value = "/firmar", method = RequestMethod.GET)
+    public String firmarDocumento(@RequestParam("pin") String pinID, @RequestParam("tid") Integer transicionID, @RequestParam(value = "expId", required = false) Integer expedienteID,
+            @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma, Model model, Principal principal, RedirectAttributes redirect) {
+
+        final Instancia instancia = instanciaRepository.findOne(pinID);
+        if (instancia.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)) {
+            System.out.println("FIRMAR INTERNO");
+            // TODO: Pendiente crear el método específico para la firma de 
+            // documentos internos que permita la aplicación de multidestino
+            // en caso de aplicar.
+            return firmar(pinID, expedienteID, expedienteID, cargoIdFirma, model, principal, redirect);
+        }
+
+        return firmar(pinID, transicionID, expedienteID, cargoIdFirma, model, principal, redirect);
+    }
+
+    /**
      * Marca la firma y avanza
      *
      * @param pin
@@ -2670,8 +2710,7 @@ public class DocumentoController extends UtilController {
      * @param redirect
      * @return
      */
-    @RequestMapping(value = "/firmar", method = RequestMethod.GET)
-    public String firmar(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid,
+    private String firmar(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid,
             @RequestParam(value = "expId", required = false) Integer expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma,
             Model model, Principal principal, RedirectAttributes redirect) {
 

@@ -33,7 +33,7 @@ function adicionarDepenendeciaMultidestino(idDocumento, idDependencia) {
         type: "POST",
         url: "/dependencia-copia-multidestino/" + idDocumento + "/" + idDependencia,
         success: function (data) {
-            alert(data.message);
+            console.log(data.message);
             window.location.reload(true);
         },
         error: function (data) {
@@ -53,7 +53,7 @@ function eliminarDocumentoDependenciaAdicional(idCopiaMultidestino) {
         type: "DELETE",
         url: "/dependencia-copia-multidestino/" + idCopiaMultidestino,
         success: function (data) {
-            alert(data.message);
+            console.log(data.message);
             window.location.reload(true);
         },
         error: function (data) {
