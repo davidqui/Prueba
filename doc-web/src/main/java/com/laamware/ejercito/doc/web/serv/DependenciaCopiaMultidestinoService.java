@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
  *
  * @author Jorge Alfonso García Espinosa
  * @since 1.8
- * @version 04/10/2018 (SICDI-Controltech Issue #156)
+ * @version 04/10/2018 (SICDI-Controltech Issue #156 feature-156)
  */
 @Service
 public class DependenciaCopiaMultidestinoService {
@@ -32,8 +32,28 @@ public class DependenciaCopiaMultidestinoService {
     @Autowired
     private DependenciaRepository dependenciaRepository;
 
+    /**
+     * Lista todos los registros de dependencia copia multidestino activos para
+     * un documento.
+     *
+     * @param documentoOriginal Documento original.
+     * @return Lista de los registros activos de multidestino.
+     */
     public List<DependenciaCopiaMultidestino> listarActivos(final Documento documentoOriginal) {
         return multidestinoRepository.findAllByDocumentoOriginalAndActivoTrue(documentoOriginal);
+    }
+
+    /**
+     * Busca un registro activo para el documento y dependencia destino
+     * indicados.
+     *
+     * @param documentoOriginal Documento original.
+     * @param dependenciaDestino Dependencia destino.
+     * @return Instancia del registro activo, o {@code null} en caso que no
+     * exista para los parámetros indicados.
+     */
+    public DependenciaCopiaMultidestino buscarRegistroActivo(final Documento documentoOriginal, final Dependencia dependenciaDestino) {
+        return multidestinoRepository.findByDocumentoOriginalAndDependenciaDestinoAndActivoTrue(documentoOriginal, dependenciaDestino);
     }
 
     /**

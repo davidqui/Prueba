@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.laamware.ejercito.doc.web.entity.DependenciaCopiaMultidestino;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -33,7 +34,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		 * NAMES la clave gradoExterno, marca de agua externo Y restriccion de sdifusion
                  * para que el componente aparezca,según lo indicado en documento.ftl.
      */
-    /*
+ /*
 		 * 2018-02-22 edison.gonzalez@controltechcg.com feature #150 : Se adiciona a la lista
 		 * NAMES la clave cargoElabora, cargoFirma para que el componente 
                  * aparezca,según lo indicado en documento.ftl.
@@ -42,7 +43,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             .unmodifiableList(Arrays.asList("sticker", "trd", "destinatario", "asunto", "remitente", "numeroOficio",
                     "fechaOficio", "numeroFolios", "plazo", "clasificacion", "expediente", "adjuntos", "observaciones",
                     "contenido", "radicado", "formatos", "plantilla", "radicadoOrfeo", "numeroBolsa", "guardar", "gradoExterno",
-                    "marcaAguaExterno", "restriccionDifusion","cargoIdElabora", "cargoIdFirma"));
+                    "marcaAguaExterno", "restriccionDifusion", "cargoIdElabora", "cargoIdFirma"));
 
     public static final String NAME_REGISTRO = "registro";
 
@@ -238,7 +239,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             validator.validate(documento, i, bind);
         }
     }
-    
+
     /**
      * Transfiere las propiedades que son editables de source a target
      *
@@ -325,13 +326,12 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         if (get("restriccionDifusion_edit")) {
             target.setRestriccionDifusion(source.getRestriccionDifusion());
         }
-        
+
         /*
 		 * 2018-02-22 edison.gonzalez@controltechcg.com issue #150 : Se adiciona al mapa
 		 * de construcción la clave cargoIdElabora y cargoIdFirma para que el componente aparezca,
 		 * según lo indicado en documento.ftl.
          */
-        
         if (get("cargoIdElabora_edit")) {
             target.setCargoIdElabora(source.getCargoIdElabora());
         }
@@ -340,7 +340,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             target.setCargoIdFirma(source.getCargoIdFirma());
         }
     }
-    
+
     /**
      * Transfiere las propiedades que no son editables de source a target
      *
@@ -399,7 +399,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             target.setClasificacion(source.getClasificacion());
         }
 
-        System.err.println("expediente_edit= "+get("expediente_edit"));
+        System.err.println("expediente_edit= " + get("expediente_edit"));
         if (get("expediente_edit") == false) {
             target.setExpediente(source.getExpediente());
         }
@@ -428,13 +428,12 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         if (get("restriccionDifusion_edit") == false) {
             target.setRestriccionDifusion(source.getRestriccionDifusion());
         }
-        
+
         /*
 		 * 2018-02-22 edison.gonzalez@controltechcg.com issue #150 : Se adiciona al mapa
 		 * de construcción la clave cargoIdElabora y cargoIdFirma para que el componente aparezca,
 		 * según lo indicado en documento.ftl.
          */
-        
         if (get("cargoIdElabora_edit") == false) {
             target.setCargoIdElabora(source.getCargoIdElabora());
         }
@@ -507,13 +506,13 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             if (StringUtils.isBlank(doc.getRemitenteTitulo())) {
                 errors.rejectValue("remitenteTitulo", "documento.remitenteTitulo.empty");
             }
-            
+
             //2017-09-29 edison.gonzalez@controltechcg.com Issue #129: Se adiciona el mensaje
             //que controla que la direccion del remitente sea obligatoria.
-            if(StringUtils.isBlank(doc.getRemitenteDireccion())) {
+            if (StringUtils.isBlank(doc.getRemitenteDireccion())) {
                 errors.rejectValue("remitenteDireccion", "documento.remitenteDireccion.empty");
             }
-            
+
             if (StringUtils.isBlank(doc.getNumeroOficio())) {
                 errors.rejectValue("numeroOficio", "documento.numeroOficio.empty");
             }
@@ -584,7 +583,32 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                 } else if (doc.getDependenciaDestino().getJefe() == null
                         || doc.getDependenciaDestino().getJefe().getId() == null) {
                     errors.rejectValue("dependenciaDestino", "documento.dependenciaDestino.jefe.empty");
+                } else if (doc.getDependenciaCopiaMultidestinos() != null && !doc.getDependenciaCopiaMultidestinos().isEmpty()) {
+                    /*
+                     * 2018-04-11 jgarcia@controltechcg.com Issue #156
+                     * (SICDI-Controltech) feature-156: Se realiza validación
+                     * entre la dependencia destino y las dependencias copia
+                     * multidestino activas para el documento (en proceso de
+                     * generación interna) para evitar que el destino original
+                     * corresponda a un destino copia en caso que el destino
+                     * original sea cambiado en tiempo posterior a la asignación
+                     * de multidestinos del documento.
+                     */
+                    boolean dependenciaEnMultidestino = false;
+                    for (int index = 0; index < doc.getDependenciaCopiaMultidestinos().size(); index++) {
+                        final DependenciaCopiaMultidestino copiaMultidestino = doc.getDependenciaCopiaMultidestinos().get(index);
+                        System.out.println("copiaMultidestino.getId() = " + copiaMultidestino.getId());
+                        if (doc.getDependenciaDestino().getId().equals(copiaMultidestino.getDependenciaDestino().getId())) {
+                            dependenciaEnMultidestino = true;
+                            break;
+                        }
+                    }
+
+                    if (dependenciaEnMultidestino) {
+                        errors.rejectValue("dependenciaDestino", "documento.dependenciaDestino.multidestino.previaAsignacion");
+                    }
                 }
+
             } else if (Documento.VAL_DOC_MODE_DESTINATARIO_TEXTO.equals(tipoDestinatario)) {
                 if (StringUtils.isBlank(doc.getDestinatarioNombre())) {
                     errors.rejectValue("dependenciaDestino", "documento.dependenciaDestino.empty");
@@ -647,7 +671,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                     && StringUtils.isBlank(doc.getMarcaAguaExterno())) {
                 errors.rejectValue("marcaAguaExterno", "documento.marcaAguaExterno.empty");
             }
-            
+
             if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)
                     && StringUtils.isBlank(doc.getDestinatarioDireccion())) {
                 errors.rejectValue("destinatarioDireccion", "documento.destinatarioDireccion.empty");

@@ -104,6 +104,7 @@ import com.laamware.ejercito.doc.web.repo.TransicionRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
 import com.laamware.ejercito.doc.web.serv.ArchivoAutomaticoService;
+import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
 import com.laamware.ejercito.doc.web.serv.DriveService;
 import com.laamware.ejercito.doc.web.serv.JasperService;
@@ -248,6 +249,13 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     CargosRepository cargosRepository;
+
+    /**
+     * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+     * feature-156: Servicio de multidestino.
+     */
+    @Autowired
+    private DependenciaCopiaMultidestinoService multidestinoService;
 
     /* ---------------------- públicos ------------------------------- */
     /**
@@ -938,6 +946,19 @@ public class DocumentoController extends UtilController {
         // formulario, basado en el modo de edición
         mode.transferirNoEditables(old, doc);
         mode.defaults(doc, usuarioLogueado, dependenciaRepository, trdRepository);
+
+        /**
+         * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+         * feature-156: En caso que antes de realizar el proceso de validación,
+         * el documento no cuente con su lista de dependencias copia
+         * multidestino, se asigna la información correspondiente al subconjunto
+         * activo, con el fin de poder pasar esta información a las
+         * funcionalidades de validación.
+         */
+        if (doc.getDependenciaCopiaMultidestinos() == null || doc.getDependenciaCopiaMultidestinos().isEmpty()) {
+            doc.setDependenciaCopiaMultidestinos(multidestinoService.listarActivos(doc));
+        }
+
         mode.validate(doc, i, docBind);
 
         /*

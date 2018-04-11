@@ -914,7 +914,7 @@ public class Documento extends AuditModifySupport {
      */
     // 2018-04-10 edison.gonzalez@controltechcg.com Issue #156 (SICDI-Controltech)
     // Se realiza ajuste para validar los campos requeridos, para visualizar la
-    // opción.
+    // opción. feature-156
     public Boolean mostrarMultidestino() {
         if (instancia == null || instancia.getProceso() == null) {
             return Boolean.FALSE;

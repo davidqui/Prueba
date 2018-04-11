@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  *
  * @author Jorge Alfonso García Espinosa
  * @since 1.8
- * @version 04/10/2018 (SICDI-Controltech Issue #156)
+ * @version 04/10/2018 (SICDI-Controltech Issue #156 feature-156)
  */
 @Repository
 public interface DependenciaCopiaMultidestinoRepository extends JpaRepository<DependenciaCopiaMultidestino, Integer> {
