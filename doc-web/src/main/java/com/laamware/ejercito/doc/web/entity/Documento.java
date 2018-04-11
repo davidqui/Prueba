@@ -219,9 +219,9 @@ public class Documento extends AuditModifySupport {
     @Column(name = "DOC_DOCX_DOCUMENTO")
     private String docx4jDocumento;
 
-    @OneToMany
-    @JoinColumn(name = "DOC_ID")
-    private List<DocumentoDependenciaDestino> documentoDependenciaDestinos = new ArrayList<DocumentoDependenciaDestino>();
+//    @OneToMany
+//    @JoinColumn(name = "DOC_ID")
+//    private List<DocumentoDependenciaDestino> documentoDependenciaDestinos = new ArrayList<DocumentoDependenciaDestino>();
 
     @Column(name = "FECHA_GEN_CODIGO_SCANNER")
     private Date fechaGeneracionCodigoScanner;
@@ -275,6 +275,10 @@ public class Documento extends AuditModifySupport {
     @JoinColumn(name = "CARGO_ID_ELABORA", referencedColumnName = "CAR_ID")
     @ManyToOne
     private Cargo cargoIdElabora;
+    
+    @OneToMany
+    @JoinColumn(name = "DOC_ID_ORIGINAL")
+    private List<DependenciaCopiaMultidestino> dependenciaCopiaMultidestinos = new ArrayList<DependenciaCopiaMultidestino>();
 
     @Transient
     private List<UsuarioVistoBuenoDTO> vistosBuenos = new ArrayList<UsuarioVistoBuenoDTO>();
@@ -1066,31 +1070,31 @@ public class Documento extends AuditModifySupport {
         this.usuarioUltimaAccion = usuarioUltimaAccion;
     }
 
-    public String consultarDependenciasDestinosAdicionales() {
+//    public String consultarDependenciasDestinosAdicionales() {
+//
+//        if (documentoDependenciaDestinos.isEmpty()) {
+//            return null;
+//        }
+//
+//        StringBuilder sb = new StringBuilder();
+//
+//        for (int index = 0; index < documentoDependenciaDestinos.size(); index++) {
+//
+//            sb.append(documentoDependenciaDestinos.get(index).getDependencia());
+//            if (index != (documentoDependenciaDestinos.size() - 1)) {
+//                sb.append(" - ");
+//            }
+//        }
+//
+//        return sb.toString();
+//    }
 
-        if (documentoDependenciaDestinos.isEmpty()) {
-            return null;
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        for (int index = 0; index < documentoDependenciaDestinos.size(); index++) {
-
-            sb.append(documentoDependenciaDestinos.get(index).getDependencia());
-            if (index != (documentoDependenciaDestinos.size() - 1)) {
-                sb.append(" - ");
-            }
-        }
-
-        return sb.toString();
+    public List<DependenciaCopiaMultidestino> getDependenciaCopiaMultidestinos() {
+        return dependenciaCopiaMultidestinos;
     }
 
-    public List<DocumentoDependenciaDestino> getDocumentoDependenciaDestinos() {
-        return documentoDependenciaDestinos;
-    }
-
-    public void setDocumentoDependenciaDestinos(List<DocumentoDependenciaDestino> documentoDependenciaDestinos) {
-        this.documentoDependenciaDestinos = documentoDependenciaDestinos;
+    public void setDependenciaCopiaMultidestinos(List<DependenciaCopiaMultidestino> dependenciaCopiaMultidestinos) {
+        this.dependenciaCopiaMultidestinos = dependenciaCopiaMultidestinos;
     }
 
     public boolean isDocx4jDocumentoVacio() {

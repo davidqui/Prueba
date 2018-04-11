@@ -15,6 +15,10 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 /**
  * Registro de copia de documento a dependencia multidestino.
@@ -26,7 +30,7 @@ import org.hibernate.annotations.Parameter;
 @Entity
 @Table(name = "DEPENDENCIA_COPIA_MULTIDESTINO")
 @SuppressWarnings("PersistenceUnitPresent")
-public class DependenciaCopiaMultidestino extends AuditModifySupport implements Serializable {
+public class DependenciaCopiaMultidestino implements Serializable {
 
     private static final long serialVersionUID = 5119424730370123685L;
 
@@ -63,6 +67,22 @@ public class DependenciaCopiaMultidestino extends AuditModifySupport implements 
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaHoraCreacionDocumentoResultado;
 
+    @ManyToOne
+    @JoinColumn(name = "QUIEN", updatable = false, insertable = true, nullable = false)
+    private Usuario quien;
+
+    @Column(name = "CUANDO", updatable = false, insertable = true, nullable = false)
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date cuando;
+
+    @ManyToOne
+    @JoinColumn(name = "QUIEN_MOD", updatable = false, insertable = true, nullable = false)
+    private Usuario quienMod;
+
+    @Column(name = "CUANDO_MOD")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date cuandoMod;
+
     /**
      * Constructor vacío.
      */
@@ -86,24 +106,15 @@ public class DependenciaCopiaMultidestino extends AuditModifySupport implements 
      * @param quien ID del usuario creador.
      * @param cuando Fecha y hora de creación del registro.
      */
-    public DependenciaCopiaMultidestino(Documento documentoOriginal, Dependencia dependenciaDestino, Integer quien, Date cuando) {
+    public DependenciaCopiaMultidestino(Documento documentoOriginal, Dependencia dependenciaDestino, Usuario quien, Date cuando) {
         this.documentoOriginal = documentoOriginal;
         this.dependenciaDestino = dependenciaDestino;
-
-        setQuien(quien);
-        setCuando(cuando);
+        this.quien = quien;
+        this.cuando = cuando;
+        this.quienMod = quien;
+        this.cuandoMod = cuando;
 
         activo = Boolean.TRUE;
-    }
-
-    @Override
-    public final void setQuien(Integer quien) {
-        super.setQuien(quien);
-    }
-
-    @Override
-    public final void setCuando(Date cuando) {
-        super.setCuando(cuando);
     }
 
     public Integer getId() {
@@ -147,22 +158,58 @@ public class DependenciaCopiaMultidestino extends AuditModifySupport implements 
     }
 
     public Date getFechaHoraCreacionDocumentoResultado() {
-        return fechaHoraCreacionDocumentoResultado == null ? null : new Date(fechaHoraCreacionDocumentoResultado.getTime());
+        return fechaHoraCreacionDocumentoResultado;
     }
 
     public void setFechaHoraCreacionDocumentoResultado(Date fechaHoraCreacionDocumentoResultado) {
-        this.fechaHoraCreacionDocumentoResultado = fechaHoraCreacionDocumentoResultado == null ? null : new Date(fechaHoraCreacionDocumentoResultado.getTime());
+        this.fechaHoraCreacionDocumentoResultado = fechaHoraCreacionDocumentoResultado;
+    }
+
+    public Usuario getQuien() {
+        return quien;
+    }
+
+    public void setQuien(Usuario quien) {
+        this.quien = quien;
+    }
+
+    public Date getCuando() {
+        return cuando;
+    }
+
+    public void setCuando(Date cuando) {
+        this.cuando = cuando;
+    }
+
+    public Usuario getQuienMod() {
+        return quienMod;
+    }
+
+    public void setQuienMod(Usuario quienMod) {
+        this.quienMod = quienMod;
+    }
+
+    public Date getCuandoMod() {
+        return cuandoMod;
+    }
+
+    public void setCuandoMod(Date cuandoMod) {
+        this.cuandoMod = cuandoMod;
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 97 * hash + Objects.hashCode(this.id);
-        hash = 97 * hash + Objects.hashCode(this.documentoOriginal);
-        hash = 97 * hash + Objects.hashCode(this.dependenciaDestino);
-        hash = 97 * hash + Objects.hashCode(this.activo);
-        hash = 97 * hash + Objects.hashCode(this.documentoResultado);
-        hash = 97 * hash + Objects.hashCode(this.fechaHoraCreacionDocumentoResultado);
+        int hash = 3;
+        hash = 37 * hash + Objects.hashCode(this.id);
+        hash = 37 * hash + Objects.hashCode(this.documentoOriginal);
+        hash = 37 * hash + Objects.hashCode(this.dependenciaDestino);
+        hash = 37 * hash + Objects.hashCode(this.activo);
+        hash = 37 * hash + Objects.hashCode(this.documentoResultado);
+        hash = 37 * hash + Objects.hashCode(this.fechaHoraCreacionDocumentoResultado);
+        hash = 37 * hash + Objects.hashCode(this.quien);
+        hash = 37 * hash + Objects.hashCode(this.cuando);
+        hash = 37 * hash + Objects.hashCode(this.quienMod);
+        hash = 37 * hash + Objects.hashCode(this.cuandoMod);
         return hash;
     }
 
@@ -193,7 +240,19 @@ public class DependenciaCopiaMultidestino extends AuditModifySupport implements 
         if (!Objects.equals(this.documentoResultado, other.documentoResultado)) {
             return false;
         }
-        return Objects.equals(this.fechaHoraCreacionDocumentoResultado, other.fechaHoraCreacionDocumentoResultado);
+        if (!Objects.equals(this.fechaHoraCreacionDocumentoResultado, other.fechaHoraCreacionDocumentoResultado)) {
+            return false;
+        }
+        if (!Objects.equals(this.quien, other.quien)) {
+            return false;
+        }
+        if (!Objects.equals(this.cuando, other.cuando)) {
+            return false;
+        }
+        if (!Objects.equals(this.quienMod, other.quienMod)) {
+            return false;
+        }
+        return Objects.equals(this.cuandoMod, other.cuandoMod);
     }
 
 }

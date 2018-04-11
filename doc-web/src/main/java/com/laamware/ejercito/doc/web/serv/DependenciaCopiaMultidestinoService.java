@@ -62,7 +62,7 @@ public class DependenciaCopiaMultidestinoService {
             throw new BusinessLogicException("Ya existe un registro activo para el documento original y la dependencia destino seleccionados (" + registroActual.getId() + ").");
         }
 
-        DependenciaCopiaMultidestino copiaMultidestino = new DependenciaCopiaMultidestino(documentoOriginal, dependenciaDestino, usuarioSesion.getId(), new Date());
+        DependenciaCopiaMultidestino copiaMultidestino = new DependenciaCopiaMultidestino(documentoOriginal, dependenciaDestino, usuarioSesion, new Date());
         return multidestinoRepository.saveAndFlush(copiaMultidestino);
     }
 
@@ -85,7 +85,7 @@ public class DependenciaCopiaMultidestinoService {
         }
 
         copiaMultidestino.setActivo(Boolean.FALSE);
-        copiaMultidestino.setQuienMod(usuarioSesion.getId());
+        copiaMultidestino.setQuienMod(usuarioSesion);
         copiaMultidestino.setCuandoMod(new Date());
 
         multidestinoRepository.saveAndFlush(copiaMultidestino);

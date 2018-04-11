@@ -53,22 +53,29 @@ public class DependenciaCopiaMultidestinoController extends UtilController {
     @ResponseBody
     @RequestMapping(value = "/{documentoID}/{dependenciaID}", method = RequestMethod.POST)
     public ResponseEntity<DependenciaCopiaMultidestinoDTO> crearRegistroMultidestino(@PathVariable("documentoID") String documentoID, @PathVariable("dependenciaID") Integer dependenciaID, Principal principal) {
-        final Usuario usuarioSesion = getUsuario(principal);
+        final String logMsg = documentoID + "\t" + dependenciaID;
 
-        final DependenciaCopiaMultidestino copiaMultidestino;
         try {
-            copiaMultidestino = multidestinoService.crear(documentoID, dependenciaID, usuarioSesion);
-        } catch (BusinessLogicException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            return new ResponseEntity<>(new DependenciaCopiaMultidestinoDTO(false, ex.getMessage()), HttpStatus.BAD_REQUEST);
+            final Usuario usuarioSesion = getUsuario(principal);
+
+            final DependenciaCopiaMultidestino copiaMultidestino;
+            try {
+                copiaMultidestino = multidestinoService.crear(documentoID, dependenciaID, usuarioSesion);
+            } catch (BusinessLogicException ex) {
+                LOG.log(Level.SEVERE, logMsg, ex);
+                return new ResponseEntity<>(new DependenciaCopiaMultidestinoDTO(false, ex.getMessage()), HttpStatus.BAD_REQUEST);
+            }
+
+            final int id = copiaMultidestino.getId();
+            final String nombreDependencia = copiaMultidestino.getDependenciaDestino().getNombre();
+            final String fechaCreacion = new SimpleDateFormat(DATETIME_FORMAT).format(copiaMultidestino.getCuando()).toUpperCase();
+            final String nombreUsuarioCreador = (usuarioSesion.getUsuGrado().getId() + " " + usuarioSesion.getNombre()).trim().toUpperCase();
+
+            return new ResponseEntity<>(new DependenciaCopiaMultidestinoDTO(true, CREATE_MESSAGE, id, nombreDependencia, fechaCreacion, nombreUsuarioCreador), HttpStatus.OK);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, logMsg, ex);
+            return new ResponseEntity<>(new DependenciaCopiaMultidestinoDTO(false, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        final int id = copiaMultidestino.getId();
-        final String nombreDependencia = copiaMultidestino.getDependenciaDestino().getNombre();
-        final String fechaCreacion = new SimpleDateFormat(DATETIME_FORMAT).format(copiaMultidestino.getCuando()).toUpperCase();
-        final String nombreUsuarioCreador = (usuarioSesion.getUsuGrado().getId() + " " + usuarioSesion.getNombre()).trim().toUpperCase();
-
-        return new ResponseEntity<>(new DependenciaCopiaMultidestinoDTO(true, CREATE_MESSAGE, id, nombreDependencia, fechaCreacion, nombreUsuarioCreador), HttpStatus.OK);
     }
 
     /**
@@ -81,15 +88,21 @@ public class DependenciaCopiaMultidestinoController extends UtilController {
     @ResponseBody
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<DependenciaCopiaMultidestinoDTO> borrarRegistroMultidestino(@PathVariable("id") Integer id, Principal principal) {
-        final Usuario usuarioSesion = getUsuario(principal);
-
+        final String logMsg = "" + id;
         try {
-            multidestinoService.eliminar(id, usuarioSesion);
-        } catch (BusinessLogicException ex) {
-            LOG.log(Level.SEVERE, "" + id, ex);
-            return new ResponseEntity<>(new DependenciaCopiaMultidestinoDTO(false, ex.getMessage()), HttpStatus.BAD_REQUEST);
-        }
+            final Usuario usuarioSesion = getUsuario(principal);
 
-        return new ResponseEntity(new DependenciaCopiaMultidestinoDTO(true, DELETE_MESSAGE), HttpStatus.OK);
+            try {
+                multidestinoService.eliminar(id, usuarioSesion);
+            } catch (BusinessLogicException ex) {
+                LOG.log(Level.SEVERE, logMsg, ex);
+                return new ResponseEntity<>(new DependenciaCopiaMultidestinoDTO(false, ex.getMessage()), HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity(new DependenciaCopiaMultidestinoDTO(true, DELETE_MESSAGE), HttpStatus.OK);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, logMsg, ex);
+            return new ResponseEntity<>(new DependenciaCopiaMultidestinoDTO(false, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

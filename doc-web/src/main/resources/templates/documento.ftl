@@ -1031,14 +1031,16 @@
 		</#if>    
 	    </div>
 	    <div class="card-block">
-		<#list documento.documentoDependenciaDestinos as dependenciaDocumentoAdicional> 
-		    <strong>Dependencia:</strong> ${dependenciaDocumentoAdicional.dependencia}<br/>
-	            <strong>Fecha:</strong> ${dependenciaDocumentoAdicional.cuandoInserta?string('yyyy-MM-dd hh:mm a:ss')}<br/>
-	            <strong>Modificado por:</strong> ${dependenciaDocumentoAdicional.elabora}<br/>
-	            <#if mode.guardar_view >
-                        <a href="#" onclick="eliminarDocumentoDependenciaAdicional( '${dependenciaDocumentoAdicional.id}' );return false;" class="btn btn-sm btn-danger">Eliminar</a><br/>
-	            </#if>	
-	            <hr/>
+		<#list documento.dependenciaCopiaMultidestinos as dependenciaCopiaMultidestino>
+                    <#if dependenciaCopiaMultidestino.activo>
+                        <strong>Dependencia:</strong> ${dependenciaCopiaMultidestino.dependenciaDestino}<br/>
+                        <strong>Fecha:</strong> ${dependenciaCopiaMultidestino.cuandoMod?string('yyyy-MM-dd hh:mm a:ss')}<br/>
+                        <strong>Modificado por:</strong> ${dependenciaCopiaMultidestino.quien}<br/>
+                        <#if mode.guardar_view >
+                            <a id="eliminarMultidestino" href="#" onclick="eliminarDocumentoDependenciaAdicional( '${dependenciaCopiaMultidestino.id}' );return false;" class="btn btn-sm btn-danger">Eliminar</a><br/>
+                        </#if>	
+                        <hr/>
+                    </#if>
 	        </#list>
 	    </div>
 	</div>
@@ -1362,18 +1364,6 @@
     -->
     </script>
 <script>
-
-    function eliminarDocumentoDependenciaAdicional( id ){
-
-    $.ajax("/documento/eliminarDependenciAdicionalDocumento/"+id)
-    .done(function() {          	                        		 	
-    window.location.reload(true);
-    })
-    .error( function(){
-    window.location.reload(true);
-    });
-
-    }
 
     function cargarHtmlAplantilla() {    	    	
     $("#contenido").val( tinyMCE.get('id_text_area_html').getContent() );
