@@ -2675,36 +2675,43 @@ public class DocumentoController extends UtilController {
             @RequestParam(value = "expId", required = false) Integer expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma,
             Model model, Principal principal, RedirectAttributes redirect) {
 
-        if (expId == null) {
-            try {
-                /*
-				 * 2017-02-07 jgarcia@controltechcg.com Issue #47: Se modifica
-				 * el redirect del formulario para que en el momento de dar clic
-				 * al botón "Firmar y enviar" no haya invocación al formulario
-				 * documento-seleccionar-expediente.ftl, sino que vaya
-				 * directamente a la pantalla de firma.
-                 */
-                Instancia instancia = instanciaRepository.getOne(pin);
-                Documento documento = documentRepository.findOneByInstanciaId(instancia.getId());
-                Expediente expediente = documento.getExpediente();
-
-                if (expediente != null) {
-                    expId = expediente.getId();
-                }
-
-                if (expId == null) {
-                    return String.format("redirect:/documento/seleccionar-expediente?returnUrl=%s&cancelUrl=%s",
-                            URLEncoder.encode(String.format("/documento/firmar?pin=%s&tid=%d&cargoIdFirma=%d", pin, tid, cargoIdFirma), "UTF-8"),
-                            URLEncoder.encode(String.format("/proceso/instancia?pin=%s", pin), "UTF-8"));
-                }
-            } catch (Exception e) {
-                redirect.addFlashAttribute(AppConstants.FLASH_ERROR,
-                        "Error estableciendo el mecanismo para selección de expediente");
-                LOG.error("Error estableciendo el mecanismo para selección de expediente", e);
-                return String.format("redirect:/proceso/instancia?pin=%s", pin);
-            }
-        }
-
+        /*
+         * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+         * feature-156: Retirar la opción dentro de la función
+         * DocumentoController#firmar() que pregunta la selección del expediente
+         * cuando este aún no ha sido asignado.
+         */
+        //<editor-fold defaultstate="collapsed" desc="feature-156">
+        //        if (expId == null) {
+        //            try {
+        //                /*
+        //                 * 2017-02-07 jgarcia@controltechcg.com Issue #47: Se modifica
+        //                 * el redirect del formulario para que en el momento de dar clic
+        //                 * al botón "Firmar y enviar" no haya invocación al formulario
+        //                 * documento-seleccionar-expediente.ftl, sino que vaya
+        //                 * directamente a la pantalla de firma.
+        //                 */
+        //                Instancia instancia = instanciaRepository.getOne(pin);
+        //                Documento documento = documentRepository.findOneByInstanciaId(instancia.getId());
+        //                Expediente expediente = documento.getExpediente();
+        //
+        //                if (expediente != null) {
+        //                    expId = expediente.getId();
+        //                }
+        //
+        //                if (expId == null) {
+        //                    return String.format("redirect:/documento/seleccionar-expediente?returnUrl=%s&cancelUrl=%s",
+        //                            URLEncoder.encode(String.format("/documento/firmar?pin=%s&tid=%d&cargoIdFirma=%d", pin, tid, cargoIdFirma), "UTF-8"),
+        //                            URLEncoder.encode(String.format("/proceso/instancia?pin=%s", pin), "UTF-8"));
+        //                }
+        //            } catch (Exception e) {
+        //                redirect.addFlashAttribute(AppConstants.FLASH_ERROR,
+        //                        "Error estableciendo el mecanismo para selección de expediente");
+        //                LOG.error("Error estableciendo el mecanismo para selección de expediente", e);
+        //                return String.format("redirect:/proceso/instancia?pin=%s", pin);
+        //            }
+        //        }
+        //</editor-fold>
         final Usuario yo = getUsuario(principal);
 
         Instancia instanciaAntesDeEjecutarProceso = instanciaRepository.getOne(pin);
@@ -2712,34 +2719,34 @@ public class DocumentoController extends UtilController {
         final Usuario usuarioAsiganoTMP = instanciaAntesDeEjecutarProceso.getAsignado();
 
         /*
-		 * 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
-		 * hotfix-99: Validación del proceso de selección de usuario para
-		 * determinar si el usuario es null, para presentar el mensaje de error
-		 * correspondiente.
+         * 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
+         * hotfix-99: Validación del proceso de selección de usuario para
+         * determinar si el usuario es null, para presentar el mensaje de error
+         * correspondiente.
          */
         EstrategiaSeleccionUsuario selector = new EstrategiaSeleccionUsuario() {
             @Override
             public Usuario select(Instancia i, Documento d) {
 
                 /*
-				 * 2017-02-06 jgarcia@controltechcg.com Issue# 150: Para
-				 * asignación de Jefe, se busca la Dependencia Destino. Sobre
-				 * esta se consulta si tiene un Jefe Segundo (Encargado). Si lo
-				 * tiene se compara el rango de fechas asignado en la
-				 * Dependencia. En caso que la fecha actual corresponda al
-				 * rango, se selecciona el Jefe Segundo (Encargado). De lo
-				 * contrario, a las reglas anteriormente descritas, se
-				 * selecciona el Jefe de la Dependencia.
+                 * 2017-02-06 jgarcia@controltechcg.com Issue# 150: Para
+                 * asignación de Jefe, se busca la Dependencia Destino. Sobre
+                 * esta se consulta si tiene un Jefe Segundo (Encargado). Si lo
+                 * tiene se compara el rango de fechas asignado en la
+                 * Dependencia. En caso que la fecha actual corresponda al
+                 * rango, se selecciona el Jefe Segundo (Encargado). De lo
+                 * contrario, a las reglas anteriormente descritas, se
+                 * selecciona el Jefe de la Dependencia.
                  */
                 Dependencia dependenciaDestino = d.getDependenciaDestino();
 
                 if (dependenciaDestino != null) {
                     /*
-					 * 2017-02-09 jgarcia@controltechcg.com Issue #11
-					 * (SIGDI-Incidencias01): En caso que el usuario en sesión
-					 * corresponda como Jefe Segundo de la Dependencia Destino,
-					 * se asigna el documento al Jefe principal de la
-					 * Dependencia.
+                     * 2017-02-09 jgarcia@controltechcg.com Issue #11
+                     * (SIGDI-Incidencias01): En caso que el usuario en sesión
+                     * corresponda como Jefe Segundo de la Dependencia Destino,
+                     * se asigna el documento al Jefe principal de la
+                     * Dependencia.
                      */
                     Usuario jefeActivo = getJefeActivoDependencia(dependenciaDestino);
                     if (jefeActivo != null && yo.getId().equals(jefeActivo.getId())) {
@@ -2772,8 +2779,15 @@ public class DocumentoController extends UtilController {
         String docId = i.getVariable(Documento.DOC_ID);
         Documento doc = documentRepository.getOne(docId);
 
-        // Genera el PDF
-        if (expId > 0) {
+        /*
+         * Genera el PDF.
+         *
+         * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+         * feature-156: Retirar la opción dentro de la función
+         * DocumentoController#firmar() que pregunta la selección del expediente
+         * cuando este aún no ha sido asignado.
+         */
+        if (expId != null && expId > 0) {
             Expediente exp = new Expediente();
             exp.setId(expId);
             doc.setExpediente(exp);
@@ -2788,18 +2802,17 @@ public class DocumentoController extends UtilController {
         doc.setFirma(yo);
 
         /*
-            * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138: Se llama
-            * al servicio encargado de retornar el numero de radicado, segun el tipo
-            * de proceso.
+         * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138: Se llama al
+         * servicio encargado de retornar el numero de radicado, segun el tipo
+         * de proceso.
          */
         Radicacion radicacion = radicacionRepository.findByProceso(doc.getInstancia().getProceso());
-        System.err.println(doc.getInstancia().getProceso().getId() + "-----------" + radicacion.getRadId());
         doc.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(yo.getDependencia()).getId(), radicacion.getRadId()));
 
         /*
-		 * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los
-		 * puntos donde se hacen persistentes los documentos, para que siempre
-		 * se registre el usuario de la última accíón.
+         * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los
+         * puntos donde se hacen persistentes los documentos, para que siempre
+         * se registre el usuario de la última accíón.
          */
         Usuario uActualLogin = getUsuario(principal);
         doc.setUsuarioUltimaAccion(uActualLogin);
@@ -2930,20 +2943,20 @@ public class DocumentoController extends UtilController {
         }
 
         /*
-		 * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech):
-		 * Se ejecuta el proceso de archivo automático, tras aplicar la
-		 * transición de firmar y enviar.
+         * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech):
+         * Se ejecuta el proceso de archivo automático, tras aplicar la
+         * transición de firmar y enviar.
          */
         archivoAutomaticoService.archivarAutomaticamente(doc, null);
 
         /*
-		 * Issue #118
-		 * 
-		 * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
-		 * feature-78
-		 * 
-		 * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
-		 * feature-73
+         * Issue #118
+         *
+         * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+         * feature-78
+         *
+         * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+         * feature-73
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                 buildAsignadosText(documentoDependenciaAdicionalRepository, usuarioService, i, "Asignado a ", true));
