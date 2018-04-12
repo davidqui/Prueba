@@ -5,7 +5,6 @@ import com.laamware.ejercito.doc.web.entity.DependenciaCopiaMultidestino;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DependenciaCopiaMultidestinoRepository;
-import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import java.util.Date;
@@ -30,7 +29,7 @@ public class DependenciaCopiaMultidestinoService {
     private DocumentoRepository documentoRepository;
 
     @Autowired
-    private DependenciaRepository dependenciaRepository;
+    private DependenciaService dependenciaService;
 
     /**
      * Lista todos los registros de dependencia copia multidestino activos para
@@ -72,7 +71,7 @@ public class DependenciaCopiaMultidestinoService {
             throw new BusinessLogicException("El ID del documento original no es válido en el sistema.");
         }
 
-        final Dependencia dependenciaDestino = dependenciaRepository.findOne(dependenciaDestinoID);
+        final Dependencia dependenciaDestino = dependenciaService.findOne(dependenciaDestinoID);
         if (dependenciaDestino == null) {
             throw new BusinessLogicException("El ID de la dependencia destino no es válido en el sistema.");
         }
@@ -84,6 +83,11 @@ public class DependenciaCopiaMultidestinoService {
         final DependenciaCopiaMultidestino registroActual = multidestinoRepository.findByDocumentoOriginalAndDependenciaDestinoAndActivoTrue(documentoOriginal, dependenciaDestino);
         if (registroActual != null) {
             throw new BusinessLogicException("Ya existe un registro activo para el documento original y la dependencia destino seleccionados (" + registroActual.getId() + ").");
+        }
+
+        final Usuario jefeActivoDependenciaDestino = dependenciaService.getJefeActivoDependencia(dependenciaDestino);
+        if (jefeActivoDependenciaDestino == null) {
+            throw new BusinessLogicException("La dependencia no tiene un jefe activo asignado.");
         }
 
         DependenciaCopiaMultidestino copiaMultidestino = new DependenciaCopiaMultidestino(documentoOriginal, dependenciaDestino, usuarioSesion, new Date());

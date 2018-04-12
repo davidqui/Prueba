@@ -251,4 +251,9 @@ public class DependenciaCopiaMultidestino implements Serializable {
         return Objects.equals(this.cuandoMod, other.cuandoMod);
     }
 
+    @Override
+    public String toString() {
+        return "DependenciaCopiaMultidestino{" + "id=" + id + ", activo=" + activo + '}';
+    }
+
 }
