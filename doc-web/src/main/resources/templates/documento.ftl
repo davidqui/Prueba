@@ -688,9 +688,6 @@
                 </select>
                 <small class="text-muted">Cargo con el cual se firmará el documento.</small>
             </fieldset>
-            <div>
-                
-            
         </#if>
         <!--
             Contenido
