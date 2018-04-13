@@ -74,3 +74,8 @@ REFERENCES DOCUMENTO (DOC_ID);
 
 CREATE INDEX DEP_COP_MULTIDES_ACTIVO_IDX 
 ON DEPENDENCIA_COPIA_MULTIDESTINO (ACTIVO);
+
+-- -----------------------------------------------------------------------------
+-- TYPE: T_ARRAY_UUID
+-- -----------------------------------------------------------------------------
+CREATE TYPE T_ARRAY_UUID AS TABLE OF VARCHAR2(32 CHAR);
