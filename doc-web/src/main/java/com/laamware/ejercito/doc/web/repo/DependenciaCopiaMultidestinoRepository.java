@@ -36,4 +36,12 @@ public interface DependenciaCopiaMultidestinoRepository extends JpaRepository<De
      */
     public DependenciaCopiaMultidestino findByDocumentoOriginalAndDependenciaDestinoAndActivoTrue(Documento documentoOriginal, Dependencia dependenciaDestino);
 
+    /**
+     * Cuenta el número de registros activos para el documento indicado.
+     *
+     * @param documentoOriginal Documento original.
+     * @return Número de registros de copia multidestino.
+     */
+    public Long countByDocumentoOriginalAndActivoTrue(Documento documentoOriginal);
+
 }

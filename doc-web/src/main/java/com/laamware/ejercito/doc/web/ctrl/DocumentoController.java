@@ -115,8 +115,10 @@ import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.RadicadoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
+import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import java.math.BigDecimal;
+import java.util.LinkedList;
 import java.util.Objects;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
@@ -130,7 +132,7 @@ public class DocumentoController extends UtilController {
     /* **************************** REFORMA ********************************* */
 
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
-    
+
     static final String PATH = "/documento";
     private static final com.aspose.words.License LICENSE = new com.aspose.words.License();
     /*
@@ -2697,17 +2699,33 @@ public class DocumentoController extends UtilController {
             @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma, Model model, Principal principal, RedirectAttributes redirect) {
 
         final Instancia instancia = instanciaRepository.findOne(pinID);
+
         if (instancia.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)) {
-            System.out.println("\n\nFIRMAR INTERNO\n\n");
+
             final String documentoID = instancia.getVariable(Documento.DOC_ID);
             final Documento documento = documentRepository.findOne(documentoID);
-            final List<DependenciaCopiaMultidestino> copiaMultidestinos = multidestinoService.listarActivos(documento);
-            if (copiaMultidestinos.isEmpty()) {
+            if (!multidestinoService.esDocumentoMultidestino(documento)) {
+                // TODO: Debe ejecutar el proceso de firma normal.
                 return "error";
             }
 
-            for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
-                System.out.println("copiaMultidestino = " + copiaMultidestino);
+            final List<Dependencia> todasDependenciasMultidestino = multidestinoService.listarTodasDependenciasMultidestino(documento);
+            final BusinessLogicValidation todasDependenciasDestinoValidacion = multidestinoService.validarTodasDependenciasMultidestino(todasDependenciasMultidestino);
+            if (!todasDependenciasDestinoValidacion.isAllOK()) {
+                // TODO: Enviar mensaje de error a la pantalla de firma y envío,
+                // y evitar el procesamiento del documento.
+                final String mensajeError = construirMensajeError(todasDependenciasDestinoValidacion);
+                System.out.println("mensajeError = " + mensajeError);
+                return "error";
+            }
+
+            multidestinoService.clonarDocumentoMultidestino(documento);
+
+            final List<Documento> documentosMultidestino = multidestinoService.listarTodosDocumentosMultidestino(documento);
+            for (final Documento documentoMultidestino : documentosMultidestino) {
+                // TODO: Colocar los parámetros necesarios para el proceso de
+                // firmar y enviar. 
+                firmarYEnviarDocumento_NEW(documentoMultidestino);
             }
 
             // TODO: Pendiente crear el método específico para la firma de 
@@ -2716,6 +2734,7 @@ public class DocumentoController extends UtilController {
             return "error";
         }
 
+        // TODO: Debe ejecutar el proceso de firma normal.
         return "error";
     }
 
@@ -2728,6 +2747,41 @@ public class DocumentoController extends UtilController {
     @RequestMapping(value = "/firmar-nuevo-temporal", method = RequestMethod.GET)
     public String mostrarFormFirmarTemporal() {
         return "firmar-nuevo-temporal";
+    }
+
+    /**
+     * Aplica la lógica de firma y envío para un documento.
+     *
+     * @param documento Documento.
+     */
+    // TODO: Cambiar el nombre y firma (parámetros) del método.
+    private void firmarYEnviarDocumento_NEW(final Documento documento) {
+        // TODO: Aplicar el proceso de firma y envío.
+        System.out.println("Firmar y enviar: " + documento.getId());
+    }
+
+    /**
+     * Construye el mensaje completo de error a presentar en pantalla a partir
+     * de los errores registrados en la validación.
+     *
+     * @param validation Validación realizada.
+     * @return Mensaje completo de error.
+     */
+    private String construirMensajeError(final BusinessLogicValidation validation) {
+        final String separator = " - ";
+
+        final StringBuilder builder = new StringBuilder();
+
+        for (int index = 0; index < validation.getNumberOfErrors(); index++) {
+            final String message = validation.getError(index).getMessage();
+            builder.append(message);
+
+            if (index < (validation.getNumberOfErrors() - 1)) {
+                builder.append(separator);
+            }
+        }
+
+        return builder.toString();
     }
 
     /**

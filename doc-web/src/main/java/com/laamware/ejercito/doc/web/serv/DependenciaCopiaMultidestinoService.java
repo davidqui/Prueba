@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.entity.Adjunto;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.DependenciaCopiaMultidestino;
 import com.laamware.ejercito.doc.web.entity.Documento;
@@ -7,7 +8,11 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DependenciaCopiaMultidestinoRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
+import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
+import com.laamware.ejercito.doc.web.util.GeneralUtils;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +35,21 @@ public class DependenciaCopiaMultidestinoService {
 
     @Autowired
     private DependenciaService dependenciaService;
+
+    @Autowired
+    private AdjuntoService adjuntoService;
+
+    /**
+     * Indica si el documento es multi-destino.
+     *
+     * @param documento Documento.
+     * @return {@code true} si el documento es multi-destino; de lo contrario,
+     * {@code false}.
+     */
+    public boolean esDocumentoMultidestino(final Documento documento) {
+        final Long count = multidestinoRepository.countByDocumentoOriginalAndActivoTrue(documento);
+        return (count > 0);
+    }
 
     /**
      * Lista todos los registros de dependencia copia multidestino activos para
@@ -115,6 +135,115 @@ public class DependenciaCopiaMultidestinoService {
         copiaMultidestino.setActivo(Boolean.FALSE);
         copiaMultidestino.setQuienMod(usuarioSesion);
         copiaMultidestino.setCuandoMod(new Date());
+
+        multidestinoRepository.saveAndFlush(copiaMultidestino);
+    }
+
+    /**
+     * Lista todos las dependencias destino de un documento multi-destino.
+     *
+     * @param documentoOriginal Documento original.
+     * @return Lista con todas las dependencias (Unión de la dependencia destino
+     * del documento con las dependencias destino de los registros de copia
+     * multidestino).
+     */
+    public List<Dependencia> listarTodasDependenciasMultidestino(final Documento documentoOriginal) {
+        final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
+
+        final List<Dependencia> dependencias = new LinkedList<>();
+        dependencias.add(documentoOriginal.getDependenciaDestino());
+
+        for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
+            dependencias.add(copiaMultidestino.getDependenciaDestino());
+        }
+
+        return dependencias;
+    }
+
+    /**
+     * Valida que todas las dependencias de un documento multi-destino (Original
+     * y copias) cumplan las reglas de negocio precondiciones al procesamiento
+     * de clonación de la información del documento original.
+     *
+     * @param dependenciasMultidestino Lista de todas las dependencias de un
+     * documento multidestino.
+     * @return Resultado de la validación realizada.
+     */
+    public BusinessLogicValidation validarTodasDependenciasMultidestino(final List<Dependencia> dependenciasMultidestino) {
+        final BusinessLogicValidation validation = new BusinessLogicValidation();
+
+        for (final Dependencia dependencia : dependenciasMultidestino) {
+            final Usuario jefeActivoDependencia = dependenciaService.getJefeActivoDependencia(dependencia);
+            if (jefeActivoDependencia == null) {
+                validation.addError(dependencia, "La dependencia \"" + dependencia.getNombre() + "\" no tiene Jefe Activo.");
+            }
+        }
+
+        return validation;
+    }
+
+    /**
+     * Clona la información del documento original en nuevos documentos a partir
+     * de sus registros de dependencias copia multidestino.
+     *
+     * @param documentoOriginal Documento original.
+     */
+    public void clonarDocumentoMultidestino(final Documento documentoOriginal) {
+        final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
+
+        for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
+            clonarDocumentoMultidestino(documentoOriginal, copiaMultidestino);
+        }
+    }
+
+    /**
+     * Lista todos los documentos destino de un documento multi-destino.
+     *
+     * @param documentoOriginal Documento original.
+     * @return Lista con todos los documentos (Unión del documento original con
+     * los documentos generados por los registros de copia multidestino).
+     */
+    public List<Documento> listarTodosDocumentosMultidestino(final Documento documentoOriginal) {
+        final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
+
+        final List<Documento> documentos = new LinkedList<>();
+        documentos.add(documentoOriginal);
+
+        for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
+            documentos.add(copiaMultidestino.getDocumentoResultado());
+        }
+
+        return documentos;
+    }
+
+    /**
+     * Clona la información del documento original en un nuevo documento basado
+     * en el registro de dependencia copia multidestino.
+     *
+     * @param documentoOriginal Documento original.
+     * @param copiaMultidestino Registro de dependencia copia multidestino.
+     */
+    private void clonarDocumentoMultidestino(final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino) {
+        final String p_doc_id_origen = documentoOriginal.getId();
+        final String p_pin_id_nuevo = GeneralUtils.newId();
+        final String p_doc_id_nuevo = GeneralUtils.newId();
+        final Integer p_dep_id_des = copiaMultidestino.getDependenciaDestino().getId();
+
+        final List<Adjunto> adjuntos = adjuntoService.findAllActivos(documentoOriginal);
+        final String[] adjuntosUUIDs = GeneralUtils.generateUUIDs(adjuntos.size());
+
+        // TODO: Enviar la información a la función PL/SQL del proceso de clonación.
+        System.out.println("p_doc_id_origen=" + p_doc_id_origen + "\tp_pin_id_nuevo=" + p_pin_id_nuevo + "\tp_doc_id_nuevo=" + p_doc_id_nuevo
+                + "\tp_dep_id_des=" + p_dep_id_des + "\tadjuntosUUIDs=" + Arrays.toString(adjuntosUUIDs));
+
+        //
+        // TODO: Aplicar los cambios necesarios sobre el OFS.
+        //
+        final Documento documentoResultado = new Documento();
+        documentoResultado.setId(p_doc_id_nuevo);
+        copiaMultidestino.setDocumentoResultado(documentoResultado);
+
+        copiaMultidestino.setFechaHoraCreacionDocumentoResultado(new Date());
 
         multidestinoRepository.saveAndFlush(copiaMultidestino);
     }
