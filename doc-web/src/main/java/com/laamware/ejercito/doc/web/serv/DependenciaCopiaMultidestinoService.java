@@ -10,11 +10,21 @@ import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
+import java.sql.Array;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
+import javax.sql.DataSource;
+import oracle.sql.ARRAY;
+import oracle.sql.ArrayDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,6 +37,26 @@ import org.springframework.stereotype.Service;
 @Service
 public class DependenciaCopiaMultidestinoService {
 
+    private static final Logger LOG = Logger.getLogger(DependenciaCopiaMultidestinoService.class.getName());
+
+    private static final String PROC_COPIA_DOC_MULTIDESTINO = "PROC_COPIA_DOC_MULTIDESTINO";
+
+    private static final String T_ARRAY_UUID = "T_ARRAY_UUID";
+
+    private static final String P_ARRAY_UUID_DOC_ADJUNTO = "P_ARRAY_UUID_DOC_ADJUNTO";
+
+    private static final String P_DOC_DOCX_DOCUMENTO = "P_DOC_DOCX_DOCUMENTO";
+
+    private static final String P_DOC_CONTENT_FILE = "P_DOC_CONTENT_FILE";
+
+    private static final String P_DEP_ID_DES = "P_DEP_ID_DES";
+
+    private static final String P_DOC_ID_NUEVO = "P_DOC_ID_NUEVO";
+
+    private static final String P_PIN_ID_NUEVO = "P_PIN_ID_NUEVO";
+
+    private static final String P_DOC_ID_ORIGEN = "P_DOC_ID_ORIGEN";
+
     @Autowired
     private DependenciaCopiaMultidestinoRepository multidestinoRepository;
 
@@ -38,6 +68,9 @@ public class DependenciaCopiaMultidestinoService {
 
     @Autowired
     private AdjuntoService adjuntoService;
+
+    @Autowired
+    private DataSource dataSource;
 
     /**
      * Indica si el documento es multi-destino.
@@ -187,8 +220,9 @@ public class DependenciaCopiaMultidestinoService {
      * de sus registros de dependencias copia multidestino.
      *
      * @param documentoOriginal Documento original.
+     * @throws java.sql.SQLException
      */
-    public void clonarDocumentoMultidestino(final Documento documentoOriginal) {
+    public void clonarDocumentoMultidestino(final Documento documentoOriginal) throws SQLException {
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
 
         for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
@@ -223,18 +257,52 @@ public class DependenciaCopiaMultidestinoService {
      * @param documentoOriginal Documento original.
      * @param copiaMultidestino Registro de dependencia copia multidestino.
      */
-    private void clonarDocumentoMultidestino(final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino) {
+    private void clonarDocumentoMultidestino(final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino) throws SQLException {
+        LOG.info("com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService.clonarDocumentoMultidestino()");
+
         final String p_doc_id_origen = documentoOriginal.getId();
         final String p_pin_id_nuevo = GeneralUtils.newId();
         final String p_doc_id_nuevo = GeneralUtils.newId();
         final Integer p_dep_id_des = copiaMultidestino.getDependenciaDestino().getId();
+        /*
+         * TODO: Verificar estos valores contra lo que debe estar en el OFS. 
+         */
+        final String p_doc_content_file = GeneralUtils.newId();
+        final String p_doc_docx_documento = GeneralUtils.newId();
 
         final List<Adjunto> adjuntos = adjuntoService.findAllActivos(documentoOriginal);
         final String[] adjuntosUUIDs = GeneralUtils.generateUUIDs(adjuntos.size());
 
         // TODO: Enviar la información a la función PL/SQL del proceso de clonación.
-        System.out.println("p_doc_id_origen=" + p_doc_id_origen + "\tp_pin_id_nuevo=" + p_pin_id_nuevo + "\tp_doc_id_nuevo=" + p_doc_id_nuevo
+        LOG.info("p_doc_id_origen=" + p_doc_id_origen + "\tp_pin_id_nuevo=" + p_pin_id_nuevo + "\tp_doc_id_nuevo=" + p_doc_id_nuevo
                 + "\tp_dep_id_des=" + p_dep_id_des + "\tadjuntosUUIDs=" + Arrays.toString(adjuntosUUIDs));
+
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate.setResultsMapCaseInsensitive(true);
+        LOG.info("jdbcTemplate = " + jdbcTemplate);
+
+        final SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(PROC_COPIA_DOC_MULTIDESTINO);
+        LOG.info("simpleJdbcCall = " + simpleJdbcCall);
+
+        final ArrayDescriptor arrayDescriptor = ArrayDescriptor.createDescriptor(T_ARRAY_UUID,
+                simpleJdbcCall.getJdbcTemplate().getDataSource().getConnection());
+        LOG.info("arrayDescriptor = " + arrayDescriptor);
+
+        final Array p_array_uuid_doc_adjunto = new ARRAY(arrayDescriptor, simpleJdbcCall.getJdbcTemplate().getDataSource().getConnection(), adjuntosUUIDs);
+        LOG.info("p_array_uuid_doc_adjunto = " + p_array_uuid_doc_adjunto);
+
+        final SqlParameterSource sqlParameterSource = new MapSqlParameterSource()
+                .addValue(P_DOC_ID_ORIGEN, p_doc_id_origen)
+                .addValue(P_PIN_ID_NUEVO, p_pin_id_nuevo)
+                .addValue(P_DOC_ID_NUEVO, p_doc_id_nuevo)
+                .addValue(P_DEP_ID_DES, p_dep_id_des)
+                .addValue(P_DOC_CONTENT_FILE, p_doc_content_file)
+                .addValue(P_DOC_DOCX_DOCUMENTO, p_doc_docx_documento)
+                .addValue(P_ARRAY_UUID_DOC_ADJUNTO, p_array_uuid_doc_adjunto);
+        LOG.info("sqlParameterSource = " + sqlParameterSource);
+
+        simpleJdbcCall.execute(sqlParameterSource);
+        LOG.info("EJECUTADO PROCEDIMIENTO!");
 
         //
         // TODO: Aplicar los cambios necesarios sobre el OFS.

@@ -115,11 +115,13 @@ import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.RadicadoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
+import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import java.math.BigDecimal;
-import java.util.LinkedList;
+import java.sql.SQLException;
 import java.util.Objects;
+import java.util.logging.Level;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
@@ -740,8 +742,13 @@ public class DocumentoController extends UtilController {
      * @param idDependencia
      * @param idDocumento
      * @param principal
+     * @deprecated 2018-04-16 jgarcia@controltechcg.com Issue #156
+     * (SICDI-Controltech) feature-156 Se reemplaza por la entidad
+     * {@link DependenciaCopiaMultidestino} y el método
+     * {@link DependenciaCopiaMultidestinoController#crearRegistroMultidestino(java.lang.String, java.lang.Integer, java.security.Principal)}.
      */
     @RequestMapping(value = "/dependenciAdicionalDocumento/{idDependencia}/{idDocumento}", method = RequestMethod.GET)
+    @Deprecated
     public void cargarNuevaDependenciaAdiconal(@PathVariable("idDependencia") Integer idDependencia,
             @PathVariable("idDocumento") String idDocumento, Principal principal) {
 
@@ -2698,15 +2705,38 @@ public class DocumentoController extends UtilController {
     public String firmarDocumento(@RequestParam("pin") String pinID, @RequestParam("tid") Integer transicionID, @RequestParam(value = "expId", required = false) Integer expedienteID,
             @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma, Model model, Principal principal, RedirectAttributes redirect) {
 
+        final String redirectURL = String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pinID);
+
+        final Usuario usuarioSesion = getUsuario(principal);
+
         final Instancia instancia = instanciaRepository.findOne(pinID);
 
-        if (instancia.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)) {
+        final String documentoID = instancia.getVariable(Documento.DOC_ID);
+        final Documento documento = documentRepository.findOne(documentoID);
 
-            final String documentoID = instancia.getVariable(Documento.DOC_ID);
-            final Documento documento = documentRepository.findOne(documentoID);
+        if (instancia.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA)) {
             if (!multidestinoService.esDocumentoMultidestino(documento)) {
-                // TODO: Debe ejecutar el proceso de firma normal.
-                return "error";
+                try {
+                    // TODO: Debe ejecutar el proceso de firma normal.
+                    firmarYEnviarDocumento_NEW(documento, pinID, transicionID, expedienteID, cargoIdFirma, usuarioSesion);
+                } catch (BusinessLogicException | RuntimeException ex) {
+                    java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
+                    redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+                    return redirectURL;
+                }
+
+                /*
+                 * Issue #118
+                 *
+                 * 2017-05-15 jgarcia@controltechcg.com Issue #78
+                 * (SICDI-Controltech) feature-78
+                 *
+                 * 2017-05-24 jgarcia@controltechcg.com Issue #73
+                 * (SICDI-Controltech) feature-73
+                 */
+                redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
+                        buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+                return redirectURL;
             }
 
             final List<Dependencia> todasDependenciasMultidestino = multidestinoService.listarTodasDependenciasMultidestino(documento);
@@ -2715,27 +2745,75 @@ public class DocumentoController extends UtilController {
                 // TODO: Enviar mensaje de error a la pantalla de firma y envío,
                 // y evitar el procesamiento del documento.
                 final String mensajeError = construirMensajeError(todasDependenciasDestinoValidacion);
-                System.out.println("mensajeError = " + mensajeError);
-                return "error";
+                redirect.addFlashAttribute(AppConstants.FLASH_ERROR, mensajeError);
+                return redirectURL;
             }
 
-            multidestinoService.clonarDocumentoMultidestino(documento);
+            try {
+                multidestinoService.clonarDocumentoMultidestino(documento);
+            } catch (SQLException ex) {
+                java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
+                // TODO: En caso de excepción habría que aplicar los rollback necesarios.
+                redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+                return redirectURL;
+            }
 
             final List<Documento> documentosMultidestino = multidestinoService.listarTodosDocumentosMultidestino(documento);
             for (final Documento documentoMultidestino : documentosMultidestino) {
-                // TODO: Colocar los parámetros necesarios para el proceso de
-                // firmar y enviar. 
-                firmarYEnviarDocumento_NEW(documentoMultidestino);
+                try {
+                    // TODO: Colocar los parámetros necesarios para el proceso de
+                    // firmar y enviar.
+                    final String multidestinoPinID = documentoMultidestino.getInstancia().getId();
+                    firmarYEnviarDocumento_NEW(documentoMultidestino, multidestinoPinID, transicionID, expedienteID, cargoIdFirma, usuarioSesion);
+                } catch (BusinessLogicException | RuntimeException ex) {
+                    // TODO: Implementar la funcionalidad para realizar rollback en caso que se genere un error.
+                    java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
+                    redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+                    return redirectURL;
+                }
             }
 
             // TODO: Pendiente crear el método específico para la firma de 
             // documentos internos que permita la aplicación de multidestino
             // en caso de aplicar.
-            return "error";
+            /*
+             * Issue #118
+             *
+             * 2017-05-15 jgarcia@controltechcg.com Issue #78
+             * (SICDI-Controltech) feature-78
+             *
+             * 2017-05-24 jgarcia@controltechcg.com Issue #73
+             * (SICDI-Controltech) feature-73
+             */
+            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+            return redirectURL;
         }
 
-        // TODO: Debe ejecutar el proceso de firma normal.
-        return "error";
+        /*
+         * Ejecuta el proceso de forma normal para documentos de otros procesos
+         * (Generación externa).
+         */
+        try {
+            firmarYEnviarDocumento_NEW(documento, pinID, transicionID, expedienteID, cargoIdFirma, usuarioSesion);
+        } catch (BusinessLogicException | RuntimeException ex) {
+            java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
+            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            return redirectURL;
+        }
+
+        /**
+         * Issue #118
+         *
+         * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+         * feature-78
+         *
+         * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+         * feature-73
+         */
+        redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+        return redirectURL;
     }
 
     /**
@@ -2755,9 +2833,258 @@ public class DocumentoController extends UtilController {
      * @param documento Documento.
      */
     // TODO: Cambiar el nombre y firma (parámetros) del método.
-    private void firmarYEnviarDocumento_NEW(final Documento documento) {
+    private void firmarYEnviarDocumento_NEW(Documento documento, final String pinID, final Integer transicionID, final Integer expedienteID,
+            final Integer cargoIdFirma, final Usuario usuarioSesion) throws BusinessLogicException {
         // TODO: Aplicar el proceso de firma y envío.
         System.out.println("Firmar y enviar: " + documento.getId());
+
+        /*
+         * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+         * feature-156: Retirar la opción dentro de la función
+         * DocumentoController#firmar() que pregunta la selección del expediente
+         * cuando este aún no ha sido asignado.
+         */
+        //<editor-fold defaultstate="collapsed" desc="feature-156">
+        //        if (expId == null) {
+        //            try {
+        //                /*
+        //                 * 2017-02-07 jgarcia@controltechcg.com Issue #47: Se modifica
+        //                 * el redirect del formulario para que en el momento de dar clic
+        //                 * al botón "Firmar y enviar" no haya invocación al formulario
+        //                 * documento-seleccionar-expediente.ftl, sino que vaya
+        //                 * directamente a la pantalla de firma.
+        //                 */
+        //                Instancia instancia = instanciaRepository.getOne(pin);
+        //                Documento documento = documentRepository.findOneByInstanciaId(instancia.getId());
+        //                Expediente expediente = documento.getExpediente();
+        //
+        //                if (expediente != null) {
+        //                    expId = expediente.getId();
+        //                }
+        //
+        //                if (expId == null) {
+        //                    return String.format("redirect:/documento/seleccionar-expediente?returnUrl=%s&cancelUrl=%s",
+        //                            URLEncoder.encode(String.format("/documento/firmar?pin=%s&tid=%d&cargoIdFirma=%d", pin, tid, cargoIdFirma), "UTF-8"),
+        //                            URLEncoder.encode(String.format("/proceso/instancia?pin=%s", pin), "UTF-8"));
+        //                }
+        //            } catch (Exception e) {
+        //                redirect.addFlashAttribute(AppConstants.FLASH_ERROR,
+        //                        "Error estableciendo el mecanismo para selección de expediente");
+        //                LOG.error("Error estableciendo el mecanismo para selección de expediente", e);
+        //                return String.format("redirect:/proceso/instancia?pin=%s", pin);
+        //            }
+        //        }
+        //</editor-fold>
+        Instancia instanciaAntesDeEjecutarProceso = instanciaRepository.getOne(pinID);
+        final Estado estadoIntanciaTMP = instanciaAntesDeEjecutarProceso.getEstado();
+        final Usuario usuarioAsignadoTMP = instanciaAntesDeEjecutarProceso.getAsignado();
+
+        /*
+         * 2017-06-01 jgarcia@controltechcg.com Issue #99 (SICDI-Controltech)
+         * hotfix-99: Validación del proceso de selección de usuario para
+         * determinar si el usuario es null, para presentar el mensaje de error
+         * correspondiente.
+         */
+        EstrategiaSeleccionUsuario selector = new EstrategiaSeleccionUsuario() {
+            @Override
+            public Usuario select(Instancia instanciaSeleccion, Documento documentoSeleccion) {
+
+                /*
+                 * 2017-02-06 jgarcia@controltechcg.com Issue# 150: Para
+                 * asignación de Jefe, se busca la Dependencia Destino. Sobre
+                 * esta se consulta si tiene un Jefe Segundo (Encargado). Si lo
+                 * tiene se compara el rango de fechas asignado en la
+                 * Dependencia. En caso que la fecha actual corresponda al
+                 * rango, se selecciona el Jefe Segundo (Encargado). De lo
+                 * contrario, a las reglas anteriormente descritas, se
+                 * selecciona el Jefe de la Dependencia.
+                 */
+                Dependencia dependenciaDestino = documentoSeleccion.getDependenciaDestino();
+
+                if (dependenciaDestino != null) {
+                    /*
+                     * 2017-02-09 jgarcia@controltechcg.com Issue #11
+                     * (SIGDI-Incidencias01): En caso que el usuario en sesión
+                     * corresponda como Jefe Segundo de la Dependencia Destino,
+                     * se asigna el documento al Jefe principal de la
+                     * Dependencia.
+                     */
+                    Usuario jefeActivo = dependenciaService.getJefeActivoDependencia(dependenciaDestino);
+                    if (jefeActivo != null && usuarioSesion.getId().equals(jefeActivo.getId())) {
+                        return dependenciaDestino.getJefe();
+                    }
+
+                    return jefeActivo;
+                } else {
+                    return usuarioSesion;
+                }
+            }
+        };
+
+        Instancia instanciaTMP = procesoService.instancia(pinID);
+        String docIDTMP = instanciaTMP.getVariable(Documento.DOC_ID);
+        Documento documentoTMP = documentRepository.getOne(docIDTMP);
+
+        if (selector.select(instanciaTMP, documentoTMP) == null) {
+            throw new BusinessLogicException("ERROR: No hay Jefe Asignado para la Dependencia destino.");
+        }
+
+        Instancia instancia = asignar(pinID, transicionID, selector);
+
+        // Cambia a solo lectura
+        instancia.setVariable(Documento.DOC_MODE, DocumentoMode.NAME_SOLO_LECTURA);
+
+        // Obtiene el documento asociado a la instancia de proceso
+        String docID = instancia.getVariable(Documento.DOC_ID);
+        documento = documentRepository.getOne(docID);
+
+        /*
+         * Genera el PDF.
+         *
+         * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+         * feature-156: Retirar la opción dentro de la función
+         * DocumentoController#firmar() que pregunta la selección del expediente
+         * cuando este aún no ha sido asignado.
+         */
+        if (expedienteID != null && expedienteID > 0) {
+            Expediente expediente = new Expediente();
+            expediente.setId(expedienteID);
+            documento.setExpediente(expediente);
+        }
+
+        //2017-03-01 edison.gonzalez@controltech.com Issue #151
+        if (cargoIdFirma != null) {
+            Cargo cargoFirma = new Cargo(cargoIdFirma);
+            documento.setCargoIdFirma(cargoFirma);
+        }
+
+        documento.setFirma(usuarioSesion);
+
+        /*
+         * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138: Se llama al
+         * servicio encargado de retornar el numero de radicado, segun el tipo
+         * de proceso.
+         */
+        Radicacion radicacion = radicacionRepository.findByProceso(documento.getInstancia().getProceso());
+        documento.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(usuarioSesion.getDependencia()).getId(), radicacion.getRadId()));
+
+        /*
+         * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los
+         * puntos donde se hacen persistentes los documentos, para que siempre
+         * se registre el usuario de la última accíón.
+         */
+        documento.setUsuarioUltimaAccion(usuarioSesion);
+
+        documentRepository.saveAndFlush(documento);
+
+        // EJECUTAMOS LA FUNCION PARA GENERAR LOS DATOS A CARGAR EN EL PDF
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate.setResultsMapCaseInsensitive(true);
+
+        SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withFunctionName("FN_PDF_RADIOGRAMA_MAIN");
+
+        SqlParameterSource in = new MapSqlParameterSource()
+                .addValue("P_DOC_ID", documento.getId())
+                .addValue("P_USU_ID_FIRMA", usuarioSesion.getId())
+                .addValue("P_DOC_RADICADO", documento.getRadicado());
+
+        String plSqlResultado = simpleJdbcCall.executeFunction(String.class, in);
+
+        if (!"OK".equals(plSqlResultado)) {
+            // DEJAMOS EL DOC, COMO SU ESTADO ANTERIOR
+            documento.setFirma(null);
+            documento.setCargoIdFirma(null);
+            documento.setRadicado(null);
+            //2018-02-28 edison.gonzalez@controltechcg.com Issue #151.
+            documento.setCargoIdFirma(null);
+            instancia.setEstado(estadoIntanciaTMP);
+            instancia.setAsignado(usuarioAsignadoTMP);
+
+            documentRepository.save(documento);
+            instanciaRepository.save(instancia);
+
+            throw new BusinessLogicException("ERROR: Generando los datos a cargar al PDF: " + plSqlResultado);
+        }
+
+        try {
+            KeysValuesAsposeDocxDTO asposeDocxDTO = DocumentoController.getKeysValuesWord(documentRepository.findPDFDocumento(documento.getId()), ofs.getRoot());
+
+            Document documentAspose = new Document(ofs.getPath(documento.getDocx4jDocumento()));
+            documentAspose.getMailMerge().execute(asposeDocxDTO.getNombres(), asposeDocxDTO.getValues());
+
+            for (int indice = 0; indice < asposeDocxDTO.getNombres().length; indice++) {
+                // TODO: Revisar el tema de la marca de agua...
+                String valor = asposeDocxDTO.getNombres()[indice];
+
+                if ("S_DEP_DESTINO".equalsIgnoreCase(valor) && asposeDocxDTO.getValues()[indice].toString().trim().length() > 0) {
+                    // APLICAMOS LA MARCA DE AGUA, EN CASO LA TENGA
+                    ofs.insertWatermarkText(documentAspose, asposeDocxDTO.getValues()[indice].toString().trim());
+                    break;
+                }
+
+                /**
+                 * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 : Se
+                 * adiciona la marca de agua para documentos externos.
+                 */
+                if ("EXTERNO_MARCA_AGUA".equalsIgnoreCase(valor) && asposeDocxDTO.getValues()[indice].toString().trim().length() > 0) {
+                    //APLICAMOS LA MARCA DE AGUA, EN CASO LA TENGA
+                    ofs.insertWatermarkText(documentAspose, asposeDocxDTO.getValues()[indice].toString().trim());
+                    break;
+                }
+            }
+
+            File fTempSalidaPDF = File.createTempFile("_sigdi_temp_", ".pdf");
+            documentAspose.save(fTempSalidaPDF.getPath());
+
+            OFSEntry ofsEntry = ofs.readPDFAspose(fTempSalidaPDF);
+            String pdfID = ofs.save(ofsEntry.getContent(), AppConstants.MIME_TYPE_PDF);
+
+            try {
+                fTempSalidaPDF.delete();
+            } catch (Exception ex1) {
+                LOG.error(pinID + "\t" + ex1.getMessage(), ex1);
+                try {
+                    fTempSalidaPDF.deleteOnExit();
+                } catch (Exception ex2) {
+                    LOG.error(pinID + "\t" + ex2.getMessage(), ex2);
+                }
+            }
+
+            // SE ASIGNA EL USUARIO QUE FIRMA COMO EL ULTIMO
+            documento.setUsuarioUltimaAccion(usuarioSesion);
+
+            documento.setPdf(pdfID);
+            documentRepository.save(documento);
+
+        } catch (Exception ex) {
+            LOG.error(pinID + "\t" + ex.getMessage(), ex);
+
+            try {
+                documento.setFirma(null);
+                documento.setCargoIdFirma(null);
+                documento.setRadicado(null);
+                //2018-02-28 edison.gonzalez@controltechcg.com Issue #151.
+                documento.setCargoIdFirma(null);
+                instancia.setEstado(estadoIntanciaTMP);
+                instancia.setAsignado(usuarioAsignadoTMP);
+
+                documentRepository.save(documento);
+                instanciaRepository.save(instancia);
+
+                throw new BusinessLogicException("ERROR: Se generó un problema al firmar el documento: " + ex.getMessage(), ex);
+            } catch (BusinessLogicException blex) {
+                throw blex;
+            } catch (Exception ex1) {
+                throw new BusinessLogicException("ERROR: Se generó un problema al firmar el documento: " + ex1.getMessage(), ex1);
+            }
+        }
+
+        /*
+         * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech):
+         * Se ejecuta el proceso de archivo automático, tras aplicar la
+         * transición de firmar y enviar.
+         */
+        archivoAutomaticoService.archivarAutomaticamente(documento, null);
     }
 
     /**
@@ -4587,11 +4914,17 @@ public class DocumentoController extends UtilController {
      * @param textoInicial Texto que se colocaría al inicio del resultado.
      * @param manejarMultiplesDestinos Indica si el texto debe manejar la
      * presentación de usuarios asignados según múltiples destinos.
+     *
      * @return Texto que comienza con el valor de texto inicial (Si se ha
      * colocado alguno) seguido del nombre del asignado primario. En caso que el
      * documento de la instancia del proceso tenga asociados dependencias
      * destino, presentará en el mismo texto (separado por comas) los jefes de
      * cada dependencia.
+     *
+     * @deprecated 2018-04-16 jgarcia@controltechcg.com Issue #156
+     * (SICDI-Controltech) feature-156 Se reemplaza por la entidad
+     * {@link DependenciaCopiaMultidestino} y el método
+     * {@link #buildAsignadosTextMultidestino(com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService, com.laamware.ejercito.doc.web.serv.UsuarioService, com.laamware.ejercito.doc.web.serv.DependenciaService, com.laamware.ejercito.doc.web.entity.Instancia, java.lang.String) }.
      */
     /*
      * 2017-02-06 jgarcia@controltechcg.com Issue #118 Presentación de jefes de
@@ -4607,6 +4940,7 @@ public class DocumentoController extends UtilController {
      * feature-156: Se agrega como parámetro la instancia de DependenciaService
      * para poder llamar el método getJefeActivoDependencia().
      */
+    @Deprecated
     public static String buildAsignadosText(final DocumentoDependenciaAdicionalRepository dependenciaAdicionalRepository, final UsuarioService usuarioService, final DependenciaService dependenciaService,
             Instancia instancia, String textoInicial, boolean manejarMultiplesDestinos) {
         final String documentoID = instancia.getVariable(Documento.DOC_ID);
@@ -4669,5 +5003,99 @@ public class DocumentoController extends UtilController {
         }
 
         return text;
+    }
+
+    /**
+     * Construye el mensaje que indica la lista de usuarios asignados para la
+     * aplicación de la próxima transición para la instancia según el proceso
+     * asociado, utilizando la información de registros multidestino.
+     *
+     * @param copiaMultidestinoService Servicio de dependencias copia
+     * multidestino.
+     * @param usuarioService Servicio de usuarios.
+     * @param dependenciaService Servicio de dependencias.
+     * @param instancia Instancia del proceso.
+     * @param textoInicial Texto inicial del mensaje de asignación.
+     *
+     * @return Texto que comienza con el valor de texto inicial (Si se ha
+     * colocado alguno) seguido del nombre del asignado primario. En caso que el
+     * documento de la instancia del proceso tenga asociados dependencias copias
+     * multidestino, presentará en el mismo texto (separado por comas) los jefes
+     * de cada dependencia.
+     */
+    /*
+     * 2018-04-16 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+     * feature-156: Se crea como reemplazo del metodo buildAsignadosText() para
+     * utilizar la información de los registros multidestino.
+     */
+    public static String buildAsignadosTextMultidestino(final DependenciaCopiaMultidestinoService copiaMultidestinoService,
+            final UsuarioService usuarioService, final DependenciaService dependenciaService, final Instancia instancia, final String textoInicial) {
+        final String documentoID = instancia.getVariable(Documento.DOC_ID);
+
+        final StringBuilder text = new StringBuilder((textoInicial == null || textoInicial.trim().isEmpty()) ? "" : textoInicial);
+
+        /*
+         * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
+         * feature-78: Presentar información básica de los usuarios asignadores
+         * y asignados en las bandejas del sistema.
+         */
+        text.append(usuarioService.mostrarInformacionBasica(instancia.getAsignado()));
+
+
+        /*
+         * 2017-02-08 jgarcia@controltechcg.com Issue #118 Modificación para que
+         * los jefes de dependencia destino únicamente se presenten cuando el
+         * estado corresponde a Enviado.
+         *
+         * 2017-05-24 jgarcia@controltechcg.com Issue #73 (SICDI-Controltech)
+         * feature-73: Opción para indicar si la construcción del texto de
+         * asignados debe manejar múltiples destinos o no.
+         */
+        final Estado estado = instancia.getEstado();
+        if (estado.getId().equals(Estado.ENVIADO)) {
+            return text.toString().trim();
+        }
+
+        final Documento documento = new Documento();
+        documento.setId(documentoID);
+
+        final List<DependenciaCopiaMultidestino> copiaMultidestinos = copiaMultidestinoService.listarActivos(documento);
+
+        if (copiaMultidestinos.isEmpty()) {
+            return text.toString().trim();
+        }
+
+        for (int i = 0; i < copiaMultidestinos.size(); i++) {
+            final DependenciaCopiaMultidestino copiaMultidestino = copiaMultidestinos.get(i);
+
+            // 2017-02-08 jgarcia@controltechcg.com Issue #118 Corrección en
+            // caso que hayan dependencias sin jefe.
+            final Dependencia dependencia = copiaMultidestino.getDependenciaDestino();
+            if (dependencia != null) {
+                /*
+                 * 2017-03-23 jgarcia@controltechcg.com Issue #29
+                 * (SIGDI-Incidencias01): Corrección en la presentación del
+                 * mensaje de asignación, para mostrar el jefe encargado cuando
+                 * este esté activo.
+                 */
+                final Usuario jefe = dependenciaService.getJefeActivoDependencia(dependencia);
+                if (jefe != null) {
+                    /*
+                     * 2017-03-08 jgarcia@controltechcg.com Issue #6
+                     * (SIGDI-Incidencias01): Corrección en presentación de
+                     * información de destinatarios, para que salga el rango del
+                     * jefe de la dependencia.
+                     *
+                     * 2017-05-15 jgarcia@controltechcg.com Issue #78
+                     * (SICDI-Controltech) feature-78: Presentar información
+                     * básica de los usuarios asignadores y asignados en las
+                     * bandejas del sistema.
+                     */
+                    text.append(", ").append(usuarioService.mostrarInformacionBasica(jefe));
+                }
+            }
+        }
+
+        return text.toString().trim();
     }
 }
