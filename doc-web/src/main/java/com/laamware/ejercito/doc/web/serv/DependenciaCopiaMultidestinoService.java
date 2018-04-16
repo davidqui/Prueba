@@ -257,6 +257,7 @@ public class DependenciaCopiaMultidestinoService {
      * @param documentoOriginal Documento original.
      * @param copiaMultidestino Registro de dependencia copia multidestino.
      */
+    // TODO: Quitar logs de ejecución.
     private void clonarDocumentoMultidestino(final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino) throws SQLException {
         LOG.info("com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService.clonarDocumentoMultidestino()");
 
