@@ -70,6 +70,9 @@ public class DependenciaCopiaMultidestinoService {
     private AdjuntoService adjuntoService;
 
     @Autowired
+    private OFS ofs;
+
+    @Autowired
     private DataSource dataSource;
 
     /**
