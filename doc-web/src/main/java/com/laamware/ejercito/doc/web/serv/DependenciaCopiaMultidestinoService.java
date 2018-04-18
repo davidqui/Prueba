@@ -225,7 +225,7 @@ public class DependenciaCopiaMultidestinoService {
      * @param documentoOriginal Documento original.
      * @throws java.sql.SQLException
      */
-    public void clonarDocumentoMultidestino(final Documento documentoOriginal) throws SQLException {
+    public void clonarDocumentoMultidestino(final Documento documentoOriginal) throws SQLException, OFSException {
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
 
         for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
@@ -247,7 +247,7 @@ public class DependenciaCopiaMultidestinoService {
         documentos.add(documentoOriginal);
 
         for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
-            documentos.add(copiaMultidestino.getDocumentoResultado());
+            documentos.add(documentoRepository.findOne(copiaMultidestino.getDocumentoResultado().getId()));
         }
 
         return documentos;
@@ -261,7 +261,7 @@ public class DependenciaCopiaMultidestinoService {
      * @param copiaMultidestino Registro de dependencia copia multidestino.
      */
     // TODO: Quitar logs de ejecución.
-    private void clonarDocumentoMultidestino(final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino) throws SQLException {
+    private void clonarDocumentoMultidestino(final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino) throws SQLException, OFSException {
         LOG.info("com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService.clonarDocumentoMultidestino()");
 
         final String p_doc_id_origen = documentoOriginal.getId();
@@ -272,7 +272,10 @@ public class DependenciaCopiaMultidestinoService {
          * TODO: Verificar estos valores contra lo que debe estar en el OFS. 
          */
         final String p_doc_content_file = GeneralUtils.newId();
+        ofs.copy(documentoOriginal.getContentFile(), p_doc_content_file);
+        
         final String p_doc_docx_documento = GeneralUtils.newId();
+        ofs.copy(documentoOriginal.getDocx4jDocumento(), p_doc_docx_documento);
 
         final List<Adjunto> adjuntos = adjuntoService.findAllActivos(documentoOriginal);
         final String[] adjuntosUUIDs = GeneralUtils.generateUUIDs(adjuntos.size());
