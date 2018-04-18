@@ -112,6 +112,7 @@ import com.laamware.ejercito.doc.web.serv.DriveService;
 import com.laamware.ejercito.doc.web.serv.JasperService;
 import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
+import com.laamware.ejercito.doc.web.serv.OFSException;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.RadicadoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
@@ -2754,6 +2755,10 @@ public class DocumentoController extends UtilController {
             } catch (SQLException ex) {
                 java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
                 // TODO: En caso de excepción habría que aplicar los rollback necesarios.
+                redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+                return redirectURL;
+            } catch (OFSException ex) {
+                java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
                 redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
                 return redirectURL;
             }
