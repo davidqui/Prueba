@@ -296,6 +296,14 @@ public class OFS {
         return b.toString();
     }
 
+    public String getPathDirectory(String id) {
+        StringBuilder b = new StringBuilder(root);
+        for (int i = 0; i < DIR_LEVELS; i++) {
+            b.append("/").append(id.charAt(i));
+        }
+        return b.toString();
+    }
+
     private OFSStage newStage(String refId, Usuario usuario, Integer tipo) {
         OFSStage stage = new OFSStage();
         stage.setId(GeneralUtils.newId());
@@ -529,7 +537,7 @@ public class OFS {
      * para el proceso de envío multidestino.
      */
     void copy(final String originUUID, final String resultUUID) throws OFSException {
-        final String originPath = getPath(originUUID);
+        final String originPath = getPathDirectory(originUUID);
         final File originDirectory = new File(originPath);
         if (!originDirectory.exists()) {
             throw new OFSException("Directorio origen no existe en OFS: " + originPath);
@@ -546,7 +554,7 @@ public class OFS {
             throw new OFSException("Archivos no existe en OFS: " + originUUID);
         }
 
-        final String resultPath = getPath(resultUUID);
+        final String resultPath = getPathDirectory(resultUUID);
         final File resultDirectory = new File(resultPath);
 
         if (!resultDirectory.exists()) {
