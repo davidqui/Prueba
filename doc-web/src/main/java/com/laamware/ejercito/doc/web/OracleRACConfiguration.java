@@ -78,6 +78,8 @@ public class OracleRACConfiguration {
 
     private int initialPoolSize;
 
+    private int minPoolSize;
+    
     private int maxPoolSize;
 
     private Boolean validateConnectionOnBorrow;
@@ -182,6 +184,20 @@ public class OracleRACConfiguration {
         this.initialPoolSize = initialPoolSize;
     }
 
+    /**
+     * @return the minPoolSize
+     */
+    public int getMinPoolSize() {
+        return minPoolSize;
+    }
+
+    /**
+     * @param minPoolSize the minPoolSize to set
+     */
+    public void setMinPoolSize(int minPoolSize) {
+        this.minPoolSize = minPoolSize;
+    }
+    
     /**
      * @return the maxPoolSize
      */
@@ -341,6 +357,8 @@ public class OracleRACConfiguration {
         builder.append(connectionFactoryClassName);
         builder.append(", initialPoolSize=");
         builder.append(initialPoolSize);
+        builder.append(", minPoolSize=");
+        builder.append(minPoolSize);
         builder.append(", maxPoolSize=");
         builder.append(maxPoolSize);
         builder.append(", validateConnectionOnBorrow=");
