@@ -16,16 +16,19 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 import oracle.sql.ARRAY;
 import oracle.sql.ArrayDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servicio de lógica de negocio para {@link DependenciaCopiaMultidestino}.
@@ -224,8 +227,9 @@ public class DependenciaCopiaMultidestinoService {
      *
      * @param documentoOriginal Documento original.
      * @throws java.sql.SQLException
+     * @throws com.laamware.ejercito.doc.web.serv.OFSException
      */
-    public void clonarDocumentoMultidestino(final Documento documentoOriginal) throws SQLException, OFSException {
+    public void clonarDocumentoMultidestino(final Documento documentoOriginal) throws SQLException, UncategorizedSQLException, OFSException {
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
 
         for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
@@ -245,8 +249,10 @@ public class DependenciaCopiaMultidestinoService {
 
         final List<Documento> documentos = new LinkedList<>();
         documentos.add(documentoOriginal);
+        System.err.println("INSTANCIA DOCUMENTO ORIGINAL"+documentoOriginal.getInstancia().getId());
 
         for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
+            System.err.println("INSTANCIA COPIAMULTIDESTINO"+copiaMultidestino.getDocumentoResultado().getInstancia().getId());
             documentos.add(documentoRepository.findOne(copiaMultidestino.getDocumentoResultado().getId()));
         }
 
@@ -261,7 +267,8 @@ public class DependenciaCopiaMultidestinoService {
      * @param copiaMultidestino Registro de dependencia copia multidestino.
      */
     // TODO: Quitar logs de ejecución.
-    private void clonarDocumentoMultidestino(final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino) throws SQLException, OFSException {
+    @Transactional(rollbackFor = {SQLException.class, UncategorizedSQLException.class, OFSException.class})
+    private void clonarDocumentoMultidestino(final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino) throws SQLException, UncategorizedSQLException, OFSException {
         LOG.info("com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService.clonarDocumentoMultidestino()");
 
         final String p_doc_id_origen = documentoOriginal.getId();
@@ -272,9 +279,11 @@ public class DependenciaCopiaMultidestinoService {
          * TODO: Verificar estos valores contra lo que debe estar en el OFS. 
          */
         final String p_doc_content_file = GeneralUtils.newId();
+        LOG.info("NEW p_doc_content_file = " + p_doc_content_file);
         ofs.copy(documentoOriginal.getContentFile(), p_doc_content_file);
-        
+
         final String p_doc_docx_documento = GeneralUtils.newId();
+        LOG.info("NEW p_doc_docx_documento = " + p_doc_docx_documento);
         ofs.copy(documentoOriginal.getDocx4jDocumento(), p_doc_docx_documento);
 
         final List<Adjunto> adjuntos = adjuntoService.findAllActivos(documentoOriginal);
@@ -308,14 +317,22 @@ public class DependenciaCopiaMultidestinoService {
                 .addValue(P_ARRAY_UUID_DOC_ADJUNTO, p_array_uuid_doc_adjunto);
         LOG.info("sqlParameterSource = " + sqlParameterSource);
 
-        simpleJdbcCall.execute(sqlParameterSource);
+        LOG.info("INICIA EJECUTADO DE PROCEDIMIENTO");
+        try {
+            simpleJdbcCall.execute(sqlParameterSource);
+        } catch (UncategorizedSQLException e) {
+            LOG.info("TOMANDO LA EXCEPCION DEL PROCEDIMIENTO"+ e);
+            ofs.delete(p_doc_content_file);
+            ofs.delete(p_doc_docx_documento);
+//            e.printStackTrace();
+            throw e;
+        }
         LOG.info("EJECUTADO PROCEDIMIENTO!");
 
         //
         // TODO: Aplicar los cambios necesarios sobre el OFS.
         //
-        final Documento documentoResultado = new Documento();
-        documentoResultado.setId(p_doc_id_nuevo);
+        final Documento documentoResultado = documentoRepository.getOne(p_doc_id_nuevo);
         copiaMultidestino.setDocumentoResultado(documentoResultado);
 
         copiaMultidestino.setFechaHoraCreacionDocumentoResultado(new Date());
