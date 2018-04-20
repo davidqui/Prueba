@@ -126,6 +126,7 @@ import java.util.logging.Level;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
+import org.springframework.jdbc.UncategorizedSQLException;
 
 @Controller(value = "documentoController")
 @RequestMapping(DocumentoController.PATH)
@@ -2751,15 +2752,28 @@ public class DocumentoController extends UtilController {
             }
 
             try {
+                System.err.println("ANTES DE LA CLONACION");
                 multidestinoService.clonarDocumentoMultidestino(documento);
+                System.err.println("DESPUES DE LA CLONACION");
             } catch (SQLException ex) {
+                System.err.println("ESTA PASANDO POR SQLException");
                 java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
                 // TODO: En caso de excepción habría que aplicar los rollback necesarios.
                 redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
                 return redirectURL;
             } catch (OFSException ex) {
+                System.err.println("ESTA PASANDO POR OFSException");
                 java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
                 redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+                return redirectURL;
+            } catch (UncategorizedSQLException ex) {
+                System.err.println("ESTA PASANDO POR UncategorizedSQLException");
+                System.err.println("getMessage= " + ex.getMessage());
+                System.err.println("Sql= " + ex.getSql());
+                System.err.println("SQLException Message = " + ex.getSQLException().getMessage());
+                System.err.println("SQLException ErrorCode= " + ex.getSQLException().getErrorCode());
+                java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
+                redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getSQLException().getMessage());
                 return redirectURL;
             }
 
@@ -2841,7 +2855,7 @@ public class DocumentoController extends UtilController {
     private void firmarYEnviarDocumento_NEW(Documento documento, final String pinID, final Integer transicionID, final Integer expedienteID,
             final Integer cargoIdFirma, final Usuario usuarioSesion) throws BusinessLogicException {
         // TODO: Aplicar el proceso de firma y envío.
-        System.out.println("Firmar y enviar: " + documento.getId());
+        System.out.println("Firmar y enviar: " + documento.getId() + "-----pinID= " + pinID);
 
         /*
          * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
@@ -2916,11 +2930,13 @@ public class DocumentoController extends UtilController {
                      */
                     Usuario jefeActivo = dependenciaService.getJefeActivoDependencia(dependenciaDestino);
                     if (jefeActivo != null && usuarioSesion.getId().equals(jefeActivo.getId())) {
+                        System.err.println("RETORNANDO USUARIO= " + dependenciaDestino.getJefe().toString());
                         return dependenciaDestino.getJefe();
                     }
-
+                    System.err.println("RETORNANDO USUARIO= " + jefeActivo.toString());
                     return jefeActivo;
                 } else {
+                    System.err.println("RETORNANDO USUARIO= " + usuarioSesion.toString());
                     return usuarioSesion;
                 }
             }
@@ -4608,9 +4624,11 @@ public class DocumentoController extends UtilController {
     }
 
     private Instancia asignar(String pin, Integer tid, EstrategiaSeleccionUsuario selector) {
-
+        System.err.println("ASIGNANDO USUARIO A LA INSTANCIA pin= "+pin);
+        System.err.println("ASIGNANDO USUARIO A LA INSTANCIA tid= "+tid);
         Instancia i = procesoService.instancia(pin);
         String docId = i.getVariable(Documento.DOC_ID);
+        System.err.println("ASIGNANDO USUARIO A LA INSTANCIA docId= "+docId);
         Documento doc = documentRepository.getOne(docId);
 
         // Aplica el generador de variables
@@ -4618,7 +4636,11 @@ public class DocumentoController extends UtilController {
 
         // Intenta avanzar en el proceso
         boolean haAvanzado = (tid == null ? i.forward() : i.forward(tid));
+        System.err.println("HAAVANZADO= "+haAvanzado);
         if (haAvanzado) {
+            System.err.println("ASIGNANDO USUARIO A LA INSTANCIA doc= "+doc.getId());
+            Usuario u = selector.select(i, doc);
+            System.err.println("ASIGNANDO USUARIO A LA INSTANCIA Usuario= "+u.toString());
             i.asignar(selector.select(i, doc));
         }
 
