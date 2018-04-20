@@ -1033,15 +1033,19 @@
 		    </button>
 		</#if>    
 	    </div>
-	    <div class="card-block">
+	    <div class="card-block pre-scrollable" >
 		<#list documento.dependenciaCopiaMultidestinos as dependenciaCopiaMultidestino>
                     <#if dependenciaCopiaMultidestino.activo>
-                        <strong>Dependencia:</strong> ${dependenciaCopiaMultidestino.dependenciaDestino}<br/>
+                        <strong>Dependencia:</strong>
+                            <#if dependenciaCopiaMultidestino.dependenciaDestino.sigla?? >
+                                ${ dependenciaCopiaMultidestino.dependenciaDestino.sigla} - 
+                            </#if>
+                            ${dependenciaCopiaMultidestino.dependenciaDestino}<br/>
                         <strong>Fecha:</strong> ${dependenciaCopiaMultidestino.cuandoMod?string('yyyy-MM-dd hh:mm a:ss')}<br/>
                         <strong>Modificado por:</strong> ${dependenciaCopiaMultidestino.quien}<br/>
                         <#if mode.guardar_view >
                             <a id="eliminarMultidestino" href="#" onclick="eliminarDocumentoDependenciaAdicional( '${dependenciaCopiaMultidestino.id}' );return false;" class="btn btn-sm btn-danger">Eliminar</a><br/>
-                        </#if>	
+                        </#if>
                         <hr/>
                     </#if>
 	        </#list>

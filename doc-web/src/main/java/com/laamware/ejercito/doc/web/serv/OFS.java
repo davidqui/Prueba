@@ -209,7 +209,6 @@ public class OFS {
                     .append("convert -auto-orient -thumbnail 250x250 -unsharp 0x.5 ");
             cmd.append(path).append("[0] ");
             cmd.append("gif:").append(tmb);
-            System.err.println("EJECUTANDO CMD= " + cmd.toString());
             p = Runtime.getRuntime().exec(cmd.toString());
             p.waitFor();
 

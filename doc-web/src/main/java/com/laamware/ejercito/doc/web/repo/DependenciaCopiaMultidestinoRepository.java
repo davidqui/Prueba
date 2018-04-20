@@ -5,6 +5,8 @@ import com.laamware.ejercito.doc.web.entity.DependenciaCopiaMultidestino;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -43,5 +45,20 @@ public interface DependenciaCopiaMultidestinoRepository extends JpaRepository<De
      * @return Número de registros de copia multidestino.
      */
     public Long countByDocumentoOriginalAndActivoTrue(Documento documentoOriginal);
+    
+    /**
+     * Cuenta el número de registros activos que se encuentran pendientes de
+     * asignar id del documento resultante.
+     *
+     * @param docIdOriginal Identificado del Documento original.
+     * @return Número de registros de copia multidestino que no se han clonado.
+     */
+    @Query(value = ""
+            + "select count(1) "
+            + "from DEPENDENCIA_COPIA_MULTIDESTINO "
+            + "where doc_id_original = :docIdOriginal "
+            + "and doc_id_resultado is null "
+            + "and activo = 1", nativeQuery = true)
+    public Integer cantidadDocumentosResultadosPendientesXDocumentoOriginal(@Param("docIdOriginal") String docIdOriginal);
 
 }

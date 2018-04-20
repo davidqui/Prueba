@@ -11,18 +11,16 @@ import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import java.sql.Array;
-import java.sql.SQLException;
-import java.util.Arrays;
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 import oracle.sql.ARRAY;
 import oracle.sql.ArrayDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -229,11 +227,32 @@ public class DependenciaCopiaMultidestinoService {
      * @throws java.sql.SQLException
      * @throws com.laamware.ejercito.doc.web.serv.OFSException
      */
-    public void clonarDocumentoMultidestino(final Documento documentoOriginal) throws SQLException, UncategorizedSQLException, OFSException {
+    @Transactional(rollbackFor = Exception.class)
+    public void clonarDocumentoMultidestino(final Documento documentoOriginal) throws Exception {
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
 
-        for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
-            clonarDocumentoMultidestino(documentoOriginal, copiaMultidestino);
+        List<String> uuids = new ArrayList();
+        try (Connection conn = dataSource.getConnection()) {
+            for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
+                final String p_doc_content_file = GeneralUtils.newId();
+//                LOG.info("NEW p_doc_content_file = " + p_doc_content_file);
+                ofs.copy(documentoOriginal.getContentFile(), p_doc_content_file);
+
+                final String p_doc_docx_documento = GeneralUtils.newId();
+//                LOG.info("NEW p_doc_docx_documento = " + p_doc_docx_documento);
+                ofs.copy(documentoOriginal.getDocx4jDocumento(), p_doc_docx_documento);
+
+                uuids.add(p_doc_content_file);
+                uuids.add(p_doc_docx_documento);
+                clonarDocumentoMultidestino(conn, documentoOriginal, copiaMultidestino, p_doc_content_file, p_doc_content_file);
+            }
+        } catch (Exception e) {
+            for (String uuid : uuids) {
+//                LOG.info("Borrando archivo = " + uuid);
+                ofs.delete(uuid);
+            }
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -248,11 +267,12 @@ public class DependenciaCopiaMultidestinoService {
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
 
         final List<Documento> documentos = new LinkedList<>();
-        documentos.add(documentoOriginal);
-        System.err.println("INSTANCIA DOCUMENTO ORIGINAL"+documentoOriginal.getInstancia().getId());
+        //Se quita el documento original para que sea procesado en otro instante del proceso
+//        documentos.add(documentoOriginal);
+//        System.err.println("INSTANCIA DOCUMENTO ORIGINAL" + documentoOriginal.getInstancia().getId());
 
         for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
-            System.err.println("INSTANCIA COPIAMULTIDESTINO"+copiaMultidestino.getDocumentoResultado().getInstancia().getId());
+//            System.err.println("INSTANCIA COPIAMULTIDESTINO" + copiaMultidestino.getDocumentoResultado().getInstancia().getId());
             documentos.add(documentoRepository.findOne(copiaMultidestino.getDocumentoResultado().getId()));
         }
 
@@ -267,76 +287,69 @@ public class DependenciaCopiaMultidestinoService {
      * @param copiaMultidestino Registro de dependencia copia multidestino.
      */
     // TODO: Quitar logs de ejecución.
-    @Transactional(rollbackFor = {SQLException.class, UncategorizedSQLException.class, OFSException.class})
-    private void clonarDocumentoMultidestino(final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino) throws SQLException, UncategorizedSQLException, OFSException {
-        LOG.info("com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService.clonarDocumentoMultidestino()");
-
-        final String p_doc_id_origen = documentoOriginal.getId();
-        final String p_pin_id_nuevo = GeneralUtils.newId();
-        final String p_doc_id_nuevo = GeneralUtils.newId();
-        final Integer p_dep_id_des = copiaMultidestino.getDependenciaDestino().getId();
-        /*
-         * TODO: Verificar estos valores contra lo que debe estar en el OFS. 
-         */
-        final String p_doc_content_file = GeneralUtils.newId();
-        LOG.info("NEW p_doc_content_file = " + p_doc_content_file);
-        ofs.copy(documentoOriginal.getContentFile(), p_doc_content_file);
-
-        final String p_doc_docx_documento = GeneralUtils.newId();
-        LOG.info("NEW p_doc_docx_documento = " + p_doc_docx_documento);
-        ofs.copy(documentoOriginal.getDocx4jDocumento(), p_doc_docx_documento);
-
-        final List<Adjunto> adjuntos = adjuntoService.findAllActivos(documentoOriginal);
-        final String[] adjuntosUUIDs = GeneralUtils.generateUUIDs(adjuntos.size());
-
-        // TODO: Enviar la información a la función PL/SQL del proceso de clonación.
-        LOG.info("p_doc_id_origen=" + p_doc_id_origen + "\tp_pin_id_nuevo=" + p_pin_id_nuevo + "\tp_doc_id_nuevo=" + p_doc_id_nuevo
-                + "\tp_dep_id_des=" + p_dep_id_des + "\tadjuntosUUIDs=" + Arrays.toString(adjuntosUUIDs));
-
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.setResultsMapCaseInsensitive(true);
-        LOG.info("jdbcTemplate = " + jdbcTemplate);
-
-        final SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(PROC_COPIA_DOC_MULTIDESTINO);
-        LOG.info("simpleJdbcCall = " + simpleJdbcCall);
-
-        final ArrayDescriptor arrayDescriptor = ArrayDescriptor.createDescriptor(T_ARRAY_UUID,
-                simpleJdbcCall.getJdbcTemplate().getDataSource().getConnection());
-        LOG.info("arrayDescriptor = " + arrayDescriptor);
-
-        final Array p_array_uuid_doc_adjunto = new ARRAY(arrayDescriptor, simpleJdbcCall.getJdbcTemplate().getDataSource().getConnection(), adjuntosUUIDs);
-        LOG.info("p_array_uuid_doc_adjunto = " + p_array_uuid_doc_adjunto);
-
-        final SqlParameterSource sqlParameterSource = new MapSqlParameterSource()
-                .addValue(P_DOC_ID_ORIGEN, p_doc_id_origen)
-                .addValue(P_PIN_ID_NUEVO, p_pin_id_nuevo)
-                .addValue(P_DOC_ID_NUEVO, p_doc_id_nuevo)
-                .addValue(P_DEP_ID_DES, p_dep_id_des)
-                .addValue(P_DOC_CONTENT_FILE, p_doc_content_file)
-                .addValue(P_DOC_DOCX_DOCUMENTO, p_doc_docx_documento)
-                .addValue(P_ARRAY_UUID_DOC_ADJUNTO, p_array_uuid_doc_adjunto);
-        LOG.info("sqlParameterSource = " + sqlParameterSource);
-
-        LOG.info("INICIA EJECUTADO DE PROCEDIMIENTO");
+    private void clonarDocumentoMultidestino(final Connection conn, final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino, final String p_doc_content_file, final String p_doc_docx_documento) throws Exception {
         try {
+//            LOG.info("com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService.clonarDocumentoMultidestino()");
+
+            final String p_doc_id_origen = documentoOriginal.getId();
+            final String p_pin_id_nuevo = GeneralUtils.newId();
+            final String p_doc_id_nuevo = GeneralUtils.newId();
+            final Integer p_dep_id_des = copiaMultidestino.getDependenciaDestino().getId();
+
+            final List<Adjunto> adjuntos = adjuntoService.findAllActivos(documentoOriginal);
+            final String[] adjuntosUUIDs = GeneralUtils.generateUUIDs(adjuntos.size());
+
+            // TODO: Enviar la información a la función PL/SQL del proceso de clonación.
+//            LOG.info("p_doc_id_origen=" + p_doc_id_origen + "\tp_pin_id_nuevo=" + p_pin_id_nuevo + "\tp_doc_id_nuevo=" + p_doc_id_nuevo
+//                    + "\tp_dep_id_des=" + p_dep_id_des + "\tadjuntosUUIDs=" + Arrays.toString(adjuntosUUIDs));
+
+            final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            jdbcTemplate.setResultsMapCaseInsensitive(true);
+//            LOG.info("jdbcTemplate = " + jdbcTemplate);
+
+            final SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(PROC_COPIA_DOC_MULTIDESTINO);
+//            LOG.info("simpleJdbcCall = " + simpleJdbcCall);
+
+            final ArrayDescriptor arrayDescriptor = ArrayDescriptor.createDescriptor(T_ARRAY_UUID, conn);
+//            LOG.info("arrayDescriptor = " + arrayDescriptor);
+
+            final Array p_array_uuid_doc_adjunto = new ARRAY(arrayDescriptor, conn, adjuntosUUIDs);
+//            LOG.info("p_array_uuid_doc_adjunto = " + p_array_uuid_doc_adjunto);
+
+            final SqlParameterSource sqlParameterSource = new MapSqlParameterSource()
+                    .addValue(P_DOC_ID_ORIGEN, p_doc_id_origen)
+                    .addValue(P_PIN_ID_NUEVO, p_pin_id_nuevo)
+                    .addValue(P_DOC_ID_NUEVO, p_doc_id_nuevo)
+                    .addValue(P_DEP_ID_DES, p_dep_id_des)
+                    .addValue(P_DOC_CONTENT_FILE, p_doc_content_file)
+                    .addValue(P_DOC_DOCX_DOCUMENTO, p_doc_docx_documento)
+                    .addValue(P_ARRAY_UUID_DOC_ADJUNTO, p_array_uuid_doc_adjunto);
+//            LOG.info("sqlParameterSource = " + sqlParameterSource);
+
+//            LOG.info("INICIA EJECUTADO DE PROCEDIMIENTO");
+
             simpleJdbcCall.execute(sqlParameterSource);
-        } catch (UncategorizedSQLException e) {
-            LOG.info("TOMANDO LA EXCEPCION DEL PROCEDIMIENTO"+ e);
-            ofs.delete(p_doc_content_file);
-            ofs.delete(p_doc_docx_documento);
-//            e.printStackTrace();
+
+            final Documento documentoResultado = documentoRepository.getOne(p_doc_id_nuevo);
+            copiaMultidestino.setDocumentoResultado(documentoResultado);
+
+            copiaMultidestino.setFechaHoraCreacionDocumentoResultado(new Date());
+
+            multidestinoRepository.saveAndFlush(copiaMultidestino);
+        } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
-        LOG.info("EJECUTADO PROCEDIMIENTO!");
+    }
 
-        //
-        // TODO: Aplicar los cambios necesarios sobre el OFS.
-        //
-        final Documento documentoResultado = documentoRepository.getOne(p_doc_id_nuevo);
-        copiaMultidestino.setDocumentoResultado(documentoResultado);
-
-        copiaMultidestino.setFechaHoraCreacionDocumentoResultado(new Date());
-
-        multidestinoRepository.saveAndFlush(copiaMultidestino);
+    /**
+     * Cuenta el número de registros activos que se encuentran pendientes de
+     * asignar id del documento resultante.
+     *
+     * @param docIdOriginal Identificado del Documento original.
+     * @return Número de registros de copia multidestino que no se han clonado.
+     */
+    public Integer cantidadDocumentosResultadosPendientesXDocumentoOriginal(String docIdOriginal) {
+        return multidestinoRepository.cantidadDocumentosResultadosPendientesXDocumentoOriginal(docIdOriginal);
     }
 }
