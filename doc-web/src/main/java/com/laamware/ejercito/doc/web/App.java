@@ -85,6 +85,7 @@ public class App {
         poolDataSource.setConnectionPoolName(racConfiguration.getPoolName());
         poolDataSource.setValidateConnectionOnBorrow(racConfiguration.getValidateConnectionOnBorrow());
         poolDataSource.setInitialPoolSize(racConfiguration.getInitialPoolSize());
+        poolDataSource.setMinPoolSize(racConfiguration.getMinPoolSize());
         poolDataSource.setMaxPoolSize(racConfiguration.getMaxPoolSize());
         poolDataSource.setMaxConnectionReuseTime(racConfiguration.getMaxConnectionReuseTime());
         poolDataSource.setMaxConnectionReuseCount(racConfiguration.getMaxConnectionReuseCount());
