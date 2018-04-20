@@ -36,9 +36,23 @@ BEGIN
     END IF;
     
     SELECT COUNT(1) INTO V_CANTIDAD FROM PROCESO_INSTANCIA WHERE PIN_ID = P_PIN_ID_NUEVO;
-    
     IF V_CANTIDAD > 0 THEN
         RAISE_APPLICATION_ERROR( -20001, 'El identificador nuevo de la tabla PROCESO_INSTANCIA ya se encuentró en el sistema.' );
+    END IF;
+    
+    SELECT COUNT(1) INTO V_CANTIDAD FROM DOCUMENTO WHERE DOC_ID = P_DOC_ID_NUEVO;
+    IF V_CANTIDAD > 0 THEN
+        RAISE_APPLICATION_ERROR( -20001, 'El identificador nuevo de la tabla DOCUMENTO ya se encuentró en el sistema.' );
+    END IF;
+    
+    SELECT COUNT(1) INTO V_CANTIDAD FROM DOCUMENTO WHERE DOC_CONTENT_FILE = P_DOC_CONTENT_FILE;
+    IF V_CANTIDAD > 0 THEN
+        RAISE_APPLICATION_ERROR( -20001, 'El identificador de la columna DOC_CONTENT_FILE en la tabla DOCUMENTO ya se encuentró en el sistema.' );
+    END IF;
+    
+    SELECT COUNT(1) INTO V_CANTIDAD FROM DOCUMENTO WHERE DOC_DOCX_DOCUMENTO = P_DOC_DOCX_DOCUMENTO;
+    IF V_CANTIDAD > 0 THEN
+        RAISE_APPLICATION_ERROR( -20001, 'El identificador de la columna DOC_DOCX_DOCUMENTO en la tabla DOCUMENTO ya se encuentró en el sistema.' );
     END IF;
     
     BEGIN
