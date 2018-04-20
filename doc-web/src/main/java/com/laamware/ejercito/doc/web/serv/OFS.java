@@ -209,7 +209,7 @@ public class OFS {
                     .append("convert -auto-orient -thumbnail 250x250 -unsharp 0x.5 ");
             cmd.append(path).append("[0] ");
             cmd.append("gif:").append(tmb);
-
+            System.err.println("EJECUTANDO CMD= " + cmd.toString());
             p = Runtime.getRuntime().exec(cmd.toString());
             p.waitFor();
 
@@ -576,6 +576,42 @@ public class OFS {
             } catch (IOException ex) {
                 throw new OFSException("Error clonando archivo: " + originUUID + "-" + resultUUID, ex);
             }
+        }
+    }
+
+    /**
+     * Elimina un archivo OFS (Datos y tipo de contenido),según el UUID indicado
+     * para el resultado.
+     *
+     * @param deleteUUID UUID de los archivos a borrar.
+     * @throws OFSException En caso que se presente alguna violación a las
+     * reglas de negocio, o algún problema de E/S.
+     */
+    /*
+     * 2018-04-19 edison.gonzalez@controltechcg.com Issue #156 (SICDI-Controltech)
+     * feature-156: Método creado para el proceso de clonación de documentos
+     * para el proceso de envío multidestino.
+     */
+    void delete(final String deleteUUID) throws OFSException {
+        final String deletePath = getPathDirectory(deleteUUID);
+        final File deleteDirectory = new File(deletePath);
+        if (!deleteDirectory.exists()) {
+            throw new OFSException("Directorio de archivo a borrar no existe en OFS: " + deletePath);
+        }
+
+        final File[] deleteFiles = deleteDirectory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith(deleteUUID);
+            }
+        });
+
+        if (deleteFiles == null || deleteFiles.length == 0) {
+            throw new OFSException("Archivos no existe en OFS: " + deleteUUID);
+        }
+
+        for (final File deleteFile : deleteFiles) {
+            FileUtils.deleteQuietly(deleteFile);
         }
     }
 }
