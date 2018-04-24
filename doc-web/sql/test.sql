@@ -6,6 +6,26 @@ DECLARE
     P_DEP_ID_DES            NUMBER         := 1493;
     P_DOC_CONTENT_FILE      VARCHAR2(4000) := 'e6b6883f3da449fb9957b279cb49ce8e';
     P_DOC_DOCX_DOCUMENTO    VARCHAR2(4000) := '8a11a7d1180e471bab1115b196fe5db4';
+    P_DOC_CLONACION_TYPE            T_DOC_CLONACION_TYPE      := T_DOC_CLONACION_TYPE('a','b','c',4,'d','e',T_ARRAY_UUID('abc','def','d'));
+    P_DOC_CLONACION_TYPE2            T_DOC_CLONACION_TYPE      := T_DOC_CLONACION_TYPE('e','f','g',4,'h','i',T_ARRAY_UUID('abc','def','j'));
+    P_ARRAY_DOC_CLONACIONTYPE       T_ARRAY_DOC_CLONACIONTYPE := T_ARRAY_DOC_CLONACIONTYPE(P_DOC_CLONACION_TYPE,P_DOC_CLONACION_TYPE2);
+BEGIN
+    FOR indx IN NVL (P_ARRAY_DOC_CLONACIONTYPE.FIRST, 0) .. NVL (P_ARRAY_DOC_CLONACIONTYPE.LAST, -1) loop
+    --FOR AUX_P_ARRAY_DOC_CLONACIONTYPE IN P_ARRAY_DOC_CLONACIONTYPE LOOP
+        DBMS_OUTPUT.PUT_LINE(P_ARRAY_DOC_CLONACIONTYPE(indx).P_DOC_ID_ORIGEN);
+    END LOOP;
+    PROCCOPIADOCMULTIDESTINOARRAY(P_ARRAY_DOC_CLONACIONTYPE);
+END;
+/
+
+SET SERVEROUTPUT ON
+DECLARE
+    P_DOC_ID_ORIGEN         VARCHAR2(4000) := '77db8ad437fb4eb18f48df8d8454f40e';
+    P_PIN_ID_NUEVO          VARCHAR2(4000) := 'a58f7515376b47599441df199a126155';
+    P_DOC_ID_NUEVO          VARCHAR2(4000) := 'ac018de9e99748f8b30681eef86a3779';
+    P_DEP_ID_DES            NUMBER         := 1493;
+    P_DOC_CONTENT_FILE      VARCHAR2(4000) := 'e6b6883f3da449fb9957b279cb49ce8e';
+    P_DOC_DOCX_DOCUMENTO    VARCHAR2(4000) := '8a11a7d1180e471bab1115b196fe5db4';
     P_ARRAY_UUID            T_ARRAY_UUID   := T_ARRAY_UUID('abc','def','d');
 BEGIN
     PROC_COPIA_DOC_MULTIDESTINO(P_DOC_ID_ORIGEN,P_PIN_ID_NUEVO,P_DOC_ID_NUEVO,P_DEP_ID_DES,P_DOC_CONTENT_FILE,P_DOC_DOCX_DOCUMENTO,P_ARRAY_UUID);
@@ -80,9 +100,29 @@ SELECT * FROM DOCUMENTO_DEPENDENCIA WHERE DOC_ID = '52715961221b41d8b5daf2b5cb72
 SELECT * FROM TMP_ARBOL_DEPEN WHERE DOC_ID = '6fdb3bed5cb748819074ed28a871a209';
 SELECT * FROM TMP_ARBOL_DEPEN WHERE DOC_ID = '52715961221b41d8b5daf2b5cb72ef6b';
 
+select *
+from h_PROCESO_INSTANCIA
+WHERE PIN_ID = '06793ef7bb0441ae964ff8dca2477198'
+order by HPIN_ID desc;
+
+update PROCESO_INSTANCIA_VAR
+set piv_value = 'false'
+where pin_id = '06793ef7bb0441ae964ff8dca2477198'
+and piv_key in ('doc.puede.archivar','doc.puede.dar_respuesta') ;
+
+SELECT *
+FROM USUARIO
+WHERE USU_ID = 141;
+
+update PROCESO_INSTANCIA
+set usu_id_asignado = 141,
+pes_id = 58
+where pin_id = '06793ef7bb0441ae964ff8dca2477198';
+
+
 set SERVEROUTPUT ON
 declare
-    P_DOC_ID_ORIGINAL VARCHAR2(300) := '598dfef1313e4edaa99cfb8f41036a91';
+    P_DOC_ID_ORIGINAL VARCHAR2(300) := '6fdb3bed5cb748819074ed28a871a209';
     cursor c_borrado is
     select a.doc_id_original, a.doc_id_resultado doc_id, b.pin_id, b.doc_content_file, b.doc_docx_documento, b.doc_pdf
     from DEPENDENCIA_COPIA_MULTIDESTINO a,
@@ -90,10 +130,16 @@ declare
     where b.doc_id = a.doc_id_resultado
     and a.doc_id_original = P_DOC_ID_ORIGINAL;
     P_AUX_BORRAR    VARCHAR2(32767) := 'Se deben borrar los siguientes archivos: ';
-begin
+begin    
     for aux_c_borrado in c_borrado loop
         update DEPENDENCIA_COPIA_MULTIDESTINO set doc_id_resultado = null, fechahora_crea_doc_resultado = null where DOC_ID_ORIGINAL = P_DOC_ID_ORIGINAL and doc_id_resultado = aux_c_borrado.doc_id;
         P_AUX_BORRAR := P_AUX_BORRAR ||chr(10)|| aux_c_borrado.doc_content_file ||'-'||aux_c_borrado.doc_docx_documento||'-'||aux_c_borrado.doc_pdf;
+
+        update PROCESO_INSTANCIA
+        set usu_id_asignado = 141,
+            pes_id = 58
+        where pin_id = aux_c_borrado.pin_id;
+        
         DELETE FROM PROCESO_INSTANCIA WHERE PIN_ID = aux_c_borrado.pin_id ;
         DELETE FROM PROCESO_INSTANCIA_VAR WHERE PIN_ID = aux_c_borrado.pin_id;
         DELETE FROM H_PROCESO_INSTANCIA WHERE PIN_ID = aux_c_borrado.pin_id;
@@ -119,3 +165,45 @@ begin
     DBMS_OUTPUT.PUT_LINE(P_AUX_BORRAR);
 end;
 
+
+create or replace PROCEDURE "PROCCOPIADOCMULTIDESTINOARRAY"
+(
+  P_RECORD  IN  T_ARRAY_DOC_CLONACIONTYPE
+)
+is
+ V_DOC_CLONACION_TYPE   T_DOC_CLONACION_TYPE;
+BEGIN
+    FOR indx IN NVL (P_RECORD.FIRST, 0) .. NVL (P_RECORD.LAST, -1) LOOP
+        V_DOC_CLONACION_TYPE := P_RECORD(indx);
+        PROC_COPIA_DOC_MULTIDESTINO(
+            V_DOC_CLONACION_TYPE.P_DOC_ID_ORIGEN,
+            V_DOC_CLONACION_TYPE.P_PIN_ID_NUEVO,
+            V_DOC_CLONACION_TYPE.P_DOC_ID_NUEVO,
+            V_DOC_CLONACION_TYPE.P_DEP_ID_DES,
+            V_DOC_CLONACION_TYPE.P_DOC_CONTENT_FILE,
+            V_DOC_CLONACION_TYPE.P_DOC_DOCX_DOCUMENTO,
+            V_DOC_CLONACION_TYPE.P_ARRAY_UUID_DOC_ADJUNTO);
+    END LOOP;
+END "PROCCOPIADOCMULTIDESTINOARRAY";
+/
+
+select *
+from documento_dependencia
+where doc_id = 'd9d78e00bdda458fbe109706c5883539';
+
+select *
+from DEPENDENCIA_COPIA_MULTIDESTINO
+where DOC_ID_ORIGINAL = 'a4bcf793848349b4bfad4a9f55cc366d';
+
+create type T_DOC_CLONACION_TYPE as object (
+    P_DOC_ID_ORIGEN               VARCHAR2(32),
+    P_PIN_ID_NUEVO                VARCHAR2(32),
+    P_DOC_ID_NUEVO                VARCHAR2(32),
+    P_DEP_ID_DES                  NUMBER,
+    P_DOC_CONTENT_FILE            VARCHAR2(32),
+    P_DOC_DOCX_DOCUMENTO          VARCHAR2(100),
+    P_ARRAY_UUID_DOC_ADJUNTO      T_ARRAY_UUID
+);
+/
+
+create or replace type T_ARRAY_DOC_CLONACIONTYPE as table of T_DOC_CLONACION_TYPE;
