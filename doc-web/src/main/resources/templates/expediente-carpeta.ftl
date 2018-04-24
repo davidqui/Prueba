@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#assign pageTitle = "Carpetas"/>
 <#include "bandeja-header.ftl">
 
@@ -17,7 +18,7 @@
                 <#if cargosXusuario??>
                     <#list cargosXusuario as cla>
                         <#if cla.id?string == ((cargoFiltro)!"")?string >
-                            <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                            <option value="${cla.id}" selected="selected">${cla.nombre} -prue</option>
                         <#else>
                             <option value="${cla.id}">${cla.nombre}</option>
                         </#if>
