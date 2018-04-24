@@ -2701,7 +2701,7 @@ public class DocumentoController extends UtilController {
      * el proceso de firma y envío del documento.
      */
     // TODO: La URL es temporal mientras se realiza el desarrollo.
-    @RequestMapping(value = "/firmar-nuevo", method = RequestMethod.GET)
+    @RequestMapping(value = "/firmar", method = RequestMethod.GET)
     public String firmarDocumento(@RequestParam("pin") String pinID, @RequestParam("tid") Integer transicionID, @RequestParam(value = "expId", required = false) Integer expedienteID,
             @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma, Model model, Principal principal, RedirectAttributes redirect) {
 
@@ -2787,12 +2787,19 @@ public class DocumentoController extends UtilController {
             }
 
             final List<Documento> documentosMultidestino = multidestinoService.listarTodosDocumentosMultidestino(documento);
+            String mensaje = null;
             for (final Documento documentoMultidestino : documentosMultidestino) {
                 try {
                     // TODO: Colocar los parámetros necesarios para el proceso de
                     // firmar y enviar.
+                    final Instancia instanciaMultidestino = documentoMultidestino.getInstancia();
                     final String multidestinoPinID = documentoMultidestino.getInstancia().getId();
                     firmarYEnviarDocumento_NEW(documentoMultidestino, multidestinoPinID, transicionID, expedienteID, cargoIdFirma, usuarioSesion);
+                    if (mensaje == null) {
+                        mensaje = buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instanciaMultidestino, "Asignado a: ");
+                    } else {
+                        mensaje = mensaje + buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instanciaMultidestino, "&nbsp; * ");
+                    }
                 } catch (BusinessLogicException | RuntimeException ex) {
                     // TODO: Implementar la funcionalidad para realizar rollback en caso que se genere un error.
                     java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
@@ -2813,8 +2820,8 @@ public class DocumentoController extends UtilController {
              * 2017-05-24 jgarcia@controltechcg.com Issue #73
              * (SICDI-Controltech) feature-73
              */
-            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+            mensaje = mensaje + buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "&nbsp; * ");
+            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, mensaje);
             return redirectURL;
         }
 
@@ -3139,7 +3146,7 @@ public class DocumentoController extends UtilController {
     }
 
     /**
-     * Marca la firma y avanza
+     * Marca la firma y avanza. Se remplaza por el metodo {@link #firmarDocumento}
      *
      * @param pin
      * @param tid
@@ -3150,11 +3157,12 @@ public class DocumentoController extends UtilController {
      * @param redirect
      * @return
      */
-    @RequestMapping(value = "/firmar", method = RequestMethod.GET)
+    @Deprecated
+    @RequestMapping(value = "/firmar-depreciado", method = RequestMethod.PATCH)
     public String firmar(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid,
             @RequestParam(value = "expId", required = false) Integer expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma,
             Model model, Principal principal, RedirectAttributes redirect) {
-
+        
         /*
          * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
          * feature-156: Retirar la opción dentro de la función
