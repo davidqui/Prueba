@@ -842,11 +842,18 @@
                                                                                 validando además que la transición a presentar sea la correspondiente para establecer como parámetro
                                                                                 el cargo a seleccionar por defecto.
                                                                                 Este valor es cambiado en la acción de selección del selector de cargos.
+                                                                                2018-04-24 edison.gonzalez@controltechcg.com Issue #156 (SICDI-Controltech) feature-156
+                                                                                Se realiza la modificación de los componentes que controlan la transición de los documentos
+                                                                                del tag <a> por el tag <button>.
                                                                                 -->
                                                                                 <#if (mode.cargoIdFirma_edit && cambiarIdCargoFirma!false) && isTransicionFirmar(transicion)>
-                                                                                <a id="trx_${transicion.id}" href="${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
+                                                                                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                        ${transicion.nombre}
+                                                                                    </button>
                                                                                 <#else>
-                                                                                <a href="${transicion.replace(instancia)}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
+                                                                                    <button class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                        ${transicion.nombre}
+                                                                                    </button>
                                                                                 </#if>
                                                                             </#if>
                                                                         </#if>
