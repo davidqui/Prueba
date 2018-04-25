@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 import oracle.sql.ARRAY;
 import oracle.sql.ArrayDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -75,6 +76,9 @@ public class DependenciaCopiaMultidestinoService {
 
     @Autowired
     private DataSource dataSource;
+    
+    @Value("${com.mul.imi.sicdi.maxNumDepMultidestino}")
+    private Integer maxNumDepMultidestino;
 
     /**
      * Indica si el documento es multi-destino.
@@ -123,6 +127,11 @@ public class DependenciaCopiaMultidestinoService {
      * reglas de negocio.
      */
     public DependenciaCopiaMultidestino crear(final String documentoOriginalID, final Integer dependenciaDestinoID, final Usuario usuarioSesion) throws BusinessLogicException {
+        Integer total = multidestinoRepository.cantidadDocumentosResultadosPendientesXDocumentoOriginal(documentoOriginalID);
+        if (total >= maxNumDepMultidestino){
+            throw new BusinessLogicException("Ha excedido el máximo número de dependencias adicionales el cual es "+maxNumDepMultidestino+".");
+        }
+        
         final Documento documentoOriginal = documentoRepository.findOne(documentoOriginalID);
         if (documentoOriginal == null) {
             throw new BusinessLogicException("El ID del documento original no es válido en el sistema.");
