@@ -55,6 +55,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.aspose.words.Document;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
+import com.laamware.ejercito.doc.web.dto.FlashAttributeValue;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.UsuarioVistoBuenoDTO;
 import com.laamware.ejercito.doc.web.entity.Adjunto;
@@ -118,7 +119,9 @@ import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
+import com.laamware.ejercito.doc.web.util.UsuarioGradoComparator;
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -129,6 +132,8 @@ import org.springframework.jdbc.UncategorizedSQLException;
 @Controller(value = "documentoController")
 @RequestMapping(DocumentoController.PATH)
 public class DocumentoController extends UtilController {
+
+    private static final String TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO = "Asignados Copia Dependencia Multidestino:";
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy hh:mm a", new Locale("es", "CO"));
     /* **************************** REFORMA ********************************* */
@@ -5080,30 +5085,33 @@ public class DocumentoController extends UtilController {
      * @param instancia Instancia del proceso.
      * @param textoInicial Texto inicial del mensaje de asignación.
      *
-     * @return Texto que comienza con el valor de texto inicial (Si se ha
+     * @return Objeto que almacena el valor de texto inicial (Si se ha
      * colocado alguno) seguido del nombre del asignado primario. En caso que el
      * documento de la instancia del proceso tenga asociados dependencias copias
-     * multidestino, presentará en el mismo texto (separado por comas) los jefes
+     * multidestino, adicionara a una lista la información de los jefes
      * de cada dependencia.
      */
     /*
      * 2018-04-16 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
      * feature-156: Se crea como reemplazo del metodo buildAsignadosText() para
      * utilizar la información de los registros multidestino.
+     *
+     * 2018-04-25 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+     * feature-156: Se crea como reemplazo del metodo buildAsignadosText() para
+     * utilizar la información de los registros multidestino.
+     * Se cambia el objeto de retorno, para implementar los mensajes cuando se
+     * realiza la firma de un documento con multidestino.
      */
-    public static String buildAsignadosTextMultidestino(final DependenciaCopiaMultidestinoService copiaMultidestinoService,
-            final UsuarioService usuarioService, final DependenciaService dependenciaService, final Instancia instancia, final String textoInicial) {
-        final String documentoID = instancia.getVariable(Documento.DOC_ID);
-
-        final StringBuilder text = new StringBuilder((textoInicial == null || textoInicial.trim().isEmpty()) ? "" : textoInicial);
-
+    public static FlashAttributeValue buildAsignadosTextMultidestino(final DependenciaCopiaMultidestinoService copiaMultidestinoService, final UsuarioService usuarioService,
+            final DependenciaService dependenciaService, final Instancia instancia, final String textoInicial) {
         /*
          * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
          * feature-78: Presentar información básica de los usuarios asignadores
          * y asignados en las bandejas del sistema.
          */
-        text.append(usuarioService.mostrarInformacionBasica(instancia.getAsignado()));
-
+        final String asignadoPrincipal = usuarioService.mostrarInformacionBasica(instancia.getAsignado());
+        final String textoPrincipal = textoInicial + asignadoPrincipal;
+        final FlashAttributeValue flashAttributeValue = new FlashAttributeValue(textoPrincipal, TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO);
 
         /*
          * 2017-02-08 jgarcia@controltechcg.com Issue #118 Modificación para que
@@ -5116,17 +5124,20 @@ public class DocumentoController extends UtilController {
          */
         final Estado estado = instancia.getEstado();
         if (!estado.getId().equals(Estado.ENVIADO)) {
-            return text.toString().trim();
+            return flashAttributeValue;
         }
 
+        final String documentoID = instancia.getVariable(Documento.DOC_ID);
         final Documento documento = new Documento();
         documento.setId(documentoID);
 
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = copiaMultidestinoService.listarActivos(documento);
 
         if (copiaMultidestinos.isEmpty()) {
-            return text.toString().trim();
+            return flashAttributeValue;
         }
+
+        final Map<Integer, Usuario> jefesMap = new LinkedHashMap<>();
 
         for (int i = 0; i < copiaMultidestinos.size(); i++) {
             final DependenciaCopiaMultidestino copiaMultidestino = copiaMultidestinos.get(i);
@@ -5154,13 +5165,19 @@ public class DocumentoController extends UtilController {
                      * básica de los usuarios asignadores y asignados en las
                      * bandejas del sistema.
                      */
-                    text.append(", ").append(usuarioService.mostrarInformacionBasica(jefe));
-                } else {
-                    System.err.println("Max copiaMultidestinos jefe nulo");
+                    jefesMap.put(jefe.getId(), jefe);
                 }
             }
         }
 
-        return text.toString().trim();
+        final UsuarioGradoComparator usuarioGradoComparator = new UsuarioGradoComparator();
+        final List<Usuario> jefes = new ArrayList<>(jefesMap.values());
+        Collections.sort(jefes, usuarioGradoComparator);
+
+        for (final Usuario jefe : jefes) {
+            flashAttributeValue.addAltMessage(usuarioService.mostrarInformacionBasica(jefe));
+        }
+
+        return flashAttributeValue;
     }
 }
