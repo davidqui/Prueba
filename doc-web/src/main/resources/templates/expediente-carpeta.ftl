@@ -59,13 +59,15 @@
             <tr>
                 <th>Código</th>
                 <th>Nombre</th>
+                <th>Núm. Documentos Archivados</th>
                 </tr>
             </thead>
         <tbody>
-        	<#list series as s>
+        	<#list series as serie>
             <tr>
-                <td nowrap>${s.codigo}</td>
-                <td><a href="carpeta?ser=${s.id}&cargoFiltro=${cargoFiltro!"0"}">${s.nombre}</a></td> 
+                <td nowrap>${serie.codigo}</td>
+                <td><a href="carpeta?ser=${serie.id}&cargoFiltro=${cargoFiltro!"0"}">${serie.nombre}</a></td>
+                <td>${serie.numeroDocumentosArchivados}</td>
                 </tr>
             </#list>            
             </tbody>
@@ -98,6 +100,7 @@
             <tr>
                 <th>Código</th>
                 <th>Nombre</th>
+                <th>Núm. Documentos Archivados</th>
                 </tr>
             </thead>
         <tbody>
@@ -110,6 +113,7 @@
                 	<#else>
                 <td><a href="carpeta?sub=${x.id}&cargoFiltro=${cargoFiltro!"0"}">${x.nombre} ( 0 )</a></td>
                 	</#if> 
+                <td>${x.documentos?size}</td>
                 </tr>
             </#list>            
             </tbody>

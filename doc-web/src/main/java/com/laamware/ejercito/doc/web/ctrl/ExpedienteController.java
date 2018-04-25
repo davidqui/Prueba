@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
+import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
 import java.security.Principal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -341,7 +342,7 @@ public class ExpedienteController extends UtilController {
              * en las que el usuario tiene documentos archivados.
              */
             final Cargo cargo = (cargoID == null) ? null : cargosRepository.findOne(cargoID);
-            final List<Trd> series = trdService.findAllSeriesWithArchivoByUsuarioAndCargo(usuarioSesion, cargo);
+            final List<TrdArchivoDocumentosDTO> series = trdService.findAllSeriesWithArchivoByUsuarioAndCargo(usuarioSesion, cargo);
 
             /*
              * 2017-05-15 jgarcia@controltechcg.com Issue #80
