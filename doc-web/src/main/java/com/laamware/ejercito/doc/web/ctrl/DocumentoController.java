@@ -5124,7 +5124,6 @@ public class DocumentoController extends UtilController {
 
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = copiaMultidestinoService.listarActivos(documento);
 
-        System.err.println("Max copiaMultidestinos= " + copiaMultidestinos.size());
         if (copiaMultidestinos.isEmpty()) {
             return text.toString().trim();
         }
@@ -5144,7 +5143,6 @@ public class DocumentoController extends UtilController {
                  */
                 final Usuario jefe = dependenciaService.getJefeActivoDependencia(dependencia);
                 if (jefe != null) {
-                    System.err.println("Max copiaMultidestinos jefe= " + jefe.toString());
                     /*
                      * 2017-03-08 jgarcia@controltechcg.com Issue #6
                      * (SIGDI-Incidencias01): Corrección en presentación de
