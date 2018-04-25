@@ -76,7 +76,7 @@ public class DependenciaCopiaMultidestinoService {
 
     @Autowired
     private DataSource dataSource;
-    
+
     @Value("${com.mul.imi.sicdi.maxNumDepMultidestino}")
     private Integer maxNumDepMultidestino;
 
@@ -128,10 +128,12 @@ public class DependenciaCopiaMultidestinoService {
      */
     public DependenciaCopiaMultidestino crear(final String documentoOriginalID, final Integer dependenciaDestinoID, final Usuario usuarioSesion) throws BusinessLogicException {
         Integer total = multidestinoRepository.cantidadDocumentosResultadosPendientesXDocumentoOriginal(documentoOriginalID);
-        if (total >= maxNumDepMultidestino){
-            throw new BusinessLogicException("Ha excedido el máximo número de dependencias adicionales el cual es "+maxNumDepMultidestino+".");
+
+        maxNumDepMultidestino = (maxNumDepMultidestino == null) ? 0 : maxNumDepMultidestino;
+        if (total >= maxNumDepMultidestino) {
+            throw new BusinessLogicException("Ha excedido el máximo número de dependencias adicionales el cual es " + maxNumDepMultidestino + ".");
         }
-        
+
         final Documento documentoOriginal = documentoRepository.findOne(documentoOriginalID);
         if (documentoOriginal == null) {
             throw new BusinessLogicException("El ID del documento original no es válido en el sistema.");
@@ -244,11 +246,9 @@ public class DependenciaCopiaMultidestinoService {
         try (Connection conn = dataSource.getConnection()) {
             for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
                 final String p_doc_content_file = GeneralUtils.newId();
-//                LOG.info("NEW p_doc_content_file = " + p_doc_content_file);
                 ofs.copy(documentoOriginal.getContentFile(), p_doc_content_file);
 
                 final String p_doc_docx_documento = GeneralUtils.newId();
-//                LOG.info("NEW p_doc_docx_documento = " + p_doc_docx_documento);
                 ofs.copy(documentoOriginal.getDocx4jDocumento(), p_doc_docx_documento);
 
                 uuids.add(p_doc_content_file);
@@ -257,7 +257,6 @@ public class DependenciaCopiaMultidestinoService {
             }
         } catch (Exception e) {
             for (String uuid : uuids) {
-//                LOG.info("Borrando archivo = " + uuid);
                 ofs.delete(uuid);
             }
             e.printStackTrace();
@@ -274,14 +273,9 @@ public class DependenciaCopiaMultidestinoService {
      */
     public List<Documento> listarTodosDocumentosMultidestino(final Documento documentoOriginal) {
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
-
         final List<Documento> documentos = new LinkedList<>();
-        //Se quita el documento original para que sea procesado en otro instante del proceso
-//        documentos.add(documentoOriginal);
-//        System.err.println("INSTANCIA DOCUMENTO ORIGINAL" + documentoOriginal.getInstancia().getId());
 
         for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
-//            System.err.println("INSTANCIA COPIAMULTIDESTINO" + copiaMultidestino.getDocumentoResultado().getInstancia().getId());
             documentos.add(documentoRepository.findOne(copiaMultidestino.getDocumentoResultado().getId()));
         }
 
@@ -298,8 +292,6 @@ public class DependenciaCopiaMultidestinoService {
     // TODO: Quitar logs de ejecución.
     private void clonarDocumentoMultidestino(final Connection conn, final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino, final String p_doc_content_file, final String p_doc_docx_documento) throws Exception {
         try {
-//            LOG.info("com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService.clonarDocumentoMultidestino()");
-
             final String p_doc_id_origen = documentoOriginal.getId();
             final String p_pin_id_nuevo = GeneralUtils.newId();
             final String p_doc_id_nuevo = GeneralUtils.newId();
@@ -309,21 +301,14 @@ public class DependenciaCopiaMultidestinoService {
             final String[] adjuntosUUIDs = GeneralUtils.generateUUIDs(adjuntos.size());
 
             // TODO: Enviar la información a la función PL/SQL del proceso de clonación.
-//            LOG.info("p_doc_id_origen=" + p_doc_id_origen + "\tp_pin_id_nuevo=" + p_pin_id_nuevo + "\tp_doc_id_nuevo=" + p_doc_id_nuevo
-//                    + "\tp_dep_id_des=" + p_dep_id_des + "\tadjuntosUUIDs=" + Arrays.toString(adjuntosUUIDs));
-
             final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             jdbcTemplate.setResultsMapCaseInsensitive(true);
-//            LOG.info("jdbcTemplate = " + jdbcTemplate);
 
             final SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(PROC_COPIA_DOC_MULTIDESTINO);
-//            LOG.info("simpleJdbcCall = " + simpleJdbcCall);
 
             final ArrayDescriptor arrayDescriptor = ArrayDescriptor.createDescriptor(T_ARRAY_UUID, conn);
-//            LOG.info("arrayDescriptor = " + arrayDescriptor);
 
             final Array p_array_uuid_doc_adjunto = new ARRAY(arrayDescriptor, conn, adjuntosUUIDs);
-//            LOG.info("p_array_uuid_doc_adjunto = " + p_array_uuid_doc_adjunto);
 
             final SqlParameterSource sqlParameterSource = new MapSqlParameterSource()
                     .addValue(P_DOC_ID_ORIGEN, p_doc_id_origen)
@@ -333,10 +318,7 @@ public class DependenciaCopiaMultidestinoService {
                     .addValue(P_DOC_CONTENT_FILE, p_doc_content_file)
                     .addValue(P_DOC_DOCX_DOCUMENTO, p_doc_docx_documento)
                     .addValue(P_ARRAY_UUID_DOC_ADJUNTO, p_array_uuid_doc_adjunto);
-//            LOG.info("sqlParameterSource = " + sqlParameterSource);
-
-//            LOG.info("INICIA EJECUTADO DE PROCEDIMIENTO");
-
+            
             simpleJdbcCall.execute(sqlParameterSource);
 
             final Documento documentoResultado = documentoRepository.getOne(p_doc_id_nuevo);
