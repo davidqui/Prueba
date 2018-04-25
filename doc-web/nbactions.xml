@@ -7,7 +7,6 @@
                 <goal>spring-boot:run</goal>
             </goals>
         </action>
-<<<<<<< OURS
         <action>
             <actionName>run</actionName>
             <packagings>
@@ -51,6 +50,4 @@
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
-=======
->>>>>>> THEIRS
     </actions>
