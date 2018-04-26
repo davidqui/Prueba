@@ -207,3 +207,25 @@ create type T_DOC_CLONACION_TYPE as object (
 /
 
 create or replace type T_ARRAY_DOC_CLONACIONTYPE as table of T_DOC_CLONACION_TYPE;
+/
+
+select * from documento where pin_id = 'd28c287e025f405a9f3e57702dc021de';
+
+select DOC_ID_RESULTADO, b.pin_id, c.USU_ID_ASIGNADO, d.USU_NOMBRE, d.USU_CARGO_PRINCIPAL_ID, e.car_nombre
+from DEPENDENCIA_COPIA_MULTIDESTINO a,
+     DOCUMENTO b,
+     proceso_instancia c,
+     usuario d,
+     cargo e
+where e.car_id = d.USU_CARGO_PRINCIPAL_ID
+and d.usu_id = c.usu_id_asignado
+and c.PIN_ID = b.pin_id
+and b.doc_id = a.DOC_ID_RESULTADO
+and a.DOC_ID_ORIGINAL = '03b2835cf21f4dfe89a5b3f40e6f56b1';
+
+select doc_id_original, count(1) from DEPENDENCIA_COPIA_MULTIDESTINO where doc_id_resultado is not null group by doc_id_original ;
+
+select * from documento where DOC_ID = 'eb83a47a44e647c99da8d8c5e1fc8eee';
+
+
+select * from grado where activo = 1 order by gra_peso_orden desc;

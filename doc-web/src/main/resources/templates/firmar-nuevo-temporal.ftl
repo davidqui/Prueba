@@ -3,7 +3,7 @@
         <title>Firmar nuevo temporal</title>
         </head>
     <body>
-        <form action="/documento/firmar-nuevo" method="GET">
+        <form action="/documento/firmar" method="GET">
             <table border="1">
                 <thead>
                     <tr>
@@ -14,7 +14,7 @@
                 <tbody>
                     <tr>
                         <td>PIN</td>
-                        <td><input type="text" id="pin" name="pin" value="06793ef7bb0441ae964ff8dca2477198"/></td>
+                        <td><input type="text" id="pin" name="pin" value="b6eb614a08a7467cb3f68b46b99bb7ed"/></td>
                         </tr>
                     <tr>
                         <td>TID</td>
