@@ -72,7 +72,7 @@
             </#list>            
             </tbody>
         </table>
-    <#elseif !tieneSubseries >
+    <#elseif !subseries?? && !docs?? >
         <#--
             2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
             feature-151: Banner que indica que el usuario en sesión no tiene
@@ -89,7 +89,7 @@
     </#if>
 
     <#if tieneSubseries >
-    <h5>Subserie: ${serie.codigo}. ${serie.nombre}</h5>
+    <h5>Serie: ${serie.codigo}. ${serie.nombre}</h5>
     <hr>
     <#--
         2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
@@ -104,30 +104,50 @@
                 </tr>
             </thead>
         <tbody>
-            <#list subseries as x>
+            <#--
+                2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+                feature-151: Uso de DTO para la presentación de información.
+            -->
+            <#list subseries as subserie>
             <tr>
-                <td nowrap="">${x.codigo}</td>
-
-                    <#if x.documentos?? && (x.documentos?size > 0) >                		
-                <td><a href="carpeta?sub=${x.id}&cargoFiltro=${cargoFiltro!"0"}">${x.nombre} ( ${x.documentos?size} ) </a></td>
-                	<#else>
-                <td><a href="carpeta?sub=${x.id}&cargoFiltro=${cargoFiltro!"0"}">${x.nombre} ( 0 )</a></td>
-                	</#if> 
-                <td>${x.documentos?size}</td>
+                <td nowrap="">${subserie.codigo}</td>
+                <td><a href="carpeta?sub=${subserie.id}&cargoFiltro=${cargoFiltro!"0"}">${subserie.nombre}</a></td>                	
+                <td>${subserie.numeroDocumentosArchivados}</td>
                 </tr>
             </#list>            
             </tbody>
         </table>
+    <#elseif !series?? && !docs?? >
+        <#--
+            2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+            feature-151: Banner que indica que el usuario en sesión no tiene
+            documentos archivados en las subseries TRD (y cargo, en caso de ser
+            seleccionado).
+        -->
+        <#assign noSubseriesMsg="No tiene documentos en archivo en ninguna de las Subseries TRD"/>
+        <#if cargoFiltro != 0>
+            <#assign noSubseriesMsg = noSubseriesMsg + " para el cargo seleccionado"/>
+        </#if>
+    <div class="alert alert-info" role="alert">
+        ${noSubseriesMsg}.
+        </div>    
     </#if>
+
+
     <#if docs?? >
-    <h5>${subserie.codigo}. ${subserie.nombre}</h5>
+    <h5>Subserie: ${subserie.codigo}. ${subserie.nombre}</h5>
+    <hr>
         <#if (docs?size > 0) >
-        	<#--
-        	    2017-05-15 jgarcia@controltechcg.com Issue #82 (SICDI-Controltech) feature-82:
-        	    Modificación en la pantalla de presentación de registros de archivo, para presentar
-        	    la fecha de creación y fecha de archivo.
-        	-->
-    <table class="table">
+    <#--
+        2017-05-15 jgarcia@controltechcg.com Issue #82 (SICDI-Controltech) feature-82:
+        Modificación en la pantalla de presentación de registros de archivo, para presentar
+        la fecha de creación y fecha de archivo.
+
+        2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+        feature-151: Mejora en presentación de las tablas. Retiro del mapa 
+        "registrosArchivoMapa" gracias al uso de DTOs.
+    -->
+    <table class="table table-bordered table-hover">
         <thead>
             <tr>
                 <th>Radicado</th>
@@ -138,18 +158,13 @@
                 </tr>
             </thead>
         <tbody>
-                <#list docs as x>
+                <#list docs as documentoArchivado>
             <tr>
-                <td nowrap>${x.radicado!"&lt;Sin radicado&gt;"}</td>
-                <td><a href="/documento?pin=${x.instancia.id}">${x.asunto!"&lt;Sin asunto&gt;"}</a></td>
-                <td nowrap>${x.cuando?string('yyyy-MM-dd hh:mm aa')}</td>
-                        <#assign registroArchivo = registrosArchivoMapa[x.id]>
-                <td nowrap>${registroArchivo.cuando?string('yyyy-MM-dd hh:mm aa')}</td>
-                        <#if registroArchivo.cargo??>
-                <td nowrap>${registroArchivo.cargo.carNombre!""}</td>
-                        <#else>
-                <td nowrap></td>
-                        </#if>
+                <td nowrap>${documentoArchivado.numeroRadicado!"&lt;Sin radicado&gt;"}</td>
+                <td><a href="/documento?pin=${documentoArchivado.procesoInstanciaID}">${documentoArchivado.documentoAsunto!"&lt;Sin asunto&gt;"}</a></td>
+                <td nowrap>${documentoArchivado.fechaCreacionDocumento?string('yyyy-MM-dd hh:mm aa')}</td>
+                <td nowrap>${documentoArchivado.fechaCreacionArchivo?string('yyyy-MM-dd hh:mm aa')}</td>
+                <td nowrap>${documentoArchivado.cargoNombre!""}</td>
                 </tr>
                 </#list>            
             </tbody>

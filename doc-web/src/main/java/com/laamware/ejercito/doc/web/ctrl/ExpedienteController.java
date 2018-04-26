@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
+import com.laamware.ejercito.doc.web.dto.DocumentoDependenciaArchivoDTO;
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
 import java.security.Principal;
 import java.sql.ResultSet;
@@ -45,6 +46,7 @@ import com.laamware.ejercito.doc.web.repo.EstadoExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteEstadoRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
+import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.TRDService;
 import java.math.BigDecimal;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -89,6 +91,13 @@ public class ExpedienteController extends UtilController {
     // feature-80
     @Autowired
     TRDService trdService;
+
+    /*
+     * 2018-04-26 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+     * feature-151.
+     */
+    @Autowired
+    private DocumentoDependenciaService documentoDependenciaService;
 
     @Autowired
     DataSource ds;
@@ -250,7 +259,6 @@ public class ExpedienteController extends UtilController {
         model.addAttribute("cargoFiltro", cargoID);
 
         final Usuario usuarioSesion = getUsuario(principal);
-        final Dependencia dependenciaUsuarioSesion = usuarioSesion.getDependencia();
 
         if (subserieID != null) {
             /*
@@ -260,33 +268,19 @@ public class ExpedienteController extends UtilController {
              * 2017-05-11 jgarcia@controltechcg.com Issue #79
              * (SICDI-Controltech): Limitar la presentación de documentos
              * archivados por usuario en sesión y TRD.
+             *
+             * 2018-04-26 jgarcia@controltechcg.com Issue #151
+             * (SICDI-Controltech) feature-151: Obtención de la información de
+             * documentos archivados, a través de DTO. Retiro del mapa
+             * "registrosArchivoMapa", ya que no es necesario por el uso de los
+             * DTO.
              */
-            List<DocumentoDependencia> registrosArchivo;
-
-            if (cargoID == 0) {
-                registrosArchivo = documentoDependenciaRepository.findByQuienAndTrdIdOrderByCuandoDesc(usuarioSesion.getId(), subserieID);
-            } else {
-                registrosArchivo = documentoDependenciaRepository.findByQuienAndTrdIdAndCargoIdOrderByCuandoDesc(usuarioSesion.getId(), subserieID, cargoID);
-            }
-
-            List<Documento> documentos = new ArrayList<>();
-            for (DocumentoDependencia registroArchivo : registrosArchivo) {
-                Documento documento = documentoRepository.findOne(registroArchivo.getDocumento().getId());
-                documentos.add(documento);
-            }
+            final Trd subserie = trdService.findOne(subserieID);
+            final Cargo cargo = (cargoID == null) ? null : cargosRepository.findOne(cargoID);
+            final List<DocumentoDependenciaArchivoDTO> documentos = documentoDependenciaService.findAllBySubserieAndUsuarioAndCargo(subserie, usuarioSesion, cargo);
 
             model.addAttribute("docs", documentos);
 
-            /*
-             * 2017-05-15 jgarcia@controltechcg.com Issue #82
-             * (SICDI-Controltech) feature-82: Implementación de mapa de
-             * registros de archivos para asociación en pantalla de presentación
-             * del archivo.
-             */
-            Map<String, DocumentoDependencia> registrosArchivoMapa = buildMapaRegistrosArchivo(registrosArchivo);
-            model.addAttribute("registrosArchivoMapa", registrosArchivoMapa);
-
-            Trd subserie = trdRepository.findOne(subserieID);
             model.addAttribute("subserie", subserie);
             model.addAttribute("retornaSerie", subserie.getSerie());
         } else if (serieID != null && serieID > 0) {
@@ -295,33 +289,16 @@ public class ExpedienteController extends UtilController {
              * (SICDI-Controltech) hotfix-86: Corrección para presentar
              * únicamente las subseries asociadas a la dependencia del usuario
              * en sesión en las pantallas de Archivo.
+             *
+             * 2018-04-25 jgarcia@controltechcg.com Issue #151
+             * (SICDI-Controltech) feature-151: Uso de DTO de TRD y reducción de
+             * proceso de búsquedas para mejora del rendimiento del proceso de
+             * consulta.
              */
-            List<Trd> subseries = trdRepository.findSubseries(serieID, dependenciaUsuarioSesion.getId());
+            final Trd serie = trdService.findOne(serieID);
+            final Cargo cargo = (cargoID == null) ? null : cargosRepository.findOne(cargoID);
+            final List<TrdArchivoDocumentosDTO> subseries = trdService.findAllSubseriesWithArchivoBySerieAndUsuarioAndCargo(serie, usuarioSesion, cargo);
 
-            for (Trd subserie : subseries) {
-                /*
-                 * 2017-05-05 jgarcia@controltechcg.com Issue #63
-                 * (SICDI-Controltech)
-                 *
-                 * 2017-05-11 jgarcia@controltechcg.com Issue #79
-                 * (SICDI-Controltech): Limitar la presentación de documentos
-                 * archivados por usuario en sesión y TRD.
-                 */
-                List<DocumentoDependencia> registrosArchivo;
-                if (cargoID == 0) {
-                    registrosArchivo = documentoDependenciaRepository.findByQuienAndTrdIdOrderByCuandoDesc(usuarioSesion.getId(), subserie.getId());
-                } else {
-                    registrosArchivo = documentoDependenciaRepository.findByQuienAndTrdIdAndCargoIdOrderByCuandoDesc(usuarioSesion.getId(), subserie.getId(), cargoID);
-                }
-
-                List<Documento> documentos = new ArrayList<>();
-                for (DocumentoDependencia registroArchivo : registrosArchivo) {
-                    Documento documento = documentoRepository.findOne(registroArchivo.getDocumento().getId());
-                    documentos.add(documento);
-                }
-
-                subserie.setDocumentos(documentos);
-            }
 
             /*
              * 2017-05-15 jgarcia@controltechcg.com Issue #80
@@ -330,8 +307,6 @@ public class ExpedienteController extends UtilController {
              */
             trdService.ordenarPorCodigo(subseries);
             model.addAttribute("subseries", subseries);
-
-            Trd serie = trdRepository.findById(serieID);
             model.addAttribute("serie", serie);
             model.addAttribute("retornaSerie", 0);
         } else {

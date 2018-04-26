@@ -17,8 +17,8 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * @return Lista de documentos archivados.
      */
     /*
-	 * 2017-05-05 jgarcia@controltechcg.com Issue #63 (SICDI-Controltech):
-	 * Ordenamiento descendiente por fecha de creación del registro de archivo.
+     * 2017-05-05 jgarcia@controltechcg.com Issue #63 (SICDI-Controltech):
+     * Ordenamiento descendiente por fecha de creación del registro de archivo.
      */
     List<DocumentoDependencia> findByDependenciaIdAndTrdIdOrderByCuandoDesc(Integer depId, Integer trd);
 
@@ -31,9 +31,9 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * @return Lista de documentos archivados.
      */
     /*
-	 * 2017-05-11 jgarcia@controltechcg.com Issue #79 (SICDI-Controltech):
-	 * Limitar la presentación de documentos archivados por usuario en sesión y
-	 * TRD.
+     * 2017-05-11 jgarcia@controltechcg.com Issue #79 (SICDI-Controltech):
+     * Limitar la presentación de documentos archivados por usuario en sesión y
+     * TRD.
      */
     List<DocumentoDependencia> findByQuienAndTrdIdOrderByCuandoDesc(Integer quien, Integer trd);
 
@@ -44,8 +44,8 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * @return Lista de documentos activos archivados.
      */
     /*
-        2017-08-28 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech) 
-        feature-120: Proceso de transferencia de archivos.
+     * 2017-08-28 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
+     * feature-120: Proceso de transferencia de archivos.
      */
     @Query(nativeQuery = true, value = ""
             + "SELECT \n"
@@ -68,8 +68,8 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * @see #findAllActivoByUsuario(java.lang.Integer)
      */
     /*
-        2017-09-07 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech) 
-        feature-120: Proceso de transferencia de archivos.
+     * 2017-09-07 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
+     * feature-120: Proceso de transferencia de archivos.
      */
     @Query(nativeQuery = true, value = ""
             + "SELECT \n"
@@ -92,8 +92,8 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * @return Lista de documentos archivados.
      */
     /*
-        2017-08-28 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech) 
-        feature-120: Proceso de transferencia de archivos.
+     * 2017-08-28 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech)
+     * feature-120: Proceso de transferencia de archivos.
      */
     @Query(nativeQuery = true, value = ""
             + "SELECT \n"
@@ -121,8 +121,8 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * @see #findAllActivoByUsuario(java.lang.Integer)
      */
     /*
-        2017-12-14 edison.gonzalez@controltechcg.com Issue #144 (SICDI-Controltech) 
-        hotfix-144: Duplicidad de registros.
+     * 2017-12-14 edison.gonzalez@controltechcg.com Issue #144
+     * (SICDI-Controltech) hotfix-144: Duplicidad de registros.
      */
     @Query(nativeQuery = true, value = ""
             + "SELECT * \n"
@@ -131,10 +131,10 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
             + "AND QUIEN =:usuarioID \n"
             + "AND DOC_ID = :docId")
     List<DocumentoDependencia> findAllActivoByUsuarioAndDocumento(@Param("usuarioID") Integer usuarioID, @Param("docId") String docId);
-    
+
     /**
-     * Obtiene los documentos archivados por usuario, TRD y cargo, ordenados de forma
-     * descendiente por la fecha de creacíón.
+     * Obtiene los documentos archivados por usuario, TRD y cargo, ordenados de
+     * forma descendiente por la fecha de creacíón.
      *
      * @param quien ID del usuario.
      * @param trd ID de la TRD.
@@ -142,8 +142,9 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * @return Lista de documentos archivados.
      */
     /*
-	 * 2018-03-06 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech):
-	 * Presentación de documentos archivados por usuario en sesión, TRD y cargo.
+     * 2018-03-06 edison.gonzalez@controltechcg.com Issue #151
+     * (SICDI-Controltech): Presentación de documentos archivados por usuario en
+     * sesión, TRD y cargo.
      */
     List<DocumentoDependencia> findByQuienAndTrdIdAndCargoIdOrderByCuandoDesc(Integer quien, Integer trd, Integer cargo);
 }

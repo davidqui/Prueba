@@ -2,12 +2,14 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
+import com.laamware.ejercito.doc.web.entity.Trd;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificable;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificableComparator;
 import java.util.ArrayList;
@@ -27,7 +29,25 @@ import org.springframework.jdbc.core.RowMapper;
 public class TRDService {
 
     @Autowired
+    private TrdRepository trdRepository;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    /**
+     * Busca una TRD por su ID.
+     *
+     * @param id ID.
+     * @return Instancia de la TRD, o {@code null} en caso que no haya
+     * correspondencia en el sistema.
+     */
+    /*
+     * 2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+     * feature-151.
+     */
+    public Trd findOne(final Integer id) {
+        return trdRepository.findOne(id);
+    }
 
     /**
      * Ordena la lista de TRD por el código, en ordenamiento tipo número de
@@ -86,6 +106,59 @@ public class TRDService {
                 + "";
 
         final List<Object> params = new ArrayList<>();
+        params.add(usuario.getDependencia().getId());
+        params.add(usuario.getId());
+        if (cargo != null) {
+            params.add(cargo.getId());
+        }
+
+        final RowMapper<TrdArchivoDocumentosDTO> rowMapper = new BeanPropertyRowMapper<>(TrdArchivoDocumentosDTO.class);
+        return jdbcTemplate.query(sql, params.toArray(), rowMapper);
+    }
+
+    /**
+     * Obtiene la lista de subseries TRD que contienen documentos archivados
+     * para el usuario, según la serie y el cargo indicado, en las TRD
+     * disponibles para la dependencia del usuario.
+     *
+     * @param serie TRD serie. Obligatorio.
+     * @param usuario Usuario. Obligatorio.
+     * @param cargo Cargo. Opcional.
+     * @return Lista de subseries TRD que para el usuario, la serie, (y el
+     * cargo, en caso de ser indicado) tienen registros de documentos
+     * archivados.
+     */
+    /*
+     * 2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+     * feature-151: Definición de los métodos para presentación de la pantalla
+     * de consulta de archivo a través del servicio de TRD.
+     */
+    public List<TrdArchivoDocumentosDTO> findAllSubseriesWithArchivoBySerieAndUsuarioAndCargo(final Trd serie, final Usuario usuario, final Cargo cargo) {
+        final String sql = ""
+                + "SELECT trd.trd_id AS \"id\",\n"
+                + "       trd.trd_codigo AS \"codigo\",\n"
+                + "       trd.trd_nombre AS \"nombre\",\n"
+                + "       subserie_documento_archivo.subserie_count AS \"numeroDocumentosArchivados\"\n"
+                + "FROM trd\n"
+                + "JOIN\n"
+                + "  (SELECT subserie.trd_id,\n"
+                + "          count(1) AS subserie_count\n"
+                + "   FROM trd subserie\n"
+                + "   JOIN dependencia_trd ON (dependencia_trd.trd_id = subserie.trd_id)\n"
+                + "   JOIN documento_dependencia ON (documento_dependencia.trd_id = subserie.trd_id)\n"
+                + "   WHERE subserie.activo = 1\n"
+                + "     AND subserie.trd_serie = ?\n"
+                + "     AND dependencia_trd.activo = 1\n"
+                + "     AND dependencia_trd.dep_id = ?\n"
+                + "     AND documento_dependencia.activo = 1\n"
+                + "     AND documento_dependencia.quien = ?\n"
+                + (cargo == null ? "" : "     AND documento_dependencia .cargo_id = ?\n")
+                + "   GROUP BY subserie.trd_id\n"
+                + "   HAVING count(1) > 0) subserie_documento_archivo ON (subserie_documento_archivo.trd_id = trd.trd_id)"
+                + "";
+
+        final List<Object> params = new ArrayList<>();
+        params.add(serie.getId());
         params.add(usuario.getDependencia().getId());
         params.add(usuario.getId());
         if (cargo != null) {

@@ -37,7 +37,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -371,7 +370,7 @@ public class TransferenciaArchivoService {
     /*
         2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) 
         feature-151: Se añaden los campos de los cargos de los usuarios origen y destino.
-    */
+     */
     /**
      * Procesa, aplica y crea una transferencia de archivo, generando el acta
      * correspondiente.
@@ -398,10 +397,10 @@ public class TransferenciaArchivoService {
             final String tipoTransferencia,
             final TransferenciaArchivo transferenciaAnterior, final License asposeLicense, final Integer cargoOrigen,
             final Integer cargoDestino) throws Exception {
- 
+
         final TransferenciaArchivo transferenciaArchivo
                 = crearTransferencia(creadorUsuario, origenUsuario, destinoUsuario,
-                        tipoTransferencia, transferenciaAnterior,cargoOrigen,cargoDestino);
+                        tipoTransferencia, transferenciaAnterior, cargoOrigen, cargoDestino);
 
         final PlantillaTransferenciaArchivo plantilla
                 = plantillaRepository.findByActivoTrue();
@@ -448,7 +447,7 @@ public class TransferenciaArchivoService {
             2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) 
             feature-151: Se realizan los ajustes sobre los campos de cargos de los
             usuarios creador, origen y destino.
-        */
+         */
         final Cargo cargoCreador = creadorUsuario.getUsuCargoPrincipalId();
         final Cargo cargoOrigen = cargosRepository.findOne(cargoOrigenId);
         final Cargo cargoDestino = cargosRepository.findOne(cargoDestinoId);
@@ -722,7 +721,7 @@ public class TransferenciaArchivoService {
         map.put("CREADOR_DEPENDENCIA_NOMBRE", transferenciaArchivo.getCreadorDependencia().getNombre());
         map.put("CREADOR_GRADO_ID", transferenciaArchivo.getCreadorGrado().getId());
         map.put("CREADOR_GRADO_NOMBRE", transferenciaArchivo.getCreadorGrado().getNombre());
-        
+
         //2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) 
         //feature-151: Se realiza el cambio de tipo de variable del cargo del usuario creador.
         map.put("CREADOR_CARGO", transferenciaArchivo.getUsuCreadorCargo().getCarNombre());
