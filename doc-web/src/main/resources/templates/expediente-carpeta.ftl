@@ -1,5 +1,5 @@
 <#setting number_format="computer">
-<#assign pageTitle = "Carpetas"/>
+<#assign pageTitle = "Documentos Archivados"/>
 <#include "bandeja-header.ftl">
 
 <div class="container-fluid">
@@ -8,37 +8,40 @@
         2018-03-07 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) feature-151:
         Modificación en la pantalla de presentación de registros de archivo, para realizar
         el filtro por el cargo que archiva el documento.
+
+        2018-04-26 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech) feature-151:
+        Acción de submit del formulario de filtro de cargo, al cambiar la opción en el
+        selector. Mejoras de presentación UI.
     -->
-    <form action = "/expediente/carpeta" method="POST">
-        <div class="form-inline">
-            <input type="hidden" name="sub" id="sub" value="${(sub)!""}" />
-            <input type="hidden" name="ser" id="ser" value="${(ser)!""}" />
-            <label for="cargoIdFirma" class="col-sm-2 text-xs-right">Cargo con el cual se filtrara el archivo</label>
-            <select class="form-control" id="cargoFiltro" name="cargoFiltro">
+    <form action = "/expediente/carpeta" method="GET">
+        <div class="form-group">
+            <label for="cargoIdFirma">Cargo:</label>
+            <select class="form-control" id="cargoFiltro" name="cargoFiltro" onchange="submitSelect(this)">
                 <#if cargosXusuario??>
-                    <#list cargosXusuario as cla>
-                        <#if cla.id?string == ((cargoFiltro)!"")?string >
-                <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                    <#list cargosXusuario as cargoXusuario>
+                        <#if cargoXusuario.id?string == ((cargoFiltro)!"")?string >
+                <option value="${cargoXusuario.id}" selected="selected">${cargoXusuario.nombre}</option>
                         <#else>
-                <option value="${cla.id}">${cla.nombre}</option>
+                <option value="${cargoXusuario.id}">${cargoXusuario.nombre}</option>
                         </#if>
                     </#list>
                 </#if>    
                 </select>
-            <button type="submit" class="btn btn-primary">Buscar</button>
             </div>
+
+        <input type="hidden" name="sub" id="sub" value="${(sub)!""}" />
+        <input type="hidden" name="ser" id="ser" value="${(ser)!""}" />
+
+        <#if retornaSerie??>
+        <#--
+            2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+            feature-151: Cambio en presentación de enlace "Regresar" para que tenga
+            la apariencia de un botón.
+        -->
+        <a class="btn btn-info btn-sm" href="carpeta?ser=${retornaSerie}&cargoFiltro=${cargoFiltro!"0"}">Regresar</a>
+        </#if>
         </form>
-    </br>
-    </br>
-    <#if retornaSerie??>
-    <#--
-        2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
-        feature-151: Cambio en presentación de enlace "Regresar" para que tenga
-        la apariencia de un botón.
-    -->
-    <a class="btn btn-primary" href="carpeta?ser=${retornaSerie}&cargoFiltro=${cargoFiltro!"0"}">Regresar</a>
-    </#if>
-    </br>
+
     </br>
 
     <#--
@@ -79,12 +82,18 @@
             documentos archivados en las series TRD (y cargo, en caso de ser
             seleccionado).
         -->
-        <#assign noSeriesMsg="No tiene documentos en archivo en ninguna de las Series TRD"/>
+        <#assign noSeriesMsg="Actualmente, no tiene documentos en archivo en ninguna de las Series TRD"/>
         <#if cargoFiltro != 0>
             <#assign noSeriesMsg = noSeriesMsg + " para el cargo seleccionado"/>
         </#if>
-    <div class="alert alert-info" role="alert">
-        ${noSeriesMsg}.
+    <#--
+        2018-04-26 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+        feature-151: Mensaje de advertencia (sin documentos archivados) usando
+        jumbotron.
+    -->
+    <div class="jumbotron">
+        <h3>No tiene ${pageTitle}</h3>
+        <p>${noSeriesMsg}.</p>
         </div>
     </#if>
 
@@ -128,9 +137,15 @@
         <#if cargoFiltro != 0>
             <#assign noSubseriesMsg = noSubseriesMsg + " para el cargo seleccionado"/>
         </#if>
-    <div class="alert alert-info" role="alert">
-        ${noSubseriesMsg}.
-        </div>    
+        <#--
+            2018-04-26 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+            feature-151: Mensaje de advertencia (sin documentos archivados) usando
+            jumbotron.
+        -->
+    <div class="jumbotron">
+        <h3>No tiene ${pageTitle}</h3>
+        <p>${noSubseriesMsg}.</p>
+        </div>
     </#if>
 
 
@@ -171,9 +186,14 @@
         </table>
         </#if>
         <#if (docs?size == 0) >
+    <#--
+        2018-04-26 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+        feature-151: Mensaje de advertencia (sin documentos archivados) usando
+        jumbotron.
+    -->    
     <div class="jumbotron">
         <h3>No hay documentos</h3>
-        <p>En este momento no hay documentos relacionados a esta carpeta</p>
+        <p>En este momento no hay documentos relacionados a esta Subserie<#if cargoFiltro != 0> para el cargo seleccionado</#if></p>
         </div>
         </#if>
     </#if>

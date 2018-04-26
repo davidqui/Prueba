@@ -495,7 +495,7 @@ public class ExpedienteController extends UtilController {
         Usuario usuarioSesion = getUsuario(principal);
         List<Object[]> list = cargosRepository.findCargosXusuario(usuarioSesion.getId());
         List<CargoDTO> cargoDTOs = new ArrayList<>();
-        cargoDTOs.add(new CargoDTO(0, "Todos"));
+        cargoDTOs.add(new CargoDTO(0, "TODOS"));
         for (Object[] os : list) {
             CargoDTO cargoDTO = new CargoDTO(((BigDecimal) os[0]).intValue(), (String) os[1]);
             cargoDTOs.add(cargoDTO);
