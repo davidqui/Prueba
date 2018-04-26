@@ -15,241 +15,251 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificable;
 
 @Entity
 @Table(name = "TRD")
 @LaamLabel("Tabla de retención documental")
-public class Trd extends AuditActivoModifySupport {
+public class Trd extends AuditActivoModifySupport implements NumeroVersionIdentificable {
 
-	@Id
-	@GenericGenerator(name = "TRD_SEQ", strategy = "sequence", parameters = {
-			@Parameter(name = "sequence", value = "TRD_SEQ"),
-			@Parameter(name = "allocationSize", value = "1") })
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "TRD_SEQ")
-	@Column(name = "TRD_ID")
-	private Integer id;
+    @Id
+    @GenericGenerator(name = "TRD_SEQ", strategy = "sequence", parameters = {
+        @Parameter(name = "sequence", value = "TRD_SEQ")
+        ,
+			@Parameter(name = "allocationSize", value = "1")})
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "TRD_SEQ")
+    @Column(name = "TRD_ID")
+    private Integer id;
 
-	@LaamLabel("Nombre")
-	@LaamCreate(order = 10)
-	@LaamListColumn(order = 10)
-	@Column(name = "TRD_NOMBRE")
-	private String nombre;
+    @LaamLabel("Nombre")
+    @LaamCreate(order = 10)
+    @LaamListColumn(order = 10)
+    @Column(name = "TRD_NOMBRE")
+    private String nombre;
 
-	@LaamLabel("Código")
-	@LaamCreate(order = 20)
-	@LaamListColumn(order = 20)
-	@Column(name = "TRD_CODIGO")
-	private String codigo;
+    @LaamLabel("Código")
+    @LaamCreate(order = 20)
+    @LaamListColumn(order = 20)
+    @Column(name = "TRD_CODIGO")
+    private String codigo;
 
-	@LaamLabel("Serie")
-	@LaamCreate(order = 30)
-	@LaamListColumn(order = 30)
-	@LaamWidget(value = "select", list = "series", type = Trd.class)
-	@Column(name = "TRD_SERIE")
-	private Integer serie;
+    @LaamLabel("Serie")
+    @LaamCreate(order = 30)
+    @LaamListColumn(order = 30)
+    @LaamWidget(value = "select", list = "series", type = Trd.class)
+    @Column(name = "TRD_SERIE")
+    private Integer serie;
 
-	@LaamLabel("RAG (Años)")
-	@LaamCreate(order = 40)
-	@LaamListColumn(order = 40)
-	@Column(name = "TRD_RET_ARCHIVO_GENERAL")
-	private Integer retArchivoGeneral;
+    @LaamLabel("RAG (Años)")
+    @LaamCreate(order = 40)
+    @LaamListColumn(order = 40)
+    @Column(name = "TRD_RET_ARCHIVO_GENERAL")
+    private Integer retArchivoGeneral;
 
-	@LaamLabel("RAC (Años)")
-	@LaamCreate(order = 50)
-	@LaamListColumn(order = 50)
-	@Column(name = "TRD_RET_ARCHIVO_CENTRAL")
-	private Integer retArchivoCentral;
+    @LaamLabel("RAC (Años)")
+    @LaamCreate(order = 50)
+    @LaamListColumn(order = 50)
+    @Column(name = "TRD_RET_ARCHIVO_CENTRAL")
+    private Integer retArchivoCentral;
 
-	@LaamLabel("DCT")
-	@LaamCreate(order = 60)
-	@LaamListColumn(order = 60)
-	@Column(name = "TRD_DIS_CT")
-	private Boolean disposicionDT;
+    @LaamLabel("DCT")
+    @LaamCreate(order = 60)
+    @LaamListColumn(order = 60)
+    @Column(name = "TRD_DIS_CT")
+    private Boolean disposicionDT;
 
-	@LaamLabel("DD")
-	@LaamCreate(order = 70)
-	@LaamListColumn(order = 70)
-	@Column(name = "TRD_DIS_D")
-	private Boolean disposicionD;
+    @LaamLabel("DD")
+    @LaamCreate(order = 70)
+    @LaamListColumn(order = 70)
+    @Column(name = "TRD_DIS_D")
+    private Boolean disposicionD;
 
-	@LaamLabel("DM")
-	@LaamCreate(order = 80)
-	@LaamListColumn(order = 80)
-	@Column(name = "TRD_DIS_M")
-	private Boolean disposicionM;
+    @LaamLabel("DM")
+    @LaamCreate(order = 80)
+    @LaamListColumn(order = 80)
+    @Column(name = "TRD_DIS_M")
+    private Boolean disposicionM;
 
-	@LaamLabel("DS")
-	@LaamCreate(order = 90)
-	@LaamListColumn(order = 90)
-	@Column(name = "TRD_DIS_S")
-	private Boolean disposicionS;
+    @LaamLabel("DS")
+    @LaamCreate(order = 90)
+    @LaamListColumn(order = 90)
+    @Column(name = "TRD_DIS_S")
+    private Boolean disposicionS;
 
-	@LaamLabel("DE")
-	@LaamCreate(order = 100)
-	@LaamListColumn(order = 100)
-	@Column(name = "TRD_DIS_E")
-	private Boolean disposicionE;
+    @LaamLabel("DE")
+    @LaamCreate(order = 100)
+    @LaamListColumn(order = 100)
+    @Column(name = "TRD_DIS_E")
+    private Boolean disposicionE;
 
-	@LaamLabel("Procedimiento")
-	@LaamCreate(order = 120)
-	@LaamWidget("editor")
-	@Column(name = "TRD_PROCEDIMIENTO")
-	private String procedimiento;
+    @LaamLabel("Procedimiento")
+    @LaamCreate(order = 120)
+    @LaamWidget("editor")
+    @Column(name = "TRD_PROCEDIMIENTO")
+    private String procedimiento;
 
-	@LaamLabel("Plantilla")
-	@LaamCreate(order = 110)
-	@LaamWidget(value = "select", list = "plantillas")
-	@ManyToOne
-	@JoinColumn(name = "PLA_ID")
-	private Plantilla plantilla;
+    @LaamLabel("Plantilla")
+    @LaamCreate(order = 110)
+    @LaamWidget(value = "select", list = "plantillas")
+    @ManyToOne
+    @JoinColumn(name = "PLA_ID")
+    private Plantilla plantilla;
 
-	@LaamLabel("Tipo de documento")
-	@LaamCreate(order = 120)
-	@LaamWidget(value = "select", list = "tiposDocumento")
-	@ManyToOne
-	@JoinColumn(name = "TDC_ID")
-	private TipoDocumento tipoDocumento;
+    @LaamLabel("Tipo de documento")
+    @LaamCreate(order = 120)
+    @LaamWidget(value = "select", list = "tiposDocumento")
+    @ManyToOne
+    @JoinColumn(name = "TDC_ID")
+    private TipoDocumento tipoDocumento;
 
-	@LaamLabel("Plazo en días de los documento")
-	@Column(name = "TRD_PLAZO")
-	@LaamCreate(order = 130)
-	private Integer plazo;
-	
-	@Transient
-	private List<Documento> documentos = new ArrayList<Documento>();
+    @LaamLabel("Plazo en días de los documento")
+    @Column(name = "TRD_PLAZO")
+    @LaamCreate(order = 130)
+    private Integer plazo;
 
-	public Integer getId() {
-		return id;
-	}
+    @Transient
+    private List<Documento> documentos = new ArrayList<Documento>();
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    /*
+     * 2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
+     * feature-151: Identificación del campo tipo número de versión.
+     */
+    @Override
+    public String numeroVersion() {
+        return getCodigo();
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public String getCodigo() {
-		return codigo;
-	}
+    public String getNombre() {
+        return nombre;
+    }
 
-	public void setCodigo(String codigo) {
-		this.codigo = codigo;
-	}
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-	public Integer getSerie() {
-		return serie;
-	}
+    public String getCodigo() {
+        return codigo;
+    }
 
-	public void setSerie(Integer serie) {
-		this.serie = serie;
-	}
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
 
-	public Integer getRetArchivoGeneral() {
-		return retArchivoGeneral;
-	}
+    public Integer getSerie() {
+        return serie;
+    }
 
-	public void setRetArchivoGeneral(Integer retArchivoGeneral) {
-		this.retArchivoGeneral = retArchivoGeneral;
-	}
+    public void setSerie(Integer serie) {
+        this.serie = serie;
+    }
 
-	public Integer getRetArchivoCentral() {
-		return retArchivoCentral;
-	}
+    public Integer getRetArchivoGeneral() {
+        return retArchivoGeneral;
+    }
 
-	public void setRetArchivoCentral(Integer retArchivoCentral) {
-		this.retArchivoCentral = retArchivoCentral;
-	}
+    public void setRetArchivoGeneral(Integer retArchivoGeneral) {
+        this.retArchivoGeneral = retArchivoGeneral;
+    }
 
-	public Boolean getDisposicionDT() {
-		return disposicionDT;
-	}
+    public Integer getRetArchivoCentral() {
+        return retArchivoCentral;
+    }
 
-	public void setDisposicionDT(Boolean disposicionDT) {
-		this.disposicionDT = disposicionDT;
-	}
+    public void setRetArchivoCentral(Integer retArchivoCentral) {
+        this.retArchivoCentral = retArchivoCentral;
+    }
 
-	public Boolean getDisposicionD() {
-		return disposicionD;
-	}
+    public Boolean getDisposicionDT() {
+        return disposicionDT;
+    }
 
-	public void setDisposicionD(Boolean disposicionD) {
-		this.disposicionD = disposicionD;
-	}
+    public void setDisposicionDT(Boolean disposicionDT) {
+        this.disposicionDT = disposicionDT;
+    }
 
-	public Boolean getDisposicionM() {
-		return disposicionM;
-	}
+    public Boolean getDisposicionD() {
+        return disposicionD;
+    }
 
-	public void setDisposicionM(Boolean disposicionM) {
-		this.disposicionM = disposicionM;
-	}
+    public void setDisposicionD(Boolean disposicionD) {
+        this.disposicionD = disposicionD;
+    }
 
-	public Boolean getDisposicionS() {
-		return disposicionS;
-	}
+    public Boolean getDisposicionM() {
+        return disposicionM;
+    }
 
-	public void setDisposicionS(Boolean disposicionS) {
-		this.disposicionS = disposicionS;
-	}
+    public void setDisposicionM(Boolean disposicionM) {
+        this.disposicionM = disposicionM;
+    }
 
-	public Boolean getDisposicionE() {
-		return disposicionE;
-	}
+    public Boolean getDisposicionS() {
+        return disposicionS;
+    }
 
-	public void setDisposicionE(Boolean disposicionE) {
-		this.disposicionE = disposicionE;
-	}
+    public void setDisposicionS(Boolean disposicionS) {
+        this.disposicionS = disposicionS;
+    }
 
-	public String getProcedimiento() {
-		return procedimiento;
-	}
+    public Boolean getDisposicionE() {
+        return disposicionE;
+    }
 
-	public void setProcedimiento(String procedimiento) {
-		this.procedimiento = procedimiento;
-	}
+    public void setDisposicionE(Boolean disposicionE) {
+        this.disposicionE = disposicionE;
+    }
 
-	public Plantilla getPlantilla() {
-		return plantilla;
-	}
+    public String getProcedimiento() {
+        return procedimiento;
+    }
 
-	public void setPlantilla(Plantilla plantilla) {
-		this.plantilla = plantilla;
-	}
+    public void setProcedimiento(String procedimiento) {
+        this.procedimiento = procedimiento;
+    }
 
-	@Override
-	public String toString() {
-		return codigo + " - " + nombre;
-	}
+    public Plantilla getPlantilla() {
+        return plantilla;
+    }
 
-	public TipoDocumento getTipoDocumento() {
-		return tipoDocumento;
-	}
+    public void setPlantilla(Plantilla plantilla) {
+        this.plantilla = plantilla;
+    }
 
-	public void setTipoDocumento(TipoDocumento tipoDocumento) {
-		this.tipoDocumento = tipoDocumento;
-	}
+    @Override
+    public String toString() {
+        return codigo + " - " + nombre;
+    }
 
-	public Integer getPlazo() {
-		return plazo;
-	}
+    public TipoDocumento getTipoDocumento() {
+        return tipoDocumento;
+    }
 
-	public void setPlazo(Integer plazo) {
-		this.plazo = plazo;
-	}
+    public void setTipoDocumento(TipoDocumento tipoDocumento) {
+        this.tipoDocumento = tipoDocumento;
+    }
 
-	public List<Documento> getDocumentos() {
-		return documentos;
-	}
+    public Integer getPlazo() {
+        return plazo;
+    }
 
-	public void setDocumentos(List<Documento> documentos) {
-		this.documentos = documentos;
-	}
+    public void setPlazo(Integer plazo) {
+        this.plazo = plazo;
+    }
 
-	
+    public List<Documento> getDocumentos() {
+        return documentos;
+    }
+
+    public void setDocumentos(List<Documento> documentos) {
+        this.documentos = documentos;
+    }
+
 }

@@ -16,6 +16,8 @@ import java.util.Comparator;
 // 2017-05-15 jgarcia@controltechcg.com Issue #80 (SICDI-Controltech) feature-80
 public class NumeroVersionComparator implements Comparator<String>, Serializable {
 
+    private static final long serialVersionUID = -437297371215414350L;
+
     @Override
     public int compare(String version1, String version2) {
         String[] tokens1 = version1.split("\\.");
