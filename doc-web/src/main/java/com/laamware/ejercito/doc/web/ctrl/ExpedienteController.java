@@ -253,10 +253,9 @@ public class ExpedienteController extends UtilController {
     @RequestMapping(value = "/carpeta", method = {RequestMethod.GET, RequestMethod.POST})
     public String carpeta(@RequestParam(value = "ser", required = false) Integer serieID, @RequestParam(value = "sub", required = false) Integer subserieID,
             @RequestParam(value = "cargoFiltro", required = false) Integer cargoID, Model model, Principal principal) {
-
         model.addAttribute("ser", serieID);
         model.addAttribute("sub", subserieID);
-        model.addAttribute("cargoFiltro", cargoID);
+        model.addAttribute("cargoFiltro", cargoID == null ? 0 : cargoID);
 
         final Usuario usuarioSesion = getUsuario(principal);
 
