@@ -77,7 +77,7 @@ public class DependenciaCopiaMultidestinoService {
     @Autowired
     private DataSource dataSource;
 
-    @Value("${com.mul.imi.sicdi.maxNumDepMultidestino}")
+    @Value("${com.mil.imi.sicdi.maxNumDepMultidestino}")
     private Integer maxNumDepMultidestino;
 
     /**
