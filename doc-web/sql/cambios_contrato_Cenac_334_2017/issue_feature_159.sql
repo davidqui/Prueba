@@ -58,6 +58,27 @@ ON DOMINIO (ACTIVO);
 CREATE INDEX DOMINIO_PRV_VER_LINK_OWA_IDX 
 ON DOMINIO (DOM_PRV_VER_LINK_OWA);
 
+INSERT INTO DOMINIO 
+(DOM_CODIGO, NOMBRE, DESCRIPCION, QUIEN, CUANDO, ACTIVO, QUIEN_MOD, CUANDO_MOD, DOM_PRV_VER_LINK_OWA)
+VALUES
+('10', 'CAIMI', '', 3390, SYSDATE, 1, 3390, SYSDATE, 1)
+;
+
+-- -----------------------------------------------------------------------------
+-- TABLA: USUARIO (MODIFICACIONES)
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE USUARIO ADD (DOM_CODIGO VARCHAR2(8));
+
+ALTER TABLE USUARIO
+ADD CONSTRAINT USUARIO_DOM_CODIGO_FK
+FOREIGN KEY (DOM_CODIGO)
+REFERENCES DOMINIO (DOM_CODIGO);
+
+UPDATE USUARIO SET DOM_CODIGO = '10';
+
+ALTER TABLE USUARIO MODIFY (DOM_CODIGO VARCHAR2(8) NOT NULL);
+
 -- -----------------------------------------------------------------------------
 -- TABLA: H_DOMINIO
 -- -----------------------------------------------------------------------------

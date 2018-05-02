@@ -28,8 +28,7 @@ public class LinkOWARegistroUsoService {
      * @return Instancia del registro realizado.
      */
     public LinkOWARegistroUso registrar(final Usuario usuario, final String url) {
-        // TODO: 2018-05-02 jgarcia: Obtener el dominio del usuario.
-        LinkOWARegistroUso registro = new LinkOWARegistroUso(usuario, new Date(), null, url);
+        LinkOWARegistroUso registro = new LinkOWARegistroUso(usuario, new Date(), usuario.getDominio(), url);
         registro = repository.saveAndFlush(registro);
         return registro;
     }
