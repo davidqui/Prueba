@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.Dominio;
 import com.laamware.ejercito.doc.web.repo.DominioRepository;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,4 +18,8 @@ public class DominioService {
 
     @Autowired
     private DominioRepository dominioRepository;
+    
+    public List<Dominio> mostrarDominiosActivos() {
+        return dominioRepository.getByActivoTrue();
+    }
 }

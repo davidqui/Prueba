@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.repo;
 
 import com.laamware.ejercito.doc.web.entity.Dominio;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DominioRepository extends JpaRepository<Dominio, String> {
 
+    List<Dominio> getByActivoTrue();
 }

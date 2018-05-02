@@ -206,6 +206,10 @@ public class Usuario extends AuditActivoModifySupport {
      * 2018-05-02 jgarcia@controltechcg.com Issue #159 (SICDI-Controltech)
      * feature-159: Llave foránea de dominio de los usuarios.
      */
+    @LaamLabel("Dominio")
+    @LaamCreate(order = 220)
+    @LaamListColumn(order = 220)
+    @LaamWidget(list = "dominios", value = "select")
     @ManyToOne
     @JoinColumn(name = "DOM_CODIGO", referencedColumnName = "DOM_CODIGO")
     private Dominio dominio;

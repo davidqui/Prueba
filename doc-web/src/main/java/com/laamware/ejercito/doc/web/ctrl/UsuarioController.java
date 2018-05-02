@@ -29,6 +29,7 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
+import com.laamware.ejercito.doc.web.entity.Dominio;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.entity.Perfil;
@@ -40,6 +41,7 @@ import com.laamware.ejercito.doc.web.repo.GradosRepository;
 import com.laamware.ejercito.doc.web.repo.PerfilRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
+import com.laamware.ejercito.doc.web.serv.DominioService;
 import com.laamware.ejercito.doc.web.serv.LdapService;
 import com.laamware.ejercito.doc.web.serv.OFS;
 
@@ -65,6 +67,9 @@ public class UsuarioController extends UtilController {
 
     @Autowired
     CargosRepository cargosRepository;
+    
+    @Autowired
+    DominioService dominioService;
 
     @Autowired
     OFS ofs;
@@ -169,6 +174,18 @@ public class UsuarioController extends UtilController {
              */
             if(usuario.getUsuCargoPrincipalId() == null || usuario.getUsuCargoPrincipalId().getId() == null){
                 model.addAttribute(AppConstants.FLASH_ERROR, "El cargo principal del usuario es requerido");
+                usuario.setMode(UsuarioMode.getByName(UsuarioMode.REGISTRO_NAME));
+                model.addAttribute("usuario", usuario);
+                return "usuario";
+            }
+            
+            /*
+            * 2018-05-02 edison.gonzalez@controltechcg.com Issue #159
+            * (SICDI-Controltech) feature-159: Validación del campo dominio del 
+            * usuario.
+             */
+            if (usuario.getDominio() == null || usuario.getDominio().getCodigo() == null) {
+                model.addAttribute(AppConstants.FLASH_ERROR, "El dominio del usuario es requerido");
                 usuario.setMode(UsuarioMode.getByName(UsuarioMode.REGISTRO_NAME));
                 model.addAttribute("usuario", usuario);
                 return "usuario";
@@ -476,12 +493,21 @@ public class UsuarioController extends UtilController {
     /**
      * Carga el listado de cargos al modelo
      *
-     * @param id
      * @return
      */
     @ModelAttribute("cargos")
     public List<Cargo> cargos() {
         return cargosRepository.findAll(new Sort(Direction.ASC, "carNombre"));
+    }
+    
+    /**
+     * Carga el listado de dominios del sistema
+     *
+     * @return
+     */
+    @ModelAttribute("dominios")
+    public List<Dominio> dominios() {
+        return dominioService.mostrarDominiosActivos();
     }
 
     @ModelAttribute("descriptor")
