@@ -64,6 +64,15 @@
 
                 <a href="/capacitacion-juego/intro">Capacitación</a>
                 <a href="/video/manual_registro1_player.html" target="_blank">Manual  </a>
+
+    <#--
+        2018-05-02 jgarcia@controltechcg.com Issue #159 (SICDI-Controltech)
+        feature-159: Presentación de enlace al OWA, si el usuario en sesión
+        tiene activado el acceso en su configuración de dominio.
+    -->
+    <#if user_can_use_owa_link>
+        <a href="${owa_link_url}" target="_blank">Cambiar Contraseña</a>
+    </#if>
                 </div>
             </div>
     </#if>
@@ -111,7 +120,7 @@
                         <span class="hidden-lg-up">TAR</span>
                         </a>
                     </li>
-                
+
                 <li class="nav-item hidden-xs-down">
                     <form action="/consulta" method="GET" class="form-inline" id="consulta-form">
                         <div class="input-group">

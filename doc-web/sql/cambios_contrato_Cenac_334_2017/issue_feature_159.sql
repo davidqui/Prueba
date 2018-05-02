@@ -64,6 +64,12 @@ VALUES
 ('10', 'CAIMI', '', 3390, SYSDATE, 1, 3390, SYSDATE, 0)
 ;
 
+INSERT INTO DOMINIO 
+(DOM_CODIGO, NOMBRE, DESCRIPCION, QUIEN, CUANDO, ACTIVO, QUIEN_MOD, CUANDO_MOD, DOM_PRV_VER_LINK_OWA)
+VALUES
+('20', 'DIVISIÓN 8', '', 3390, SYSDATE, 1, 3390, SYSDATE, 1)
+;
+
 -- -----------------------------------------------------------------------------
 -- TABLA: USUARIO (MODIFICACIONES)
 -- -----------------------------------------------------------------------------
