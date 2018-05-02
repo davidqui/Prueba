@@ -34,6 +34,7 @@ import com.laamware.ejercito.doc.web.entity.OFSStage;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.OFSStageRepository;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
+import java.io.FilenameFilter;
 import java.util.Objects;
 
 @Service
@@ -208,7 +209,6 @@ public class OFS {
                     .append("convert -auto-orient -thumbnail 250x250 -unsharp 0x.5 ");
             cmd.append(path).append("[0] ");
             cmd.append("gif:").append(tmb);
-
             p = Runtime.getRuntime().exec(cmd.toString());
             p.waitFor();
 
@@ -292,6 +292,14 @@ public class OFS {
             b.append("/").append(id.charAt(i));
         }
         b.append("/").append(id);
+        return b.toString();
+    }
+
+    public String getPathDirectory(String id) {
+        StringBuilder b = new StringBuilder(root);
+        for (int i = 0; i < DIR_LEVELS; i++) {
+            b.append("/").append(id.charAt(i));
+        }
         return b.toString();
     }
 
@@ -469,8 +477,8 @@ public class OFS {
         watermark.setHorizontalAlignment(HorizontalAlignment.CENTER);
 
         /*
-		 * 2017-06-20 jgarcia@controltechcg.com Issue #3 (SICDI-Controltech)
-		 * hotfix-3.
+         * 2017-06-20 jgarcia@controltechcg.com Issue #3 (SICDI-Controltech)
+         * hotfix-3.
          */
         // Create a new paragraph and append the watermark to this paragraph.
         // Paragraph watermarkPara = new Paragraph(doc);
@@ -480,8 +488,8 @@ public class OFS {
             // There could be up to three different headers in each section,
             // since we want
             /*
-			 * 2017-06-20 jgarcia@controltechcg.com Issue #3 (SICDI-Controltech)
-			 * hotfix-3.
+             * 2017-06-20 jgarcia@controltechcg.com Issue #3 (SICDI-Controltech)
+             * hotfix-3.
              */
             insertWatermarkIntoHeader(watermark, sect, HeaderFooterType.HEADER_PRIMARY);
             insertWatermarkIntoHeader(watermark, sect, HeaderFooterType.HEADER_FIRST);
@@ -498,11 +506,11 @@ public class OFS {
      * @throws Exception
      */
     /*
-	 * 2017-06-20 jgarcia@controltechcg.com Issue #3 (SICDI-Controltech)
-	 * hotfix-3. Modificación de la adición de la marca de agua con respecto al
-	 * encabezado del documento. Tomado de:
-	 * https://www.aspose.com/community/forums/permalink/832037/832037/
-	 * showthread.aspx
+     * 2017-06-20 jgarcia@controltechcg.com Issue #3 (SICDI-Controltech)
+     * hotfix-3. Modificación de la adición de la marca de agua con respecto al
+     * encabezado del documento. Tomado de:
+     * https://www.aspose.com/community/forums/permalink/832037/832037/
+     * showthread.aspx
      */
     private static void insertWatermarkIntoHeader(Shape watermark, Section sect, int headerType) throws Exception {
         HeaderFooter header = sect.getHeadersFooters().getByHeaderFooterType(headerType);
@@ -510,6 +518,99 @@ public class OFS {
         if (header != null) {
             Paragraph watermarkPara = header.getFirstParagraph();
             watermarkPara.appendChild(watermark.deepClone(true));
+        }
+    }
+
+    /**
+     * Copia un archivo OFS (Datos y tipo de contenido) en otra ruta y destino,
+     * según el UUID indicado para el resultado.
+     *
+     * @param originUUID UUID de los archivos de origen.
+     * @param resultUUID UUID de los archivos resultado de la copia.
+     * @throws OFSException En caso que se presente alguna violación a las
+     * reglas de negocio, o algún problema de E/S.
+     */
+    /*
+     * 2018-04-17 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+     * feature-156: Método creado para el proceso de clonación de documentos
+     * para el proceso de envío multidestino.
+     */
+    void copy(final String originUUID, final String resultUUID) throws OFSException {
+        final String originPath = getPathDirectory(originUUID);
+        final File originDirectory = new File(originPath);
+        if (!originDirectory.exists()) {
+            throw new OFSException("Directorio origen no existe en OFS: " + originPath);
+        }
+
+        final File[] originFiles = originDirectory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith(originUUID);
+            }
+        });
+
+        if (originFiles == null || originFiles.length == 0) {
+            throw new OFSException("Archivos no existe en OFS: " + originUUID);
+        }
+
+        final String resultPath = getPathDirectory(resultUUID);
+        final File resultDirectory = new File(resultPath);
+
+        if (!resultDirectory.exists()) {
+            try {
+                FileUtils.forceMkdir(resultDirectory);
+            } catch (IOException ex) {
+                throw new OFSException("Error al crear directorio: " + resultPath, ex);
+            }
+        }
+
+        for (final File originFile : originFiles) {
+            try {
+                final String originFilename = originFile.getName();
+                final String resultFilename = originFilename.replaceAll(originUUID, resultUUID);
+
+                final File resultFile = new File(resultPath + File.separator + resultFilename);
+                FileUtils.copyFile(originFile, resultFile);
+                resultFile.setLastModified(getRandomTime());
+            } catch (IOException ex) {
+                throw new OFSException("Error clonando archivo: " + originUUID + "-" + resultUUID, ex);
+            }
+        }
+    }
+
+    /**
+     * Elimina un archivo OFS (Datos y tipo de contenido),según el UUID indicado
+     * para el resultado.
+     *
+     * @param deleteUUID UUID de los archivos a borrar.
+     * @throws OFSException En caso que se presente alguna violación a las
+     * reglas de negocio, o algún problema de E/S.
+     */
+    /*
+     * 2018-04-19 edison.gonzalez@controltechcg.com Issue #156 (SICDI-Controltech)
+     * feature-156: Método creado para el proceso de clonación de documentos
+     * para el proceso de envío multidestino.
+     */
+    void delete(final String deleteUUID) throws OFSException {
+        final String deletePath = getPathDirectory(deleteUUID);
+        final File deleteDirectory = new File(deletePath);
+        if (!deleteDirectory.exists()) {
+            throw new OFSException("Directorio de archivo a borrar no existe en OFS: " + deletePath);
+        }
+
+        final File[] deleteFiles = deleteDirectory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith(deleteUUID);
+            }
+        });
+
+        if (deleteFiles == null || deleteFiles.length == 0) {
+            throw new OFSException("Archivos no existe en OFS: " + deleteUUID);
+        }
+
+        for (final File deleteFile : deleteFiles) {
+            FileUtils.deleteQuietly(deleteFile);
         }
     }
 }
