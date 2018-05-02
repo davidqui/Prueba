@@ -635,48 +635,7 @@
                 </div>
             </fieldset>
         </#if>
-        <!--
-            cargo
-        -->
-        <#if mode.cargoIdElabora_edit && cambiarIdCargoElabora!false>
-        <fieldset class="form-group">
-            <label for="cargoIdElabora">Cargo (*)</label>
-                <@spring.bind "documento.cargoIdElabora" />
-            <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
-                    <#if cargosXusuario??>   
-                        <#list cargosXusuario as cla>
-                        <#if cla.id?string == ((documento.cargoIdElabora.id)!"")?string >
-                            <option value="${cla.id}" selected="selected">${cla.nombre}</option>
-                        <#else>
-                            <option value="${cla.id}">${cla.nombre}</option>
-                        </#if>
-                        </#list>
-                    </#if>
-                </select>
-            <small class="text-muted">Cargo con el cual se creará el documento.</small>
-            <div class="error">
-                    <@spring.showErrors "<br>"/>
-                </div>
-            </fieldset>
-        </#if>
         
-        <#if mode.cargoIdFirma_edit && cambiarIdCargoFirma!false>
-            <fieldset class="form-group">
-                <label for="cargoIdFirma">Cargo (*)</label>
-                <select class="form-control" id="cargoIdFirma" name="cargoIdFirma" onchange="onChangeDocumentoCargoFirma(this, '17')">
-                    <#if cargosXusuario??>   
-                        <#list cargosXusuario as cla>
-                        <#if cla.id?string == ((documento.cargoIdFirma.id)!"")?string >
-                            <option value="${cla.id}" selected="selected">${cla.nombre}</option>
-                        <#else>
-                            <option value="${cla.id}">${cla.nombre}</option>
-                        </#if>
-                        </#list>
-                    </#if>    
-                </select>
-                <small class="text-muted">Cargo con el cual se firmará el documento.</small>
-            </fieldset>
-        </#if>
         <!--
             Contenido
         -->
@@ -715,6 +674,52 @@
             <iframe src="/ofs/viewer?file=/ofs/download/${documento.pdf}" width="100%" height="700px"></iframe>                    
             </div>                   	               
             </#if>            
+        </#if>
+        
+        <!--
+            cargo
+        -->
+        <#if mode.cargoIdElabora_edit && cambiarIdCargoElabora!false>
+        <fieldset class="form-group">
+            <label for="cargoIdElabora" style="font-weight: bold;">Cargo con el cual se creará el documento (*)</label>
+                <@spring.bind "documento.cargoIdElabora" />
+            <div style="border: 2px solid;">
+            <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}">
+                    <#if cargosXusuario??>   
+                        <#list cargosXusuario as cla>
+                        <#if cla.id?string == ((documento.cargoIdElabora.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.nombre}</option>
+                        </#if>
+                        </#list>
+                    </#if>
+                </select>
+                </div>
+            
+            <div class="error">
+                    <@spring.showErrors "<br>"/>
+                </div>
+            </fieldset>
+        </#if>
+        
+        <#if mode.cargoIdFirma_edit && cambiarIdCargoFirma!false>
+            <fieldset class="form-group">
+                <label for="cargoIdFirma" style="font-weight: bold;">Cargo con el cual se firmará el documento (*)</label>
+                <div style="border: 2px solid;">
+                <select class="form-control" id="cargoIdFirma" name="cargoIdFirma" onchange="onChangeDocumentoCargoFirma(this, '17')">
+                    <#if cargosXusuario??>   
+                        <#list cargosXusuario as cla>
+                        <#if cla.id?string == ((documento.cargoIdFirma.id)!"")?string >
+                            <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                        <#else>
+                            <option value="${cla.id}">${cla.nombre}</option>
+                        </#if>
+                        </#list>
+                    </#if>    
+                </select>
+                    </div>
+            </fieldset>
         </#if>
         <nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
         	<#--
