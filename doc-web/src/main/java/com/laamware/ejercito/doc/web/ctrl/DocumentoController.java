@@ -2860,16 +2860,6 @@ public class DocumentoController extends UtilController {
         return redirectURL;
     }
 
-    /**
-     * Método temporal para las pruebas del Issue #156. TODO: DEBE SER ELIMINADO
-     * TRAS EL DESARROLLO AL IGUAL QUE EL TEMPLATE INDICADO.
-     *
-     * @return
-     */
-    @RequestMapping(value = "/firmar-nuevo-temporal", method = RequestMethod.GET)
-    public String mostrarFormFirmarTemporal() {
-        return "firmar-nuevo-temporal";
-    }
 
     /**
      * Aplica la lógica de firma y envío para un documento.
