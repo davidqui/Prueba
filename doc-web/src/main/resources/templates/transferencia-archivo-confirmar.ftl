@@ -75,4 +75,14 @@
         </div>
 
     </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnOK").click(function() {
+        $(this).attr("disabled", "disabled");
+        $(this).text("Procesando...");
+        // 2017-02-17 jgarcia@controltechcg.com Issue #143: Corrección para funcionalidad en Google Chrome.
+        $(this).closest("form").submit();
+        });
+    });
+</script>
 <#include "footer.ftl" />
