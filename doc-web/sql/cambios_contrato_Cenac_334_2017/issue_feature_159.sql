@@ -61,7 +61,7 @@ ON DOMINIO (DOM_PRV_VER_LINK_OWA);
 INSERT INTO DOMINIO 
 (DOM_CODIGO, NOMBRE, DESCRIPCION, QUIEN, CUANDO, ACTIVO, QUIEN_MOD, CUANDO_MOD, DOM_PRV_VER_LINK_OWA)
 VALUES
-('10', 'CAIMI', '', 3390, SYSDATE, 1, 3390, SYSDATE, 1)
+('10', 'CAIMI', '', 3390, SYSDATE, 1, 3390, SYSDATE, 0)
 ;
 
 -- -----------------------------------------------------------------------------
