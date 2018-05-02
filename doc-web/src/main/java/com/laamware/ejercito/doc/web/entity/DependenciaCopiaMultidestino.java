@@ -106,9 +106,9 @@ public class DependenciaCopiaMultidestino implements Serializable {
         this.documentoOriginal = documentoOriginal;
         this.dependenciaDestino = dependenciaDestino;
         this.quien = quien;
-        this.cuando = cuando;
+        this.cuando = (cuando == null) ? null : new Date(cuando.getTime());
         this.quienMod = quien;
-        this.cuandoMod = cuando;
+        this.cuandoMod = (cuando == null) ? null : new Date(cuando.getTime());
 
         activo = Boolean.TRUE;
     }
@@ -154,11 +154,11 @@ public class DependenciaCopiaMultidestino implements Serializable {
     }
 
     public Date getFechaHoraCreacionDocumentoResultado() {
-        return fechaHoraCreacionDocumentoResultado;
+        return (fechaHoraCreacionDocumentoResultado == null) ? null : new Date(fechaHoraCreacionDocumentoResultado.getTime());
     }
 
     public void setFechaHoraCreacionDocumentoResultado(Date fechaHoraCreacionDocumentoResultado) {
-        this.fechaHoraCreacionDocumentoResultado = fechaHoraCreacionDocumentoResultado;
+        this.fechaHoraCreacionDocumentoResultado = (fechaHoraCreacionDocumentoResultado == null) ? null : new Date(fechaHoraCreacionDocumentoResultado.getTime());
     }
 
     public Usuario getQuien() {
@@ -170,11 +170,11 @@ public class DependenciaCopiaMultidestino implements Serializable {
     }
 
     public Date getCuando() {
-        return cuando;
+        return (cuando == null) ? null : new Date(cuando.getTime());
     }
 
     public void setCuando(Date cuando) {
-        this.cuando = cuando;
+        this.cuando = (cuando == null) ? null : new Date(cuando.getTime());
     }
 
     public Usuario getQuienMod() {
@@ -186,11 +186,11 @@ public class DependenciaCopiaMultidestino implements Serializable {
     }
 
     public Date getCuandoMod() {
-        return cuandoMod;
+        return (cuandoMod == null) ? null : new Date(cuandoMod.getTime());
     }
 
     public void setCuandoMod(Date cuandoMod) {
-        this.cuandoMod = cuandoMod;
+        this.cuandoMod = (cuandoMod == null) ? null : new Date(cuandoMod.getTime());
     }
 
     @Override
