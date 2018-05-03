@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,9 +38,16 @@ public final class DateUtil {
     }
 
     /**
+     * Constructor privado para clases utilitarias.
+     */
+    private DateUtil() {
+    }
+
+    /**
      * Establece en la instancia de fecha, la hora extrema del día, según el
      * tipo seleccionado.
      *
+     * @param <T> Tipo de fecha a manejar.
      * @param date Instancia de fecha.
      * @param timeType Tipo de hora extrema del día.
      * @return La instancia de fecha ingresada con una nueva hora, según lo
@@ -64,6 +73,7 @@ public final class DateUtil {
     /**
      * Adiciona a la fecha la cantidad indicada al campo establecido.
      *
+     * @param <T> Tipo de fecha a manejar.
      * @param date Fecha.
      * @param calendarField Campo de la clase {@link Calendar}
      * @param amount Cantidad a adicionar.
@@ -116,9 +126,87 @@ public final class DateUtil {
         return null;
     }
 
+    /**
+     * Establece una fecha con los datos indicados.
+     *
+     * @param year Año.
+     * @param month Mes.
+     * @param date Día.
+     * @param hour Hora.
+     * @param minute Minuto.
+     * @param second Segundo.
+     * @return Fecha con los datos indicados.
+     */
     public static Date setDateTime(int year, int month, int date, int hour, int minute, int second) {
         Calendar working = GregorianCalendar.getInstance();
         working.set(year, month, date, hour, minute, second);
         return working.getTime();
+    }
+
+    /**
+     * Crea una lista de años entre el rango indicado.
+     *
+     * @param minYear Año mínimo del rango.
+     * @param maxYear Año máximo del rango.
+     * @param asc Indica si la lista debe tener orden ascendente
+     * ({@link Boolean#TRUE}) u orden descendente ({@link Boolean#FALSE}).
+     * @return Lista de años entre el rango indicado en el orden establecido.
+     */
+    /*
+     * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+     * feature-157.
+     */
+    public static List<Integer> createListOfYears(final Integer minYear, final Integer maxYear, final Boolean asc) {
+        final List<Integer> list = new LinkedList<>();
+
+        if (asc) {
+            for (Integer year = minYear; year <= maxYear; year++) {
+                list.add(year);
+            }
+        } else {
+            for (Integer year = maxYear; year >= minYear; year--) {
+                list.add(year);
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * Obtiene la mínima fecha del mes/año indicados.
+     *
+     * @param month Índice de mes según {@link Calendar}.
+     * @param year Año.
+     * @return Fecha minima del mes con hora inicial (00:00:00).
+     */
+    /*
+     * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+     * feature-157.
+     */
+    public static Date getMinDateOfMonth(final int month, final int year) {
+        final Calendar calendar = GregorianCalendar.getInstance();
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DATE, calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+        return setTime(calendar.getTime(), SetTimeType.START_TIME);
+    }
+
+    /**
+     * Obtiena la máxima fecha del mes/año indicados.
+     *
+     * @param month Índice de mes según {@link Calendar}.
+     * @param year Año.
+     * @return Fecha máxima del mes con hora final (23:59:59).
+     */
+    /*
+     * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+     * feature-157.
+     */
+    public static Date getMaxDateOfMonth(final int month, final int year) {
+        final Calendar calendar = GregorianCalendar.getInstance();
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DATE, calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+        return setTime(calendar.getTime(), SetTimeType.START_TIME);
     }
 }

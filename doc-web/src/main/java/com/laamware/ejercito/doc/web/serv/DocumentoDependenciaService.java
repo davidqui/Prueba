@@ -5,7 +5,9 @@ import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -36,11 +38,12 @@ public class DocumentoDependenciaService {
      *
      * @param subserie Subserie TRD. Obligatorio.
      * @param usuario Usuario. Obligatorio.
-     * @param cargo Cargo.
+     * @param cargo Cargo. Opcional.
+     * @param anyo Año. Opcional.
      * @return Lista de registros de archivo para los parámetros indicados.
      */
-    public List<DocumentoDependenciaArchivoDTO> findAllBySubserieAndUsuarioAndCargo(final Trd subserie, final Usuario usuario, final Cargo cargo) {
-        final String sql = ""
+    public List<DocumentoDependenciaArchivoDTO> findAllBySubserieAndUsuarioAndCargoAndAnyo(final Trd subserie, final Usuario usuario, final Cargo cargo, final Integer anyo) {
+        String sql = ""
                 + "SELECT documento.doc_radicado AS \"numeroRadicado\",\n"
                 + "       documento.pin_id AS \"procesoInstanciaID\",\n"
                 + "       documento.doc_asunto AS \"documentoAsunto\",\n"
@@ -55,8 +58,16 @@ public class DocumentoDependenciaService {
                 + "WHERE documento_dependencia.activo = 1\n"
                 + "  AND documento_dependencia.trd_id = ?\n"
                 + "  AND documento_dependencia.quien = ?\n"
-                + (cargo == null ? "" : "     AND documento_dependencia .cargo_id = ?\n")
-                + "  AND dependencia_trd.activo = 1\n"
+                + (cargo == null ? "" : "     AND documento_dependencia .cargo_id = ?\n");
+        /*
+         * 2018-05-04 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+         * feature-157: Adición del filtro de año.
+         */
+        if (anyo != null && anyo != 0) {
+            sql += " AND documento_dependencia.cuando BETWEEN ? AND ? \n";
+        }
+
+        sql += "  AND dependencia_trd.activo = 1\n"
                 + "  AND dependencia_trd.dep_id = ?\n"
                 + "ORDER BY documento_dependencia.cuando DESC"
                 + "";
@@ -64,9 +75,19 @@ public class DocumentoDependenciaService {
         final List<Object> params = new ArrayList<>();
         params.add(subserie.getId());
         params.add(usuario.getId());
+
         if (cargo != null) {
             params.add(cargo.getId());
         }
+        /*
+         * 2018-05-04 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+         * feature-157: Adición del filtro de año.
+         */
+        if (anyo != null && anyo != 0) {
+            params.add(DateUtil.getMinDateOfMonth(Calendar.JANUARY, anyo));
+            params.add(DateUtil.getMaxDateOfMonth(Calendar.DECEMBER, anyo));
+        }
+        
         params.add(usuario.getDependencia().getId());
 
         final RowMapper<DocumentoDependenciaArchivoDTO> rowMapper = new BeanPropertyRowMapper<>(DocumentoDependenciaArchivoDTO.class);
