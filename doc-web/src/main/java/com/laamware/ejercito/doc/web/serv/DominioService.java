@@ -26,6 +26,10 @@ public class DominioService {
         return dominioRepository.getByActivoTrue(sort);
     }
 
+    public List<Dominio> findAll(Sort sort) {
+        return dominioRepository.findAll(sort);
+    }
+
     public Dominio findOne(String id) {
         return dominioRepository.findOne(id);
     }
@@ -109,6 +113,32 @@ public class DominioService {
             if (dominio.getVisualizaLinkOWA() == null) {
                 dominio.setVisualizaLinkOWA(Boolean.FALSE);
             }
+
+            dominioRepository.saveAndFlush(dominio);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mensaje = "Excepcion-" + e.getMessage();
+        }
+        return mensaje;
+    }
+    
+    /**
+     * Eliminar del dominio
+     * @param dominio dominio a ser editado
+     * @param usuario Usuario que aplico el cambio
+     * @return 
+     */
+    public String eliminarDominio(Dominio dominio, Usuario usuario) {
+        String mensaje = "OK";
+        try {
+            dominio.setQuienMod(usuario);
+            dominio.setCuandoMod(new Date());
+
+            if (dominio.getVisualizaLinkOWA() == null) {
+                dominio.setVisualizaLinkOWA(Boolean.FALSE);
+            }
+            
+            dominio.setActivo(Boolean.FALSE);
 
             dominioRepository.saveAndFlush(dominio);
         } catch (Exception e) {

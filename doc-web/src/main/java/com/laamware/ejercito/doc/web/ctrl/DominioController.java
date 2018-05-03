@@ -6,6 +6,7 @@ import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.DominioService;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -39,14 +41,21 @@ public class DominioController extends UtilController {
 
     /**
      * Permite listar todos los dominios del sistema
+     * @param all
      * @param model
      * @return Pagina de consulta de dominio
      */
     @RequestMapping(value = {""}, method = RequestMethod.GET)
-    public String list(Model model) {
+    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "nombre"));
-        List<Dominio> list = dominioService.mostrarDominiosActivos(sort);
+        List<Dominio> list = new ArrayList<>();
+        if (!all) {
+            list = dominioService.mostrarDominiosActivos(sort);
+        }else{
+            list = dominioService.findAll(sort);
+        }
         model.addAttribute("list", list);
+        model.addAttribute("all", all);
         return "dominio-list";
     }
 
@@ -149,6 +158,29 @@ public class DominioController extends UtilController {
             }
         }
         return "dominio-edit";
+    }
+    
+    /**
+     * Permite eliminar el dominio del sistema
+     * @param model
+     * @param req
+     * @param redirect
+     * @param principal
+     * @return 
+     */
+    @RequestMapping(value = {"/delete"}, method = RequestMethod.GET)
+    public String delete(Model model, HttpServletRequest req, RedirectAttributes redirect, Principal principal) {
+        String codigo = req.getParameter("codigo");
+        try {
+            Usuario logueado = getUsuario(principal);
+            Dominio dominio = dominioService.findOne(codigo);
+            dominioService.eliminarDominio(dominio, logueado);
+            model.addAttribute(AppConstants.FLASH_SUCCESS, "Dependencia eliminada con éxito");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+        }
+        return "redirect:" + PATH;
     }
 
     @ModelAttribute("descriptor")
