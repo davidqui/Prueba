@@ -10,10 +10,10 @@
     <div class="row">
         <h1 class="cus-h1-page-title">${pageTitle}</h1>
 	<@flash/>
-        <form action="/admin/dominio/crear" method="POST" enctype="multipart/form-data" >
+        <form action="/admin/dominio/actualizar" method="POST" enctype="multipart/form-data" >
             <fieldset class="form-group">
                 <label for="codigo">Código</label>
-                <input type="text" class="form-control" id="codigo" name="codigo" value="${(dominio.codigo)!""}"/>
+                <input type="text" class="form-control" id="codigo" name="codigo" value="${(dominio.codigo)!""}" readonly/>
                 </fieldset>
 
             <fieldset class="form-group">

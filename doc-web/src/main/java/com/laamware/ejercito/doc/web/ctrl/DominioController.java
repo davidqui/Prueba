@@ -3,10 +3,11 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Dominio;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.DominioService;
+import java.security.Principal;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +37,11 @@ public class DominioController extends UtilController {
 
     static final String PATH = "/admin/dominio";
 
+    /**
+     * Permite listar todos los dominios del sistema
+     * @param model
+     * @return Pagina de consulta de dominio
+     */
     @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String list(Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "nombre"));
@@ -44,14 +50,24 @@ public class DominioController extends UtilController {
         return "dominio-list";
     }
 
+    /**
+     * Permite visualizar el formulario de creación de un dominio del sistema
+     * @param model
+     * @return Pagina que crea el dominio
+     */
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(Model model) {
         Dominio dominio = new Dominio();
-        dominio.setCodigo("hjdhjsdhjdsj");
         model.addAttribute("dominio", dominio);
         return "dominio-create";
     }
 
+    /**
+     * Permite visualizar el formulario de edición de un dominio del sistema
+     * @param model
+     * @param req
+     * @return Pagina que edita el dominio
+     */
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
         String codigo = req.getParameter("codigo");
@@ -60,13 +76,24 @@ public class DominioController extends UtilController {
         return "dominio-edit";
     }
 
+    /**
+     * Permite crear un dominio del sistema
+     * @param e
+     * @param req
+     * @param eResult
+     * @param model
+     * @param redirect
+     * @param archivo
+     * @param principal
+     * @return 
+     */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
-    public String crear(@Valid Dominio e, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
-            MultipartFile archivo) {
-        System.err.println("dominio= " + e);
+    public String crear(Dominio e, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
+            MultipartFile archivo, Principal principal) {
         model.addAttribute("dominio", e);
-        System.err.println("dominio despues= " + e);
-        String retorno = dominioService.crearDominio(e);
+
+        Usuario logueado = getUsuario(principal);
+        String retorno = dominioService.crearDominio(e, logueado);
         if ("OK".equals(retorno)) {
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
@@ -87,13 +114,23 @@ public class DominioController extends UtilController {
         return "dominio-create";
     }
 
-    @RequestMapping(value = {"/save"}, method = RequestMethod.POST)
-    public String save(@Valid Dominio e, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
-            MultipartFile archivo) {
-        System.err.println("dominio save= " + e);        
+    /**
+     * Permite actualizar el dominio del sistema
+     * @param e
+     * @param req
+     * @param eResult
+     * @param model
+     * @param redirect
+     * @param archivo
+     * @param principal
+     * @return 
+     */
+    @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
+    public String actualizar(Dominio e, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
+            MultipartFile archivo, Principal principal) {
         model.addAttribute("dominio", e);
-
-        String retorno = dominioService.editarDominio(e);
+        Usuario logueado = getUsuario(principal);
+        String retorno = dominioService.editarDominio(e, logueado);
         if ("OK".equals(retorno)) {
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
