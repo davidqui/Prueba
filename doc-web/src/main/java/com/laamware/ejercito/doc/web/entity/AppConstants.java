@@ -197,4 +197,9 @@ public class AppConstants {
 	public static final String ADMIN_CARGOS = "ADMIN_CARGOS";
 	public static final String PATH_ADMIN_CARGOS = "/admin/cargos";
 
+        /**
+	 * Rol de administración de dominio
+	 */
+	public static final String ADMIN_DOMINIO = "ADMIN_DOMINIO";
+	public static final String PATH_ADMIN_DOMINIO = "/admin/dominio";
 }

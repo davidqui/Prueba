@@ -52,6 +52,8 @@
                   
                 <@link_admin  "ADMIN_CARGOS" "/admin/cargos" 'cargos' 'Cargos'/>
                   
+                <@link_admin  "ADMIN_DOMINIO" "/admin/dominio" 'Dominios' 'Dominios'/>
+                  
                 <@link_admin  "ADMIN_INFORMES" "/admin/informes/init" 'informes' 'Informes'/>
                 
                 <@link_admin  "ADMIN_FORMATOS" "/admin/formatos" 'formatos' 'Formatos'/>

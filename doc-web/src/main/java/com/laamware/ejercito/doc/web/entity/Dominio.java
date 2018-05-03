@@ -29,13 +29,22 @@ public class Dominio implements Serializable {
     @Id
     @Basic(optional = false)
     @Column(name = "DOM_CODIGO")
+    @LaamLabel("Código")
+    @LaamListColumn(order = 20)
+    @LaamCreate(order = 20)
     private String codigo;
 
     @Basic(optional = false)
     @Column(name = "NOMBRE")
+    @LaamLabel("Nombre")
+    @LaamListColumn(order = 30)
+    @LaamCreate(order = 30)
     private String nombre;
 
     @Column(name = "DESCRIPCION")
+    @LaamLabel("Descripción")
+    @LaamListColumn(order = 40)
+    @LaamCreate(order = 40)
     private String descripcion;
 
     @ManyToOne
@@ -60,6 +69,10 @@ public class Dominio implements Serializable {
 
     @Basic(optional = false)
     @Column(name = "DOM_PRV_VER_LINK_OWA")
+    @LaamLabel("Permitir ver link OWA")
+    @LaamCreate(order = 50)
+    @LaamListColumn(order = 50)
+    @LaamWidget(value = "checkbox")
     private Boolean visualizaLinkOWA;
 
     /**

@@ -507,7 +507,7 @@ public class UsuarioController extends UtilController {
      */
     @ModelAttribute("dominios")
     public List<Dominio> dominios() {
-        return dominioService.mostrarDominiosActivos();
+        return dominioService.mostrarDominiosActivos(new Sort(new Sort.Order(Sort.Direction.DESC, "nombre")));
     }
 
     @ModelAttribute("descriptor")

@@ -225,3 +225,6 @@ BEGIN
     :NEW.DOM_PRV_VER_LINK_OWA
   );
 END;
+
+insert into ROL (ROL_ID, QUIEN, CUANDO, QUIEN_MOD, CUANDO_MOD, ACTIVO, ROL_NOMBRE) values ('ADMIN_DOMINIO',3390, sysdate,3390,sysdate,1,'Administrar dominios');
+COMMIT;
