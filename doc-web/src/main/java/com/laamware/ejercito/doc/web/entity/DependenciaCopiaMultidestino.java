@@ -72,7 +72,7 @@ public class DependenciaCopiaMultidestino implements Serializable {
     private Date cuando;
 
     @ManyToOne
-    @JoinColumn(name = "QUIEN_MOD", updatable = false, insertable = true, nullable = false)
+    @JoinColumn(name = "QUIEN_MOD", updatable = true, insertable = true, nullable = false)
     private Usuario quienMod;
 
     @Column(name = "CUANDO_MOD")

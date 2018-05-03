@@ -2773,7 +2773,7 @@ public class DocumentoController extends UtilController {
 
             if (numPendientes != 0) {
                 try {
-                    multidestinoService.clonarDocumentoMultidestino(documento);
+                    multidestinoService.clonarDocumentoMultidestino(documento, usuarioSesion);
                 } catch (UncategorizedSQLException ex) {
                     java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
                     redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getSQLException().getMessage());
@@ -2859,7 +2859,6 @@ public class DocumentoController extends UtilController {
                 buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
         return redirectURL;
     }
-
 
     /**
      * Aplica la lógica de firma y envío para un documento.
@@ -5075,11 +5074,11 @@ public class DocumentoController extends UtilController {
      * @param instancia Instancia del proceso.
      * @param textoInicial Texto inicial del mensaje de asignación.
      *
-     * @return Objeto que almacena el valor de texto inicial (Si se ha
-     * colocado alguno) seguido del nombre del asignado primario. En caso que el
+     * @return Objeto que almacena el valor de texto inicial (Si se ha colocado
+     * alguno) seguido del nombre del asignado primario. En caso que el
      * documento de la instancia del proceso tenga asociados dependencias copias
-     * multidestino, adicionara a una lista la información de los jefes
-     * de cada dependencia.
+     * multidestino, adicionara a una lista la información de los jefes de cada
+     * dependencia.
      */
     /*
      * 2018-04-16 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)

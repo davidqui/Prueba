@@ -239,7 +239,7 @@ public class DependenciaCopiaMultidestinoService {
      * @throws com.laamware.ejercito.doc.web.serv.OFSException
      */
     @Transactional(rollbackFor = Exception.class)
-    public void clonarDocumentoMultidestino(final Documento documentoOriginal) throws Exception {
+    public void clonarDocumentoMultidestino(final Documento documentoOriginal, final Usuario usuarioSesion) throws Exception {
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
 
         List<String> uuids = new ArrayList();
@@ -253,7 +253,7 @@ public class DependenciaCopiaMultidestinoService {
 
                 uuids.add(p_doc_content_file);
                 uuids.add(p_doc_docx_documento);
-                clonarDocumentoMultidestino(conn, documentoOriginal, copiaMultidestino, p_doc_content_file, p_doc_content_file);
+                clonarDocumentoMultidestino(conn, documentoOriginal, copiaMultidestino, p_doc_content_file, p_doc_content_file, usuarioSesion);
             }
         } catch (Exception e) {
             for (String uuid : uuids) {
@@ -290,7 +290,7 @@ public class DependenciaCopiaMultidestinoService {
      * @param copiaMultidestino Registro de dependencia copia multidestino.
      */
     // TODO: Quitar logs de ejecución.
-    private void clonarDocumentoMultidestino(final Connection conn, final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino, final String p_doc_content_file, final String p_doc_docx_documento) throws Exception {
+    private void clonarDocumentoMultidestino(final Connection conn, final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino, final String p_doc_content_file, final String p_doc_docx_documento, final Usuario usuarioSesion) throws Exception {
         try {
             final String p_doc_id_origen = documentoOriginal.getId();
             final String p_pin_id_nuevo = GeneralUtils.newId();
@@ -318,12 +318,12 @@ public class DependenciaCopiaMultidestinoService {
                     .addValue(P_DOC_CONTENT_FILE, p_doc_content_file)
                     .addValue(P_DOC_DOCX_DOCUMENTO, p_doc_docx_documento)
                     .addValue(P_ARRAY_UUID_DOC_ADJUNTO, p_array_uuid_doc_adjunto);
-            
+
             simpleJdbcCall.execute(sqlParameterSource);
 
             final Documento documentoResultado = documentoRepository.getOne(p_doc_id_nuevo);
             copiaMultidestino.setDocumentoResultado(documentoResultado);
-
+            copiaMultidestino.setQuienMod(usuarioSesion);
             copiaMultidestino.setFechaHoraCreacionDocumentoResultado(new Date());
 
             multidestinoRepository.saveAndFlush(copiaMultidestino);
