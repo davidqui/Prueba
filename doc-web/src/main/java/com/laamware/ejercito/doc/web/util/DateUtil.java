@@ -206,7 +206,7 @@ public final class DateUtil {
         final Calendar calendar = GregorianCalendar.getInstance();
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.DATE, calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.DATE, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
         return setTime(calendar.getTime(), SetTimeType.START_TIME);
     }
 }

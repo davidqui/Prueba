@@ -74,6 +74,10 @@
     <#--
         2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
         feature-151: Mejora en presentación de las tablas.
+
+        2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+        feture-157: Complemento del enlace según el uso del 
+        filtro de año.
     -->
     <table class="table table-bordered table-hover">
         <thead>
@@ -87,7 +91,7 @@
         	<#list series as serie>
             <tr>
                 <td nowrap>${serie.codigo}</td>
-                <td><a href="carpeta?ser=${serie.id}&cargoFiltro=${cargoFiltro!"0"}">${serie.nombre}</a></td>
+                <td><a href="carpeta?ser=${serie.id}&cargoFiltro=${cargoFiltro!"0"}&anyo=${anyo!"0"}">${serie.nombre}</a></td>
                 <td>${serie.numeroDocumentosArchivados}</td>
                 </tr>
             </#list>            
@@ -141,11 +145,15 @@
             <#--
                 2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
                 feature-151: Uso de DTO para la presentación de información.
+
+                2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+                feture-157: Complemento del enlace según el uso del 
+                filtro de año.
             -->
             <#list subseries as subserie>
             <tr>
                 <td nowrap="">${subserie.codigo}</td>
-                <td><a href="carpeta?sub=${subserie.id}&cargoFiltro=${cargoFiltro!"0"}">${subserie.nombre}</a></td>                	
+                <td><a href="carpeta?sub=${subserie.id}&cargoFiltro=${cargoFiltro!"0"}&anyo=${anyo!"0"}">${subserie.nombre}</a></td>                	
                 <td>${subserie.numeroDocumentosArchivados}</td>
                 </tr>
             </#list>            
