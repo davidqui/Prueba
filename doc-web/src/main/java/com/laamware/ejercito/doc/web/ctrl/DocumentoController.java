@@ -133,7 +133,7 @@ import org.springframework.jdbc.UncategorizedSQLException;
 @RequestMapping(DocumentoController.PATH)
 public class DocumentoController extends UtilController {
 
-    private static final String TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO = "Asignados Copia Dependencia Multidestino:";
+    private static final String TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO = "Documento Multidestino asignado a:";
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy hh:mm a", new Locale("es", "CO"));
     /* **************************** REFORMA ********************************* */
@@ -5100,7 +5100,7 @@ public class DocumentoController extends UtilController {
          */
         final String asignadoPrincipal = usuarioService.mostrarInformacionBasica(instancia.getAsignado());
         final String textoPrincipal = textoInicial + asignadoPrincipal;
-        final FlashAttributeValue flashAttributeValue = new FlashAttributeValue(textoPrincipal, TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO);
+        FlashAttributeValue flashAttributeValue = new FlashAttributeValue(textoPrincipal, TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO, false, 0);
 
         /*
          * 2017-02-08 jgarcia@controltechcg.com Issue #118 Modificación para que
@@ -5127,6 +5127,9 @@ public class DocumentoController extends UtilController {
         }
 
         final Map<Integer, Usuario> jefesMap = new LinkedHashMap<>();
+        jefesMap.put(instancia.getAsignado().getId(), instancia.getAsignado());
+
+        final Map<String, Usuario> radicadoJefe = new LinkedHashMap<>();
 
         for (int i = 0; i < copiaMultidestinos.size(); i++) {
             final DependenciaCopiaMultidestino copiaMultidestino = copiaMultidestinos.get(i);
@@ -5155,6 +5158,7 @@ public class DocumentoController extends UtilController {
                      * bandejas del sistema.
                      */
                     jefesMap.put(jefe.getId(), jefe);
+                    radicadoJefe.put(copiaMultidestino.getDocumentoResultado().getRadicado(), jefe);
                 }
             }
         }
@@ -5163,10 +5167,16 @@ public class DocumentoController extends UtilController {
         final List<Usuario> jefes = new ArrayList<>(jefesMap.values());
         Collections.sort(jefes, usuarioGradoComparator);
 
+        String mensaje = "<table style=\"font-size:12px\">";
         for (final Usuario jefe : jefes) {
-            flashAttributeValue.addAltMessage(usuarioService.mostrarInformacionBasica(jefe));
+            for (Map.Entry<String, Usuario> entry : radicadoJefe.entrySet()) {
+                if (entry.getValue().getId().equals(jefe.getId())) {
+                    mensaje = mensaje + "<tr><td style=\"padding:3px\"> Radicado: " + entry.getKey() + "</td><td style=\"padding:3px\"> a &#09;" + usuarioService.mostrarInformacionBasica(jefe) + "</td></tr>";
+                }
+            }
         }
+        mensaje = mensaje + "</table>";
 
-        return flashAttributeValue;
+        return new FlashAttributeValue(TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO, mensaje, true, radicadoJefe.size());
     }
 }

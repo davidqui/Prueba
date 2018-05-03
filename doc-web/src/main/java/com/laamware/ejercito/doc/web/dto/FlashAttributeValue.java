@@ -1,9 +1,6 @@
 package com.laamware.ejercito.doc.web.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Clase que controla los mensajes de notificación cuando se realiza una asignación
@@ -16,41 +13,32 @@ public class FlashAttributeValue implements Serializable {
 
     private final String mainMessage;
 
-    private final String altMessagesTitle;
+    private final String altMessageMultidestino;
+    
+    private final Boolean multidestino;
+    
+    private final Integer numRecords;
 
-    private final List<String> altMessagesList = new ArrayList<>();
-
-    public FlashAttributeValue(String mainMessage, String altMessagesTitle) {
+    public FlashAttributeValue(String mainMessage, String altMessageMultidestino,Boolean multidestino, Integer numRecords) {
         this.mainMessage = mainMessage;
-        this.altMessagesTitle = altMessagesTitle;
+        this.altMessageMultidestino = altMessageMultidestino;
+        this.multidestino = multidestino;
+        this.numRecords = numRecords;
     }
 
     public String getMainMessage() {
         return mainMessage;
     }
 
-    public String getAltMessagesTitle() {
-        return altMessagesTitle;
+    public String getAltMessageMultidestino() {
+        return altMessageMultidestino;
     }
 
-    public int getAltMessagesSize() {
-        return altMessagesList.size();
+    public Boolean getMultidestino() {
+        return multidestino;
     }
 
-    public boolean isAltMessagesEmpty() {
-        return altMessagesList.isEmpty();
+    public Integer getNumRecords() {
+        return numRecords;
     }
-
-    public boolean addAltMessage(final String altMessage) {
-        return altMessagesList.add(altMessage);
-    }
-
-    public String getAltMessages(int index) {
-        return altMessagesList.get(index);
-    }
-
-    public Collection<String> getAllAltMessages() {
-        return altMessagesList;
-    }
-
 }

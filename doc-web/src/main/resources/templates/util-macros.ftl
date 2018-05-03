@@ -51,8 +51,6 @@
             <div class="alert ${flashClass}">
                 <strong>
                     <p class="text-center">${flashMsg.mainMessage}</p>
-                    <#assign limitShowAllAtlMessages = 3 />
-                    <#assign canShowAllAltMessages = flashMsg.getAltMessagesSize() <= limitShowAllAtlMessages />
 
                     <script type="text/javascript">
                         function toogleFlashAltMessages(obj){
@@ -68,15 +66,11 @@
                         }
                     </script>
                     
-                    <#if !flashMsg.isAltMessagesEmpty()>
-                        <p class="text-left">${flashMsg.altMessagesTitle}<#if !canShowAllAltMessages> (<a href="#" onclick="toogleFlashAltMessages(this); return false;">Ver ${flashMsg.getAltMessagesSize()} Registros</a>)</#if></p>
+                    <#if flashMsg.multidestino>
+                        <p class="text-left"><#if flashMsg.multidestino> (<a href="#" onclick="toogleFlashAltMessages(this); return false;">Ver ${flashMsg.numRecords} Registros</a>)</#if></p>
 
-                        <div id="flash-alt-messages-list" class="text-left" <#if !canShowAllAltMessages>style="display: none;"</#if>>
-                            <ul>
-                                <#list flashMsg.getAllAltMessages() as altMessage>
-                                    <li>${altMessage}</li>
-                                </#list>
-                            </ul>
+                        <div id="flash-alt-messages-list" class="text-left" <#if flashMsg.multidestino>style="display: none;"</#if>>
+                            ${flashMsg.altMessageMultidestino}
                         </div>
                     </#if>
                 </strong>
