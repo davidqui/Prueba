@@ -207,11 +207,7 @@
                                     <div class="row">
                                         <div class="col-md-7">
                                             <div id="arbol_list_trd">
-                                                <#if did??>
-                                                    <@listTrds trds=trds selected=did href=false/>
-                                                <#else>
-                                                    <@listTrds trds=trds href=false/>
-                                                </#if>
+                                                <@listTrds trds=trds/>
                                             </div>
                                         </div>
                                     </div>

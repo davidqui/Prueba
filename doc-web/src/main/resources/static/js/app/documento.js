@@ -64,13 +64,13 @@ function eliminarDocumentoDependenciaAdicional(idCopiaMultidestino) {
 }
 
 $('#arbol_list_trd').on("select_node.jstree", function (e, data) {
-    var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
-    var id = data.instance.get_node(data.node, true).attr('id');
-    if (window.location.href !== newLoc) {
-        document.location = newLoc + ("&idseleccionado=" + id);
+    console.log(data.node.parents.length);
+    if (data.node.parents.length === 1) {
+//        $(myVar).jstree("open_node", nodeID);
+        ("#arbol_list_trd").jstree("open_node",data.node);
+    } else {
+        $("#trd").val(data.node.data.jstree.id);
+        $("#trdNombre").text(data.node.text);
+        $("#trdModalArbol").modal('hide');
     }
-    
-    $("#trd").val(data.node.data.jstree.id);
-    $("#trdNombre").text(data.node.text);
-    $("#trdModalArbol").modal('hide');
 }).jstree();
