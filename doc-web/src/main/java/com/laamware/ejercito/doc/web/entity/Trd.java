@@ -119,6 +119,12 @@ public class Trd extends AuditActivoModifySupport implements NumeroVersionIdenti
 
     @Transient
     private List<Documento> documentos = new ArrayList<Documento>();
+    
+    /**
+     * Lista de trds asociadas
+     */
+    @Transient
+    private List<Trd> subs;
 
     /*
      * 2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
@@ -262,4 +268,11 @@ public class Trd extends AuditActivoModifySupport implements NumeroVersionIdenti
         this.documentos = documentos;
     }
 
+    public List<Trd> getSubs() {
+        return subs;
+    }
+
+    public void setSubs(List<Trd> subs) {
+        this.subs = subs;
+    }   
 }

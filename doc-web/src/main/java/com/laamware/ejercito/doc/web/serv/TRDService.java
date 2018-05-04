@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
+import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import java.util.Collections;
 import java.util.List;
@@ -207,5 +208,13 @@ public class TRDService {
 
         final RowMapper<TrdArchivoDocumentosDTO> rowMapper = new BeanPropertyRowMapper<>(TrdArchivoDocumentosDTO.class);
         return jdbcTemplate.query(sql, params.toArray(), rowMapper);
+    }
+    
+    public List<Trd> findSeriesByUsuario(Usuario usuario){
+        return trdRepository.findSeriesByDependencia(usuario.getDependencia().getId());
+    }
+    
+    public List<Trd> findSubseriesbySerieAndUsuario(Trd serie, Usuario usuario){
+        return trdRepository.findSubseries(serie.getId(), usuario.getDependencia().getId());
     }
 }
