@@ -1,3 +1,9 @@
+/**
+ * Metodo que se llama cada vez que se selecciona un nodo del arbol
+ * de la dependencia destino.
+ * @param e  Variable que corresponde al evento
+ * @param data Variable que contiene la información del arbol
+ */
 $('#arbol_list_dependenciasj').on("select_node.jstree", function (e, data) {
     var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
     var id = data.instance.get_node(data.node, true).attr('id');
@@ -9,6 +15,12 @@ $('#arbol_list_dependenciasj').on("select_node.jstree", function (e, data) {
     $("#dependenciaDestinoModalArbol").modal('hide');
 }).jstree();
 
+/**
+ * Metodo que se llama cada vez que se selecciona un nodo del arbol
+ * de la dependencia adicionales.
+ * @param e  Variable que corresponde al evento
+ * @param data Variable que contiene la información del arbol
+ */
 $('#arbol_list_dependenciasadi').on("select_node.jstree", function (e, data) {
     var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
     var id = data.instance.get_node(data.node, true).attr('id');
@@ -62,3 +74,20 @@ function eliminarDocumentoDependenciaAdicional(idCopiaMultidestino) {
     });
     return false;
 }
+
+/**
+ * Metodo que se llama cada vez que se selecciona un nodo del arbol
+ * de TRDS.
+ * @param e  Variable que corresponde al evento
+ * @param data Variable que contiene la información del arbol
+ */
+$('#arbol_list_trd').on("select_node.jstree", function (e, data) {
+    console.log(data.node.parents.length);
+    if (data.node.parents.length === 1) {
+        $(this).jstree("open_node",data.node.id);
+    } else {
+        $("#trd").val(data.node.data.jstree.id);
+        $("#trdNombre").text(data.node.text);
+        $("#trdModalArbol").modal('hide');
+    }
+}).jstree();

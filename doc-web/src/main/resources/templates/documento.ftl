@@ -25,6 +25,7 @@
  -->
 <#include "lib/documento_functions.ftl" />
 <#include "gen-arbol-dependencias.ftl">
+<#include "gen-arbol-trd.ftl">
 
 <div class="col-md-8">
     <#if relacionado??>
@@ -161,7 +162,7 @@
                     <div class="input-group">
                         <div class="form-control" id="trdNombre">${(documento.trd)!"Por favor seleccione una subserie..."}</div>
                         <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#trdModal">
+                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#trdModalArbol">
                                 <span class="hidden-md-down">Seleccionar</span><span class="hidden-lg-up">S</span>
                                 </button>
                             </span>
@@ -188,8 +189,41 @@
                     </div>
                 </div>
             </div>
+        
+            <#--
+                2018-05-07 edison.gonzalez@controltechcg.com Issue #1577 (SIGDI-Controltech): Convertir la selección
+                de la TRD en arbol. 
+             -->
+            <div class="modal fade" id="trdModalArbol" tabindex="-1" role="dialog" aria-labelledby="trdModalArbolLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                                <span class="sr-only">Cerrar</span>
+                            </button>
+                            <h4 class="modal-title" id="trdModalLabel">Selección de tabla de retención documental</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card">
+                                <div class="card-block">
+                                    <div class="row">
+                                        <div class="col-md-7">
+                                            <div id="arbol_list_trd">
+                                                <@listTrds trds=trds/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                            <br /><br />
+                        </div>
+                    </div>
+                </div>
+            </div>
             <#assign deferredJSTrd>
-                <script type="text/javascript" src="/js/app/trd-modal.js"></script>
+                <!--<script type="text/javascript" src="/js/app/trd-modal.js"></script>-->
             </#assign>
             <#assign deferredJS = deferredJS + " " + deferredJSTrd>
         </#if>
@@ -1408,6 +1442,9 @@
     </script>
     <script type="text/javascript">
         validarArbol("#arbol_list_dependenciasadi",false);
+    </script>
+    <script type="text/javascript">
+        validarArbol("#arbol_list_trd",false);
     </script>
     <script src="/js/app/documento.js"></script>
 </#assign>

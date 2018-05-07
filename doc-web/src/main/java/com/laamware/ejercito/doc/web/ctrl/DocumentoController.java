@@ -115,6 +115,7 @@ import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.RadicadoService;
+import com.laamware.ejercito.doc.web.serv.TRDService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
@@ -260,6 +261,9 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     CargosRepository cargosRepository;
+
+    @Autowired
+    TRDService tRDService;
 
     /**
      * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
@@ -558,7 +562,10 @@ public class DocumentoController extends UtilController {
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
         List<Dependencia> listaDependencias = depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
-
+        
+        // 2018-05-04 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
+        List<Trd> listaTrds = trdsHierarchy(usuarioLogueado);
+        model.addAttribute("trds", listaTrds);
         /*
          * 2017-11-17 edison.gonzalez@controltechcg.com Issue #139: Verifica permisos
          * de acceso al documento.
@@ -883,7 +890,7 @@ public class DocumentoController extends UtilController {
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
         List<Dependencia> listaDependencias = depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
-
+        
         // Obtiene la instancia de proceso
         Instancia i = procesoService.instancia(pin);
 
@@ -898,6 +905,11 @@ public class DocumentoController extends UtilController {
 
         //2018-02-27 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech)
         Usuario logueado = getUsuario(principal);
+        
+        // 2018-05-04 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
+        List<Trd> listaTrds = trdsHierarchy(logueado);
+        model.addAttribute("trds", listaTrds);
+        
         Integer elaboraDocumento = null;
         if (doc.getElabora() != null) {
             elaboraDocumento = doc.getElabora().getId();
@@ -2860,6 +2872,7 @@ public class DocumentoController extends UtilController {
         return redirectURL;
     }
 
+    
     /**
      * Aplica la lógica de firma y envío para un documento.
      *
@@ -5178,5 +5191,22 @@ public class DocumentoController extends UtilController {
         mensaje = mensaje + "</table>";
 
         return new FlashAttributeValue(TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO, mensaje, true, radicadoJefe.size());
+    }
+
+    private List<Trd> trdsHierarchy(Usuario usuario) {
+        List<Trd> trds = tRDService.findSeriesByUsuario(usuario);
+
+        for (Trd trd : trds) {
+            trdsHierarchy(trd,usuario);
+        }
+        return trds;
+    }
+
+    private void trdsHierarchy(Trd d, Usuario usuario) {
+        List<Trd> subs = tRDService.findSubseriesbySerieAndUsuario(d, usuario);
+        d.setSubs(subs);
+        for (Trd x : subs) {
+            trdsHierarchy(x, usuario);
+        }
     }
 }
