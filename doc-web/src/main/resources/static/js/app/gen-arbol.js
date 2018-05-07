@@ -1,3 +1,8 @@
+/**
+ * Dunción que se encarga de retornar el identificador del nodo seleccionado.
+ * @param {type} sParam
+ * @returns {getUrlParameter.sParameterName|Boolean}
+ */
 function getUrlParameter(sParam) {
     var sPageURL = decodeURIComponent(window.location.search.substring(1)),
         sURLVariables = sPageURL.split('&'),
@@ -11,15 +16,22 @@ function getUrlParameter(sParam) {
     }
 };
 
-function validarArbol(myVar, selectVar = true, dependenciaPropia = false){
+/**
+ * 
+ * @param {type} myVar
+ * @param {type} selectVar
+ * @param {type} abrirNodoDependencia
+ * @returns {undefined}
+ */
+function validarArbol(myVar, selectVar = true, abrirNodoDependencia = false){
     
     $(myVar).jstree().bind('ready.jstree', function(event, data) {
         var idS = getUrlParameter('idseleccionado');
-        if (idS !== undefined && idS !== null && !dependenciaPropia) {
+        if (idS !== undefined && idS !== null && !abrirNodoDependencia) {
             data.instance._open_to(idS);
         } 
         
-        if(dependenciaPropia){
+        if(abrirNodoDependencia){
             abrirArbolXdependencia(idS);
         }
     });
@@ -36,6 +48,12 @@ function validarArbol(myVar, selectVar = true, dependenciaPropia = false){
             .jstree();
     }
     
+    /**
+     * Función que se encarga de abrir y seleccionar la dependemcia del usuario
+     * en sesión
+     * @param {type} selId
+     * @returns {undefined}
+     */
     function abrirArbolXdependencia(selId) {
         $.ajax({
             url: "/documento/seleccionarDependencia",
@@ -63,6 +81,11 @@ function validarArbol(myVar, selectVar = true, dependenciaPropia = false){
         });
     };
     
+    /**
+     * Función que se encarga de expandir un nodo.
+     * @param {type} nodeID Identificador del nodo
+     * @returns {undefined}
+     */
     function expandNode(nodeID) {
         while (nodeID !== '#') {
             $(myVar).jstree("open_node", nodeID);
