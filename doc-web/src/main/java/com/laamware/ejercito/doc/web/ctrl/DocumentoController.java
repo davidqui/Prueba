@@ -4163,6 +4163,7 @@ public class DocumentoController extends UtilController {
 
         model.addAttribute("pin", instanciaID);
         model.addAttribute("tid", transicionID);
+        model.addAttribute("did", dependenciaID);
 
         Transicion transicion = transicionRepository.findOne(transicionID);
         model.addAttribute("transicion", transicion);
