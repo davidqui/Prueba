@@ -1072,7 +1072,7 @@
     	
     	<div class="card">
 	    <div class="card-header">
-                Copia dependencias
+                Unidades o dependencias destino adicionales a enviar el documento
 	        <#if mode.guardar_view >
 		    <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaDestinoAdicionalModal">
 		        <span class="hidden-md-down"> Adicionar </span><span class="hidden-lg-up">S</span>
