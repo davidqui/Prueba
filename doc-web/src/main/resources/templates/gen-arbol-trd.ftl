@@ -8,11 +8,11 @@
         <#list trds as d>	
             <#assign tamanio = d.subs?size>
             <#if d.subs?has_content >
-                <li data-jstree='{ "id" : ${d.id} , "opened" : false }'><a>${d.codigo} - ${d.nombre} prueba1</a>
+                <li data-jstree='{ "id" : ${d.id} , "opened" : false }'><a>${d.codigo} - ${d.nombre}</a>
                     <@listTrds d.subs/>
                 </li>
             <#else>
-                <li data-jstree='{ "id" : ${d.id} , "opened" : false }'><a > ${d.codigo} - ${d.nombre}prueba3</a></li>
+                <li data-jstree='{ "id" : ${d.id} , "opened" : false }'><a > ${d.codigo} - ${d.nombre}</a></li>
             </#if>			
         </#list>
     </ul>
