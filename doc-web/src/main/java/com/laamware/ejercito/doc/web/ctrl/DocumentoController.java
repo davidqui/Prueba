@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.aspose.words.BuiltInDocumentProperties;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -119,11 +120,18 @@ import com.laamware.ejercito.doc.web.serv.TRDService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
+import com.laamware.ejercito.doc.web.util.DocumentProperties;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
+import com.laamware.ejercito.doc.web.util.Global;
 import com.laamware.ejercito.doc.web.util.UsuarioGradoComparator;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
@@ -3066,7 +3074,7 @@ public class DocumentoController extends UtilController {
                     break;
                 }
 
-                /**
+                /*
                  * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129 : Se
                  * adiciona la marca de agua para documentos externos.
                  */
@@ -3076,6 +3084,14 @@ public class DocumentoController extends UtilController {
                     break;
                 }
             }
+
+            /*
+             * 2018-05-07 jgarcia@controltechcg.com Issue #160
+             * (SICDI-Controltech) feature-160. Se establecen las propiedades
+             * del documento ASPOSE a generar como PDF.
+             */
+            final DocumentProperties documentProperties = buildDocumentProperties(documento);
+            setAsposeDocumentProperties(documentAspose, documentProperties);
 
             File fTempSalidaPDF = File.createTempFile("_sigdi_temp_", ".pdf");
             documentAspose.save(fTempSalidaPDF.getPath());
@@ -5232,5 +5248,142 @@ public class DocumentoController extends UtilController {
         for (Trd subserie : subseries) {
             fillTrdsHierarchy(subserie, usuario);
         }
+    }
+
+    /**
+     * Construye las propiedades del documento que han de quedar consignadas
+     * como data en el documento físico que se descarga (PDF).
+     *
+     * @param documento Documento.
+     * @return Coleccion de propiedades/valor para el documento.
+     */
+    /*
+     * 2018-05-07 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160.
+     */
+    private DocumentProperties buildDocumentProperties(final Documento documento) {
+        final DocumentProperties properties = new DocumentProperties();
+
+        // Author
+        final Integer quien = documento.getQuien();
+        final Usuario usuarioAutor = usuarioService.findOne(quien);
+        final String autorInformacionBasica = usuarioService.mostrarInformacionBasica(usuarioAutor);
+        properties.putPropertyValue(DocumentProperties.Property.Author, autorInformacionBasica);
+
+        // CreatedTime
+        final Date cuando = documento.getCuando();
+        properties.putPropertyValue(DocumentProperties.Property.CreatedTime, cuando);
+
+        // LastSavedBy
+        final Usuario usuarioFirma = documento.getFirma();
+        final String usuarioFirmaInformacionBasica = usuarioService.mostrarInformacionBasica(usuarioFirma);
+        properties.putPropertyValue(DocumentProperties.Property.LastSavedBy, usuarioFirmaInformacionBasica);
+
+        // LastSavedTime
+        final Date cuandoMod = documento.getCuandoMod();
+        properties.putPropertyValue(DocumentProperties.Property.LastSavedTime, cuandoMod);
+
+        // NameOfApplication
+        properties.putPropertyValue(DocumentProperties.Property.NameOfApplication, Global.APPLICATION_NAME);
+
+        final String asunto = documento.getAsunto();
+
+        // Subject
+        properties.putPropertyValue(DocumentProperties.Property.Subject, asunto);
+
+        // Title
+        properties.putPropertyValue(DocumentProperties.Property.Title, asunto);
+
+        return properties;
+    }
+
+    /**
+     * Establece las propiedades del documento, como propiedades del documento
+     * ASPOSE.
+     *
+     * @param documentAspose Documento ASPOSE.
+     * @param documentProperties Propiedades del documento a establecer.
+     */
+    /*
+     * 2018-05-07 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160.
+     */
+    private void setAsposeDocumentProperties(final Document documentAspose, final DocumentProperties documentProperties) {
+        for (DocumentProperties.Property property : DocumentProperties.Property.values()) {
+            final Object value = documentProperties.getValue(property);
+            if (value != null) {
+                setAsposeDocumentProperty(documentAspose, property, value);
+            }
+        }
+    }
+
+    /**
+     * Establece el valor de una propiedad en el documento ASPOSE.
+     *
+     * @param documentAspose Documento ASPOSE.
+     * @param property Propiedad.
+     * @param value Valor. No debe ser {@code null}.
+     */
+    /*
+     * 2018-05-07 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160.
+     */
+    private void setAsposeDocumentProperty(final Document documentAspose, final DocumentProperties.Property property, final Object value) {
+        final BuiltInDocumentProperties documentProperties = documentAspose.getBuiltInDocumentProperties();
+
+        switch (property) {
+            case Author:
+                documentProperties.setAuthor((String) value);
+                return;
+            case Comments:
+                documentProperties.setComments((String) value);
+                return;
+            case CreatedTime:
+                final Date createdTimeUTC = buildToUTC((Date) value);
+                documentProperties.setCreatedTime(createdTimeUTC);
+                return;
+            case Keywords:
+                documentProperties.setKeywords((String) value);
+                return;
+            case LastSavedBy:
+                documentProperties.setLastSavedBy((String) value);
+                return;
+            case LastSavedTime:
+                final Date lastSavedTimeUTC = buildToUTC((Date) value);
+                documentProperties.setLastSavedTime(lastSavedTimeUTC);
+                return;
+            case NameOfApplication:
+                documentProperties.setNameOfApplication((String) value);
+                return;
+            case Subject:
+                documentProperties.setSubject((String) value);
+                return;
+            case Title:
+                documentProperties.setTitle((String) value);
+                return;
+            default:
+                return;
+        }
+    }
+
+    /**
+     * Construye una fecha UTC a partir de la fecha indicada.
+     *
+     * @param date Fecha.
+     * @return Fecha con movimiento en milisegundos según la zona del tiempo,
+     * con el fin que esta pueda ser establecida como UTC y así cuando se
+     * visualice se presentará la hora de verdad en aplicaciones como Acrobat
+     * Reader.
+     */
+    /*
+     * 2018-05-07 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160.
+     */
+    private Date buildToUTC(final Date date) {
+        final int offset = TimeZone.getDefault().getOffset(date.getTime());
+        final Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MILLISECOND, (-1 * offset));
+        return calendar.getTime();
     }
 }
