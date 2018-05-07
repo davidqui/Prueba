@@ -190,7 +190,10 @@
                 </div>
             </div>
         
-        
+            <#--
+                2018-05-07 edison.gonzalez@controltechcg.com Issue #1577 (SIGDI-Controltech): Convertir la selección
+                de la TRD en arbol. 
+             -->
             <div class="modal fade" id="trdModalArbol" tabindex="-1" role="dialog" aria-labelledby="trdModalArbolLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
