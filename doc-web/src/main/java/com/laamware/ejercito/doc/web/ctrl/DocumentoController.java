@@ -562,9 +562,9 @@ public class DocumentoController extends UtilController {
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
         List<Dependencia> listaDependencias = depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
-        
+
         // 2018-05-04 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
-        List<Trd> listaTrds = trdsHierarchy(usuarioLogueado);
+        List<Trd> listaTrds = buildTrdsHierarchy(usuarioLogueado);
         model.addAttribute("trds", listaTrds);
         /*
          * 2017-11-17 edison.gonzalez@controltechcg.com Issue #139: Verifica permisos
@@ -890,7 +890,7 @@ public class DocumentoController extends UtilController {
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
         List<Dependencia> listaDependencias = depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
-        
+
         // Obtiene la instancia de proceso
         Instancia i = procesoService.instancia(pin);
 
@@ -905,11 +905,11 @@ public class DocumentoController extends UtilController {
 
         //2018-02-27 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech)
         Usuario logueado = getUsuario(principal);
-        
+
         // 2018-05-04 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
-        List<Trd> listaTrds = trdsHierarchy(logueado);
+        List<Trd> listaTrds = buildTrdsHierarchy(logueado);
         model.addAttribute("trds", listaTrds);
-        
+
         Integer elaboraDocumento = null;
         if (doc.getElabora() != null) {
             elaboraDocumento = doc.getElabora().getId();
@@ -2872,7 +2872,6 @@ public class DocumentoController extends UtilController {
         return redirectURL;
     }
 
-    
     /**
      * Aplica la lógica de firma y envío para un documento.
      *
@@ -5193,20 +5192,45 @@ public class DocumentoController extends UtilController {
         return new FlashAttributeValue(TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO, mensaje, true, radicadoJefe.size());
     }
 
-    private List<Trd> trdsHierarchy(Usuario usuario) {
-        List<Trd> trds = tRDService.findSeriesByUsuario(usuario);
+    /**
+     * Permite obtener las Series TRD de acuerdo al usuario.
+     *
+     * @param usuario Usuario.
+     * @return Lista de series TRD permitidas al usuario.
+     */
+    /*
+     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
+     * (SICDI-Controltech) feature-157
+     */
+    private List<Trd> buildTrdsHierarchy(Usuario usuario) {
+        final List<Trd> trds = tRDService.findSeriesByUsuario(usuario);
+        tRDService.ordenarPorCodigo(trds);
 
         for (Trd trd : trds) {
-            trdsHierarchy(trd,usuario);
+            fillTrdsHierarchy(trd, usuario);
         }
+
         return trds;
     }
 
-    private void trdsHierarchy(Trd d, Usuario usuario) {
-        List<Trd> subs = tRDService.findSubseriesbySerieAndUsuario(d, usuario);
-        d.setSubs(subs);
-        for (Trd x : subs) {
-            trdsHierarchy(x, usuario);
+    /**
+     * Permite obtener las Subseries TRD pertenecientes a una Serie TRD de
+     * acuerdo al usuario.
+     *
+     * @param serie Serie TRD.
+     * @param usuario Usuario.
+     */
+    /*
+     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
+     * (SICDI-Controltech) feature-157
+     */
+    private void fillTrdsHierarchy(Trd serie, Usuario usuario) {
+        final List<Trd> subseries = tRDService.findSubseriesbySerieAndUsuario(serie, usuario);
+        tRDService.ordenarPorCodigo(subseries);
+        serie.setSubs(subseries);
+
+        for (Trd subserie : subseries) {
+            fillTrdsHierarchy(subserie, usuario);
         }
     }
 }
