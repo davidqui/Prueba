@@ -222,7 +222,6 @@ public class Documento extends AuditModifySupport {
 //    @OneToMany
 //    @JoinColumn(name = "DOC_ID")
 //    private List<DocumentoDependenciaDestino> documentoDependenciaDestinos = new ArrayList<DocumentoDependenciaDestino>();
-
     @Column(name = "FECHA_GEN_CODIGO_SCANNER")
     private Date fechaGeneracionCodigoScanner;
 
@@ -275,7 +274,15 @@ public class Documento extends AuditModifySupport {
     @JoinColumn(name = "CARGO_ID_ELABORA", referencedColumnName = "CAR_ID")
     @ManyToOne
     private Cargo cargoIdElabora;
-    
+
+    /*
+     * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160: Campo para UUID de firma y envío.
+     */
+    @Size(max = 32)
+    @Column(name = "DOC_FIRMA_ENVIO_UUID")
+    private String firmaEnvioUUID;
+
     @OneToMany
     @JoinColumn(name = "DOC_ID_ORIGINAL")
     private List<DependenciaCopiaMultidestino> dependenciaCopiaMultidestinos = new ArrayList<DependenciaCopiaMultidestino>();
@@ -906,11 +913,12 @@ public class Documento extends AuditModifySupport {
     }
 
     /**
-     * Permite identificar si el documento puede presentar la opción para agregar
-     * o eliminar las dependencias adicionales cuando es un documento multidestino.
+     * Permite identificar si el documento puede presentar la opción para
+     * agregar o eliminar las dependencias adicionales cuando es un documento
+     * multidestino.
      *
-     * @return {@code true} si el documento puede presentar la opción multidestino; de
-     * lo contrario, {@code false}.
+     * @return {@code true} si el documento puede presentar la opción
+     * multidestino; de lo contrario, {@code false}.
      */
     // 2018-04-10 edison.gonzalez@controltechcg.com Issue #156 (SICDI-Controltech)
     // Se realiza ajuste para validar los campos requeridos, para visualizar la
@@ -925,22 +933,22 @@ public class Documento extends AuditModifySupport {
             if (asunto == null || asunto.trim().length() == 0) {
                 return Boolean.FALSE;
             }
-            
-            if(dependenciaDestino == null || dependenciaDestino.getJefe() == null || dependenciaDestino.getJefe().getId() == null){
+
+            if (dependenciaDestino == null || dependenciaDestino.getJefe() == null || dependenciaDestino.getJefe().getId() == null) {
                 return Boolean.FALSE;
             }
-            
-            if(clasificacion == null || clasificacion.getId() == null){
+
+            if (clasificacion == null || clasificacion.getId() == null) {
                 return Boolean.FALSE;
             }
-            
-            if(trd == null || trd.getId() == null || isDocx4jDocumentoVacio()){
+
+            if (trd == null || trd.getId() == null || isDocx4jDocumentoVacio()) {
                 return Boolean.FALSE;
             }
-                
+
             return Boolean.TRUE;
         }
-        
+
         return Boolean.FALSE;
     }
 
@@ -1088,7 +1096,6 @@ public class Documento extends AuditModifySupport {
 //
 //        return sb.toString();
 //    }
-
     public List<DependenciaCopiaMultidestino> getDependenciaCopiaMultidestinos() {
         return dependenciaCopiaMultidestinos;
     }
@@ -1184,4 +1191,13 @@ public class Documento extends AuditModifySupport {
     public void setCargoIdElabora(Cargo cargoIdElabora) {
         this.cargoIdElabora = cargoIdElabora;
     }
+
+    public String getFirmaEnvioUUID() {
+        return firmaEnvioUUID;
+    }
+
+    public void setFirmaEnvioUUID(String firmaEnvioUUID) {
+        this.firmaEnvioUUID = firmaEnvioUUID;
+    }
+
 }

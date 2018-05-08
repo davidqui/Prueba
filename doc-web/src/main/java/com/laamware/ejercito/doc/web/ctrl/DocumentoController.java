@@ -3086,6 +3086,14 @@ public class DocumentoController extends UtilController {
             }
 
             /*
+             * 2018-05-08 jgarcia@controltechcg.com Issue #160
+             * (SICDI-Controltech) feature-160: Se establece el UUID para firma
+             * y envio.
+             */
+            final String firmaEnvioUUID = generarFirmaEnvioUUID();
+            documento.setFirmaEnvioUUID(firmaEnvioUUID);
+
+            /*
              * 2018-05-07 jgarcia@controltechcg.com Issue #160
              * (SICDI-Controltech) feature-160. Se establecen las propiedades
              * del documento ASPOSE a generar como PDF.
@@ -5274,6 +5282,10 @@ public class DocumentoController extends UtilController {
         final Date cuando = documento.getCuando();
         properties.putPropertyValue(DocumentProperties.Property.CreatedTime, cuando);
 
+        // Keywords
+        final String firmaEnvioUUID = documento.getFirmaEnvioUUID();
+        properties.putPropertyValue(DocumentProperties.Property.Keywords, firmaEnvioUUID);
+
         // LastSavedBy
         final Usuario usuarioFirma = documento.getFirma();
         final String usuarioFirmaInformacionBasica = usuarioService.mostrarInformacionBasica(usuarioFirma);
@@ -5385,5 +5397,26 @@ public class DocumentoController extends UtilController {
         calendar.setTime(date);
         calendar.add(Calendar.MILLISECOND, (-1 * offset));
         return calendar.getTime();
+    }
+
+    /**
+     * Genera un UUID para firma y envío del documento.
+     *
+     * @return UUID para firma y envío.
+     */
+    /*
+     * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160.
+     */
+    private String generarFirmaEnvioUUID() {
+        String uuid = null;
+        Documento documento = new Documento();
+
+        while (documento != null) {
+            uuid = GeneralUtils.newId();
+            documento = documentRepository.findOneByFirmaEnvioUUID(uuid);
+        }
+
+        return uuid;
     }
 }
