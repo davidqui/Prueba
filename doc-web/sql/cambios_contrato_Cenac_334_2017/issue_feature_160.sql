@@ -10,3 +10,12 @@
 ALTER TABLE DOCUMENTO ADD (DOC_FIRMA_ENVIO_UUID VARCHAR2(32 CHAR));
 
 CREATE INDEX DOCUMENTO_FIRMA_ENVIO_UUID_IDX ON DOCUMENTO (DOC_FIRMA_ENVIO_UUID);
+
+-- -----------------------------------------------------------------------------
+-- TABLA: ROL
+-- -----------------------------------------------------------------------------
+
+INSERT INTO ROL 
+(ROL_ID, QUIEN, CUANDO, QUIEN_MOD, CUANDO_MOD, ACTIVO, ROL_NOMBRE) 
+VALUES 
+('BUSCAR_X_DOC_FIRMA_ENVIO_UUID', 3390, SYSDATE, 3390, SYSDATE, 1, 'Buscar Documentos por Firma/Envío UUID');

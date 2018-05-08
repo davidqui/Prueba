@@ -37,3 +37,10 @@
 <#if !dependenciaDestinoDescripcion??>
     <#assign dependenciaDestinoDescripcion = "" />
 </#if>
+<#--
+    2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
+    Asignación de valor por defecto para la Firma UUID.
+-->
+<#if !firmaUUID??>
+    <#assign firmaUUID = "" />
+</#if>
