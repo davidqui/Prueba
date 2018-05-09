@@ -9,7 +9,7 @@
             <#assign tamanio = d.subs?size>						
             <#if d.subs?has_content >
                 <#if href>
-                    <li data-jstree='{ "id" : ${d.id} , "opened" : false }'><a href="?pin=${pin!""}&tid=${tid!""}&did=${d.id}&mode=${mode!""}"><#if d.id == selected> <strong style="background-color:#A9F5F2; padding:5px;"></#if><#if d.sigla?? > ${d.sigla} - </#if>${d.nombre} - ${selected}</strong></a>				
+                    <li data-jstree='{ "id" : ${d.id} , "opened" : false }'><a href="?pin=${pin!""}&tid=${tid!""}&did=${d.id}&mode=${mode!""}"><#if d.id == selected> <strong style="background-color:#A9F5F2; padding:5px;"></#if><#if d.sigla?? > ${d.sigla} - </#if>${d.nombre}</strong></a>				
                         <@listDependencias d.subs selected />
                     </li>
                 <#else>
