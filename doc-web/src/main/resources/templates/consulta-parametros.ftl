@@ -72,9 +72,13 @@
                         <#--
                             2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
                             Campo para búsqueda por Firma UUID.
+
+                            2018-05-09 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
+                            Cambio de etiqueta a Firma Digital, indicado en correo "TEXTO PDF" (Wed, 09 May 2018 13:55:22 -0500)
+
                         -->
                         <#if puedeBuscarXDocFirmaEnvioUUID >
-                        <label for="firmaUUID" class="col-sm-1 col-form-label text-xs-right">Firma UUID</label>
+                        <label for="firmaUUID" class="col-sm-1 col-form-label text-xs-right">Firma Digital</label>
                         <div class="col-sm-2">
                             <input type="text" name="firmaUUID" class="form-control" value="${firmaUUID}"/>
                             </div>

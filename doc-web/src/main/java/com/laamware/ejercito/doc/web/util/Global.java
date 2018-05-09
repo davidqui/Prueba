@@ -23,6 +23,16 @@ public final class Global {
     public static final String APPLICATION_NAME = "SICDI";
 
     /**
+     * Tipo de contenido para archivos binarios.
+     */
+    public static final String BINARY_FILE_CONTENT_TYPE = "application/octet-stream";
+
+    /**
+     * Tipo de contenido para archivos PDF.
+     */
+    public static final String PDF_FILE_CONTENT_TYPE = "application/pdf";
+
+    /**
      * Construcor privado.
      */
     private Global() {
