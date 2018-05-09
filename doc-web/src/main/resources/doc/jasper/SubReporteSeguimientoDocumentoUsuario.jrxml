@@ -9,7 +9,7 @@
 	<queryString>
 		<![CDATA[SELECT
 doc.CUANDO,
-u.USU_CARGO || '. ' || u.USU_NOMBRE usuario
+(select car_nombre from cargo where car_id = u.usu_cargo_principal_id) || '. ' || u.USU_NOMBRE usuario
 FROM
 DOCUMENTO_USU_VISTOS_BUENOS doc
 INNER JOIN USUARIO u ON doc.USU_ID_VISTO_BUENO = u.usu_id

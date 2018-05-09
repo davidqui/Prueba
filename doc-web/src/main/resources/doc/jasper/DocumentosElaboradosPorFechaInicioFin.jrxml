@@ -9,10 +9,10 @@
 	<parameter name="ffin" class="java.util.Date"/>
 	<queryString>
 		<![CDATA[select
-ucreado.USU_CARGO || '. ' || ucreado.USU_NOMBRE usuariocrea,
-ufirma.USU_CARGO || '. ' || ufirma.USU_NOMBRE usuariofirma,
-uvistobueno.USU_CARGO || '. ' || uvistobueno.USU_NOMBRE usuariovistobueno,
-uaprueba.USU_CARGO || '. ' || uaprueba.USU_NOMBRE usuarioaprueba,
+(select car_nombre from cargo where car_id = doc.cargo_id_elabora) || '. ' || ucreado.USU_NOMBRE usuariocrea,
+(select car_nombre from cargo where car_id = doc.cargo_id_firma) || '. ' || ufirma.USU_NOMBRE usuariofirma,
+(select car_nombre from cargo where car_id = uvistobueno.usu_cargo_principal_id) || '. ' || uvistobueno.USU_NOMBRE usuariovistobueno,
+(select car_nombre from cargo where car_id = uaprueba.usu_cargo_principal_id) || '. ' || uaprueba.USU_NOMBRE usuarioaprueba,
 trd.TRD_NOMBRE,
 trd.TRD_CODIGO,
 trd.TRD_SERIE,
