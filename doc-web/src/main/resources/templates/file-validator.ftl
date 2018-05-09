@@ -3,23 +3,28 @@
     feature-160.
 -->
 <#assign charset="UTF-8">
-<#assign title="Validar Documento">
+<#assign pageTitle = "VALIDAR DOCUMENTO" />
+<#include "header.ftl" />
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>${title}</title>
-        <meta charset="${charset}">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-    <body>
+<div class="container-fluid">
+    <h4>${pageTitle}</h4>
+
+    <div class="container-fluid">
         <form action="/file-validation/validate" method="post" enctype="multipart/form-data">
-            Archivo a validar:<input type="file" id="archivo_validar" name="archivo_validar"/>
-            UUID Firma Documento SICDI:<input type="text" id="doc_firma_envio_uuid" name="doc_firma_envio_uuid" />
-            <button type="submit">Enviar</button>
-            </form>
-        </body>
-    
+            <fieldset class="form-group">
+                <label for="archivo_validar">Archivo a validar: (*.pdf)</label>
+                <input type="file" id="archivo_validar" name="archivo_validar" class="form-control"/>
+            </fieldset>
+            <fieldset class="form-group">
+                <label for="doc_firma_envio_uuid">UUID Firma Documento SICDI:</label>
+                <input type="text" id="doc_firma_envio_uuid" name="doc_firma_envio_uuid" class="form-control"/>
+            </fieldset>
+            
+            <button type="submit" class="btn btn-success btn-sm">Enviar</button>
+        </form>
+    </div>
     <#if valid?? >
         Es: ${valid?c}!!
     </#if>
-    </html>
+</div>
+<#include "footer.ftl" />

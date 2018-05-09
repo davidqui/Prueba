@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.serv.FileValidationService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import java.io.IOException;
@@ -43,6 +44,7 @@ public class FileValidationController {
             boolean valid = validationService.isValid(archivoValidarBytes, docFirmaEnvioUUID);
             model.addAttribute("valid", valid);
         } catch (IOException | BusinessLogicException | RuntimeException ex) {
+             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
             // TODO: Enviar datos de error en el Flash Attributes.
             LOG.log(Level.SEVERE, null, ex);
         }
