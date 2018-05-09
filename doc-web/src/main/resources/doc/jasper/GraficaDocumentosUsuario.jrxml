@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="GraficaDocumentosUsuario" pageWidth="368" pageHeight="190" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="368" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="1e0940db-d880-4fe4-b921-513602af5d8d">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="p_usu_id" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[select count(USU_ID_ELABORA), 'Elaborados' from documento WHERE USU_ID_ELABORA = $P{p_usu_id}
+union all
+select count(USU_ID_VISTO_BUENO), 'Vistos buenos' from documento WHERE USU_ID_VISTO_BUENO = $P{p_usu_id}
+union all
+select count(USU_ID_APRUEBA), 'Aprobados' from documento WHERE USU_ID_APRUEBA = $P{p_usu_id}
+union all
+select count(USU_ID_FIRMA), 'Formados' from documento WHERE USU_ID_FIRMA = $P{p_usu_id}]]>
+	</queryString>
+	<field name="COUNT(USU_ID_ELABORA)" class="java.math.BigDecimal"/>
+	<field name="&apos;ELABORADOS&apos;" class="java.lang.String"/>
+	<summary>
+		<band height="190" splitType="Stretch">
+			<pieChart>
+				<chart>
+					<reportElement x="0" y="0" width="368" height="190" uuid="a4aecc37-e737-4225-b16b-955356ce4c6a"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<pieDataset>
+					<keyExpression><![CDATA[$F{'ELABORADOS'}]]></keyExpression>
+					<valueExpression><![CDATA[$F{COUNT(USU_ID_ELABORA)}]]></valueExpression>
+					<labelExpression><![CDATA[$F{'ELABORADOS'} + " - " + $F{COUNT(USU_ID_ELABORA)}]]></labelExpression>
+				</pieDataset>
+				<piePlot>
+					<plot/>
+					<itemLabel/>
+				</piePlot>
+			</pieChart>
+		</band>
+	</summary>
+</jasperReport>
