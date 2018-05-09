@@ -4,7 +4,7 @@
 -->
 <#setting number_format="computer">
 
-<#assign pageTitle = "Validar Documento PDF por UUID de Firma y Envío." />
+<#assign pageTitle = "Validación integridad documento electrónico." />
 <#include "gen-macros.ftl">
 <#if templatePrefix??>
     <#include templatePrefix + "-header.ftl">
@@ -30,7 +30,7 @@
             <input type="file" id="archivo_validar" name="archivo_validar" class="form-control"/>
             </fieldset>
         <fieldset class="form-group">
-            <label for="doc_firma_envio_uuid">UUID Firma Documento SICDI:</label>
+            <label for="doc_firma_envio_uuid">Firma Digital:</label>
             <input type="text" id="doc_firma_envio_uuid" name="doc_firma_envio_uuid" class="form-control" value="${doc_firma_envio_uuid?if_exists}"/>
             </fieldset>
 

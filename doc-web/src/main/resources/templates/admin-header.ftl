@@ -66,7 +66,7 @@
                     2018-05-09 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
                     Enlace para la opción de validación de PDF por UUID.
                 -->
-                <@link_admin  "VALIDAR_PDF_DOCFIRMAENVIO_UUID" "/admin/file-validation" 'file-validation' 'Validación PDF por UUID'/>
+                <@link_admin  "VALIDAR_PDF_DOCFIRMAENVIO_UUID" "/admin/file-validation" 'file-validation' 'Validación integridad documento electrónico'/>
 
                 </ul>
             </div>
