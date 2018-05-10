@@ -5,11 +5,6 @@
  * @param data Variable que contiene la información del arbol
  */
 $('#arbol_list_dependenciasj').on("select_node.jstree", function (e, data) {
-    var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
-    var id = data.instance.get_node(data.node, true).attr('id');
-    if (window.location.href !== newLoc) {
-        document.location = newLoc + ("&idseleccionado=" + id);
-    }
     $("#dependenciaDestino").val(data.node.data.jstree.id);
     $("#dependenciaDestinoNombre").text(data.node.text);
     $("#dependenciaDestinoModalArbol").modal('hide');
@@ -22,11 +17,6 @@ $('#arbol_list_dependenciasj').on("select_node.jstree", function (e, data) {
  * @param data Variable que contiene la información del arbol
  */
 $('#arbol_list_dependenciasadi').on("select_node.jstree", function (e, data) {
-    var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
-    var id = data.instance.get_node(data.node, true).attr('id');
-    if (window.location.href !== newLoc) {
-        document.location = newLoc + ("&idseleccionado=" + id);
-    }
     var idDocumento = $("#idDocumentoDependenciaDestinoAdicionalModal").val();
     var idDependencia = data.node.data.jstree.id;
 
@@ -82,7 +72,6 @@ function eliminarDocumentoDependenciaAdicional(idCopiaMultidestino) {
  * @param data Variable que contiene la información del arbol
  */
 $('#arbol_list_trd').on("select_node.jstree", function (e, data) {
-    console.log(data.node.parents.length);
     if (data.node.parents.length === 1) {
         $(this).jstree("open_node",data.node.id);
     } else {
