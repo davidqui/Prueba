@@ -17,14 +17,18 @@ function getUrlParameter(sParam) {
 };
 
 /**
- * 
- * @param {type} myVar
- * @param {type} selectVar
- * @param {type} abrirNodoDependencia
+ * Metodo que permite asociar los eventos al arbol
+ * @param {type} myVar Identificador del conponente del arbol
+ * @param {type} selectVar Variable que identifica si se debe seleccionar un nodo
+ * @param {type} abrirNodoDependencia Variable que identifica si debe seleccionar
+ * la dependencia del usuario en sesion.
  * @returns {undefined}
  */
 function validarArbol(myVar, selectVar = true, abrirNodoDependencia = false){
     
+    /**
+     * Evento que se dispara en el momento crear el componente del arboñ
+     */
     $(myVar).jstree().bind('ready.jstree', function(event, data) {
         var idS = getUrlParameter('idseleccionado');
         if (idS !== undefined && idS !== null && !abrirNodoDependencia) {
@@ -37,19 +41,20 @@ function validarArbol(myVar, selectVar = true, abrirNodoDependencia = false){
     });
     
     if(selectVar){
-        $(myVar)
-            .on("select_node.jstree", function(e, data) {
-                var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
-                var id = data.instance.get_node(data.node, true).attr('id');
-                if (window.location.href !== newLoc) {
-                    document.location = newLoc + ("&idseleccionado=" + id);
-                }
-            })
-            .jstree();
+        /**
+         * Evento que se dispara en el momento que se selecciona un nodo del arbol
+         */
+        $(myVar).on("select_node.jstree", function(e, data) {
+            var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
+            var id = data.instance.get_node(data.node, true).attr('id');
+            if (window.location.href !== newLoc) {
+                document.location = newLoc + ("&idseleccionado=" + id);
+            }
+        }).jstree();
     }
     
     /**
-     * Función que se encarga de abrir y seleccionar la dependemcia del usuario
+     * Función que se encarga de abrir y seleccionar la dependencia del usuario
      * en sesión
      * @param {type} selId
      * @returns {undefined}
