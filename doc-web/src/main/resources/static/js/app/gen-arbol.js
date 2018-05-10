@@ -36,7 +36,7 @@ function validarArbol(myVar, selectVar = true, abrirNodoDependencia = false){
         } 
         
         if(abrirNodoDependencia){
-            abrirArbolXdependencia(idS);
+            abrirArbolXdependencia(idS, data);
         }
     });
     
@@ -59,7 +59,7 @@ function validarArbol(myVar, selectVar = true, abrirNodoDependencia = false){
      * @param {type} selId
      * @returns {undefined}
      */
-    function abrirArbolXdependencia(selId) {
+    function abrirArbolXdependencia(selId, dataArbol) {
         $.ajax({
             url: "/documento/seleccionarDependencia",
             success: function(data) {
@@ -79,23 +79,11 @@ function validarArbol(myVar, selectVar = true, abrirNodoDependencia = false){
                     }
                 });
                 $(myVar).jstree().close_all();
+                
                 if(ret !== undefined){
-                    expandNode(ret);
+                    dataArbol.instance._open_to(ret);
                 }
             }
         });
-    };
-    
-    /**
-     * Función que se encarga de expandir un nodo.
-     * @param {type} nodeID Identificador del nodo
-     * @returns {undefined}
-     */
-    function expandNode(nodeID) {
-        while (nodeID !== '#') {
-            $(myVar).jstree("open_node", nodeID);
-            var thisNode = $(myVar).jstree("get_node", nodeID);
-            nodeID = $(myVar).jstree("get_parent", thisNode);
-        }
     };
 };
