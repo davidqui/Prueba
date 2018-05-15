@@ -14,6 +14,7 @@ import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
 import com.laamware.ejercito.doc.web.serv.spec.UsuarioSpecifications;
+import java.math.BigDecimal;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -268,6 +269,23 @@ public class UsuarioService {
         } else {
             return verficaAccesoDocumentoCorrelacionado(usuId, pinId);
         }
+    }
+
+    /**
+     * Verifica si el usuario tiene acceso al documento acta.
+     *
+     * @param usuario Usuario.
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @return {@code true} si el usuario tiene acceso al documento acta; de lo
+     * contrario, {@code false}.
+     */
+    /*
+     * 2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public boolean verificaAccesoDocumentoActa(final Usuario usuario, final String procesoInstanciaID) {
+        final BigDecimal acceso = documentoRepository.verificaAccesoDocumentoActa(usuario.getId(), procesoInstanciaID);
+        return acceso.equals(BigDecimal.ONE);
     }
 
     private boolean verficaAccesoDocumentoCorrelacionado(Integer usuId, String pinId) {

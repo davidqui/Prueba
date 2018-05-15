@@ -57,6 +57,15 @@ public class Documento extends AuditModifySupport {
 
     public static final String VAL_DOC_MODE_DESTINATARIO_DEP = "dep";
 
+    /**
+     * Valor de los documentos con estado temporal.
+     */
+    /*
+     * 2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public static final String ESTADO_TEMPORAL = "TEMPORAL";
+
     public static Documento create() {
         Documento x = new Documento();
         x.id = GeneralUtils.newId();

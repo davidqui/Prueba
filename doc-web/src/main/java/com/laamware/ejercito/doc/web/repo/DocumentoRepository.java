@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.PDFDocumento;
+import java.math.BigDecimal;
 
 public interface DocumentoRepository extends JpaRepository<Documento, String> {
 
@@ -481,4 +482,28 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * exista correspondencia en el sistema.
      */
     public Documento findOneByFirmaEnvioUUID(String firmaEnvioUUID);
+
+    /**
+     * Verifica si el usuario tiene acceso al documento acta.
+     *
+     * @param usuarioID ID del usuario.
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @return {@code true} si el usuario tiene acceso al documento acta; de lo
+     * contrario, {@code false}.
+     */
+    /*
+     * 2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    @Query(nativeQuery = true, value = ""
+            + "SELECT\n"
+            + "  CASE\n"
+            + "    WHEN COUNT(1) > 0 THEN 1\n"
+            + "    ELSE 0\n"
+            + "  END\n"
+            + "FROM s_instancia_usuario\n"
+            + "WHERE s_instancia_usuario.usu_id = :usu_id \n"
+            + "AND s_instancia_usuario.pin_id   = :pin_id "
+            + "")
+    public BigDecimal verificaAccesoDocumentoActa(@Param("usu_id") Integer usuarioID, @Param("pin_id") String procesoInstanciaID);
 }
