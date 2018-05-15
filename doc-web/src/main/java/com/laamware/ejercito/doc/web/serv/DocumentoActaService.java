@@ -1,8 +1,15 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.DocumentoActa;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
+import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
+import com.laamware.ejercito.doc.web.repo.DocumentoActaRepository;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +24,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class DocumentoActaService {
 
+    public static final Map<DocumentoActaEstado, DocumentoActaMode> ESTADO_MODE_MAP;
+    
     private static final Logger LOG = Logger.getLogger(DocumentoActaService.class.getName());
+
+    static {
+        final Map<DocumentoActaEstado, DocumentoActaMode> map = new LinkedHashMap<>();
+        ESTADO_MODE_MAP = Collections.unmodifiableMap(map);
+    }
+    
+    @Autowired
+    private DocumentoActaRepository documentoActaRepository;
 
     @Autowired
     private UsuarioService usuarioService;
@@ -38,14 +55,19 @@ public class DocumentoActaService {
     }
 
     /**
-     * Crea un nuevo documento referente a acta.
+     * Crea un nuevo documento referente al acta e instancia del documento acta.
      *
      * @param procesoInstancia Instancia del proceso.
      * @param usuarioCreador Usuario creador del documento.
      * @return Nueva instancia de documento.
      */
-    public Documento crearDocumentoActa(final Instancia procesoInstancia, final Usuario usuarioCreador) {
-        return documentoService.crearDocumento(procesoInstancia, usuarioCreador);
+    public Documento crearDocumentoAsociadoActa(final Instancia procesoInstancia, final Usuario usuarioCreador) {
+        final Documento documentoAsociado = documentoService.crearDocumento(procesoInstancia, usuarioCreador);
+
+        final DocumentoActa documentoActa = new DocumentoActa(documentoAsociado.getId());
+        documentoActaRepository.saveAndFlush(documentoActa);
+
+        return documentoAsociado;
     }
 
     /**
@@ -55,7 +77,7 @@ public class DocumentoActaService {
      * @return Documento acta, o {@code null} en caso de no tener
      * correspondencia en el sistema.
      */
-    public Documento buscarDocumentoActa(final String documentoID) {
+    public Documento buscarDocumentoAsociadoActa(final String documentoID) {
         return documentoService.buscarDocumento(documentoID);
     }
 
@@ -71,6 +93,17 @@ public class DocumentoActaService {
      */
     public boolean tieneAccesoPorClasificacion(final Usuario usuario, final Instancia procesoInstancia) {
         return documentoService.tieneAccesoPorClasificacion(usuario, procesoInstancia);
+    }
+
+    /**
+     * Busca la información del documento acta.
+     *
+     * @param documentoID ID del documento.
+     * @return Documento acta o {@code null} en caso que no exista
+     * correspondencia en el sistema.
+     */
+    public DocumentoActa buscarDocumentoActa(final String documentoID) {
+        return documentoActaRepository.findOne(documentoID);
     }
 
 }

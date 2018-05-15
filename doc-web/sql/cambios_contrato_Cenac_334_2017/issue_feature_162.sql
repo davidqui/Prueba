@@ -137,3 +137,26 @@ VALUES
 ;
 
 -- UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (150, 151, 152);
+
+-- -----------------------------------------------------------------------------
+-- TABLA: DOCUMENTO_ACTA
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE DOCUMENTO_ACTA (
+    DOC_ID  VARCHAR2(32 CHAR)   NOT NULL,
+    LUGAR   VARCHAR2(64 CHAR),
+    PRIMARY KEY (DOC_ID)
+);
+
+COMMENT ON TABLE DOCUMENTO_ACTA
+IS 'Información complementaria de documentos tipo acta.';
+
+COMMENT ON COLUMN DOCUMENTO_ACTA.DOC_ID
+IS 'ID del documento asociado como acta.';
+COMMENT ON COLUMN DOCUMENTO_ACTA.LUGAR
+IS 'Ciudad donde se llevó a cabo la actividad que motivo la elaboración del acta..';
+
+ALTER TABLE DOCUMENTO_ACTA
+ADD CONSTRAINT DOCUMENTO_ACTA_DOC_ID_FK
+FOREIGN KEY (DOC_ID)
+REFERENCES DOCUMENTO (DOC_ID);

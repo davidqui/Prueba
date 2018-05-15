@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.DocumentoActa;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
@@ -67,16 +68,20 @@ public class DocumentoActaController extends UtilController {
             return "redirect:/documento/acceso-denegado";
         }
 
-        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
 
-        final Documento documentoActa;
+        final Documento documentoAsociado;
         if (documentoID == null) {
-            documentoActa = actaService.crearDocumentoActa(procesoInstancia, usuarioSesion);
+            documentoAsociado = actaService.crearDocumentoAsociadoActa(procesoInstancia, usuarioSesion);
             procesoInstancia = procesoService.instancia(procesoInstanciaID);
+            documentoID = documentoAsociado.getId();
         } else {
-            documentoActa = actaService.buscarDocumentoActa(documentoID);
+            documentoAsociado = actaService.buscarDocumentoAsociadoActa(documentoID);
         }
 
+        final DocumentoActa documentoActa = actaService.buscarDocumentoActa(documentoID);
+
+        uiModel.addAttribute("documentoAsociado", documentoAsociado);
         uiModel.addAttribute("documentoActa", documentoActa);
         uiModel.addAttribute("procesoInstancia", procesoInstancia);
         uiModel.addAttribute("usuarioSesion", usuarioSesion);
