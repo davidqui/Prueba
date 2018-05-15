@@ -1,17 +1,22 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoActa;
 import com.laamware.ejercito.doc.web.entity.Instancia;
+import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
 import com.laamware.ejercito.doc.web.repo.DocumentoActaRepository;
+import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,14 +30,30 @@ import org.springframework.stereotype.Service;
 public class DocumentoActaService {
 
     public static final Map<DocumentoActaEstado, DocumentoActaMode> ESTADO_MODE_MAP;
-    
+
+    public static final Map<String, String> ESTADO_MODE_MAP_FOR_UI;
+
     private static final Logger LOG = Logger.getLogger(DocumentoActaService.class.getName());
 
     static {
-        final Map<DocumentoActaEstado, DocumentoActaMode> map = new LinkedHashMap<>();
-        ESTADO_MODE_MAP = Collections.unmodifiableMap(map);
+        final Map<DocumentoActaEstado, DocumentoActaMode> baseMap = new LinkedHashMap<>();
+        baseMap.put(DocumentoActaEstado.ACTA_DIGITALIZADA, DocumentoActaMode.SOLO_CONSULTA);
+        baseMap.put(DocumentoActaEstado.ANULADO, DocumentoActaMode.SOLO_CONSULTA);
+        baseMap.put(DocumentoActaEstado.NUMERO_DE_RADICACION_GENERADO, DocumentoActaMode.CARGA_ACTA_DIGITAL);
+        baseMap.put(DocumentoActaEstado.REGISTRO_DE_DATOS_DEL_ACTA, DocumentoActaMode.EDICION_INFORMACION);
+
+        ESTADO_MODE_MAP = Collections.unmodifiableMap(baseMap);
+
+        final Map<String, String> forUIMap = new LinkedHashMap<>();
+        for (Map.Entry<DocumentoActaEstado, DocumentoActaMode> entry : baseMap.entrySet()) {
+            forUIMap.put(entry.getKey().getId().toString(), entry.getValue().name());
+        }
+
+        ESTADO_MODE_MAP_FOR_UI = Collections.unmodifiableMap(forUIMap);
     }
-    
+
+    private final Integer serieActasID;
+
     @Autowired
     private DocumentoActaRepository documentoActaRepository;
 
@@ -41,6 +62,20 @@ public class DocumentoActaService {
 
     @Autowired
     private DocumentoService documentoService;
+
+    @Autowired
+    private TRDService trdService;
+
+    /**
+     * Constructor.
+     *
+     * @param serieActasID ID de la TRD correspondiente a la serie de actas.
+     * Cargado por archivo de propiedades.
+     */
+    @Autowired
+    public DocumentoActaService(@Value("${com.mil.imi.sicdi.trd.serie.actas}") Integer serieActasID) {
+        this.serieActasID = serieActasID;
+    }
 
     /**
      * Verifica si el usuario tiene acceso al documento acta.
@@ -104,6 +139,41 @@ public class DocumentoActaService {
      */
     public DocumentoActa buscarDocumentoActa(final String documentoID) {
         return documentoActaRepository.findOne(documentoID);
+    }
+
+    /**
+     * Busca la lista de todas las subseries TRD correspondientes a la serie TRD
+     * de actas, asignadas a la dependencia del usuario.
+     *
+     * @param usuario Usuario.
+     * @return Lista de subseries TRD de actas asignadas a la dependencia del
+     * usuario.
+     */
+    public List<Trd> buscarSubseriesActasPorUsuario(final Usuario usuario) {
+        final Trd serieActas = new Trd();
+        serieActas.setId(serieActasID);
+
+        List<Trd> subseriesActas = trdService.findSubseriesbySerieAndUsuario(serieActas, usuario);
+        trdService.ordenarPorCodigo(subseriesActas);
+        return subseriesActas;
+    }
+
+    /**
+     * Valida la información del acta que se envía desde el formulario, previo
+     * al proceso de guardado inicial del documento.
+     *
+     * @param documentoActaDTO DTO de documento acta.
+     * @return Resumen del proceso de validación.
+     */
+    public BusinessLogicValidation validarGuardarActa(DocumentoActaDTO documentoActaDTO) {
+        final BusinessLogicValidation validation = new BusinessLogicValidation() {
+            @Override
+            public boolean isAllOK() {
+                return false;
+            }
+        };
+
+        return validation;
     }
 
 }

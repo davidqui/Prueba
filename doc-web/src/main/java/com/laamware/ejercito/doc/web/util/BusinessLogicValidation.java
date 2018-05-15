@@ -78,7 +78,7 @@ public class BusinessLogicValidation implements Serializable {
      * @param message Mensaje de descripción del error.
      */
     public void addError(final Object objectValidated, final String message) {
-        errors.add(new ValidationError(this, message));
+        errors.add(new ValidationError(objectValidated, message));
     }
 
     /**

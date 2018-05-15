@@ -1,11 +1,15 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
+import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoActa;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.serv.ClasificacionService;
 import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
+import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import java.security.Principal;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +18,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Controlador para proceso documental de "Registro de Acta".
@@ -34,27 +37,27 @@ public class DocumentoActaController extends UtilController {
      */
     static final String PATH = "/documento-acta";
 
+    private static final String DOCUMENTO_ACTA_GUARDAR_TEMPLATE = "documento-acta";
+
     @Autowired
     private DocumentoActaService actaService;
 
     @Autowired
     private ProcesoService procesoService;
 
+    @Autowired
+    private ClasificacionService clasificacionService;
+
     /**
      * Procesa el documento de acta, según la transición a aplicar.
      *
      * @param procesoInstanciaID ID de la instancia del proceso.
      * @param uiModel Modelo de UI.
-     * @param redirectAttributes Atributos de redirección.
      * @param principal Información de sesión.
      * @return Nombre del template a presentar en la UI.
      */
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public String procesar(@RequestParam("pin") final String procesoInstanciaID, Model uiModel, RedirectAttributes redirectAttributes, Principal principal) {
-        LOG.info("com.laamware.ejercito.doc.web.ctrl.DocumentoActaController.procesar()");
-
-        final String template = "documento-acta";
-
+    public String procesar(@RequestParam("pin") final String procesoInstanciaID, Model uiModel, Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
         final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
         if (!tieneAccesoPorAsignacion) {
@@ -85,7 +88,48 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("documentoActa", documentoActa);
         uiModel.addAttribute("procesoInstancia", procesoInstancia);
         uiModel.addAttribute("usuarioSesion", usuarioSesion);
+        uiModel.addAttribute("estadoModeMap", DocumentoActaService.ESTADO_MODE_MAP_FOR_UI);
+        uiModel.addAttribute("clasificaciones", clasificacionService.findAllActivoOrderByOrden());
+        uiModel.addAttribute("subseriesTrdActas", actaService.buscarSubseriesActasPorUsuario(usuarioSesion));
 
-        return template;
+        return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
     }
+
+    /**
+     * Procesa la información proveniente del formulario y guarda la misma en
+     * los registros del documento, la instancia del proceso y el acta.
+     *
+     * @param documentoActaDTO DTO del documento acta.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @return Nombre del template a presentar en la UI.
+     */
+    @RequestMapping(value = "/guardar", method = RequestMethod.POST)
+    public String guardar(DocumentoActaDTO documentoActaDTO, Model uiModel, Principal principal) {
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        final String docId = documentoActaDTO.getDocId();
+        final Documento documentoAsociado = actaService.buscarDocumentoAsociadoActa(docId);
+        final DocumentoActa documentoActa = actaService.buscarDocumentoActa(docId);
+        final Instancia procesoInstancia = procesoService.instancia(documentoAsociado.getInstancia().getId());
+
+        uiModel.addAttribute("documentoAsociado", documentoAsociado);
+        uiModel.addAttribute("documentoActa", documentoActa);
+        uiModel.addAttribute("procesoInstancia", procesoInstancia);
+        uiModel.addAttribute("usuarioSesion", usuarioSesion);
+        uiModel.addAttribute("estadoModeMap", DocumentoActaService.ESTADO_MODE_MAP_FOR_UI);
+        uiModel.addAttribute("clasificaciones", clasificacionService.findAllActivoOrderByOrden());
+        uiModel.addAttribute("subseriesTrdActas", actaService.buscarSubseriesActasPorUsuario(usuarioSesion));
+
+        final BusinessLogicValidation logicValidation = actaService.validarGuardarActa(documentoActaDTO);
+        if (!logicValidation.isAllOK()) {
+            uiModel.addAttribute("logicValidation", logicValidation);
+            uiModel.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el formulario.");
+            // TODO: Presentar los mensajes de error en el formulario.
+            return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
+        }
+
+        return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
+    }
+
 }
