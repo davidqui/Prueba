@@ -1,12 +1,13 @@
 package com.laamware.ejercito.doc.web.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 
 /**
  * Entidad que describe un acta, con los valores adicionales a documento.
@@ -27,8 +28,11 @@ public class DocumentoActa implements Serializable {
     private String documento;
 
     @Column(name = "LUGAR")
-    @Basic(optional = false)
     private String lugar;
+
+    @Column(name = "FECHA_ELABORACION")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaElaboracion;
 
     /**
      * Constructor vacío.
@@ -61,11 +65,20 @@ public class DocumentoActa implements Serializable {
         this.lugar = lugar;
     }
 
+    public Date getFechaElaboracion() {
+        return fechaElaboracion;
+    }
+
+    public void setFechaElaboracion(Date fechaElaboracion) {
+        this.fechaElaboracion = fechaElaboracion;
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 17 * hash + Objects.hashCode(this.documento);
-        hash = 17 * hash + Objects.hashCode(this.lugar);
+        hash = 37 * hash + Objects.hashCode(this.documento);
+        hash = 37 * hash + Objects.hashCode(this.lugar);
+        hash = 37 * hash + Objects.hashCode(this.fechaElaboracion);
         return hash;
     }
 
@@ -84,12 +97,15 @@ public class DocumentoActa implements Serializable {
         if (!Objects.equals(this.documento, other.documento)) {
             return false;
         }
-        return Objects.equals(this.lugar, other.lugar);
+        if (!Objects.equals(this.lugar, other.lugar)) {
+            return false;
+        }
+        return Objects.equals(this.fechaElaboracion, other.fechaElaboracion);
     }
 
     @Override
     public String toString() {
-        return "DocumentoActa{" + "documento=" + documento + ", lugar=" + lugar + '}';
+        return "DocumentoActa{" + "documento=" + documento + ", lugar=" + lugar + ", fechaElaboracion=" + fechaElaboracion + '}';
     }
 
 }

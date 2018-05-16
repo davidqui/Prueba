@@ -18,7 +18,7 @@ public class DocumentoActaDTO implements Serializable {
     private String pinId;
     private String asunto;
     private String lugar;
-    private String plazo;
+    private String fechaElaboracion;
     private String clasificacion;
     private String numeroFolios;
     private String trd;
@@ -58,12 +58,12 @@ public class DocumentoActaDTO implements Serializable {
         this.lugar = lugar;
     }
 
-    public String getPlazo() {
-        return plazo;
+    public String getFechaElaboracion() {
+        return fechaElaboracion;
     }
 
-    public void setPlazo(String plazo) {
-        this.plazo = plazo;
+    public void setFechaElaboracion(String fechaElaboracion) {
+        this.fechaElaboracion = fechaElaboracion;
     }
 
     public String getClasificacion() {
@@ -97,7 +97,7 @@ public class DocumentoActaDTO implements Serializable {
         hash = 97 * hash + Objects.hashCode(this.pinId);
         hash = 97 * hash + Objects.hashCode(this.asunto);
         hash = 97 * hash + Objects.hashCode(this.lugar);
-        hash = 97 * hash + Objects.hashCode(this.plazo);
+        hash = 97 * hash + Objects.hashCode(this.fechaElaboracion);
         hash = 97 * hash + Objects.hashCode(this.clasificacion);
         hash = 97 * hash + Objects.hashCode(this.numeroFolios);
         hash = 97 * hash + Objects.hashCode(this.trd);
@@ -128,7 +128,7 @@ public class DocumentoActaDTO implements Serializable {
         if (!Objects.equals(this.lugar, other.lugar)) {
             return false;
         }
-        if (!Objects.equals(this.plazo, other.plazo)) {
+        if (!Objects.equals(this.fechaElaboracion, other.fechaElaboracion)) {
             return false;
         }
         if (!Objects.equals(this.clasificacion, other.clasificacion)) {
@@ -142,7 +142,7 @@ public class DocumentoActaDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "DocumentoActaDTO{" + "docId=" + docId + ", pinId=" + pinId + ", asunto=" + asunto + ", lugar=" + lugar + ", plazo=" + plazo + ", clasificacion=" + clasificacion + ", numeroFolios=" + numeroFolios + ", trd=" + trd + '}';
+        return "DocumentoActaDTO{" + "docId=" + docId + ", pinId=" + pinId + ", asunto=" + asunto + ", lugar=" + lugar + ", fechaElaboracion=" + fechaElaboracion + ", clasificacion=" + clasificacion + ", numeroFolios=" + numeroFolios + ", trd=" + trd + '}';
     }
 
 }

@@ -145,8 +145,11 @@ VALUES
 CREATE TABLE DOCUMENTO_ACTA (
     DOC_ID  VARCHAR2(32 CHAR)   NOT NULL,
     LUGAR   VARCHAR2(64 CHAR),
+    FECHA_ELABORACION   DATE,
     PRIMARY KEY (DOC_ID)
 );
+
+-- ALTER TABLE DOCUMENTO_ACTA ADD (FECHA_ELABORACION DATE);
 
 COMMENT ON TABLE DOCUMENTO_ACTA
 IS 'Información complementaria de documentos tipo acta.';
@@ -154,9 +157,13 @@ IS 'Información complementaria de documentos tipo acta.';
 COMMENT ON COLUMN DOCUMENTO_ACTA.DOC_ID
 IS 'ID del documento asociado como acta.';
 COMMENT ON COLUMN DOCUMENTO_ACTA.LUGAR
-IS 'Ciudad donde se llevó a cabo la actividad que motivo la elaboración del acta..';
+IS 'Ciudad donde se llevó a cabo la actividad que motivo la elaboración del acta.';
+COMMENT ON COLUMN DOCUMENTO_ACTA.LUGAR
+IS 'Determina la fecha donde se llevó a cabo la actividad que motivo la elaboración del acta.';
 
 ALTER TABLE DOCUMENTO_ACTA
 ADD CONSTRAINT DOCUMENTO_ACTA_DOC_ID_FK
 FOREIGN KEY (DOC_ID)
 REFERENCES DOCUMENTO (DOC_ID);
+
+CREATE INDEX DOC_ACTA_FECHA_ELABORACION_IDX ON DOCUMENTO_ACTA (FECHA_ELABORACION);

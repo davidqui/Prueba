@@ -165,13 +165,44 @@ public class DocumentoActaService {
      * @param documentoActaDTO DTO de documento acta.
      * @return Resumen del proceso de validación.
      */
-    public BusinessLogicValidation validarGuardarActa(DocumentoActaDTO documentoActaDTO) {
-        final BusinessLogicValidation validation = new BusinessLogicValidation() {
-            @Override
-            public boolean isAllOK() {
-                return false;
-            }
-        };
+    public BusinessLogicValidation validarGuardarActa(final DocumentoActaDTO documentoActaDTO) {
+        final BusinessLogicValidation validation = new BusinessLogicValidation();
+
+        // asunto
+        final String asunto = documentoActaDTO.getAsunto();
+        if (asunto == null || asunto.trim().isEmpty()) {
+            validation.addError(documentoActaDTO, "asunto", "Debe ingresar un asunto.");
+        }
+
+        // lugar
+        final String lugar = documentoActaDTO.getLugar();
+        if (lugar == null || lugar.trim().isEmpty()) {
+            validation.addError(documentoActaDTO, "lugar", "Debe ingresar un lugar.");
+        }
+        
+        // fechaElaboracion
+        final String fechaElaboracion = documentoActaDTO.getFechaElaboracion();
+        if(fechaElaboracion == null || fechaElaboracion.trim().isEmpty()){
+            validation.addError(documentoActaDTO, "fechaElaboracion", "Debe seleccionar una fecha de elaboración.");
+        }
+        
+        // clasificacion
+        final String clasificacion = documentoActaDTO.getClasificacion();
+        if(clasificacion == null || clasificacion.trim().isEmpty()){
+            validation.addError(documentoActaDTO, "clasificacion", "Debe seleccionar el nivel de clasificación.");
+        }
+        
+        // trd
+        final String trd = documentoActaDTO.getTrd();
+        if(trd == null || trd.trim().isEmpty()){
+            validation.addError(documentoActaDTO, "trd", "Debe seleccionar la subserie TRD.");
+        }
+        
+        // numeroFolios
+        final String numeroFolios = documentoActaDTO.getNumeroFolios();
+        if(numeroFolios == null || numeroFolios.trim().isEmpty()){
+            validation.addError(documentoActaDTO, "numeroFolios", "Debe ingresar el número de folios.");
+        }
 
         return validation;
     }

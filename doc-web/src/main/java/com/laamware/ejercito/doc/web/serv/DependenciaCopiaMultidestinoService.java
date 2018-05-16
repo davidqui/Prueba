@@ -223,7 +223,12 @@ public class DependenciaCopiaMultidestinoService {
         for (final Dependencia dependencia : dependenciasMultidestino) {
             final Usuario jefeActivoDependencia = dependenciaService.getJefeActivoDependencia(dependencia);
             if (jefeActivoDependencia == null) {
-                validation.addError(dependencia, "La dependencia \"" + dependencia.getNombre() + "\" no tiene Jefe Activo.");
+                /*
+                 * 2018-05-16 jgarcia@controltechcg.com Issue #162
+                 * (SICDI-Controltech) feature-162: Establecimiento de null para
+                 * el nuevo campo de atributo.
+                 */
+                validation.addError(dependencia, null, "La dependencia \"" + dependencia.getNombre() + "\" no tiene Jefe Activo.");
             }
         }
 

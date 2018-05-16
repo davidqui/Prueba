@@ -42,7 +42,11 @@
             <label for="asunto">Asunto (*)</label>
             <input type="text" class="form-control" id="asunto" name="asunto" />
             <small class="text-muted">Describe el objeto de la reunión de manera clara y sucinta.</small>
-            <div class="error"></div>
+            <div class="error">
+                <#if logicValidation?? && logicValidation.containsError("asunto") >
+                    ${logicValidation.getError("asunto").message}
+                </#if>
+            </div>
         </div>
 
         <#-- Lugar -->
@@ -50,15 +54,23 @@
             <label for="lugar">Lugar (*)</label>
             <input type="text" class="form-control" id="lugar" name="lugar" />
             <small class="text-muted">Determina la ciudad donde se llevó a cabo la actividad que motivo la elaboración del acta.</small>
-            <div class="error"></div>
+            <div class="error">
+                <#if logicValidation?? && logicValidation.containsError("lugar") >
+                    ${logicValidation.getError("lugar").message}
+                </#if>                
+            </div>
         </div>
 
         <#-- Fecha -->
         <div class="form-group">
-            <label for="plazo">Fecha (*)</label>
-            <input type="text" class="form-control datepicker" id="plazo" name="plazo"  value="<#if documentoAsociado.plazo??>${yyyymmdd.format(documentoAsociado.plazo)}</#if>" />
+            <label for="fechaElaboracion">Fecha (*)</label>
+            <input type="text" class="form-control datepicker" id="plazo" name="plazo"  value="<#if documentoActa.fechaElaboracion??>${yyyymmdd.format(documentoActa.fechaElaboracion)}</#if>" />
             <small class="text-muted">Determina la fecha donde se llevó a cabo la actividad que motivo la elaboración del acta.</small>
-            <div class="error"></div>
+            <div class="error">
+                <#if logicValidation?? && logicValidation.containsError("fechaElaboracion") >
+                    ${logicValidation.getError("fechaElaboracion").message}
+                </#if>                
+            </div>
         </div>
         
         <#-- Nivel de clasificación -->
@@ -73,7 +85,11 @@
                 </#if>
             </select>
             <small class="text-muted">Se asignará de acuerdo a lo establecido en el decreto 857 de 2014, según sea el caso: Ultrasecreto, Secreto, Confidencial o Restringido.</small>            
-            <div class="error"></div>
+            <div class="error">
+                <#if logicValidation?? && logicValidation.containsError("clasificacion") >
+                    ${logicValidation.getError("clasificacion").message}
+                </#if>                
+            </div>
         </div>
         
         <#-- TRD de Acta -->
@@ -88,7 +104,11 @@
                 </#if>
             </select>
             <small class="text-muted">Código valor tabla de retención documental que corresponda al tipo de acta a registrar.</small>            
-            <div class="error"></div>
+            <div class="error">
+                <#if logicValidation?? && logicValidation.containsError("trd") >
+                    ${logicValidation.getError("trd").message}
+                </#if>                
+            </div>
         </div>
 
         <#-- Número de folios -->
@@ -96,7 +116,12 @@
             <label for="numeroFolios">Número de folios (*)</label>
             <input type="number" class="form-control" id="numeroFolios" name="numeroFolios" />
             <div class="error"></div>
-            <small class="text-muted">Valor numérico equivalente al número de folios útiles que conforman el acta.</small>            
+            <small class="text-muted">Valor numérico equivalente al número de folios útiles que conforman el acta.</small>
+            <div class="error">
+                <#if logicValidation?? && logicValidation.containsError("numeroFolios") >
+                    ${logicValidation.getError("numeroFolios").message}
+                </#if>                
+            </div>            
         </div>        
         
         <nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
