@@ -40,7 +40,7 @@
         <#-- Asunto -->
         <div class="form-group">
             <label for="asunto">Asunto (*)</label>
-            <input type="text" class="form-control" id="asunto" name="asunto" value="<#if documentoActaDTO?? >${documentoActaDTO.asunto}<#elseif documentoAsociado?? >${documentoAsociado.asunto}</#if>"/>
+            <input type="text" class="form-control" id="asunto" name="asunto" value="<#if documentoActaDTO?? >${documentoActaDTO.asunto}<#elseif documentoAsociado.asunto?? >${documentoAsociado.asunto}</#if>"/>
             <small class="text-muted">Describe el objeto de la reunión de manera clara y sucinta.</small>
             <div class="error">
                 <#if logicValidation?? && logicValidation.containsError("asunto") >
@@ -52,7 +52,7 @@
         <#-- Lugar -->
         <div class="form-group">
             <label for="lugar">Lugar (*)</label>
-            <input type="text" class="form-control" id="lugar" name="lugar" value="<#if documentoActaDTO?? >${documentoActaDTO.lugar}<#elseif documentoActa?? >${documentoActa.lugar}</#if>"/>
+            <input type="text" class="form-control" id="lugar" name="lugar" value="<#if documentoActaDTO?? >${documentoActaDTO.lugar}<#elseif documentoActa.lugar?? >${documentoActa.lugar}</#if>"/>
             <small class="text-muted">Determina la ciudad donde se llevó a cabo la actividad que motivo la elaboración del acta.</small>
             <div class="error">
                 <#if logicValidation?? && logicValidation.containsError("lugar") >
@@ -64,7 +64,7 @@
         <#-- Fecha -->
         <div class="form-group">
             <label for="fechaElaboracion">Fecha (*)</label>
-            <input type="text" class="form-control datepicker" id="fechaElaboracion" name="fechaElaboracion"  value="<#if documentoActaDTO?? >${documentoActaDTO.fechaElaboracion}<#elseif documentoActa?? >${yyyymmdd.format(documentoActa.fechaElaboracion)}</#if>" />
+            <input type="text" class="form-control datepicker" id="fechaElaboracion" name="fechaElaboracion"  value="<#if documentoActaDTO?? >${documentoActaDTO.fechaElaboracion}<#elseif documentoActa.fechaElaboracion?? >${yyyymmdd.format(documentoActa.fechaElaboracion)}</#if>" />
             <small class="text-muted">Determina la fecha donde se llevó a cabo la actividad que motivo la elaboración del acta.</small>
             <div class="error">
                 <#if logicValidation?? && logicValidation.containsError("fechaElaboracion") >
@@ -114,7 +114,7 @@
         <#-- Número de folios -->
         <div class="form-group">
             <label for="numeroFolios">Número de folios (*)</label>
-            <input type="number" class="form-control" id="numeroFolios" name="numeroFolios" value="<#if documentoActaDTO?? >${documentoActaDTO.numeroFolios}<#elseif documentoAsociado?? >${documentoAsociado.numeroFolios}</#if>"/>
+            <input type="number" class="form-control" id="numeroFolios" name="numeroFolios" value="<#if documentoActaDTO?? >${documentoActaDTO.numeroFolios}<#elseif documentoAsociado.numeroFolios?? >${documentoAsociado.numeroFolios}</#if>"/>
             <div class="error"></div>
             <small class="text-muted">Valor numérico equivalente al número de folios útiles que conforman el acta.</small>
             <div class="error">
