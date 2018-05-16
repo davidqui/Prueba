@@ -48,7 +48,11 @@ import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.TRDService;
+import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
@@ -62,6 +66,13 @@ public class ExpedienteController extends UtilController {
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
 
     public static final String PATH = "/expediente";
+
+    /*
+     * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+     * feature-157: Año mínimo para los selectores de filtro por año.
+     */
+    @Value("${com.mil.imi.sicdi.minFilterSelectorYear}")
+    private Integer minFilterSelectorYear;
 
     @Autowired
     ExpedienteRepository repo;
@@ -241,6 +252,8 @@ public class ExpedienteController extends UtilController {
      * @param subserieID ID de la subserie documental. No obligatorio.
      * @param cargoID ID del cargo seleccionado como filtro de búsqueda. No
      * obligatorio.
+     * @param anyo Año de filtro. No obligatorio. En caso de ser {@code null} o
+     * cero, se presenta la información de todos los años.
      * @param model Modelo de información entre vista y controlador.
      * @param principal Objeto de información de usuario en sesión.
      * @return URL de la pantalla de búsqueda.
@@ -249,13 +262,26 @@ public class ExpedienteController extends UtilController {
      * 2018-04-24 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
      * feature-151: Modificación de nombre de parámetros en el método para mayor
      * entendimiento.
+     *
+     * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+     * feature-157: Adición de parámetros del filtro de año seleccionado.
      */
     @RequestMapping(value = "/carpeta", method = {RequestMethod.GET, RequestMethod.POST})
     public String carpeta(@RequestParam(value = "ser", required = false) Integer serieID, @RequestParam(value = "sub", required = false) Integer subserieID,
-            @RequestParam(value = "cargoFiltro", required = false) Integer cargoID, Model model, Principal principal) {
+            @RequestParam(value = "cargoFiltro", required = false) Integer cargoID, @RequestParam(value = "anyo", required = false) Integer anyo,
+            Model model, Principal principal) {
         model.addAttribute("ser", serieID);
         model.addAttribute("sub", subserieID);
-        model.addAttribute("cargoFiltro", cargoID == null ? 0 : cargoID);
+        model.addAttribute("cargoFiltro", cargoID == null ? Integer.valueOf(0) : cargoID);
+        /*
+         * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+         * feature-157: Establecimiento del atributo de modelo correspondiente
+         * al año seleccionado por el usuario y la lista de años desde el mínimo
+         * configurado en las propiedades del sistema hasta el año actual de
+         * forma descendente.
+         */
+        model.addAttribute("anyo", anyo == null ? Integer.valueOf(0) : anyo);
+        model.addAttribute("filterYears", DateUtil.createListOfYears(minFilterSelectorYear, GregorianCalendar.getInstance().get(Calendar.YEAR), Boolean.FALSE));
 
         final Usuario usuarioSesion = getUsuario(principal);
 
@@ -273,10 +299,13 @@ public class ExpedienteController extends UtilController {
              * documentos archivados, a través de DTO. Retiro del mapa
              * "registrosArchivoMapa", ya que no es necesario por el uso de los
              * DTO.
+             *
+             * 2018-05-03 jgarcia@controltechcg.com Issue #157
+             * (SICDI-Controltech) feature-157: Adición de filtro por año.
              */
             final Trd subserie = trdService.findOne(subserieID);
             final Cargo cargo = (cargoID == null) ? null : cargosRepository.findOne(cargoID);
-            final List<DocumentoDependenciaArchivoDTO> documentos = documentoDependenciaService.findAllBySubserieAndUsuarioAndCargo(subserie, usuarioSesion, cargo);
+            final List<DocumentoDependenciaArchivoDTO> documentos = documentoDependenciaService.findAllBySubserieAndUsuarioAndCargoAndAnyo(subserie, usuarioSesion, cargo, anyo);
 
             model.addAttribute("docs", documentos);
 
@@ -293,10 +322,13 @@ public class ExpedienteController extends UtilController {
              * (SICDI-Controltech) feature-151: Uso de DTO de TRD y reducción de
              * proceso de búsquedas para mejora del rendimiento del proceso de
              * consulta.
+             *
+             * 2018-05-03 jgarcia@controltechcg.com Issue #157
+             * (SICDI-Controltech) feature-157: Adición de filtro por año.
              */
             final Trd serie = trdService.findOne(serieID);
             final Cargo cargo = (cargoID == null) ? null : cargosRepository.findOne(cargoID);
-            final List<TrdArchivoDocumentosDTO> subseries = trdService.findAllSubseriesWithArchivoBySerieAndUsuarioAndCargo(serie, usuarioSesion, cargo);
+            final List<TrdArchivoDocumentosDTO> subseries = trdService.findAllSubseriesWithArchivoBySerieAndUsuarioAndCargoAndAnyo(serie, usuarioSesion, cargo, anyo);
 
 
             /*
@@ -314,9 +346,12 @@ public class ExpedienteController extends UtilController {
              * (SICDI-Controltech) feature-151: Cambio en la presentación de la
              * pantalla de archivo para que únicamente presente las series TRD
              * en las que el usuario tiene documentos archivados.
+             *
+             * 2018-05-03 jgarcia@controltechcg.com Issue #157
+             * (SICDI-Controltech) feature-157: Adición de filtro por año.
              */
             final Cargo cargo = (cargoID == null) ? null : cargosRepository.findOne(cargoID);
-            final List<TrdArchivoDocumentosDTO> series = trdService.findAllSeriesWithArchivoByUsuarioAndCargo(usuarioSesion, cargo);
+            final List<TrdArchivoDocumentosDTO> series = trdService.findAllSeriesWithArchivoByUsuarioAndCargoAndAnyo(usuarioSesion, cargo, anyo);
 
             /*
              * 2017-05-15 jgarcia@controltechcg.com Issue #80

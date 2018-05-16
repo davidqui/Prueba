@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
+import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import java.util.Collections;
 import java.util.List;
@@ -10,9 +11,11 @@ import org.springframework.stereotype.Service;
 
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
+import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificable;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificableComparator;
 import java.util.ArrayList;
+import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -71,6 +74,7 @@ public class TRDService {
      *
      * @param usuario Usuario. Obligatorio.
      * @param cargo Cargo. Opcional.
+     * @param anyo Año. Opcional.
      * @return Lista de series TRD que para el usuario (y el cargo, en caso de
      * ser indicado) tienen registros de documentos archivados.
      */
@@ -79,8 +83,8 @@ public class TRDService {
      * feature-151: Definición de los métodos para presentación de la pantalla
      * de consulta de archivo a través del servicio de TRD.
      */
-    public List<TrdArchivoDocumentosDTO> findAllSeriesWithArchivoByUsuarioAndCargo(final Usuario usuario, final Cargo cargo) {
-        final String sql = ""
+    public List<TrdArchivoDocumentosDTO> findAllSeriesWithArchivoByUsuarioAndCargoAndAnyo(final Usuario usuario, final Cargo cargo, final Integer anyo) {
+        String sql = ""
                 + "SELECT trd.trd_id AS \"id\",\n"
                 + "       trd.trd_codigo AS \"codigo\",\n"
                 + "       trd.trd_nombre AS \"nombre\",\n"
@@ -100,16 +104,34 @@ public class TRDService {
                 + "     AND dependencia_trd.dep_id = ?\n"
                 + "     AND documento_dependencia.activo = 1\n"
                 + "     AND documento_dependencia.quien = ?\n"
-                + (cargo == null ? "" : "     AND documento_dependencia .cargo_id = ?\n")
-                + "   GROUP BY serie.trd_id\n"
+                + (cargo == null ? "" : "     AND documento_dependencia .cargo_id = ?\n");
+        /*
+         * 2018-05-04 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+         * feature-157: Adición del filtro de año.
+         */
+        if (anyo != null && anyo != 0) {
+            sql += " AND documento_dependencia.cuando BETWEEN ? AND ? \n";
+        }
+
+        sql += "   GROUP BY serie.trd_id\n"
                 + "   HAVING count(1) > 0) serie_documento_archivo ON (serie_documento_archivo.trd_id = trd.trd_id)"
                 + "";
 
         final List<Object> params = new ArrayList<>();
         params.add(usuario.getDependencia().getId());
         params.add(usuario.getId());
+
         if (cargo != null) {
             params.add(cargo.getId());
+        }
+
+        /*
+         * 2018-05-04 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+         * feature-157: Adición del filtro de año.
+         */
+        if (anyo != null && anyo != 0) {
+            params.add(DateUtil.getMinDateOfMonth(Calendar.JANUARY, anyo));
+            params.add(DateUtil.getMaxDateOfMonth(Calendar.DECEMBER, anyo));
         }
 
         final RowMapper<TrdArchivoDocumentosDTO> rowMapper = new BeanPropertyRowMapper<>(TrdArchivoDocumentosDTO.class);
@@ -124,6 +146,7 @@ public class TRDService {
      * @param serie TRD serie. Obligatorio.
      * @param usuario Usuario. Obligatorio.
      * @param cargo Cargo. Opcional.
+     * @param anyo Año. Opcional.
      * @return Lista de subseries TRD que para el usuario, la serie, (y el
      * cargo, en caso de ser indicado) tienen registros de documentos
      * archivados.
@@ -133,8 +156,8 @@ public class TRDService {
      * feature-151: Definición de los métodos para presentación de la pantalla
      * de consulta de archivo a través del servicio de TRD.
      */
-    public List<TrdArchivoDocumentosDTO> findAllSubseriesWithArchivoBySerieAndUsuarioAndCargo(final Trd serie, final Usuario usuario, final Cargo cargo) {
-        final String sql = ""
+    public List<TrdArchivoDocumentosDTO> findAllSubseriesWithArchivoBySerieAndUsuarioAndCargoAndAnyo(final Trd serie, final Usuario usuario, final Cargo cargo, final Integer anyo) {
+        String sql = ""
                 + "SELECT trd.trd_id AS \"id\",\n"
                 + "       trd.trd_codigo AS \"codigo\",\n"
                 + "       trd.trd_nombre AS \"nombre\",\n"
@@ -152,8 +175,16 @@ public class TRDService {
                 + "     AND dependencia_trd.dep_id = ?\n"
                 + "     AND documento_dependencia.activo = 1\n"
                 + "     AND documento_dependencia.quien = ?\n"
-                + (cargo == null ? "" : "     AND documento_dependencia .cargo_id = ?\n")
-                + "   GROUP BY subserie.trd_id\n"
+                + (cargo == null ? "" : "     AND documento_dependencia .cargo_id = ?\n");
+        /*
+         * 2018-05-04 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+         * feature-157: Adición del filtro de año.
+         */
+        if (anyo != null && anyo != 0) {
+            sql += " AND documento_dependencia.cuando BETWEEN ? AND ? \n";
+        }
+
+        sql += "   GROUP BY subserie.trd_id\n"
                 + "   HAVING count(1) > 0) subserie_documento_archivo ON (subserie_documento_archivo.trd_id = trd.trd_id)"
                 + "";
 
@@ -161,11 +192,29 @@ public class TRDService {
         params.add(serie.getId());
         params.add(usuario.getDependencia().getId());
         params.add(usuario.getId());
+
         if (cargo != null) {
             params.add(cargo.getId());
         }
 
+        /*
+         * 2018-05-04 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+         * feature-157: Adición del filtro de año.
+         */
+        if (anyo != null && anyo != 0) {
+            params.add(DateUtil.getMinDateOfMonth(Calendar.JANUARY, anyo));
+            params.add(DateUtil.getMaxDateOfMonth(Calendar.DECEMBER, anyo));
+        }
+
         final RowMapper<TrdArchivoDocumentosDTO> rowMapper = new BeanPropertyRowMapper<>(TrdArchivoDocumentosDTO.class);
         return jdbcTemplate.query(sql, params.toArray(), rowMapper);
+    }
+    
+    public List<Trd> findSeriesByUsuario(Usuario usuario){
+        return trdRepository.findSeriesByDependencia(usuario.getDependencia().getId());
+    }
+    
+    public List<Trd> findSubseriesbySerieAndUsuario(Trd serie, Usuario usuario){
+        return trdRepository.findSubseries(serie.getId(), usuario.getDependencia().getId());
     }
 }

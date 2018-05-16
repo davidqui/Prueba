@@ -25,6 +25,7 @@
  -->
 <#include "lib/documento_functions.ftl" />
 <#include "gen-arbol-dependencias.ftl">
+<#include "gen-arbol-trd.ftl">
 
 <div class="col-md-8">
     <#if relacionado??>
@@ -161,7 +162,7 @@
                     <div class="input-group">
                         <div class="form-control" id="trdNombre">${(documento.trd)!"Por favor seleccione una subserie..."}</div>
                         <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#trdModal">
+                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#trdModalArbol">
                                 <span class="hidden-md-down">Seleccionar</span><span class="hidden-lg-up">S</span>
                                 </button>
                             </span>
@@ -188,8 +189,41 @@
                     </div>
                 </div>
             </div>
+        
+            <#--
+                2018-05-07 edison.gonzalez@controltechcg.com Issue #157 (SIGDI-Controltech): Convertir la selección
+                de la TRD en arbol. 
+             -->
+            <div class="modal fade" id="trdModalArbol" tabindex="-1" role="dialog" aria-labelledby="trdModalArbolLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                                <span class="sr-only">Cerrar</span>
+                            </button>
+                            <h4 class="modal-title" id="trdModalLabel">Selección de tabla de retención documental</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card">
+                                <div class="card-block">
+                                    <div class="row">
+                                        <div class="col-md-7">
+                                            <div id="arbol_list_trd">
+                                                <@listTrds trds=trds/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                            <br /><br />
+                        </div>
+                    </div>
+                </div>
+            </div>
             <#assign deferredJSTrd>
-                <script type="text/javascript" src="/js/app/trd-modal.js"></script>
+                <!--<script type="text/javascript" src="/js/app/trd-modal.js"></script>-->
             </#assign>
             <#assign deferredJS = deferredJS + " " + deferredJSTrd>
         </#if>
@@ -303,18 +337,6 @@
                 </div>
             </div>
         </div>
-
-        <#assign deferredJSDepDestinoArbol>
-            <script src="/js/jstree.min.js"></script>
-            <script src="/js/app/gen-arbol.js"></script>
-        
-            <script type="text/javascript">
-                validarArbol("#arbol_list_dependenciasj",false);
-            </script>
-            <script src="/js/app/documento.js"></script>
-        </#assign>
-        <#assign deferredJS = deferredJS + " " + deferredJSDepDestinoArbol>
-
         </#if>
             
         <!--Remitente texto-->
@@ -859,11 +881,18 @@
                                                                                 validando además que la transición a presentar sea la correspondiente para establecer como parámetro
                                                                                 el cargo a seleccionar por defecto.
                                                                                 Este valor es cambiado en la acción de selección del selector de cargos.
+                                                                                2018-04-24 edison.gonzalez@controltechcg.com Issue #156 (SICDI-Controltech) feature-156
+                                                                                Se realiza la modificación de los componentes que controlan la transición de los documentos
+                                                                                del tag <a> por el tag <button>.
                                                                                 -->
                                                                                 <#if (mode.cargoIdFirma_edit && cambiarIdCargoFirma!false) && isTransicionFirmar(transicion)>
-                                                                                <a id="trx_${transicion.id}" href="${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
+                                                                                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                        ${transicion.nombre}
+                                                                                    </button>
                                                                                 <#else>
-                                                                                <a href="${transicion.replace(instancia)}" class="btn ${getTransicionStyle(transicion)} btn-sm">${transicion.nombre}</a>
+                                                                                    <button class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                        ${transicion.nombre}
+                                                                                    </button>
                                                                                 </#if>
                                                                             </#if>
                                                                         </#if>
@@ -1032,37 +1061,76 @@
             </div>
         </div>
 
-    <#--
-        2017-04-07 jgarcia@controltechcg.com Issue #42 (SIGDI-Controltech):
-        Se deshabilita la opción de "Copia Dependencia" de forma temporal, comentando el componente en el template de documento.
-          
-    <#if documento.mostrarCopiaDependecia() == "S" >     
-    
+    <!--
+        2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech):
+        Se reactiva la sección de multidestino, modificando los componentes de
+        selección para utilizar el árbol de dependencias y la nueva entidad
+        DependenciaCopiaMultidestino. (feature-156)
+    -->
+    <#if documento.mostrarMultidestino()>
     	<input type="hidden" id="idDocumentoDependenciaDestinoAdicionalModal" value="${documento.id}" />
     	
     	<div class="card">
-	        <div class="card-header">
-	            Copia dependencias
-	            <#if mode.guardar_view >
-		            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaDestinoAdicionalModal">
-		                <span class="hidden-md-down"> Adicionar </span><span class="hidden-lg-up">S</span>
-		            </button>
-		        </#if>    
-	        </div>
-	        <div class="card-block">
-		            <#list documento.documentoDependenciaDestinos as dependenciaDocumentoAdicional> 
-		            		<strong>Dependencia:</strong> ${dependenciaDocumentoAdicional.dependencia}<br/>
-	                        <strong>Fecha:</strong> ${dependenciaDocumentoAdicional.cuandoInserta?string('yyyy-MM-dd hh:mm a:ss')}<br/>
-	                        <strong>Modificado por:</strong> ${dependenciaDocumentoAdicional.elabora}<br/>
-	                        <#if mode.guardar_view >
-	                        	<a href="#" onclick="eliminarDocumentoDependenciaAdicional( '${dependenciaDocumentoAdicional.id}' );return false;" class="btn btn-sm btn-danger">Eliminar</a><br/>
-	                        </#if>	
-	                        <hr/>
-	                </#list>
-	        </div>
+	    <div class="card-header">
+                Unidades o dependencias destino adicionales a enviar el documento
+	        <#if mode.guardar_view >
+		    <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaDestinoAdicionalModal">
+		        <span class="hidden-md-down"> Adicionar </span><span class="hidden-lg-up">S</span>
+		    </button>
+		</#if>    
 	    </div>
-	 </#if>
-    -->
+	    <div class="card-block pre-scrollable" >
+		<#list documento.dependenciaCopiaMultidestinos as dependenciaCopiaMultidestino>
+                    <#if dependenciaCopiaMultidestino.activo>
+                        <strong>Dependencia:</strong>
+                            <#if dependenciaCopiaMultidestino.dependenciaDestino.sigla?? >
+                                ${ dependenciaCopiaMultidestino.dependenciaDestino.sigla} - 
+                            </#if>
+                            ${dependenciaCopiaMultidestino.dependenciaDestino}<br/>
+                        <strong>Fecha:</strong> ${dependenciaCopiaMultidestino.cuandoMod?string('yyyy-MM-dd hh:mm a:ss')}<br/>
+                        <strong>Modificado por:</strong> ${dependenciaCopiaMultidestino.quien}<br/>
+                        <#if mode.guardar_view >
+                            <a id="eliminarMultidestino" href="#" onclick="eliminarDocumentoDependenciaAdicional( '${dependenciaCopiaMultidestino.id}' );return false;" class="btn btn-sm btn-danger">Eliminar</a><br/>
+                        </#if>
+                        <hr/>
+                    </#if>
+	        </#list>
+	    </div>
+	</div>
+        
+        <div class="modal fade" id="dependenciaDestinoAdicionalModal" tabindex="-1" role="dialog" aria-labelledby="dependenciaDestinoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Cerrar</span>
+                        </button>
+                        <h4 class="modal-title" id="dependenciaDestinoModalLabel">Selección de copia dependencia destino</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-block">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <div id="arbol_list_dependenciasadi">
+                                            <#if did??>
+                                                <@listDependencias dependencias=dependencias selected=did href=false/>
+                                                <#else>
+                                                    <@listDependencias dependencias=dependencias href=false/>
+                                            </#if>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <br /><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </#if>
 
     <#if (documento.vistosBuenos?size > 0) >
     <div class="card">
@@ -1350,18 +1418,6 @@
     </script>
 <script>
 
-    function eliminarDocumentoDependenciaAdicional( id ){
-
-    $.ajax("/documento/eliminarDependenciAdicionalDocumento/"+id)
-    .done(function() {          	                        		 	
-    window.location.reload(true);
-    })
-    .error( function(){
-    window.location.reload(true);
-    });
-
-    }
-
     function cargarHtmlAplantilla() {    	    	
     $("#contenido").val( tinyMCE.get('id_text_area_html').getContent() );
     //CKEDITOR.replace( 'contenido' );
@@ -1377,4 +1433,20 @@
     });
     </script>
 
+<#assign deferredJSDependencias>
+    <script src="/js/jstree.min.js"></script>
+    <script src="/js/app/gen-arbol.js"></script>
+
+    <script type="text/javascript">
+        validarArbol("#arbol_list_dependenciasj",false);
+    </script>
+    <script type="text/javascript">
+        validarArbol("#arbol_list_dependenciasadi",false);
+    </script>
+    <script type="text/javascript">
+        validarArbol("#arbol_list_trd",false);
+    </script>
+    <script src="/js/app/documento.js"></script>
+</#assign>
+<#assign deferredJS = deferredJS + " " + deferredJSDependencias>
 <#include "bandeja-footer.ftl" />

@@ -29,6 +29,20 @@
                 </select>
             </div>
 
+        <#--
+            2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech) feature-157:
+            Selector de filtro por año.
+        -->
+        <div class="form-group">
+            <label for="anyo">Año:</label>
+            <select class="form-control" id="anyo" name="anyo" onchange="submitSelect(this)">
+                <option value="0" <#if anyo == 0>selected="selected"</#if>>TODOS</option>
+                <#list filterYears as filterYear >
+                <option value="${filterYear}" <#if anyo == filterYear>selected="selected"</#if>>${filterYear}</option>
+                </#list>
+                </select>
+            </div>
+
         <input type="hidden" name="sub" id="sub" value="${(sub)!""}" />
         <input type="hidden" name="ser" id="ser" value="${(ser)!""}" />
 
@@ -37,8 +51,12 @@
             2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
             feature-151: Cambio en presentación de enlace "Regresar" para que tenga
             la apariencia de un botón.
+
+            2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+            feture-157: Complemento de los parámetros del enlace según el uso del 
+            filtro de año.
         -->
-        <a class="btn btn-info btn-sm" href="carpeta?ser=${retornaSerie}&cargoFiltro=${cargoFiltro!"0"}">Regresar</a>
+        <a class="btn btn-info btn-sm" href="carpeta?ser=${retornaSerie}&cargoFiltro=${cargoFiltro!"0"}&anyo=${anyo!"0"}">Regresar</a>
         </#if>
         </form>
 
@@ -56,6 +74,10 @@
     <#--
         2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
         feature-151: Mejora en presentación de las tablas.
+
+        2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+        feture-157: Complemento del enlace según el uso del 
+        filtro de año.
     -->
     <table class="table table-bordered table-hover">
         <thead>
@@ -69,7 +91,7 @@
         	<#list series as serie>
             <tr>
                 <td nowrap>${serie.codigo}</td>
-                <td><a href="carpeta?ser=${serie.id}&cargoFiltro=${cargoFiltro!"0"}">${serie.nombre}</a></td>
+                <td><a href="carpeta?ser=${serie.id}&cargoFiltro=${cargoFiltro!"0"}&anyo=${anyo!"0"}">${serie.nombre}</a></td>
                 <td>${serie.numeroDocumentosArchivados}</td>
                 </tr>
             </#list>            
@@ -81,10 +103,17 @@
             feature-151: Banner que indica que el usuario en sesión no tiene
             documentos archivados en las series TRD (y cargo, en caso de ser
             seleccionado).
+
+            2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+            feture-157: Complemento del mensaje del banner según el uso del 
+            filtro de año.
         -->
         <#assign noSeriesMsg="Actualmente, no tiene documentos en archivo en ninguna de las Series TRD"/>
         <#if cargoFiltro != 0>
             <#assign noSeriesMsg = noSeriesMsg + " para el cargo seleccionado"/>
+        </#if>
+        <#if anyo != 0>
+            <#assign noSeriesMsg = noSeriesMsg + " y/o para el año " + anyo/>
         </#if>
     <#--
         2018-04-26 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
@@ -116,11 +145,15 @@
             <#--
                 2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
                 feature-151: Uso de DTO para la presentación de información.
+
+                2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+                feture-157: Complemento del enlace según el uso del 
+                filtro de año.
             -->
             <#list subseries as subserie>
             <tr>
                 <td nowrap="">${subserie.codigo}</td>
-                <td><a href="carpeta?sub=${subserie.id}&cargoFiltro=${cargoFiltro!"0"}">${subserie.nombre}</a></td>                	
+                <td><a href="carpeta?sub=${subserie.id}&cargoFiltro=${cargoFiltro!"0"}&anyo=${anyo!"0"}">${subserie.nombre}</a></td>                	
                 <td>${subserie.numeroDocumentosArchivados}</td>
                 </tr>
             </#list>            
@@ -132,10 +165,17 @@
             feature-151: Banner que indica que el usuario en sesión no tiene
             documentos archivados en las subseries TRD (y cargo, en caso de ser
             seleccionado).
+
+            2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+            feture-157: Complemento del mensaje del banner según el uso del 
+            filtro de año.
         -->
         <#assign noSubseriesMsg="No tiene documentos en archivo en ninguna de las Subseries TRD"/>
         <#if cargoFiltro != 0>
             <#assign noSubseriesMsg = noSubseriesMsg + " para el cargo seleccionado"/>
+        </#if>
+        <#if anyo != 0>
+            <#assign noSubseriesMsg = noSubseriesMsg + " y/o para el año " + anyo/>
         </#if>
         <#--
             2018-04-26 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
@@ -190,10 +230,14 @@
         2018-04-26 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
         feature-151: Mensaje de advertencia (sin documentos archivados) usando
         jumbotron.
+
+        2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
+        feture-157: Complemento del mensaje del banner según el uso del 
+        filtro de año.
     -->    
     <div class="jumbotron">
         <h3>No hay documentos</h3>
-        <p>En este momento no hay documentos relacionados a esta Subserie<#if cargoFiltro != 0> para el cargo seleccionado</#if></p>
+        <p>En este momento no hay documentos relacionados a esta Subserie<#if cargoFiltro != 0> para el cargo seleccionado</#if><#if anyo != 0> y/o para el año ${anyo}</#if></p>
         </div>
         </#if>
     </#if>

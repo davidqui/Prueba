@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
+import com.laamware.ejercito.doc.web.util.DateUtil;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Servicio para las operaciones de negocio de dependencias.
@@ -18,6 +22,8 @@ import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 // 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78
 @Service
 public class DependenciaService {
+
+    private static final Logger LOG = Logger.getLogger(DependenciaService.class.getName());
 
     @Autowired
     private DependenciaRepository dependenciaRepository;
@@ -45,7 +51,7 @@ public class DependenciaService {
             if (unidad.getDepIndEnvioDocumentos() != null && unidad.getDepIndEnvioDocumentos()) {
                 return unidad;
             }
-            
+
             padreID = unidad.getPadre();
         }
 
@@ -70,7 +76,7 @@ public class DependenciaService {
             try {
                 retirarUsuarioComoJefeAsignado(usuarioId, dependencia);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LOG.log(Level.SEVERE, "" + usuarioId, ex);
             }
         }
 
@@ -98,5 +104,75 @@ public class DependenciaService {
         }
 
         dependenciaRepository.saveAndFlush(dependencia);
+    }
+
+    /**
+     * Obtiene el jefe activo de la dependencia.
+     *
+     * @param dependencia Dependencia.
+     * @return En caso que la dependencia tenga un jefe encargado y la fecha del
+     * sistema se encuentre dentro del rango de asignación del jefe encargado y
+     * este se encuentre activo en el sistema, se retorna el jefe encargado; de
+     * lo contrario, se retorna el jefe principal de la dependencia.
+     */
+    /*
+     * 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01)
+     *
+     * 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01):
+     * Paso a static.
+     *
+     * 2018-04-12 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+     * feature-156: Extracción desde DocumentoController para poder utilizar el
+     * método desde otros componentes.
+     */
+    public Usuario getJefeActivoDependencia(final Dependencia dependencia) {
+        final Usuario jefe = dependencia.getJefe();
+        final Usuario jefeEncargado = dependencia.getJefeEncargado();
+
+        if (jefeEncargado == null) {
+            return jefe;
+        }
+
+        if (!jefeEncargado.getActivo()) {
+            return jefe;
+        }
+
+        Date fechaInicioJefeEncargado = dependencia.getFchInicioJefeEncargado();
+        if (fechaInicioJefeEncargado == null) {
+            return jefe;
+        }
+
+        fechaInicioJefeEncargado = DateUtil.setTime(fechaInicioJefeEncargado, DateUtil.SetTimeType.START_TIME);
+
+        Date fechaFinJefeEncargado = dependencia.getFchFinJefeEncargado();
+        if (fechaFinJefeEncargado == null) {
+            return jefe;
+        }
+
+        fechaFinJefeEncargado = DateUtil.setTime(fechaFinJefeEncargado, DateUtil.SetTimeType.END_TIME);
+
+        Date fechaActual = new Date(System.currentTimeMillis());
+
+        if (fechaInicioJefeEncargado.compareTo(fechaActual) <= 0 && fechaActual.compareTo(fechaFinJefeEncargado) <= 0) {
+            return jefeEncargado;
+        }
+
+        return jefe;
+    }
+
+    /**
+     * Busca una dependencia por su ID.
+     *
+     * @param id ID.
+     * @return Instancia de la dependencia correspondiente al ID, o {@code null}
+     * en caso que no exista en el sistema.
+     */
+    /*
+     * 2018-04-12 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
+     * feature-156: Se crea esta función con el fin de poder utilizar el
+     * servicio sin necesidad de invocar el repositorio.
+     */
+    public Dependencia findOne(final Integer id) {
+        return dependenciaRepository.findOne(id);
     }
 }

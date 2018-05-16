@@ -209,7 +209,7 @@ public class Documento extends AuditModifySupport {
     @Size(max = 32)
     @Column(name = "PRO_NUM_BOLSA")
     private String numeroBolsa;
-    
+
     @Column(name = "DOC_PRESTADO")
     private Boolean prestado;
 
@@ -219,10 +219,9 @@ public class Documento extends AuditModifySupport {
     @Column(name = "DOC_DOCX_DOCUMENTO")
     private String docx4jDocumento;
 
-    @OneToMany
-    @JoinColumn(name = "DOC_ID")
-    private List<DocumentoDependenciaDestino> documentoDependenciaDestinos = new ArrayList<DocumentoDependenciaDestino>();
-
+//    @OneToMany
+//    @JoinColumn(name = "DOC_ID")
+//    private List<DocumentoDependenciaDestino> documentoDependenciaDestinos = new ArrayList<DocumentoDependenciaDestino>();
     @Column(name = "FECHA_GEN_CODIGO_SCANNER")
     private Date fechaGeneracionCodigoScanner;
 
@@ -262,7 +261,7 @@ public class Documento extends AuditModifySupport {
     @JoinColumn(name = "RESTRICCION_DIFUSION", referencedColumnName = "RES_ID")
     @ManyToOne
     private RestriccionDifusion restriccionDifusion;
-    
+
     /*
          * 2018-02-22 edison.gonzalez@controltechcg.com Issue #150: Variables que 
 	 * permite almacenar los cargos de los usuarios que crean y firman
@@ -271,10 +270,22 @@ public class Documento extends AuditModifySupport {
     @JoinColumn(name = "CARGO_ID_FIRMA", referencedColumnName = "CAR_ID")
     @ManyToOne
     private Cargo cargoIdFirma;
-    
+
     @JoinColumn(name = "CARGO_ID_ELABORA", referencedColumnName = "CAR_ID")
     @ManyToOne
     private Cargo cargoIdElabora;
+
+    /*
+     * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160: Campo para UUID de firma y envío.
+     */
+    @Size(max = 32)
+    @Column(name = "DOC_FIRMA_ENVIO_UUID")
+    private String firmaEnvioUUID;
+
+    @OneToMany
+    @JoinColumn(name = "DOC_ID_ORIGINAL")
+    private List<DependenciaCopiaMultidestino> dependenciaCopiaMultidestinos = new ArrayList<DependenciaCopiaMultidestino>();
 
     @Transient
     private List<UsuarioVistoBuenoDTO> vistosBuenos = new ArrayList<UsuarioVistoBuenoDTO>();
@@ -560,7 +571,7 @@ public class Documento extends AuditModifySupport {
         if (plazo != null) {
             long diff = plazo.getTime() - new Date().getTime();
             long diffDays = diff / (24 * 60 * 60 * 1000);
-            
+
             // 2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SIGDI-feature#132):
             // Si el docuemnto ya se encuentra en el estado de enviado muestra
             // la fecha de plazo en verde.
@@ -901,18 +912,44 @@ public class Documento extends AuditModifySupport {
         return true;
     }
 
-    public String mostrarCopiaDependecia() {
-        // TODOS los documentos tiene aplica el campo Asunto
-        if (asunto == null || asunto.trim().length() == 0) {
-            return "N";
-        }
+    /**
+     * Permite identificar si el documento puede presentar la opción para
+     * agregar o eliminar las dependencias adicionales cuando es un documento
+     * multidestino.
+     *
+     * @return {@code true} si el documento puede presentar la opción
+     * multidestino; de lo contrario, {@code false}.
+     */
+    // 2018-04-10 edison.gonzalez@controltechcg.com Issue #156 (SICDI-Controltech)
+    // Se realiza ajuste para validar los campos requeridos, para visualizar la
+    // opción. feature-156
+    public Boolean mostrarMultidestino() {
         if (instancia == null || instancia.getProceso() == null) {
-            return "N";
+            return Boolean.FALSE;
         }
 
-        return Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA
-                .equals(instancia.getProceso().getId()) ? "S" : "N";
+        if (Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA.equals(instancia.getProceso().getId())) {
+            // TODOS los documentos tiene aplica el campo Asunto
+            if (asunto == null || asunto.trim().length() == 0) {
+                return Boolean.FALSE;
+            }
 
+            if (dependenciaDestino == null || dependenciaDestino.getJefe() == null || dependenciaDestino.getJefe().getId() == null) {
+                return Boolean.FALSE;
+            }
+
+            if (clasificacion == null || clasificacion.getId() == null) {
+                return Boolean.FALSE;
+            }
+
+            if (trd == null || trd.getId() == null || isDocx4jDocumentoVacio()) {
+                return Boolean.FALSE;
+            }
+
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
     }
 
     public String mostrarCargueDocumentoWord() {
@@ -1041,31 +1078,30 @@ public class Documento extends AuditModifySupport {
         this.usuarioUltimaAccion = usuarioUltimaAccion;
     }
 
-    public String consultarDependenciasDestinosAdicionales() {
-
-        if (documentoDependenciaDestinos.isEmpty()) {
-            return null;
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        for (int index = 0; index < documentoDependenciaDestinos.size(); index++) {
-
-            sb.append(documentoDependenciaDestinos.get(index).getDependencia());
-            if (index != (documentoDependenciaDestinos.size() - 1)) {
-                sb.append(" - ");
-            }
-        }
-
-        return sb.toString();
+//    public String consultarDependenciasDestinosAdicionales() {
+//
+//        if (documentoDependenciaDestinos.isEmpty()) {
+//            return null;
+//        }
+//
+//        StringBuilder sb = new StringBuilder();
+//
+//        for (int index = 0; index < documentoDependenciaDestinos.size(); index++) {
+//
+//            sb.append(documentoDependenciaDestinos.get(index).getDependencia());
+//            if (index != (documentoDependenciaDestinos.size() - 1)) {
+//                sb.append(" - ");
+//            }
+//        }
+//
+//        return sb.toString();
+//    }
+    public List<DependenciaCopiaMultidestino> getDependenciaCopiaMultidestinos() {
+        return dependenciaCopiaMultidestinos;
     }
 
-    public List<DocumentoDependenciaDestino> getDocumentoDependenciaDestinos() {
-        return documentoDependenciaDestinos;
-    }
-
-    public void setDocumentoDependenciaDestinos(List<DocumentoDependenciaDestino> documentoDependenciaDestinos) {
-        this.documentoDependenciaDestinos = documentoDependenciaDestinos;
+    public void setDependenciaCopiaMultidestinos(List<DependenciaCopiaMultidestino> dependenciaCopiaMultidestinos) {
+        this.dependenciaCopiaMultidestinos = dependenciaCopiaMultidestinos;
     }
 
     public boolean isDocx4jDocumentoVacio() {
@@ -1155,4 +1191,13 @@ public class Documento extends AuditModifySupport {
     public void setCargoIdElabora(Cargo cargoIdElabora) {
         this.cargoIdElabora = cargoIdElabora;
     }
+
+    public String getFirmaEnvioUUID() {
+        return firmaEnvioUUID;
+    }
+
+    public void setFirmaEnvioUUID(String firmaEnvioUUID) {
+        this.firmaEnvioUUID = firmaEnvioUUID;
+    }
+
 }

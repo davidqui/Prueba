@@ -30,17 +30,21 @@ import org.springframework.jdbc.core.RowMapper;
  * @since November 11, 2017
  *
  */
-// 2017-11-09 edison.gonzalez@controltechcg.com Issue #136 (SICDI-Controltech)
+/*
+ * 2017-11-09 edison.gonzalez@controltechcg.com Issue #136 (SICDI-Controltech)
+ */
 @Service
 public class ConsultaService {
-    
+
     private static final Logger LOG = Logger.getLogger(ConsultaService.class.getName());
 
     @Autowired
     private DataSource dataSource;
 
-    // Issue #106
-    private static final SimpleDateFormat DATE_FORMAT_YYYYMMDD = new SimpleDateFormat("yyyy-MM-dd");
+    /*
+     * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160.
+     */
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     /**
      * Operador lógico a utilizar en la sentencia SQL de la consulta general.
@@ -56,6 +60,7 @@ public class ConsultaService {
     /**
      * Metodo que permite retornar la cantidad de registros de la consulta del
      * motor de busqueda, de acuerdo a los filtros.
+     *
      * @param asignado
      * @param asunto
      * @param fechaInicio
@@ -67,16 +72,19 @@ public class ConsultaService {
      * @param dependenciaOrigen
      * @param sameValue
      * @param usuarioID
-     * @return 
+     * @param firmaUUID
+     * @param puedeBuscarXDocFirmaEnvioUUID
+     * @return
      */
-    public int retornaCountConsultaMotorBusqueda(String asignado, String asunto, String fechaInicio,
-            String fechaFin, String radicado, String destinatario,
-            Integer clasificacion, Integer dependenciaDestino, Integer dependenciaOrigen, boolean sameValue, Integer usuarioID) {
-        
-        
-        LOG.log(Level.INFO, "retornaConsultaPrincipal");
+    /*
+     * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160: Parámetros firmaUUID y puedeBuscarXDocFirmaEnvioUUID.
+     */
+    public int retornaCountConsultaMotorBusqueda(final String asignado, final String asunto, final String fechaInicio, final String fechaFin,
+            final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino, final Integer dependenciaOrigen,
+            final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID) {
         StringBuilder sql = retornaConsultaPrincipal();
-        LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID);
+        LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID);
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -86,19 +94,21 @@ public class ConsultaService {
                 + sql.toString()
                 + ")\n";
 
-        System.err.println(sql.toString());
+        LOG.log(Level.FINEST, sql.toString());
+
         int i = 0;
         try {
             i = jdbcTemplate.queryForObject(count, parameters.toArray(), Integer.class);
         } catch (DataAccessException e) {
         }
-        LOG.log(Level.INFO, "retorna count");
+        LOG.log(Level.FINEST, "retorna count");
         return i;
     }
 
     /**
      * Metodo que permite retornar la lista de registros de la consulta del
      * motor de busqueda, de acuerdo a los filtros.
+     *
      * @param asignado
      * @param asunto
      * @param fechaInicio
@@ -110,17 +120,23 @@ public class ConsultaService {
      * @param dependenciaOrigen
      * @param sameValue
      * @param usuarioID
+     * @param firmaUUID
+     * @param puedeBuscarXDocFirmaEnvioUUID
      * @param inicio
      * @param fin
-     * @return 
+     * @return
      */
-    public List<DocumentoDTO> retornaConsultaMotorBusqueda(String asignado, String asunto, String fechaInicio,
-            String fechaFin, String radicado, String destinatario,
-            Integer clasificacion, Integer dependenciaDestino, Integer dependenciaOrigen, boolean sameValue, Integer usuarioID, int inicio, int fin) {
+    /*
+     * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160: Parámetros firmaUUID y puedeBuscarXDocFirmaEnvioUUID.
+     */
+    public List<DocumentoDTO> retornaConsultaMotorBusqueda(final String asignado, final String asunto, final String fechaInicio, final String fechaFin,
+            final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino, final Integer dependenciaOrigen,
+            final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final int inicio, final int fin) {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         StringBuilder sql = retornaConsultaPrincipal();
-        LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID);
+        LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID);
 
         String consulta = ""
                 + "select *\n"
@@ -149,8 +165,8 @@ public class ConsultaService {
     }
 
     /**
-     * Metodo que arma los filtros de la consulta del motor de busqueda de acuerdo
-     * a los filtros de la pantalla.
+     * Metodo que arma los filtros de la consulta del motor de busqueda de
+     * acuerdo a los filtros de la pantalla.
      *
      * @param sql
      * @param asignado
@@ -164,20 +180,26 @@ public class ConsultaService {
      * @param dependenciaDestino
      * @param dependenciaOrigen
      * @param usuarioID
+     * @param firmaUUID
+     * @param puedeBuscarXDocFirmaEnvioUUID
      * @return
      */
-    public LinkedList<Object> armaConsulta(StringBuilder sql, String asignado, String asunto, String fechaInicio,
-            String fechaFin, String radicado, String destinatario,
-            Integer clasificacion, Integer dependenciaDestino, Integer dependenciaOrigen, boolean sameValue, Integer usuarioID) {
+    /*
+     * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160: Parámetros firmaUUID y puedeBuscarXDocFirmaEnvioUUID.
+     */
+    public LinkedList<Object> armaConsulta(final StringBuilder sql, final String asignado, final String asunto, final String fechaInicio,
+            final String fechaFin, final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino,
+            final Integer dependenciaOrigen, final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID) {
 
         // Issue #128
         SentenceOperator operator = (sameValue) ? SentenceOperator.OR : SentenceOperator.AND;
         LinkedList<Object> parameters = new LinkedList<>();
 
         /*
-		 * 2017-05-23 jgarcia@controltechcg.com Issue #91 (SICDI-Controltech)
-		 * hotfix-91: Lista de estados para no tener en cuenta en la consulta de
-		 * documentos a través de Búsqueda Avanzada.
+         * 2017-05-23 jgarcia@controltechcg.com Issue #91 (SICDI-Controltech)
+         * hotfix-91: Lista de estados para no tener en cuenta en la consulta de
+         * documentos a través de Búsqueda Avanzada.
          */
         final Integer[] estadosNoAplican = {Estado.ANULADO, Estado.ANULADO_NEW};
         sql.append("AND INSTANCIA.PES_ID NOT IN (");
@@ -188,8 +210,10 @@ public class ConsultaService {
         }
         sql.append(")\n");
 
-        // 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Ajuste
-        // para filtrar si el usuario dio vistos bueno.
+        /*
+         * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Ajuste para
+         * filtrar si el usuario dio vistos bueno.
+         */
         sql.append("AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?) \n");
         parameters.add(usuarioID);
         parameters.add(usuarioID);
@@ -225,10 +249,10 @@ public class ConsultaService {
         }
 
         /*
-		 * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
-		 * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
-		 * avanzada, según la existencia o no de los filtros de fecha,
-		 * estableciendo la condición de concatenación de las condiciones.
+         * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
+         * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
+         * avanzada, según la existencia o no de los filtros de fecha,
+         * estableciendo la condición de concatenación de las condiciones.
          */
         Date fInicio = null;
         if (StringUtils.isNotBlank(fechaInicio)) {
@@ -241,16 +265,16 @@ public class ConsultaService {
         }
 
         /*
-		 * 2017-02-15 jgarcia@controltechcg.com Issue #142: Se separa la
-		 * validación realizada sobre los campos de fecha para que la búsqueda
-		 * sea independiente y no se necesite siempre de los dos campos para
-		 * filtrar. Se utilizan los campos de fecha indicados en el issue, según
-		 * el proceso asociado al documento.
-		 * 
-		 * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
-		 * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
-		 * avanzada, según la existencia o no de los filtros de fecha,
-		 * estableciendo la condición de concatenación de las condiciones.
+         * 2017-02-15 jgarcia@controltechcg.com Issue #142: Se separa la
+         * validación realizada sobre los campos de fecha para que la búsqueda
+         * sea independiente y no se necesite siempre de los dos campos para
+         * filtrar. Se utilizan los campos de fecha indicados en el issue, según
+         * el proceso asociado al documento.
+         *
+         * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
+         * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
+         * avanzada, según la existencia o no de los filtros de fecha,
+         * estableciendo la condición de concatenación de las condiciones.
          */
         if (fInicio != null) {
             sql.append(hasConditions ? operator.name() : "").append(" ((CASE WHEN INSTANCIA.PRO_ID = ").append(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS).append(" THEN DOC.CUANDO ELSE DOCFIRMA.CUANDO END) >= ?) \n");
@@ -261,16 +285,16 @@ public class ConsultaService {
         }
 
         /*
-		 * 2017-02-15 jgarcia@controltechcg.com Issue #142: Se separa la
-		 * validación realizada sobre los campos de fecha para que la búsqueda
-		 * sea independiente y no se necesite siempre de los dos campos para
-		 * filtrar. Se utilizan los campos de fecha indicados en el issue, según
-		 * el proceso asociado al documento.
-		 * 
-		 * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
-		 * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
-		 * avanzada, según la existencia o no de los filtros de fecha,
-		 * estableciendo la condición de concatenación de las condiciones.
+         * 2017-02-15 jgarcia@controltechcg.com Issue #142: Se separa la
+         * validación realizada sobre los campos de fecha para que la búsqueda
+         * sea independiente y no se necesite siempre de los dos campos para
+         * filtrar. Se utilizan los campos de fecha indicados en el issue, según
+         * el proceso asociado al documento.
+         *
+         * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
+         * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
+         * avanzada, según la existencia o no de los filtros de fecha,
+         * estableciendo la condición de concatenación de las condiciones.
          */
         if (fFin != null) {
             if (fInicio == null) {
@@ -335,6 +359,17 @@ public class ConsultaService {
             hasConditions = true;
         }
 
+        /*
+         * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+         * feature-160: Únicamente puede buscar por el UUID de firma/envío si el
+         * usuario tiene privilegio para realizar búsqueda con este filtro.
+         */
+        if (puedeBuscarXDocFirmaEnvioUUID && firmaUUID != null) {
+            sql.append(hasConditions ? operator.name() : "").append(" DOC.DOC_FIRMA_ENVIO_UUID = ? \n");
+            parameters.add(firmaUUID);
+            hasConditions = true;
+        }
+
         // Issue #128
         sql.append(" ) \n");
 
@@ -353,10 +388,10 @@ public class ConsultaService {
      * @see #DATE_FORMAT_YYYYMMDD
      */
     /*
-	 * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
-	 * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
-	 * avanzada, según la existencia o no de los filtros de fecha, estableciendo
-	 * la condición de concatenación de las condiciones.
+     * 2017-05-30 jgarcia@controltechcg.com Issue #96 (SICDI-Controltech)
+     * hotfix-96: Corrección para construir la sentencia SQL de la búsqueda
+     * avanzada, según la existencia o no de los filtros de fecha, estableciendo
+     * la condición de concatenación de las condiciones.
      */
     private Date parseFilterDate(String dateValue, DateUtil.SetTimeType setTimeType) {
         if (dateValue == null) {
@@ -364,23 +399,27 @@ public class ConsultaService {
         }
 
         try {
-            return DateUtil.setTime(DATE_FORMAT_YYYYMMDD.parse(dateValue.trim()), setTimeType);
+            return DateUtil.setTime(new SimpleDateFormat(DATE_FORMAT).parse(dateValue.trim()), setTimeType);
         } catch (ParseException ex) {
-            ex.printStackTrace();
+            LOG.log(Level.SEVERE, null, ex);
             return null;
         }
     }
 
     /**
      * Metodo que permite retornar la consulta principal del motor de busqueda.
-    */
+     */
     private StringBuilder retornaConsultaPrincipal() {
-        // 2017-02-17 jgarcia@controltechcg.com Issue #128: Se corrige sentencia
-        // SQL para evitar repetición de la información.
-        // 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Se agregan 
-        // nuevos campos, para realizar una sola consulta.
-        // 2017-02-15 jgarcia@controltechcg.com Issue #142: Nuevas asociaciones
-        // para obtener los campos de fechas solicitados.
+        /*
+         * 2017-02-17 jgarcia@controltechcg.com Issue #128: Se corrige sentencia
+         * SQL para evitar repetición de la información.
+         *
+         * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Se agregan
+         * nuevos campos, para realizar una sola consulta.
+         *
+         * 2017-02-15 jgarcia@controltechcg.com Issue #142: Nuevas asociaciones
+         * para obtener los campos de fechas solicitados.
+         */
         return new StringBuilder(""
                 + "SELECT DISTINCT INSTANCIA.PIN_ID    \"idInstancia\", \n"
                 + "       DOC.DOC_ID                   \"id\", \n"
@@ -419,5 +458,3 @@ public class ConsultaService {
                 + "WHERE 1 = 1 \n");
     }
 }
-
-

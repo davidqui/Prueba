@@ -1,3 +1,8 @@
+/**
+ * Dunción que se encarga de retornar el identificador del nodo seleccionado.
+ * @param {type} sParam
+ * @returns {getUrlParameter.sParameterName|Boolean}
+ */
 function getUrlParameter(sParam) {
     var sPageURL = decodeURIComponent(window.location.search.substring(1)),
         sURLVariables = sPageURL.split('&'),
@@ -11,32 +16,50 @@ function getUrlParameter(sParam) {
     }
 };
 
-function validarArbol(myVar, selectVar = true, dependenciaPropia = false){
+/**
+ * Metodo que permite asociar los eventos al arbol
+ * @param {type} myVar Identificador del conponente del arbol
+ * @param {type} selectVar Variable que identifica si se debe seleccionar un nodo
+ * @param {type} abrirNodoDependencia Variable que identifica si debe seleccionar
+ * la dependencia del usuario en sesion.
+ * @returns {undefined}
+ */
+function validarArbol(myVar, selectVar = true, abrirNodoDependencia = false){
     
+    /**
+     * Evento que se dispara en el momento crear el componente del arboñ
+     */
     $(myVar).jstree().bind('ready.jstree', function(event, data) {
         var idS = getUrlParameter('idseleccionado');
-        if (idS !== undefined && idS !== null && !dependenciaPropia) {
+        if (idS !== undefined && idS !== null && !abrirNodoDependencia) {
             data.instance._open_to(idS);
         } 
         
-        if(dependenciaPropia){
-            abrirArbolXdependencia(idS);
+        if(abrirNodoDependencia){
+            abrirArbolXdependencia(idS, data);
         }
     });
     
     if(selectVar){
-        $(myVar)
-            .on("select_node.jstree", function(e, data) {
-                var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
-                var id = data.instance.get_node(data.node, true).attr('id');
-                if (window.location.href !== newLoc) {
-                    document.location = newLoc + ("&idseleccionado=" + id);
-                }
-            })
-            .jstree();
+        /**
+         * Evento que se dispara en el momento que se selecciona un nodo del arbol
+         */
+        $(myVar).on("select_node.jstree", function(e, data) {
+            var newLoc = data.instance.get_node(data.node, true).children('a').attr('href');
+            var id = data.instance.get_node(data.node, true).attr('id');
+            if (window.location.href !== newLoc) {
+                document.location = newLoc + ("&idseleccionado=" + id);
+            }
+        }).jstree();
     }
     
-    function abrirArbolXdependencia(selId) {
+    /**
+     * Función que se encarga de abrir y seleccionar la dependencia del usuario
+     * en sesión
+     * @param {type} selId
+     * @returns {undefined}
+     */
+    function abrirArbolXdependencia(selId, dataArbol) {
         $.ajax({
             url: "/documento/seleccionarDependencia",
             success: function(data) {
@@ -56,18 +79,11 @@ function validarArbol(myVar, selectVar = true, dependenciaPropia = false){
                     }
                 });
                 $(myVar).jstree().close_all();
+                
                 if(ret !== undefined){
-                    expandNode(ret);
+                    dataArbol.instance._open_to(ret);
                 }
             }
         });
-    };
-    
-    function expandNode(nodeID) {
-        while (nodeID !== '#') {
-            $(myVar).jstree("open_node", nodeID);
-            var thisNode = $(myVar).jstree("get_node", nodeID);
-            nodeID = $(myVar).jstree("get_parent", thisNode);
-        }
     };
 };

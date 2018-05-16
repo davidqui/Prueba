@@ -385,6 +385,26 @@
                 </#if>
                 </select>
             </fieldset>
+            
+            <#--
+                2018-05-02 edison.gonzalez@controltechcg.com Issue #159 (SICDI-Controltech) 
+                Issue-159: Asociación del dominio al usuario.
+            -->
+            <fieldset class="form-group">
+                <@spring.bind "usuario.dominio" />
+                    <label for="${spring.status.expression}">Dominio</label>
+                    <select class="form-control" id="${spring.status.expression}" name="${spring.status.expression}" >
+                <#if dominios??>
+                    <#list dominios as dominio>
+                       <#if dominio.codigo?string == ((usuario.dominio.codigo)!"")?string >
+                            <option value="${dominio.codigo}" selected="selected">${dominio.nombre}</option>
+                        <#else>
+                            <option value="${dominio.codigo}">${dominio.nombre}</option>
+                        </#if>
+                    </#list>
+                </#if>
+                </select>
+            </fieldset>
 
             <div class="m-y">
                 <#--

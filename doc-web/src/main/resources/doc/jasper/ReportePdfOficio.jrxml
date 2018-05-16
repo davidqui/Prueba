@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReportePdfOficio" pageWidth="612" pageHeight="792" whenNoDataType="AllSectionsNoDetail" columnWidth="442" leftMargin="85" rightMargin="85" topMargin="56" bottomMargin="28" uuid="48c3ae1f-24a3-4d00-833e-b3c271fb749f">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="833"/>
+	<parameter name="imagesRoot" class="java.lang.String"/>
+	<parameter name="id_documento" class="java.lang.String"/>
+	<parameter name="ofsRoot" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT
+     DOCUMENTO."PDF_TEXTO1",
+     DOCUMENTO."PDF_TEXTO2",
+     DOCUMENTO."PDF_TEXTO3",
+     DOCUMENTO."PDF_TEXTO4",
+     DOCUMENTO."PDF_TEXTO5",
+     DOCUMENTO."PDF_TEXTO6",
+     DOCUMENTO."PDF_TEXTO6_2",
+     DOCUMENTO."PDF_TEXTO7",
+     DOCUMENTO."PDF_TEXTO8",
+     DOCUMENTO."PDF_TEXTO9",
+     DOCUMENTO."PDF_TEXTO10",
+     DOCUMENTO."PDF_TEXTO11",
+     DOCUMENTO."PDF_TEXTO12",
+     DOCUMENTO."PDF_TEXTO13",
+     DOCUMENTO."PDF_TEXTO14",
+     DOCUMENTO."PDF_TEXTO15",
+     DOCUMENTO."PDF_TEXTO16",
+     DOCUMENTO."PDF_TEXTO17",
+     DOCUMENTO."PDF_TEXTO18",
+     DOCUMENTO."PDF_TEXTO19",
+     DOCUMENTO."PDF_TEXTO20",
+     DOCUMENTO."PDF_TEXTO21",
+     DOCUMENTO."PDF_TEXTO22",
+     DOCUMENTO."PDF_TEXTO23",
+     DOCUMENTO."PDF_TEXTO24",
+     DOCUMENTO."PDF_TEXTO25",
+     DOCUMENTO."PDF_TEXTO26",
+     DOCUMENTO."PDF_TEXTO27",
+     DOCUMENTO."PDF_TEXTO28",
+     DOCUMENTO."PDF_TEXTO29",
+     DOCUMENTO."PDF_TEXTO30",
+     DOCUMENTO."PDF_TEXTO31",
+     DOCUMENTO."PDF_TEXTO32",
+     DOCUMENTO."PDF_TEXTO33",
+     DOCUMENTO."PDF_TEXTO34"
+FROM
+     "DOCUMENTO" DOCUMENTO
+WHERE
+     DOCUMENTO.doc_id = $P{id_documento}]]>
+	</queryString>
+	<field name="PDF_TEXTO1" class="java.lang.String"/>
+	<field name="PDF_TEXTO2" class="java.lang.String"/>
+	<field name="PDF_TEXTO3" class="java.lang.String"/>
+	<field name="PDF_TEXTO4" class="java.lang.String"/>
+	<field name="PDF_TEXTO5" class="java.lang.String"/>
+	<field name="PDF_TEXTO6" class="java.lang.String"/>
+	<field name="PDF_TEXTO6_2" class="java.lang.String"/>
+	<field name="PDF_TEXTO7" class="java.lang.String"/>
+	<field name="PDF_TEXTO8" class="java.lang.String"/>
+	<field name="PDF_TEXTO9" class="java.lang.String"/>
+	<field name="PDF_TEXTO10" class="java.lang.String"/>
+	<field name="PDF_TEXTO11" class="oracle.sql.CLOB"/>
+	<field name="PDF_TEXTO12" class="java.lang.String"/>
+	<field name="PDF_TEXTO13" class="java.lang.String"/>
+	<field name="PDF_TEXTO14" class="java.lang.String"/>
+	<field name="PDF_TEXTO15" class="java.lang.String"/>
+	<field name="PDF_TEXTO16" class="java.lang.String"/>
+	<field name="PDF_TEXTO17" class="java.lang.String"/>
+	<field name="PDF_TEXTO18" class="java.lang.String"/>
+	<field name="PDF_TEXTO19" class="java.lang.String"/>
+	<field name="PDF_TEXTO20" class="java.lang.String"/>
+	<field name="PDF_TEXTO21" class="java.lang.String"/>
+	<field name="PDF_TEXTO22" class="java.lang.String"/>
+	<field name="PDF_TEXTO23" class="java.lang.String"/>
+	<field name="PDF_TEXTO24" class="java.lang.String"/>
+	<field name="PDF_TEXTO25" class="java.lang.String"/>
+	<field name="PDF_TEXTO26" class="java.lang.String"/>
+	<field name="PDF_TEXTO27" class="java.lang.String"/>
+	<field name="PDF_TEXTO28" class="java.lang.String"/>
+	<field name="PDF_TEXTO29" class="java.lang.String"/>
+	<field name="PDF_TEXTO30" class="java.lang.String"/>
+	<field name="PDF_TEXTO31" class="java.lang.String"/>
+	<field name="PDF_TEXTO32" class="java.lang.String"/>
+	<field name="PDF_TEXTO33" class="java.lang.String"/>
+	<field name="PDF_TEXTO34" class="java.lang.String"/>
+	<variable name="totalDePaginas" class="java.lang.Integer" incrementType="Page">
+		<variableExpression><![CDATA[$V{totalDePaginas} + $V{numeroUno}]]></variableExpression>
+		<initialValueExpression><![CDATA[1]]></initialValueExpression>
+	</variable>
+	<variable name="numeroUno" class="java.lang.Integer">
+		<initialValueExpression><![CDATA[1]]></initialValueExpression>
+	</variable>
+	<background>
+		<band height="708">
+			<image>
+				<reportElement x="0" y="0" width="442" height="708" uuid="a2d2704b-b494-4fa8-84e9-8a12b35e857a"/>
+				<imageExpression><![CDATA[$P{imagesRoot} + "/agua_caimi.png"]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<title>
+		<band height="122">
+			<image vAlign="Middle">
+				<reportElement positionType="Float" x="-1" y="18" width="55" height="55" uuid="be42289a-b33d-49a5-a598-07b430b4c01c"/>
+				<imageExpression><![CDATA[$P{imagesRoot} + "/escudo-ejercito-nacional-de-colombia.png"]]></imageExpression>
+			</image>
+			<image hAlign="Right" vAlign="Middle">
+				<reportElement positionType="Float" x="371" y="18" width="70" height="47" uuid="1bdf4622-594d-4da3-9105-8bdb8e439af9"/>
+				<imageExpression><![CDATA[$P{imagesRoot} + "/todos_por_un_nuevo_pais.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement positionType="Float" x="54" y="46" width="317" height="13" uuid="3314dd6a-f57c-4dda-8655-57ed170bba5d"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO2}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="54" y="18" width="317" height="28" uuid="123abde5-4e32-48df-815b-5f028d8f657e"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MINISTERIO DE DEFENSA NACIONAL
+COMANDO GENERAL FUERZAS MILITARES
+EJÉRCITO NACIONAL]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="94" y="73" width="114" height="10" uuid="b7b2a73f-a2c8-4f2d-803c-a575dab2cab1"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO3}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="92" y="102" width="116" height="14" uuid="046caa17-8763-4825-8c79-7db77faaaa97"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO5}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement positionType="Float" x="-13" y="83" width="234" height="25" uuid="4d9639d2-ecf0-483f-9679-71aac86acad9"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128A" drawText="false" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$F{PDF_TEXTO4}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="0" width="442" height="17" forecolor="#FF0000" uuid="a38626cf-1b85-45ae-98ca-4e1aabd35b8e"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO1}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="70">
+			<printWhenExpression><![CDATA[$V{PAGE_NUMBER} > 1]]></printWhenExpression>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="0" width="442" height="17" forecolor="#FF0000" uuid="5952348f-f488-44cf-b738-cf5796981d5a">
+					<printWhenExpression><![CDATA[!"SIN CLASIFICACION".equals($F{PDF_TEXTO1})]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="92" y="56" width="116" height="14" uuid="edef7ea1-dab3-4377-b605-778675b440c7"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO5}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement positionType="Float" x="-13" y="37" width="234" height="25" uuid="9cfbe5e9-8415-4a52-b1e2-6edf4df04932"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128A" drawText="false" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$F{PDF_TEXTO4}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField>
+				<reportElement positionType="Float" x="94" y="26" width="114" height="10" uuid="146d2694-13f3-403c-a28c-f0898b882445"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO3}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="90">
+			<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1]]></printWhenExpression>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="0" width="266" height="14" uuid="5e018e0b-17d7-4b39-8da6-c2fa46468abd"/>
+				<textElement markup="none">
+					<font fontName="Arial" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Señor Coronel]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="1" y="76" width="53" height="14" uuid="69d4a3c2-1c19-4089-a4ee-b26767148d1e"/>
+				<textElement markup="none">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Asunto:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="52" y="76" width="387" height="14" uuid="01dd8a17-fb97-4ca5-b877-e7d4f19a572f"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO29}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="13" width="442" height="18" uuid="ab1ab895-b3a1-4dc4-95df-cd3654a86a9c"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO26}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="28" width="442" height="18" uuid="8c821c3e-1165-4699-817d-a7afd21c1143"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO27}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="43" width="442" height="18" uuid="5c6441ef-376a-463d-a493-6e9fec2d302b"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO28}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="0" y="0" width="442" height="14" uuid="383724cb-eaee-4047-8c33-74c8b97439bd"/>
+				<textElement markup="html">
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO11}.getSubString(1, (int) $F{PDF_TEXTO11}.length())]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="179">
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="165" width="442" height="14" forecolor="#FF0000" uuid="5c531b82-58c0-451c-b551-2aa961b8a5ff">
+					<printWhenExpression><![CDATA[!"SIN CLASIFICACION".equals($F{PDF_TEXTO1})]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="375" y="150" width="58" height="10" uuid="a696bda5-b9de-42c8-a86d-f24b92d56983"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement positionType="Float" x="433" y="150" width="10" height="10" uuid="48cc9cc5-4b13-414e-811f-85f977b1d811"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<image vAlign="Middle">
+				<reportElement positionType="Float" x="409" y="99" width="34" height="43" uuid="d773dcc4-85c3-4375-9933-0ce3efec62d6">
+					<printWhenExpression><![CDATA[$F{PDF_TEXTO6}.equals("CEDE2")]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{imagesRoot} + "/mapacol.png"]]></imageExpression>
+			</image>
+			<image vAlign="Middle">
+				<reportElement positionType="Float" x="373" y="99" width="34" height="43" uuid="30f3aef9-76a9-47bd-b503-8cca1aa8c16a">
+					<printWhenExpression><![CDATA[$F{PDF_TEXTO6}.equals("CEDE2")]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{imagesRoot} + "/certificado.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="36" width="442" height="62" uuid="365ff6aa-b1da-4061-9c93-b832f8e1a058"/>
+				<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+					<font fontName="Arial" size="7"/>
+				</textElement>
+				<text><![CDATA[<p style="text-align: justify;"><b>COMPROMISO DE RESERVA.</b> La informaci&oacute;n contenida en el presente documento goza de Reserva Legal, raz&oacute;n por la cual <u>todo servidor p&uacute;blico</u> que tenga acceso a su contenido, quedara por el mismo hecho cobijado de las obligaciones impuestas en la Ley Estatutaria 1621 de 2013 Cap&iacute;tulo VI, <u>su divulgaci&oacute;n o usos no autorizados conllevara las sanciones de tipo penal disciplinarias y/o fiscal</u> preestablecidas en los C&oacute;digos vigentes para la revelaci&oacute;n il&iacute;cita de confidencial. <b>LA PRESENTE INFORMACI&Oacute;N NO CONSTITUYE PRUEBA NI ANTECEDENTES</b> (Art. 248 C.N). Es el producto del an&aacute;lisis de m&uacute;ltiples documentos e intercambios de informaciones a trav&eacute;s de los convenios celebrados con diferentes Entidades Estatales.</p>]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="102" width="442" height="50" uuid="7da1eef2-730d-462d-9723-74d4ffe3a0c7"/>
+				<textElement markup="html">
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO24}]]></textFieldExpression>
+			</textField>
+			<image vAlign="Middle">
+				<reportElement positionType="Float" x="347" y="99" width="34" height="43" uuid="47516e9e-130e-442a-9153-45eb5195c59c">
+					<printWhenExpression><![CDATA[$F{PDF_TEXTO6}.equals("CEDE2")]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{imagesRoot} + "/iso9001.png"]]></imageExpression>
+			</image>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="148">
+			<image scaleImage="FillFrame" hAlign="Left" vAlign="Middle" isUsingCache="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="-1" y="11" width="187" height="32" uuid="a2dd2db3-cb15-49be-9764-1bbcf0fbe022"/>
+				<imageExpression><![CDATA[$P{ofsRoot} + "/" + $F{PDF_TEXTO30}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="0" y="76" width="404" height="10" uuid="92885e3e-81e0-43e0-abef-e5e0e75a25a1"/>
+				<textElement verticalAlignment="Bottom" markup="none">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Elaboró: " + ($F{PDF_TEXTO13} != null ? $F{PDF_TEXTO13}:"") + ". " + ($F{PDF_TEXTO14} != null ? $F{PDF_TEXTO14}:"")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="86" width="427" height="10" uuid="4ba5d542-4822-4b73-9d8d-eaacad8d59c2"/>
+				<textElement verticalAlignment="Bottom" markup="none">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO15}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="99" width="404" height="10" uuid="0439279c-05dc-4e10-8b59-9fa3b8afd1e5"/>
+				<textElement verticalAlignment="Bottom" markup="none">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Revisó: " + ($F{PDF_TEXTO21} != null ? $F{PDF_TEXTO21}:"") + ". " + ($F{PDF_TEXTO22} != null ? $F{PDF_TEXTO22}:"")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="109" width="427" height="10" uuid="72eb8e96-2073-4468-810b-f83a469e151e"/>
+				<textElement verticalAlignment="Bottom" markup="none">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO23}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="123" width="404" height="10" uuid="f2e5abba-c568-4d8b-9c38-1423b004c90b"/>
+				<textElement verticalAlignment="Bottom" markup="none">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Vo Bo: " + ($F{PDF_TEXTO32} != null ? $F{PDF_TEXTO32}:"") + ". " + ($F{PDF_TEXTO33} != null ? $F{PDF_TEXTO33}:"")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="133" width="427" height="10" uuid="62bf6a1f-641d-47fd-853d-b4d7118632e5"/>
+				<textElement verticalAlignment="Bottom" markup="none">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PDF_TEXTO34}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="49" width="441" height="25" uuid="25bd414b-483d-4735-8d46-adbb9cb6a07c">
+					<printWhenExpression><![CDATA[$F{PDF_TEXTO25} != null && $F{PDF_TEXTO25}.trim().length() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement verticalAlignment="Top" markup="none">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Anexo: " + $F{PDF_TEXTO25}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

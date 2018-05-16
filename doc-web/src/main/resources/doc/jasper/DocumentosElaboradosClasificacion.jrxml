@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DocumentosElaboradosClasificacion" pageWidth="752" pageHeight="572" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="752" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="b4476b37-6e03-403e-822a-c4fca413b6c5">
+	<property name="ireport.zoom" value="1.3310000000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="imagesRoot" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
+	<parameter name="p_clasificacion" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[select
+(select car_nombre from cargo where car_id = doc.cargo_id_elabora) || '. ' || ucreado.USU_NOMBRE usuariocrea,
+(select car_nombre from cargo where car_id = doc.cargo_id_firma) || '. ' || ufirma.USU_NOMBRE usuariofirma,
+(select car_nombre from cargo where car_id = uvistobueno.usu_cargo_principal_id) || '. ' || uvistobueno.USU_NOMBRE usuariovistobueno,
+(select car_nombre from cargo where car_id = uaprueba.usu_cargo_principal_id) || '. ' || uaprueba.USU_NOMBRE usuarioaprueba,
+trd.TRD_NOMBRE,
+trd.TRD_CODIGO,
+trd.TRD_SERIE,
+cla.CLA_NOMBRE,
+proc.PRO_NOMBRE,
+pla.PLA_CODIGO,
+clas.CLA_NOMBRE,
+doc.*
+from
+DOCUMENTO doc
+INNER JOIN USUARIO ucreado ON doc.quien = ucreado.usu_id
+LEFT JOIN USUARIO ufirma ON doc.usu_id_firma = ufirma.usu_id
+LEFT JOIN USUARIO uvistobueno ON doc.usu_id_visto_bueno = uvistobueno.usu_id
+LEFT JOIN USUARIO uaprueba ON doc.usu_id_aprueba = uaprueba.usu_id
+LEFT JOIN TRD trd on trd.TRD_ID = doc.trd_id
+LEFT JOIN CLASIFICACION cla on cla.CLA_ID = doc.CLA_ID
+LEFT JOIN PROCESO_INSTANCIA pin on pin.PIN_ID = doc.PIN_ID
+INNER JOIN PROCESO proc on proc.pro_ID = pin.PRO_ID
+INNER JOIN CLASIFICACION clas on clas.CLA_ID = doc.CLA_ID
+LEFT JOIN PLANTILLA pla on pla.pla_ID = doc.pla_ID
+WHERE doc.CLA_ID = $P{p_clasificacion}]]>
+	</queryString>
+	<field name="USUARIOCREA" class="java.lang.String"/>
+	<field name="USUARIOFIRMA" class="java.lang.String"/>
+	<field name="USUARIOVISTOBUENO" class="java.lang.String"/>
+	<field name="USUARIOAPRUEBA" class="java.lang.String"/>
+	<field name="TRD_NOMBRE" class="java.lang.String"/>
+	<field name="TRD_CODIGO" class="java.lang.String"/>
+	<field name="TRD_SERIE" class="java.math.BigDecimal"/>
+	<field name="CLA_NOMBRE" class="java.lang.String"/>
+	<field name="PRO_NOMBRE" class="java.lang.String"/>
+	<field name="PLA_CODIGO" class="java.lang.String"/>
+	<field name="DOC_ID" class="java.lang.String"/>
+	<field name="DOC_ASUNTO" class="java.lang.String"/>
+	<field name="TRD_ID" class="java.math.BigDecimal"/>
+	<field name="QUIEN" class="java.math.BigDecimal"/>
+	<field name="CUANDO" class="java.sql.Timestamp"/>
+	<field name="QUIEN_MOD" class="java.math.BigDecimal"/>
+	<field name="CUANDO_MOD" class="java.sql.Timestamp"/>
+	<field name="CLA_ID" class="java.math.BigDecimal"/>
+	<field name="DOC_NUM_OFICIO" class="java.lang.String"/>
+	<field name="DOC_PLAZO" class="java.sql.Timestamp"/>
+	<field name="DOC_FCH_OFICIO" class="java.sql.Timestamp"/>
+	<field name="DOC_NUM_FOLIOS" class="java.math.BigDecimal"/>
+	<field name="PIN_ID" class="java.lang.String"/>
+	<field name="DOC_STICKER" class="oracle.sql.CLOB"/>
+	<field name="DOC_CONTENIDO" class="oracle.sql.CLOB"/>
+	<field name="USU_ID_FIRMA" class="java.math.BigDecimal"/>
+	<field name="USU_ID_ELABORA" class="java.math.BigDecimal"/>
+	<field name="USU_ID_VISTO_BUENO" class="java.math.BigDecimal"/>
+	<field name="USU_ID_APRUEBA" class="java.math.BigDecimal"/>
+	<field name="DOC_RADICADO" class="java.lang.String"/>
+	<field name="DOC_RELACIONADO" class="java.lang.String"/>
+	<field name="EXP_ID" class="java.math.BigDecimal"/>
+	<field name="DOC_PDF" class="java.lang.String"/>
+	<field name="DOC_DESCRIPCION" class="java.lang.String"/>
+	<field name="DOC_PAGINAS" class="java.math.BigDecimal"/>
+	<field name="DEP_ID_DES" class="java.math.BigDecimal"/>
+	<field name="DOC_DEST_NOMBRE" class="java.lang.String"/>
+	<field name="DOC_DEST_TITULO" class="java.lang.String"/>
+	<field name="DOC_DEST_DIRECCION" class="java.lang.String"/>
+	<field name="PLA_ID" class="java.math.BigDecimal"/>
+	<field name="DOC_CONTENT_FILE" class="java.lang.String"/>
+	<field name="DOC_PRESTADO" class="java.math.BigDecimal"/>
+	<field name="DOC_REM_NOMBRE" class="java.lang.String"/>
+	<field name="DOC_REM_TITULO" class="java.lang.String"/>
+	<field name="DOC_REM_DIRECCION" class="java.lang.String"/>
+	<field name="DEP_ID_REM" class="java.math.BigDecimal"/>
+	<field name="PRO_RAD_ORFEO" class="java.lang.String"/>
+	<field name="PRO_NUM_BOLSA" class="java.lang.String"/>
+	<field name="ESTADO_TMP" class="java.lang.String"/>
+	<field name="PDF_TEXTO26" class="java.lang.String"/>
+	<field name="DOC_DOCX_DOCUMENTO" class="java.lang.String"/>
+	<field name="FECHA_ULTI_TRG_EJECUTADO" class="oracle.sql.TIMESTAMP"/>
+	<field name="USU_ID_ULTIMA_ACCION" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="80" splitType="Stretch">
+			<line>
+				<reportElement x="3" y="76" width="747" height="1" forecolor="#CCCCCC" uuid="e20ae79a-e8e6-4659-a8ee-e6241a45d42b"/>
+			</line>
+			<image vAlign="Middle">
+				<reportElement positionType="Float" x="0" y="20" width="55" height="55" uuid="352e1f39-80bc-4d57-937a-61f31fb48cbc"/>
+				<imageExpression><![CDATA[$P{imagesRoot} + "/escudo-ejercito-nacional-de-colombia.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="0" width="752" height="20" uuid="4befef68-9106-4af4-8366-4244875fac95"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DOCUMENTOS POR CLASIFICACIÓN]]></text>
+			</staticText>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="247" y="30" width="254" height="20" uuid="d2267b70-0246-4f83-9a75-495042bea4fa"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CLA_NOMBRE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="133" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="60" width="642" height="11" uuid="45673cbf-c2ed-4326-bc23-a1afd9934116"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{USUARIOCREA}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="70" width="642" height="11" uuid="bed42015-dfe8-429b-87be-668aafea1b61"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{USUARIOAPRUEBA}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="0" width="111" height="11" forecolor="#000000" uuid="641d0237-d621-44ef-8e15-3156438aaf29"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Fecha de creación]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="20" width="642" height="11" uuid="6c245b42-025b-44a5-9a4f-9eeb8096cfa8"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DOC_PLAZO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="90" width="111" height="11" forecolor="#000000" uuid="773c5949-4c20-4c67-b1d1-d1ac6b8fb0a0"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Firmado]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="70" width="111" height="11" forecolor="#000000" uuid="8d26a452-2ff1-47f0-af23-67f2c0f46031"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Aprobado]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="80" width="642" height="11" uuid="65a601f9-135c-490d-885b-ea39d47a17d4"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{USUARIOVISTOBUENO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="40" width="642" height="11" uuid="9d69c2a8-0cd1-433c-bbca-ef1f45b6bcfd"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DOC_NUM_OFICIO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="10" width="642" height="11" uuid="4d58c77e-fb24-4508-9457-327dd3faf648"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DOC_ASUNTO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="100" width="642" height="11" uuid="09bdf8c1-28dc-4f4c-8fde-ea3e9e3e5ffe"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DOC_RADICADO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="40" width="111" height="11" forecolor="#000000" uuid="0c424c5a-2c59-4386-8cbe-ec3823376ed4"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Número ofício]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy HH.mm.ss" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="0" width="642" height="11" uuid="553480d3-76f6-488c-8122-3daec491b4b4"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CUANDO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="60" width="111" height="11" forecolor="#000000" uuid="158951b9-7131-40aa-88b9-66252cdedc33"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Elaborado]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="120" width="642" height="11" uuid="b6067130-66f3-43de-873c-c3be814f1633"/>
+				<textElement markup="none">
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TRD_CODIGO} +" - "+$F{TRD_NOMBRE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="120" width="111" height="11" forecolor="#000000" uuid="deda29e4-8c3c-4361-8920-7c3fb36dfa98"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  TRD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="110" width="111" height="11" forecolor="#000000" uuid="0b105c41-67fd-4ea8-80f3-1aeaa7b7c6ac"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Plantilla]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="110" width="642" height="11" uuid="0c15e186-8559-40c8-9aa6-6ba447795431"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PLA_CODIGO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="30" width="642" height="11" uuid="b2b72483-7d58-4fad-9d8a-ce3ec9a28b98"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CLA_NOMBRE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="20" width="111" height="11" forecolor="#000000" uuid="fdd75534-f626-4623-9239-895dd0297fa4"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Plazo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="30" width="111" height="11" forecolor="#000000" uuid="60f10049-d30a-41aa-a682-75eb85152d55"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Clasificación]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="100" width="111" height="11" forecolor="#000000" uuid="fabfeea7-60f2-4dc3-8cb9-3ee5638570b2"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Número radicado]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="10" width="111" height="11" forecolor="#000000" uuid="3fc82473-0106-4c47-bfcb-ccefb5512b47"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Asunto]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="50" width="642" height="11" uuid="4913d3ef-763a-42ce-817a-66003a05f879"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PRO_NOMBRE}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="110" y="90" width="642" height="11" uuid="1c38a064-6285-42c2-b746-97a67d9bf596"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{USUARIOFIRMA}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="80" width="111" height="11" forecolor="#000000" uuid="d31885a8-8f91-4342-b29c-851dd30e0f2f"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Visto bueno]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="50" width="111" height="11" forecolor="#000000" uuid="4f07e2a9-379d-4833-99d8-a0cb4cb37a5a"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  Proceso]]></text>
+			</staticText>
+			<line>
+				<reportElement x="2" y="130" width="747" height="1" forecolor="#CCCCCC" uuid="5afc2cd3-c198-4c9f-a1c3-64446ef86995"/>
+			</line>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="10">
+			<textField>
+				<reportElement positionType="Float" x="678" y="0" width="58" height="10" uuid="93c0528c-f2ff-4fd8-846a-e9f77330708e"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement positionType="Float" x="736" y="0" width="15" height="10" uuid="ac1c1f63-2df5-4a53-b6de-0995f00f8f8c"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

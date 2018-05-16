@@ -3,7 +3,6 @@ package com.laamware.ejercito.doc.web.ctrl;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoDTO;
 import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
+import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Expediente;
@@ -85,14 +85,17 @@ public class ConsultaController extends UtilController {
         List<Dependencia> listaDependencias = depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
 
-        System.out.println("term=" + term);
-
         if (StringUtils.isBlank(term)) {
             return "consulta";
         }
 
         model.addAttribute("term", term);
-        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null);
+
+        /*
+         * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+         * feature-160: Filtro para firma UUID.
+         */
+        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null, term);
     }
 
     /**
@@ -115,16 +118,23 @@ public class ConsultaController extends UtilController {
      * @param clasificacionNombre
      * @param dependenciaDestinoDescripcion
      * @param dependenciaOrigenDescripcion
+     * @param firmaUUID
      * @return
      */
     /*
-	 * 2017-02-10 jgarcia@controltechcg.com Issue #105: Se modifica todo el
-	 * cuerpo del método buscar() para construir una sola sentencia SQL a partir
-	 * de los valores ingresados desde el formulario. 2017-02-13
-	 * jgarcia@controltechcf.com Issue #77: Se amplían los valores de búsqueda,
-	 * para obtener el campo de la dependencia.
-         * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Se agrega la 
-         * variable dependencia de origen para aplicarla al filtro
+     * 2017-02-10 jgarcia@controltechcg.com Issue #105: Se modifica todo el
+     * cuerpo del método buscar() para construir una sola sentencia SQL a partir
+     * de los valores ingresados desde el formulario.
+     *
+     * 2017-02-13 jgarcia@controltechcf.com Issue #77: Se amplían los valores de
+     * búsqueda, para obtener el campo de la dependencia.
+     *
+     * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Se agrega la
+     * variable dependencia de origen para aplicarla al filtro.
+     *
+     * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160: Filtro para firma UUID.
+     *
      */
     @RequestMapping(value = "/parametros", method = {RequestMethod.GET, RequestMethod.POST})
     public String buscar(Model model, @RequestParam(value = "asignado", required = false) String asignado,
@@ -142,7 +152,8 @@ public class ConsultaController extends UtilController {
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "clasificacionNombre", required = false) String clasificacionNombre,
             @RequestParam(value = "dependenciaDestinoDescripcion", required = false) String dependenciaDestinoDescripcion,
-            @RequestParam(value = "dependenciaOrigenDescripcion", required = false) String dependenciaOrigenDescripcion) {
+            @RequestParam(value = "dependenciaOrigenDescripcion", required = false) String dependenciaOrigenDescripcion,
+            @RequestParam(value = "firmaUUID", required = false) String firmaUUID) {
 
         boolean sameValue = term != null && term.trim().length() > 0;
 
@@ -150,15 +161,24 @@ public class ConsultaController extends UtilController {
         List<Dependencia> listaDependencias = depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
 
+        /*
+         * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+         * feature-160: Indicador en el modelo UI que permite realizar búsqueda
+         * por UUID de firma y envío.
+         */
+        final boolean puedeBuscarXDocFirmaEnvioUUID = isAuthorizedRol(AppConstants.BUSCAR_X_DOC_FIRMA_ENVIO_UUID);
+        model.addAttribute("puedeBuscarXDocFirmaEnvioUUID", puedeBuscarXDocFirmaEnvioUUID);
+
         if (sameValue) {
             asignado = term;
             asunto = term;
             radicado = term;
             destinatario = term;
+            firmaUUID = term; // Issue #160
         }
 
-        // Issue #105, Issue #128
-        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen};
+        // Issue #105, Issue #128, Issue #160
+        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID};
 
         LOG.log(Level.INFO, "iniciando metodo");
         boolean parametrosVacios = true;
@@ -183,13 +203,13 @@ public class ConsultaController extends UtilController {
 	 * procesos de búsqueda, para que únicamente presente la información de
 	 * los documentos asociados al usuario en los pasos de creación y firma.
          */
-        Usuario usuario = getUsuario(principal);
-        Integer usuarioID = usuario.getId();
+        final Usuario usuarioSesion = getUsuario(principal);
+        final Integer usuarioID = usuarioSesion.getId();
         expedientes(model, principal);
 
         LOG.log(Level.INFO, "verificando count");
         List<DocumentoDTO> documentos = null;
-        int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID);
+        int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID);
         LOG.log(Level.INFO, "verificando count ]= {0}", count);
         int totalPages = 0;
         String labelInformacion = "";
@@ -199,7 +219,7 @@ public class ConsultaController extends UtilController {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
             LOG.log(Level.INFO, "consulta completa");
-            documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 
@@ -226,6 +246,7 @@ public class ConsultaController extends UtilController {
             model.addAttribute("clasificacionNombre", clasificacionNombre);
             model.addAttribute("dependenciaDestinoDescripcion", dependenciaDestinoDescripcion);
             model.addAttribute("dependenciaOrigenDescripcion", dependenciaOrigenDescripcion);
+            model.addAttribute("firmaUUID", firmaUUID);
         }
 
         model.addAttribute("term", term);
@@ -263,18 +284,16 @@ public class ConsultaController extends UtilController {
      * @return
      */
     public List<Expediente> expedientes(Model model, Principal principal) {
-
-        Dependencia dependencia = getUsuario(principal).getDependencia();
+        final Dependencia dependencia = getUsuario(principal).getDependencia();
 
         if (dependencia == null) {
             return new ArrayList<>();
         }
 
-        Integer dependenciaId = dependencia.getId();
-        List<Expediente> list = expedienteRepository.findByActivoAndDependenciaId(true, dependenciaId,
-                new Sort(Direction.ASC, "nombre"));
-        model.addAttribute("expedientes", list);
-        return list;
+        final Integer dependenciaId = dependencia.getId();
+        final List<Expediente> expedientes = expedienteRepository.findByActivoAndDependenciaId(true, dependenciaId, new Sort(Direction.ASC, "nombre"));
+        model.addAttribute("expedientes", expedientes);
+        return expedientes;
     }
 
     /**

@@ -1,6 +1,7 @@
+set define off
 -- ------------------------------------------------------------ 
 -- 2018-02-23 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech)
--- feature-151: Ajuste de los cargos de los usuarios que firman y elaboran el documento.
+-- feature-156: Ajuste correspondiente a la opción de multidestino.
 -- ------------------------------------------------------------
 
 create or replace FUNCTION "FN_PDF_DOC_PREVIEW" 
@@ -224,19 +225,19 @@ BEGIN
     V_SIGLA_CORTA_DE := FN_PDF_GET_SIGLA( P_DOC_ID, 'ULTIMO' );
     DBMS_OUTPUT.PUT_LINE('Consulta OK FN_PDF_GET_SIGLA : ' || V_SIGLA_CORTA_DE);
 
-    FOR rec IN (SELECT D.DEP_SIGLA FROM DEPENDENCIA D INNER JOIN DOCUMENTO_DEP_DESTINO DDD ON D.DEP_ID = DDD.DEP_ID WHERE DDD.DOC_ID = P_DOC_ID AND D.DEP_SIGLA IS NOT NULL ORDER BY D.DEP_SIGLA)
+    /*FOR rec IN (SELECT D.DEP_SIGLA FROM DEPENDENCIA D INNER JOIN DOCUMENTO_DEP_DESTINO DDD ON D.DEP_ID = DDD.DEP_ID WHERE DDD.DOC_ID = P_DOC_ID AND D.DEP_SIGLA IS NOT NULL ORDER BY D.DEP_SIGLA)
        LOOP
           V_SIGLAS_DEP_ADICIONAL := ( V_SIGLAS_DEP_ADICIONAL || '-' || rec.DEP_SIGLA );
-    END LOOP;
+    END LOOP;*/
 
     IF v_documento.DEP_ID_DES IS NOT NULL THEN
       SELECT DEP_SIGLA INTO V_SIGLA_CORTA_PARA FROM DEPENDENCIA WHERE DEP_ID = v_documento.DEP_ID_DES;
-      IF V_SIGLAS_DEP_ADICIONAL IS NOT NULL THEN
+      /*IF V_SIGLAS_DEP_ADICIONAL IS NOT NULL THEN
         V_SIGLAS_DEP_ADICIONAL := V_SIGLA_CORTA_PARA || V_SIGLAS_DEP_ADICIONAL;
         V_SIGLA_CORTA_PARA := 'UNIDADES';
-      ELSE
+      ELSE*/
         V_SIGLAS_DEP_ADICIONAL := V_SIGLA_CORTA_PARA;
-      END IF;
+      --END IF;
       DBMS_OUTPUT.PUT_LINE('Consulta OK DEPENDENCIA.DEP_SIGLA : ' || V_SIGLA_CORTA_PARA);
     END IF;
 

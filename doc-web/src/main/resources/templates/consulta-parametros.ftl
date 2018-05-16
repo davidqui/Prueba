@@ -13,9 +13,11 @@
     <div class="container-fluid">
         <form method="POST" action="/consulta/parametros">
 
-    <!--2017-02-13 jgarcia@controltechcg.com #78: Alinear el formulario de la búsqueda avanzada -->
-    <!--2017-02-13 jgarcia@controltechcg.com #142: Reordenamiento de los campos del formulario para que no se crucen entre ellos. -->
-    <!--2017-10-27 edison.gonzalez@controltechcg.com #136: Ajuste visual y paginación de los resultados. -->
+        <#--
+            2017-02-13 jgarcia@controltechcg.com #78: Alinear el formulario de la búsqueda avanzada.
+            2017-02-13 jgarcia@controltechcg.com #142: Reordenamiento de los campos del formulario para que no se crucen entre ellos.
+            2017-10-27 edison.gonzalez@controltechcg.com #136: Ajuste visual y paginación de los resultados.
+        -->
 
             <div style="border-radius: 10px; margin-bottom: 10px; padding: 10px;">
                 <fieldset>
@@ -44,10 +46,12 @@
                         <div class="col-sm-2">
                             <input type="text" name="radicado" class="form-control" value="${radicado}"/>
                             </div>
+
                         <label for="destinatario" class="col-sm-1 col-form-label text-xs-right">Destinatario</label>
                         <div class="col-sm-2">
                             <input type="text" name="destinatario" class="form-control" value="${destinatario}"/>
                             </div>
+
                         <label for="clasificacion" class="col-sm-1 col-form-label text-xs-right">Clasificación</label>
                         <input type="hidden" name="clasificacion" id="clasificacion" value="${clasificacion}"/>
                         <input type="hidden" name="clasificacionNombre" id="clasificacionNombre" value="${clasificacionNombre}"/>
@@ -65,6 +69,21 @@
                         </#if>
                                 </select>
                             </div>
+                        <#--
+                            2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
+                            Campo para búsqueda por Firma UUID.
+
+                            2018-05-09 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
+                            Cambio de etiqueta a Firma Digital, indicado en correo "TEXTO PDF" (Wed, 09 May 2018 13:55:22 -0500)
+
+                        -->
+                        <#if puedeBuscarXDocFirmaEnvioUUID >
+                        <label for="firmaUUID" class="col-sm-1 col-form-label text-xs-right">Firma Digital</label>
+                        <div class="col-sm-2">
+                            <input type="text" name="firmaUUID" class="form-control" value="${firmaUUID}"/>
+                            </div>
+                        </#if>
+
                         </div>
                     <div class="form-group row">
                         <label for="origen" class="col-sm-1 col-form-label text-xs-right">Dependencia origen</label>
@@ -126,10 +145,10 @@
                     </div>
                 <div class="modal-body">
                     <div class="card">
-                            <div class="card-block">
-                                <div class="row">
-                                    <div class="col-md-7">
-                                        <div id="arbol_list_dependenciasj">
+                        <div class="card-block">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div id="arbol_list_dependenciasj">
                                             <#if did??>
                                                 <@listDependencias dependencias=dependencias selected=did href=false/>
                                             <#else>
@@ -139,9 +158,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="clearfix"></div>
+                        <div class="clearfix"></div>
                         </div>
-                        <br /><br />
+                    <br /><br />
                     </div>
                 </div>
             </div>
@@ -159,10 +178,10 @@
                     </div>
                 <div class="modal-body">
                     <div class="card">
-                            <div class="card-block">
-                                <div class="row">
-                                    <div class="col-md-7">
-                                        <div id="arbol_list_dependenciasjOrigen">
+                        <div class="card-block">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div id="arbol_list_dependenciasjOrigen">
                                             <#if did??>
                                                 <@listDependencias dependencias=dependencias selected=did href=false/>
                                             <#else>
@@ -172,24 +191,24 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="clearfix"></div>
+                        <div class="clearfix"></div>
                         </div>
-                        <br /><br />
+                    <br /><br />
                     </div>
                 </div>
             </div>
         </div>
     <#assign deferredJSDepOrigen>
-        <script src="/js/jstree.min.js"></script>
-        <script src="/js/app/gen-arbol.js"></script>
-        
-        <script type="text/javascript">
-            validarArbol("#arbol_list_dependenciasjOrigen",false);
+    <script src="/js/jstree.min.js"></script>
+    <script src="/js/app/gen-arbol.js"></script>
+
+    <script type="text/javascript">
+        validarArbol("#arbol_list_dependenciasjOrigen",false);
         </script>
-        <script type="text/javascript">
-            validarArbol("#arbol_list_dependenciasj",false);
+    <script type="text/javascript">
+        validarArbol("#arbol_list_dependenciasj",false);
         </script>
-        
+
     </#assign>
     <#assign deferredJS = deferredJS + " " + deferredJSDepOrigen>
     </form>
@@ -203,4 +222,4 @@
 <script src="/js/app/consulta-parametros.js"></script>
 <script type="text/javascript">
     initParameters("${dependenciaOrigenDescripcion}","${dependenciaDestinoDescripcion}");
- </script>
+    </script>

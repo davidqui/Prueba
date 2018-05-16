@@ -64,6 +64,36 @@
 
                 <a href="/capacitacion-juego/intro">Capacitación</a>
                 <a href="/video/manual_registro1_player.html" target="_blank">Manual  </a>
+
+    <#--
+        2018-05-02 jgarcia@controltechcg.com Issue #159 (SICDI-Controltech)
+        feature-159: Presentación de enlace al OWA, si el usuario en sesión
+        tiene activado el acceso en su configuración de dominio.
+    -->
+    <#if user_can_use_owa_link>
+                <a href="#" data-toggle="modal" data-target="#modal-owa-link">Cambiar Contraseña</a>
+
+                <div class="modal fade" id="modal-owa-link" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title" style="color: blue;">Cambiar Contraseña</h4>
+                                </div>
+                            <div class="modal-body" style="color: black;">
+                                <p>Al dar clic al botón "Continuar", acepta acceder al sistema OWA para realizar allí el proceso de cambio de contraseña.</p>
+                                <p>Debe permitir en su navegador activar popups provenientes de la URL de SICDI.</p>
+                                <p>Finalizado el procedimiento en el sistema mencionado, se recomienda cerrar la sesión en SICDI y acceder con la nueva contraseña.</p>
+                                </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-success" data-dismiss="modal" onclick="goToOWA('${owa_link_url}');">Continuar</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    </#if>
+                
                 </div>
             </div>
     </#if>
@@ -111,7 +141,7 @@
                         <span class="hidden-lg-up">TAR</span>
                         </a>
                     </li>
-                
+
                 <li class="nav-item hidden-xs-down">
                     <form action="/consulta" method="GET" class="form-inline" id="consulta-form">
                         <div class="input-group">

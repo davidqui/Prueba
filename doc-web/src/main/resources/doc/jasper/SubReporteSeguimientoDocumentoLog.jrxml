@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="SubReporteSeguimientoDocumentoLog" language="groovy" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c75a0a57-7233-4803-9f48-274218858be1">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="p_pin_id" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     DETALLE_ACCION,
+     CUANDO
+FROM
+     LOG
+WHERE
+LOG_CONTENIDO like '%$P!{p_pin_id}%' ORDER BY CUANDO ASC]]>
+	</queryString>
+	<field name="DETALLE_ACCION" class="java.lang.String"/>
+	<field name="CUANDO" class="java.sql.Timestamp"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="38" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="18" width="194" height="20" uuid="b6c81095-0667-4a1a-87f5-0f492d67f0d7"/>
+				<box>
+					<bottomPen lineWidth="0.25" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CUANDO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="194" y="18" width="401" height="20" uuid="8a196748-776f-4c34-b462-9fcc1a8f8258"/>
+				<box>
+					<bottomPen lineWidth="0.25" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ACCIÓN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="595" height="20" backcolor="#CCCCCC" uuid="278a54bd-585a-454f-9975-8ddffbce9ce9"/>
+				<box>
+					<bottomPen lineWidth="0.25" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Log de eventos para este documento]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy HH.mm.ss" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="194" height="12" uuid="6a964ff2-93f4-49ca-8412-bc2a940b3095"/>
+				<box>
+					<bottomPen lineWidth="0.25" lineColor="#999999"/>
+				</box>
+				<textElement>
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CUANDO}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="194" y="0" width="401" height="12" uuid="8570c483-6fae-449c-bc8f-e84849d3b796"/>
+				<box>
+					<bottomPen lineWidth="0.25" lineColor="#999999"/>
+				</box>
+				<textElement>
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DETALLE_ACCION}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

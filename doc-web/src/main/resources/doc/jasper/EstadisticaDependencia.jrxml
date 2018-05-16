@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.3.final using JasperReports Library version 6.4.3  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_Letter" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c748a765-32b6-40c4-ab6d-1787dbb0cca0">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SICDI"/>
+	<property name="ireport.jasperserver.url" value="http://localhost:8082/jasperserver/"/>
+	<property name="ireport.jasperserver.user" value="jasperadmin"/>
+	<property name="ireport.jasperserver.reportUnit" value="/reports/EstadisticaDependencia"/>
+	<parameter name="dependencia" class="java.lang.Object" isForPrompting="false"/>
+	<parameter name="dependenciaTrd" class="java.lang.Object" isForPrompting="false"/>
+	<queryString language="SQL">
+		<![CDATA[select *
+from grado]]>
+	</queryString>
+	<field name="GRA_ID" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="GRA_ID"/>
+	</field>
+	<field name="GRA_NOMBRE" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="GRA_NOMBRE"/>
+	</field>
+	<field name="ACTIVO" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="ACTIVO"/>
+	</field>
+	<field name="CUANDO" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="CUANDO"/>
+	</field>
+	<field name="QUIEN" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="QUIEN"/>
+	</field>
+	<field name="CUANDO_MOD" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="CUANDO_MOD"/>
+	</field>
+	<field name="QUIEN_MOD" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="QUIEN_MOD"/>
+	</field>
+	<field name="GRA_PESO_ORDEN" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="GRA_PESO_ORDEN"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="50" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="50">
+			<staticText>
+				<reportElement x="20" y="10" width="100" height="30" uuid="c4fb327e-91cf-45f1-aee2-55a88eb7bfc8"/>
+				<text><![CDATA[GRA_ID]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="240" y="10" width="100" height="30" uuid="aa7a8975-3693-44f1-86f8-452296e23447"/>
+				<text><![CDATA[GRA_NOMBRE]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="682">
+			<image>
+				<reportElement x="150" y="220" width="320" height="225" uuid="2f3c1267-3321-443a-9098-18c6cd743e08">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<imageExpression><![CDATA[$P{dependencia}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="20" y="30" width="100" height="30" uuid="dbbb6cf5-8834-4de5-96e5-0f70462e1d44"/>
+				<textFieldExpression><![CDATA[$F{GRA_ID}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="236" y="30" width="100" height="30" uuid="83d9ddb8-d2a8-4817-a602-9fafb5b0f6c6"/>
+				<textFieldExpression><![CDATA[$F{GRA_NOMBRE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

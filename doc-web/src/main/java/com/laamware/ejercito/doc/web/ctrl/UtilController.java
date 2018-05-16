@@ -146,7 +146,7 @@ public abstract class UtilController {
     }
 
     public boolean isAuthorized(String roles) {
-        
+
         String[] split = roles.split(",");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Collection<? extends GrantedAuthority> granted = authentication.getAuthorities();
@@ -164,6 +164,28 @@ public abstract class UtilController {
             }
         }
         return is;
+    }
+
+    /**
+     * Indica si el usuario en sesión tiene asignado un rol.
+     *
+     * @param rol ID del rol.
+     * @return {@code true} si el usuario en sesión tiene asignado el rol; de lo
+     * contrario, {@code false}.
+     */
+    /*
+     * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
+     * feature-160.
+     */
+    public boolean isAuthorizedRol(final String rol) {
+        final Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        for (final GrantedAuthority authority : authorities) {
+            if (authority.getAuthority().equals(rol)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
