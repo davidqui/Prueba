@@ -32,4 +32,17 @@ public interface ClasificacionRepository extends
             + "")
     public Clasificacion findMinOrderActivo();
 
+    /**
+     * Busca una clasificación activa por su ID.
+     *
+     * @param id ID de la clasificación.
+     * @return Instancia de la clasificación correspondiente al ID, si y solo
+     * si, esta se encuentra activa; de lo contrario, {@code null}.
+     */
+    /*
+     * 2018-05-16 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public Clasificacion findOneByIdAndActivoTrue(Integer id);
+
 }

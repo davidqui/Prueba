@@ -2,7 +2,6 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
-import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +13,7 @@ import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificable;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificableComparator;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,12 +209,33 @@ public class TRDService {
         final RowMapper<TrdArchivoDocumentosDTO> rowMapper = new BeanPropertyRowMapper<>(TrdArchivoDocumentosDTO.class);
         return jdbcTemplate.query(sql, params.toArray(), rowMapper);
     }
-    
-    public List<Trd> findSeriesByUsuario(Usuario usuario){
+
+    public List<Trd> findSeriesByUsuario(Usuario usuario) {
         return trdRepository.findSeriesByDependencia(usuario.getDependencia().getId());
     }
-    
-    public List<Trd> findSubseriesbySerieAndUsuario(Trd serie, Usuario usuario){
+
+    public List<Trd> findSubseriesbySerieAndUsuario(Trd serie, Usuario usuario) {
         return trdRepository.findSubseries(serie.getId(), usuario.getDependencia().getId());
     }
+
+    /**
+     * Valida si el usuario tiene asignada la subserie TRD dentro de una serie
+     * TRD específica.
+     *
+     * @param subserieTrd Subserie TRD.
+     * @param serieTrd Serie TRD.
+     * @param usuario Usuario.
+     * @return {@code true} en caso que el usuario tenga asignada la subserie
+     * dentro de la serie especificada de forma activa; de lo contrario,
+     * {@code false}.
+     */
+    /*
+     * 2018-05-16 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public boolean validateSubserieTrdForUser(Trd subserieTrd, Trd serieTrd, Usuario usuario) {
+        final BigInteger result = trdRepository.validateSubserieTrdForUser(subserieTrd.getId(), serieTrd.getId(), usuario.getId());
+        return result.equals(BigInteger.ONE);
+    }
+
 }

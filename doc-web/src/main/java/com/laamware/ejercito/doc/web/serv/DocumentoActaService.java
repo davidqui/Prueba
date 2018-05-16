@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
+import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoActa;
 import com.laamware.ejercito.doc.web.entity.Instancia;
@@ -10,10 +11,17 @@ import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
 import com.laamware.ejercito.doc.web.repo.DocumentoActaRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
+import com.laamware.ejercito.doc.web.util.DateUtil;
+import com.laamware.ejercito.doc.web.util.Global;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +62,8 @@ public class DocumentoActaService {
 
     private final Integer serieActasID;
 
+    private final Integer diasLimiteFechaElaboracion;
+
     @Autowired
     private DocumentoActaRepository documentoActaRepository;
 
@@ -66,15 +76,23 @@ public class DocumentoActaService {
     @Autowired
     private TRDService trdService;
 
+    @Autowired
+    private ClasificacionService clasificacionService;
+
     /**
      * Constructor.
      *
      * @param serieActasID ID de la TRD correspondiente a la serie de actas.
      * Cargado por archivo de propiedades.
+     * @param diasLimiteFechaElaboracion Número de días para el límite de la
+     * fecha de elaboración. Cargado por archivo de propiedades.
      */
     @Autowired
-    public DocumentoActaService(@Value("${com.mil.imi.sicdi.trd.serie.actas}") Integer serieActasID) {
+    public DocumentoActaService(
+            @Value("${com.mil.imi.sicdi.trd.serie.actas}") Integer serieActasID,
+            @Value("${com.mil.imi.sicdi.documento.acta.limite.fecha-elaboracion.dias}") Integer diasLimiteFechaElaboracion) {
         this.serieActasID = serieActasID;
+        this.diasLimiteFechaElaboracion = diasLimiteFechaElaboracion;
     }
 
     /**
@@ -163,9 +181,10 @@ public class DocumentoActaService {
      * al proceso de guardado inicial del documento.
      *
      * @param documentoActaDTO DTO de documento acta.
+     * @param usuario Usuario.
      * @return Resumen del proceso de validación.
      */
-    public BusinessLogicValidation validarGuardarActa(final DocumentoActaDTO documentoActaDTO) {
+    public BusinessLogicValidation validarGuardarActa(final DocumentoActaDTO documentoActaDTO, final Usuario usuario) {
         final BusinessLogicValidation validation = new BusinessLogicValidation();
 
         // asunto
@@ -179,29 +198,75 @@ public class DocumentoActaService {
         if (lugar == null || lugar.trim().isEmpty()) {
             validation.addError(documentoActaDTO, "lugar", "Debe ingresar un lugar.");
         }
-        
+
         // fechaElaboracion
-        final String fechaElaboracion = documentoActaDTO.getFechaElaboracion();
-        if(fechaElaboracion == null || fechaElaboracion.trim().isEmpty()){
+        final String _fechaElaboracion = documentoActaDTO.getFechaElaboracion();
+        if (_fechaElaboracion == null || _fechaElaboracion.trim().isEmpty()) {
             validation.addError(documentoActaDTO, "fechaElaboracion", "Debe seleccionar una fecha de elaboración.");
         }
-        
+
+        try {
+            final Date fechaElaboracion = DateUtil.setTime(new SimpleDateFormat(Global.DATE_FORMAT).parse(_fechaElaboracion), DateUtil.SetTimeType.START_TIME);
+            final Date fechaElaboracionLimite = DateUtil.setTime(DateUtil.add(new Date(), Calendar.DATE, -diasLimiteFechaElaboracion), DateUtil.SetTimeType.START_TIME);
+            if (fechaElaboracion.before(fechaElaboracionLimite)) {
+                validation.addError(documentoActaDTO, "fechaElaboracion", "La fecha de elaboración es menor que la fecha límite permitida: "
+                        + new SimpleDateFormat(Global.DATE_FORMAT).format(fechaElaboracionLimite));
+            }
+        } catch (ParseException ex) {
+            LOG.log(Level.SEVERE, _fechaElaboracion, ex);
+            validation.addError(documentoActaDTO, "fechaElaboracion", "Debe enviar una fecha de elaboración válida.");
+        }
+
         // clasificacion
-        final String clasificacion = documentoActaDTO.getClasificacion();
-        if(clasificacion == null || clasificacion.trim().isEmpty()){
+        final String _clasificacionID = documentoActaDTO.getClasificacion();
+        if (_clasificacionID == null || _clasificacionID.trim().isEmpty()) {
             validation.addError(documentoActaDTO, "clasificacion", "Debe seleccionar el nivel de clasificación.");
         }
-        
+
+        try {
+            final Integer clasificacionID = Integer.parseInt(_clasificacionID);
+            final Clasificacion clasificacion = clasificacionService.findActivo(clasificacionID);
+            if (clasificacion == null) {
+                validation.addError(documentoActaDTO, "clasificacion", "Debe seleccionar un nivel de clasificación activo.");
+            }
+
+            // TODO: Verificar si hay más reglas asociadas a la clasificación seleccionada.
+        } catch (NumberFormatException ex) {
+            LOG.log(Level.SEVERE, _clasificacionID, ex);
+            validation.addError(documentoActaDTO, "clasificacion", "Debe enviar una clasificación válida.");
+        }
+
         // trd
-        final String trd = documentoActaDTO.getTrd();
-        if(trd == null || trd.trim().isEmpty()){
+        final String _trdID = documentoActaDTO.getTrd();
+        if (_trdID == null || _trdID.trim().isEmpty()) {
             validation.addError(documentoActaDTO, "trd", "Debe seleccionar la subserie TRD.");
         }
-        
+
+        try {
+            final Integer trdID = Integer.parseInt(_trdID);
+            boolean trdValida = trdService.validateSubserieTrdForUser(new Trd(trdID), new Trd(serieActasID), usuario);
+            if (!trdValida) {
+                validation.addError(documentoActaDTO, "trd", "Debe seleccionar la subserie TRD válida y/o asignada.");
+            }
+        } catch (NumberFormatException ex) {
+            LOG.log(Level.SEVERE, _trdID, ex);
+            validation.addError(documentoActaDTO, "trd", "Debe enviar una subserie TRD válida.");
+        }
+
         // numeroFolios
-        final String numeroFolios = documentoActaDTO.getNumeroFolios();
-        if(numeroFolios == null || numeroFolios.trim().isEmpty()){
+        final String _numeroFolios = documentoActaDTO.getNumeroFolios();
+        if (_numeroFolios == null || _numeroFolios.trim().isEmpty()) {
             validation.addError(documentoActaDTO, "numeroFolios", "Debe ingresar el número de folios.");
+        }
+
+        try {
+            final Integer numeroFolios = Integer.parseInt(_numeroFolios);
+            if (numeroFolios <= 0) {
+                validation.addError(documentoActaDTO, "numeroFolios", "Debe ingresar un número de folios mayor o igual a 1.");
+            }
+        } catch (NumberFormatException ex) {
+            LOG.log(Level.SEVERE, _numeroFolios, ex);
+            validation.addError(documentoActaDTO, "numeroFolios", "Debe ingresar un número de folios válido.");
         }
 
         return validation;

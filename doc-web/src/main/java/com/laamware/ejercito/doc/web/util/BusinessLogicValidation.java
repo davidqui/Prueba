@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Objeto de validación. Permite enviar, ya sea como retorno de un método o como
@@ -61,6 +62,41 @@ public class BusinessLogicValidation implements Serializable {
 
         public String getMessage() {
             return message;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 3;
+            hash = 37 * hash + Objects.hashCode(this.objectValidated);
+            hash = 37 * hash + Objects.hashCode(this.attribute);
+            hash = 37 * hash + Objects.hashCode(this.message);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final ValidationError other = (ValidationError) obj;
+            if (!Objects.equals(this.attribute, other.attribute)) {
+                return false;
+            }
+            if (!Objects.equals(this.message, other.message)) {
+                return false;
+            }
+            return Objects.equals(this.objectValidated, other.objectValidated);
+        }
+
+        @Override
+        public String toString() {
+            return "{" + "objectValidated=" + objectValidated + ", attribute=" + attribute + ", message=" + message + '}';
         }
 
     }
@@ -155,6 +191,11 @@ public class BusinessLogicValidation implements Serializable {
      */
     public boolean containsError(final String attribute) {
         return errorsMap.containsKey(attribute);
+    }
+
+    @Override
+    public String toString() {
+        return "BusinessLogicValidation{" + "errors=" + errors + ", errorsMap=" + errorsMap + '}';
     }
 
 }
