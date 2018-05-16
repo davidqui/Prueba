@@ -67,7 +67,7 @@ public class UsuarioController extends UtilController {
 
     @Autowired
     CargosRepository cargosRepository;
-    
+
     @Autowired
     DominioService dominioService;
 
@@ -166,19 +166,19 @@ public class UsuarioController extends UtilController {
                 model.addAttribute("usuario", usuario);
                 return "usuario";
             }
-            
+
             /*
             * 2018-03-13 edison.gonzalez@controltechcg.com Issue #151
             * (SICDI-Controltech) feature-151: Validación del cargo principal para
             * crear o actualizar el usuario en el sistema.
              */
-            if(usuario.getUsuCargoPrincipalId() == null || usuario.getUsuCargoPrincipalId().getId() == null){
+            if (usuario.getUsuCargoPrincipalId() == null || usuario.getUsuCargoPrincipalId().getId() == null) {
                 model.addAttribute(AppConstants.FLASH_ERROR, "El cargo principal del usuario es requerido");
                 usuario.setMode(UsuarioMode.getByName(UsuarioMode.REGISTRO_NAME));
                 model.addAttribute("usuario", usuario);
                 return "usuario";
             }
-            
+
             /*
             * 2018-05-02 edison.gonzalez@controltechcg.com Issue #159
             * (SICDI-Controltech) feature-159: Validación del campo dominio del 
@@ -341,14 +341,13 @@ public class UsuarioController extends UtilController {
                     map.put("dependencia", usuarioLdap.getDependencia() != null
                             ? usuarioLdap.getDependencia().getId().toString() : null);
                     map.put("email", usuarioLdap.getEmail());
-                    
+
                     /*
                         2018-02-13 edison.gonzalez@controltechcg.com Issue #149 (SICDI-Controltech) 
                         feature-149: Se coloca en comentarios la columna de cargo, la cual se remplaza
                         por la columna usuCArgoPrincipalId.
                      */
 //                    map.put("cargo", usuarioLdap.getCargo());
-
                     if (usuarioLdap.getUsuCargoPrincipalId() != null) {
                         map.put("cargoId", usuarioLdap.getUsuCargoPrincipalId().getId().toString());
                     } else {
@@ -499,7 +498,7 @@ public class UsuarioController extends UtilController {
     public List<Cargo> cargos() {
         return cargosRepository.findAll(new Sort(Direction.ASC, "carNombre"));
     }
-    
+
     /**
      * Carga el listado de dominios del sistema
      *
@@ -507,7 +506,13 @@ public class UsuarioController extends UtilController {
      */
     @ModelAttribute("dominios")
     public List<Dominio> dominios() {
-        return dominioService.mostrarDominiosActivos(new Sort(new Sort.Order(Sort.Direction.DESC, "nombre")));
+        /*
+         * 2018-05-16 jgarcia@controltechcg.com Issue #164 (SICDI-Controltech)
+         * hotfix-164: Se realiza ajuste para presentar un dominio por defecto
+         * como el primero en la lista de selección. El resto de dominios
+         * activos aparecerán ordenados por nombre.
+         */
+        return dominioService.findAllActivosOrdenPorDefecto();
     }
 
     @ModelAttribute("descriptor")

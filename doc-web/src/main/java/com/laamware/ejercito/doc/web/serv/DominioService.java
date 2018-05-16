@@ -5,7 +5,10 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DominioRepository;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,21 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DominioService {
+
+    private static final Logger LOG = Logger.getLogger(DominioService.class.getName());
+
+    private final String codigoDefault;
+
+    /**
+     * Constructor con propiedades de configuración.
+     *
+     * @param codigoDefault Código del dominio por defecto. Proviene del archivo
+     * de propiedades.
+     */
+    @Autowired
+    public DominioService(@Value("${com.mil.imi.sicdi.dominio.default}") String codigoDefault) {
+        this.codigoDefault = codigoDefault;
+    }
 
     @Autowired
     private DominioRepository dominioRepository;
@@ -36,9 +54,10 @@ public class DominioService {
 
     /**
      * Creación del dominio
+     *
      * @param dominio dominio a ser creado
      * @param usuario Usuario que aplico el cambio
-     * @return 
+     * @return
      */
     public String crearDominio(Dominio dominio, Usuario usuario) {
         String mensaje = "OK";
@@ -76,18 +95,19 @@ public class DominioService {
             }
 
             dominioRepository.saveAndFlush(dominio);
-        } catch (Exception e) {
-            e.printStackTrace();
-            mensaje = "Excepcion-" + e.getMessage();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            mensaje = "Excepcion-" + ex.getMessage();
         }
         return mensaje;
     }
 
     /**
      * Editar del dominio
+     *
      * @param dominio dominio a ser editado
      * @param usuario Usuario que aplico el cambio
-     * @return 
+     * @return
      */
     public String editarDominio(Dominio dominio, Usuario usuario) {
         String mensaje = "OK";
@@ -106,7 +126,7 @@ public class DominioService {
             dominio.setActivo(dominioAnterior.getActivo());
             dominio.setCuando(dominioAnterior.getCuando());
             dominio.setQuien(dominioAnterior.getQuien());
-            
+
             dominio.setQuienMod(usuario);
             dominio.setCuandoMod(new Date());
 
@@ -115,18 +135,19 @@ public class DominioService {
             }
 
             dominioRepository.saveAndFlush(dominio);
-        } catch (Exception e) {
-            e.printStackTrace();
-            mensaje = "Excepcion-" + e.getMessage();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            mensaje = "Excepcion-" + ex.getMessage();
         }
         return mensaje;
     }
-    
+
     /**
      * Eliminar del dominio
+     *
      * @param dominio dominio a ser editado
      * @param usuario Usuario que aplico el cambio
-     * @return 
+     * @return
      */
     public String eliminarDominio(Dominio dominio, Usuario usuario) {
         String mensaje = "OK";
@@ -137,14 +158,30 @@ public class DominioService {
             if (dominio.getVisualizaLinkOWA() == null) {
                 dominio.setVisualizaLinkOWA(Boolean.FALSE);
             }
-            
+
             dominio.setActivo(Boolean.FALSE);
 
             dominioRepository.saveAndFlush(dominio);
-        } catch (Exception e) {
-            e.printStackTrace();
-            mensaje = "Excepcion-" + e.getMessage();
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            mensaje = "Excepcion-" + ex.getMessage();
         }
         return mensaje;
     }
+
+    /**
+     * Obtiene la lista de dominios activos, colocando como primero un dominio
+     * por defecto y el resto ordenados por nombre.
+     *
+     * @return Lista de dominios activos, con el dominio por defecto como
+     * primero, y el resto ordenados por nombre.
+     */
+    /*
+     * 2018-05-16 jgarcia@controltechcg.com Issue #164 (SICDI-Controltech)
+     * hotfix-164.
+     */
+    public List<Dominio> findAllActivosOrdenPorDefecto() {
+        return dominioRepository.findAllActivoOrderByDominioDefaultAndNombreAsc(codigoDefault);
+    }
+
 }
