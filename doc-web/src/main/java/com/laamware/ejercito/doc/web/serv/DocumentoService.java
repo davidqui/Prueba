@@ -82,4 +82,15 @@ public class DocumentoService {
 
         return (clasificacionUsuario >= clasificacionDocumento);
     }
+
+    /**
+     * Actualiza el documento.
+     *
+     * @param documento
+     * @return Documento actualizado.
+     */
+    Documento actualizar(Documento documento) {
+        return documentoRepository.saveAndFlush(documento);
+    }
+
 }

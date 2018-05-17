@@ -1,9 +1,7 @@
 package com.laamware.ejercito.doc.web.enums;
 
-import com.laamware.ejercito.doc.web.entity.DocumentoActa;
-
 /**
- * Modos de edición para {@link DocumentoActa}.
+ * Modos de edición para el proceso de registro de actas.
  *
  * @author jgarcia@controltechcg.com
  * @since 1.8

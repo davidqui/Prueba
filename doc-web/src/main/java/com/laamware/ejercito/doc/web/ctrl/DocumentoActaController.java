@@ -3,7 +3,6 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Documento;
-import com.laamware.ejercito.doc.web.entity.DocumentoActa;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.ClasificacionService;
@@ -11,6 +10,8 @@ import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import java.security.Principal;
+import java.text.ParseException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -73,19 +74,16 @@ public class DocumentoActaController extends UtilController {
 
         String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
 
-        final Documento documentoAsociado;
+        final Documento documento;
         if (documentoID == null) {
-            documentoAsociado = actaService.crearDocumentoAsociadoActa(procesoInstancia, usuarioSesion);
+            documento = actaService.crearDocumento(procesoInstancia, usuarioSesion);
             procesoInstancia = procesoService.instancia(procesoInstanciaID);
-            documentoID = documentoAsociado.getId();
+            documentoID = documento.getId();
         } else {
-            documentoAsociado = actaService.buscarDocumentoAsociadoActa(documentoID);
+            documento = actaService.buscarDocumento(documentoID);
         }
 
-        final DocumentoActa documentoActa = actaService.buscarDocumentoActa(documentoID);
-
-        uiModel.addAttribute("documentoAsociado", documentoAsociado);
-        uiModel.addAttribute("documentoActa", documentoActa);
+        uiModel.addAttribute("documento", documento);
         uiModel.addAttribute("procesoInstancia", procesoInstancia);
         uiModel.addAttribute("usuarioSesion", usuarioSesion);
         uiModel.addAttribute("estadoModeMap", DocumentoActaService.ESTADO_MODE_MAP_FOR_UI);
@@ -109,12 +107,10 @@ public class DocumentoActaController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
 
         final String docId = documentoActaDTO.getDocId();
-        final Documento documentoAsociado = actaService.buscarDocumentoAsociadoActa(docId);
-        final DocumentoActa documentoActa = actaService.buscarDocumentoActa(docId);
-        final Instancia procesoInstancia = procesoService.instancia(documentoAsociado.getInstancia().getId());
+        Documento documento = actaService.buscarDocumento(docId);
+        Instancia procesoInstancia = procesoService.instancia(documento.getInstancia().getId());
 
-        uiModel.addAttribute("documentoAsociado", documentoAsociado);
-        uiModel.addAttribute("documentoActa", documentoActa);
+        uiModel.addAttribute("documento", documento);
         uiModel.addAttribute("procesoInstancia", procesoInstancia);
         uiModel.addAttribute("usuarioSesion", usuarioSesion);
         uiModel.addAttribute("estadoModeMap", DocumentoActaService.ESTADO_MODE_MAP_FOR_UI);
@@ -128,6 +124,18 @@ public class DocumentoActaController extends UtilController {
             uiModel.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el formulario.");
             return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
         }
+
+        try {
+            documento = actaService.guardarRegistroDatos(documentoActaDTO, usuarioSesion);
+        } catch (ParseException ex) {
+            LOG.log(Level.SEVERE, documentoActaDTO.toString(), ex);
+
+            uiModel.addAttribute("documentoActaDTO", documentoActaDTO);
+            uiModel.addAttribute(AppConstants.FLASH_ERROR, "Excepción: Error registrando datos del acta: " + ex.getMessage());
+            return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
+        }
+        
+        uiModel.addAttribute("documento", documento);
 
         return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
     }

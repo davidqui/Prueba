@@ -4,7 +4,7 @@
 -->
 <#setting number_format="computer">
 
-<#assign pageTitle = documentoAsociado.asunto!"Acta" />
+<#assign pageTitle = documento.asunto!"Acta" />
 <#assign deferredJS = "" />
 
 <#assign headScripts>
@@ -29,50 +29,50 @@
     <#if estadoModo == "SOLO_CONSULTA" || estadoModo == "CARGA_ACTA_DIGITAL">
     <table class="table table-sm">    	
         <#-- TODO: Poblar tabla con información de solo consulta. -->
-    </table>
+        </table>
     </#if>
 
     <#if estadoModo == "EDICION_INFORMACION" || estadoModo == "CARGA_ACTA_DIGITAL">   
     <form action="/documento-acta/guardar" method="POST" id="formdoc" enctype='multipart/form-data'>
-        <input type="hidden" name="docId" id="docId" value="${(documentoAsociado.id)!""}" />
+        <input type="hidden" name="docId" id="docId" value="${(documento.id)!""}" />
         <input type="hidden" name="pinId" id="pinId" value="${(procesoInstancia.id)!""}" />
 
         <#-- Asunto -->
         <div class="form-group">
             <label for="asunto">Asunto (*)</label>
-            <input type="text" class="form-control" id="asunto" name="asunto" value="<#if documentoActaDTO?? >${documentoActaDTO.asunto}<#elseif documentoAsociado.asunto?? >${documentoAsociado.asunto}</#if>"/>
+            <input type="text" class="form-control" id="asunto" name="asunto" value="<#if documentoActaDTO?? >${documentoActaDTO.asunto}<#elseif documento.asunto?? >${documento.asunto}</#if>"/>
             <small class="text-muted">Describe el objeto de la reunión de manera clara y sucinta.</small>
             <div class="error">
                 <#if logicValidation?? && logicValidation.containsError("asunto") >
                     ${logicValidation.getError("asunto").message}
                 </#if>
+                </div>
             </div>
-        </div>
 
         <#-- Lugar -->
         <div class="form-group">
-            <label for="lugar">Lugar (*)</label>
-            <input type="text" class="form-control" id="lugar" name="lugar" value="<#if documentoActaDTO?? >${documentoActaDTO.lugar}<#elseif documentoActa.lugar?? >${documentoActa.lugar}</#if>"/>
+            <label for="actaLugar">Lugar (*)</label>
+            <input type="text" class="form-control" id="actaLugar" name="actaLugar" value="<#if documentoActaDTO?? >${documentoActaDTO.actaLugar}<#elseif documento.actaLugar?? >${documento.actaLugar}</#if>"/>
             <small class="text-muted">Determina la ciudad donde se llevó a cabo la actividad que motivo la elaboración del acta.</small>
             <div class="error">
-                <#if logicValidation?? && logicValidation.containsError("lugar") >
-                    ${logicValidation.getError("lugar").message}
+                <#if logicValidation?? && logicValidation.containsError("actaLugar") >
+                    ${logicValidation.getError("actaLugar").message}
                 </#if>                
+                </div>
             </div>
-        </div>
 
         <#-- Fecha -->
         <div class="form-group">
-            <label for="fechaElaboracion">Fecha (*)</label>
-            <input type="text" class="form-control datepicker" id="fechaElaboracion" name="fechaElaboracion"  value="<#if documentoActaDTO?? >${documentoActaDTO.fechaElaboracion}<#elseif documentoActa.fechaElaboracion?? >${yyyymmdd.format(documentoActa.fechaElaboracion)}</#if>" />
+            <label for="actaFechaElaboracion">Fecha (*)</label>
+            <input type="text" class="form-control datepicker" id="actaFechaElaboracion" name="actaFechaElaboracion"  value="<#if documentoActaDTO?? >${documentoActaDTO.actaFechaElaboracion}<#elseif documento.actaFechaElaboracion?? >${yyyymmdd.format(documento.actaFechaElaboracion)}</#if>" />
             <small class="text-muted">Determina la fecha donde se llevó a cabo la actividad que motivo la elaboración del acta.</small>
             <div class="error">
-                <#if logicValidation?? && logicValidation.containsError("fechaElaboracion") >
-                    ${logicValidation.getError("fechaElaboracion").message}
+                <#if logicValidation?? && logicValidation.containsError("actaFechaElaboracion") >
+                    ${logicValidation.getError("actaFechaElaboracion").message}
                 </#if>                
+                </div>
             </div>
-        </div>
-        
+
         <#-- Nivel de clasificación -->
         <div class="form-group">
             <label for="clasificacion">Nivel de clasificación (*)</label>           
@@ -80,18 +80,18 @@
                 <option value=""></option>
                 <#if clasificaciones??>
                     <#list clasificaciones as clasificacion>
-                        <option value="${clasificacion.id}" <#if documentoAsociado.clasificacion?? && (clasificacion.id == documentoAsociado.clasificacion.id) >selected="selected"</#if>>${clasificacion.nombre}</option>
+                <option value="${clasificacion.id}" <#if documento.clasificacion?? && (clasificacion.id == documento.clasificacion.id) >selected="selected"</#if>>${clasificacion.nombre}</option>
                     </#list>
                 </#if>
-            </select>
+                </select>
             <small class="text-muted">Se asignará de acuerdo a lo establecido en el decreto 857 de 2014, según sea el caso: Ultrasecreto, Secreto, Confidencial o Restringido.</small>            
             <div class="error">
                 <#if logicValidation?? && logicValidation.containsError("clasificacion") >
                     ${logicValidation.getError("clasificacion").message}
                 </#if>                
+                </div>
             </div>
-        </div>
-        
+
         <#-- TRD de Acta -->
         <div class="form-group">
             <label for="trd">TRD de Acta (*)</label>           
@@ -99,51 +99,51 @@
                 <option value=""></option>
                 <#if subseriesTrdActas??>
                     <#list subseriesTrdActas as subseriesTrdActa>
-                        <option value="${subseriesTrdActa.id}" <#if documentoAsociado.trd?? && (subseriesTrdActa.id == documentoAsociado.trd.id) >selected="selected"</#if>>${subseriesTrdActa.codigo} - ${subseriesTrdActa.nombre}</option>
+                <option value="${subseriesTrdActa.id}" <#if documento.trd?? && (subseriesTrdActa.id == documento.trd.id) >selected="selected"</#if>>${subseriesTrdActa.codigo} - ${subseriesTrdActa.nombre}</option>
                     </#list>
                 </#if>
-            </select>
+                </select>
             <small class="text-muted">Código valor tabla de retención documental que corresponda al tipo de acta a registrar.</small>            
             <div class="error">
                 <#if logicValidation?? && logicValidation.containsError("trd") >
                     ${logicValidation.getError("trd").message}
                 </#if>                
+                </div>
             </div>
-        </div>
 
         <#-- Número de folios -->
         <div class="form-group">
             <label for="numeroFolios">Número de folios (*)</label>
-            <input type="number" class="form-control" id="numeroFolios" name="numeroFolios" value="<#if documentoActaDTO?? >${documentoActaDTO.numeroFolios}<#elseif documentoAsociado.numeroFolios?? >${documentoAsociado.numeroFolios}</#if>"/>
+            <input type="number" class="form-control" id="numeroFolios" name="numeroFolios" value="<#if documentoActaDTO?? >${documentoActaDTO.numeroFolios}<#elseif documento.numeroFolios?? >${documento.numeroFolios}</#if>"/>
             <div class="error"></div>
             <small class="text-muted">Valor numérico equivalente al número de folios útiles que conforman el acta.</small>
             <div class="error">
                 <#if logicValidation?? && logicValidation.containsError("numeroFolios") >
                     ${logicValidation.getError("numeroFolios").message}
                 </#if>                
-            </div>            
-        </div>        
-        
+                </div>            
+            </div>        
+
         <nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
             <button id="guardar-doc-btn" type="submit" class="btn btn-success btn-sm">Guardar</button>
-        </nav>
-        
-    </form> <#-- Cierra formulario principal -->
+            </nav>
+
+        </form> <#-- Cierra formulario principal -->
     </#if>
 
     <!--
         Observaciones
     -->       	
     <div class="card m-y">                           		        
-	<#if (documentoAsociado.observaciones)??>
+	<#if (documento.observaciones)??>
         <div class="card-block" id="obsDiv">
             <h5>Observaciones</h5>
-            <#list documentoAsociado.observaciones as observacion>
-                <hr/>
-                <strong>${utilController.nombre(observacion.quien)}</strong>, <em> ${observacion.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
-                <p>${observacion.texto}</p>
+            <#list documento.observaciones as observacion>
+            <hr/>
+            <strong>${utilController.nombre(observacion.quien)}</strong>, <em> ${observacion.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
+            <p>${observacion.texto}</p>
 	    </#list>
-        </div>
+            </div>
 	</#if>
 
         <#if estadoModo == "EDICION_INFORMACION" || estadoModo == "CARGA_ACTA_DIGITAL">
@@ -151,49 +151,49 @@
             <form method="post" id="obsForm" >
                 <fieldset class="form-group">
                     <textarea class="form-control" id="observacion" name="observacion"></textarea>
-                </fieldset>
+                    </fieldset>
                 <a href="#" class="btn btn-secondary btn-sm" id="obsButton">Comentar</a>
-            </form>
-        </div>
+                </form>
+            </div>
         </#if>
+        </div>
     </div>
-</div>
 
 <div class="col-md-4">
     <div class="card">
         <div class="card-header">
             <a href="/proceso/instancia/detalle?pin=${procesoInstancia.id}">Proceso</a>
-        </div>
+            </div>
         <div class="card-block">
             <#-- TODO: Información de la instancia del proceso -->
+            </div>
         </div>
-    </div>
 
     <#-- Adjuntos -->    
     <div class="card">
-        <#if (documentoAsociado.adjuntos?size > 0) >
+        <#if (documento.adjuntos?size > 0) >
         <div class="card-block">
             <h5 class="m-b">Adjuntos actuales</h5>
             <#list documento.adjuntos as adjunto >
                 <#if adjunto.activo>
-                    <hr/>
-                    <strong>${adjunto.tipologia.nombre}</strong><br/>
-                    <em>Subido el ${yyyymmdd.format(adjunto.cuando)} por ${utilController.nombre(adjunto.quien)}</em>
-                    <a href="/documento/adjunto/${adjunto.id}/eliminar?pin=${procesoInstancia.id}" onclick="return confirm('¿Está seguro que desea eliminar el archivo ${adjunto.tipologia.nombre}?');">Eliminar</a><br/>
-                    <a href="#" onclick="visualizar('/ofs/viewer?file=/ofs/download/${adjunto.contenido}')">
-                        <img src="/ofs/download/tmb/${adjunto.contenido}" />
-                        <br/>
+            <hr/>
+            <strong>${adjunto.tipologia.nombre}</strong><br/>
+            <em>Subido el ${yyyymmdd.format(adjunto.cuando)} por ${utilController.nombre(adjunto.quien)}</em>
+            <a href="/documento/adjunto/${adjunto.id}/eliminar?pin=${procesoInstancia.id}" onclick="return confirm('¿Está seguro que desea eliminar el archivo ${adjunto.tipologia.nombre}?');">Eliminar</a><br/>
+            <a href="#" onclick="visualizar('/ofs/viewer?file=/ofs/download/${adjunto.contenido}')">
+                <img src="/ofs/download/tmb/${adjunto.contenido}" />
+                <br/>
                         ${adjunto.original}
-                    </a>
-                    <br/>
+                </a>
+            <br/>
 	        </#if>
             </#list>
-        </div>
+            </div>
         </#if>
-        
+
         <#if estadoModo == "EDICION_INFORMACION" >
         <div class="card-block cus-gray-bg">
-            <form action="/documento/adjunto?doc=${documentoAsociado.id}" method="post" enctype="multipart/form-data">
+            <form action="/documento/adjunto?doc=${documento.id}" method="post" enctype="multipart/form-data">
                 <fieldset class="form-group">
                     <label for="destinatario"><strong>Tipología y archivo</strong></label>
                     </br>
@@ -202,18 +202,18 @@
                     <#if tipologias??>
                         <option value=""></option>
                         <#list tipologias as tipologia>
-                            <option value="${tipologia.id}">${tipologia.nombre}</option>
+                        <option value="${tipologia.id}">${tipologia.nombre}</option>
                         </#list>
                     </#if>
-                    </select>
+                        </select>
                     <input type="file" class="form-control" id="archivo" name="archivo"/>
-                </fieldset>
+                    </fieldset>
                 <button type="submit" class="btn btn-secondary btn-sm">Subir</button>
-            </form>
-        </div>
+                </form>
+            </div>
         </#if>
-    </div>   
+        </div>   
     <br />
-</div>
+    </div>
 
 <#include "bandeja-footer.ftl" />

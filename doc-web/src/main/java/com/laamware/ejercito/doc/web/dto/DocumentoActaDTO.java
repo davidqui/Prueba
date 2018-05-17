@@ -17,8 +17,8 @@ public class DocumentoActaDTO implements Serializable {
     private String docId;
     private String pinId;
     private String asunto;
-    private String lugar;
-    private String fechaElaboracion;
+    private String actaLugar;
+    private String actaFechaElaboracion;
     private String clasificacion;
     private String numeroFolios;
     private String trd;
@@ -50,20 +50,20 @@ public class DocumentoActaDTO implements Serializable {
         this.asunto = asunto;
     }
 
-    public String getLugar() {
-        return lugar;
+    public String getActaLugar() {
+        return actaLugar;
     }
 
-    public void setLugar(String lugar) {
-        this.lugar = lugar;
+    public void setActaLugar(String actaLugar) {
+        this.actaLugar = actaLugar;
     }
 
-    public String getFechaElaboracion() {
-        return fechaElaboracion;
+    public String getActaFechaElaboracion() {
+        return actaFechaElaboracion;
     }
 
-    public void setFechaElaboracion(String fechaElaboracion) {
-        this.fechaElaboracion = fechaElaboracion;
+    public void setActaFechaElaboracion(String actaFechaElaboracion) {
+        this.actaFechaElaboracion = actaFechaElaboracion;
     }
 
     public String getClasificacion() {
@@ -96,8 +96,8 @@ public class DocumentoActaDTO implements Serializable {
         hash = 97 * hash + Objects.hashCode(this.docId);
         hash = 97 * hash + Objects.hashCode(this.pinId);
         hash = 97 * hash + Objects.hashCode(this.asunto);
-        hash = 97 * hash + Objects.hashCode(this.lugar);
-        hash = 97 * hash + Objects.hashCode(this.fechaElaboracion);
+        hash = 97 * hash + Objects.hashCode(this.actaLugar);
+        hash = 97 * hash + Objects.hashCode(this.actaFechaElaboracion);
         hash = 97 * hash + Objects.hashCode(this.clasificacion);
         hash = 97 * hash + Objects.hashCode(this.numeroFolios);
         hash = 97 * hash + Objects.hashCode(this.trd);
@@ -125,10 +125,10 @@ public class DocumentoActaDTO implements Serializable {
         if (!Objects.equals(this.asunto, other.asunto)) {
             return false;
         }
-        if (!Objects.equals(this.lugar, other.lugar)) {
+        if (!Objects.equals(this.actaLugar, other.actaLugar)) {
             return false;
         }
-        if (!Objects.equals(this.fechaElaboracion, other.fechaElaboracion)) {
+        if (!Objects.equals(this.actaFechaElaboracion, other.actaFechaElaboracion)) {
             return false;
         }
         if (!Objects.equals(this.clasificacion, other.clasificacion)) {
@@ -142,7 +142,7 @@ public class DocumentoActaDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "DocumentoActaDTO{" + "docId=" + docId + ", pinId=" + pinId + ", asunto=" + asunto + ", lugar=" + lugar + ", fechaElaboracion=" + fechaElaboracion + ", clasificacion=" + clasificacion + ", numeroFolios=" + numeroFolios + ", trd=" + trd + '}';
+        return "DocumentoActaDTO{" + "docId=" + docId + ", pinId=" + pinId + ", asunto=" + asunto + ", lugar=" + actaLugar + ", fechaElaboracion=" + actaFechaElaboracion + ", clasificacion=" + clasificacion + ", numeroFolios=" + numeroFolios + ", trd=" + trd + '}';
     }
 
 }

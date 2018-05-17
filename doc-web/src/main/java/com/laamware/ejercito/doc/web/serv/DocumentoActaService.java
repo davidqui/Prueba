@@ -3,13 +3,11 @@ package com.laamware.ejercito.doc.web.serv;
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Documento;
-import com.laamware.ejercito.doc.web.entity.DocumentoActa;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
-import com.laamware.ejercito.doc.web.repo.DocumentoActaRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.Global;
@@ -64,8 +62,7 @@ public class DocumentoActaService {
 
     private final Integer diasLimiteFechaElaboracion;
 
-    @Autowired
-    private DocumentoActaRepository documentoActaRepository;
+    private final Integer diasLimiteFechaPlazo;
 
     @Autowired
     private UsuarioService usuarioService;
@@ -86,13 +83,33 @@ public class DocumentoActaService {
      * Cargado por archivo de propiedades.
      * @param diasLimiteFechaElaboracion Número de días para el límite de la
      * fecha de elaboración. Cargado por archivo de propiedades.
+     * @param diasLimiteFechaPlazo Número de días para el establecimiento de la
+     * fecha límite de plazo de construcción del acta en el sistema. Cargado por
+     * archivo de propiedades.
      */
     @Autowired
     public DocumentoActaService(
             @Value("${com.mil.imi.sicdi.trd.serie.actas}") Integer serieActasID,
-            @Value("${com.mil.imi.sicdi.documento.acta.limite.fecha-elaboracion.dias}") Integer diasLimiteFechaElaboracion) {
+            @Value("${com.mil.imi.sicdi.documento.acta.limite.fecha-elaboracion.dias}") Integer diasLimiteFechaElaboracion,
+            @Value("${com.mil.imi.sicdi.documento.acta.limite.fecha-plazo.dias}") Integer diasLimiteFechaPlazo
+    ) {
         this.serieActasID = serieActasID;
         this.diasLimiteFechaElaboracion = diasLimiteFechaElaboracion;
+        this.diasLimiteFechaPlazo = diasLimiteFechaPlazo;
+    }
+
+    /**
+     * Crea un nuevo documento.
+     *
+     * @param procesoInstancia Instancia del proceso a asociar con el documento.
+     * @param usuarioCreador Usuario creador del documento.
+     * @return Nuevo documento con estado {@link Documento#ESTADO_TEMPORAL}.
+     * @see
+     * DocumentoService#crearDocumento(com.laamware.ejercito.doc.web.entity.Instancia,
+     * com.laamware.ejercito.doc.web.entity.Usuario)
+     */
+    public Documento crearDocumento(final Instancia procesoInstancia, final Usuario usuarioCreador) {
+        return documentoService.crearDocumento(procesoInstancia, usuarioCreador);
     }
 
     /**
@@ -108,29 +125,14 @@ public class DocumentoActaService {
     }
 
     /**
-     * Crea un nuevo documento referente al acta e instancia del documento acta.
-     *
-     * @param procesoInstancia Instancia del proceso.
-     * @param usuarioCreador Usuario creador del documento.
-     * @return Nueva instancia de documento.
-     */
-    public Documento crearDocumentoAsociadoActa(final Instancia procesoInstancia, final Usuario usuarioCreador) {
-        final Documento documentoAsociado = documentoService.crearDocumento(procesoInstancia, usuarioCreador);
-
-        final DocumentoActa documentoActa = new DocumentoActa(documentoAsociado.getId());
-        documentoActaRepository.saveAndFlush(documentoActa);
-
-        return documentoAsociado;
-    }
-
-    /**
      * Busca un documento.
      *
-     * @param documentoID ID del documento acta.
-     * @return Documento acta, o {@code null} en caso de no tener
-     * correspondencia en el sistema.
+     * @param documentoID ID del documento.
+     * @return Documento, o {@code null} en caso de no tener correspondencia en
+     * el sistema.
+     * @see DocumentoService#buscarDocumento(java.lang.String)
      */
-    public Documento buscarDocumentoAsociadoActa(final String documentoID) {
+    public Documento buscarDocumento(final String documentoID) {
         return documentoService.buscarDocumento(documentoID);
     }
 
@@ -146,17 +148,6 @@ public class DocumentoActaService {
      */
     public boolean tieneAccesoPorClasificacion(final Usuario usuario, final Instancia procesoInstancia) {
         return documentoService.tieneAccesoPorClasificacion(usuario, procesoInstancia);
-    }
-
-    /**
-     * Busca la información del documento acta.
-     *
-     * @param documentoID ID del documento.
-     * @return Documento acta o {@code null} en caso que no exista
-     * correspondencia en el sistema.
-     */
-    public DocumentoActa buscarDocumentoActa(final String documentoID) {
-        return documentoActaRepository.findOne(documentoID);
     }
 
     /**
@@ -187,89 +178,145 @@ public class DocumentoActaService {
     public BusinessLogicValidation validarGuardarActa(final DocumentoActaDTO documentoActaDTO, final Usuario usuario) {
         final BusinessLogicValidation validation = new BusinessLogicValidation();
 
+        String campo;
+
         // asunto
+        campo = "asunto";
         final String asunto = documentoActaDTO.getAsunto();
         if (asunto == null || asunto.trim().isEmpty()) {
-            validation.addError(documentoActaDTO, "asunto", "Debe ingresar un asunto.");
+            validation.addError(documentoActaDTO, campo, "Debe ingresar un asunto.");
         }
 
-        // lugar
-        final String lugar = documentoActaDTO.getLugar();
-        if (lugar == null || lugar.trim().isEmpty()) {
-            validation.addError(documentoActaDTO, "lugar", "Debe ingresar un lugar.");
+        // actaLugar
+        campo = "actaLugar";
+        final String actaLugar = documentoActaDTO.getActaLugar();
+        if (actaLugar == null || actaLugar.trim().isEmpty()) {
+            validation.addError(documentoActaDTO, campo, "Debe ingresar un lugar.");
         }
 
-        // fechaElaboracion
-        final String _fechaElaboracion = documentoActaDTO.getFechaElaboracion();
-        if (_fechaElaboracion == null || _fechaElaboracion.trim().isEmpty()) {
-            validation.addError(documentoActaDTO, "fechaElaboracion", "Debe seleccionar una fecha de elaboración.");
+        // actaFechaElaboracion
+        campo = "actaFechaElaboracion";
+        final String _actaFechaElaboracion = documentoActaDTO.getActaFechaElaboracion();
+        if (_actaFechaElaboracion == null || _actaFechaElaboracion.trim().isEmpty()) {
+            validation.addError(documentoActaDTO, campo, "Debe seleccionar una fecha de elaboración.");
         }
 
         try {
-            final Date fechaElaboracion = DateUtil.setTime(new SimpleDateFormat(Global.DATE_FORMAT).parse(_fechaElaboracion), DateUtil.SetTimeType.START_TIME);
-            final Date fechaElaboracionLimite = DateUtil.setTime(DateUtil.add(new Date(), Calendar.DATE, -diasLimiteFechaElaboracion), DateUtil.SetTimeType.START_TIME);
-            if (fechaElaboracion.before(fechaElaboracionLimite)) {
-                validation.addError(documentoActaDTO, "fechaElaboracion", "La fecha de elaboración es menor que la fecha límite permitida: "
-                        + new SimpleDateFormat(Global.DATE_FORMAT).format(fechaElaboracionLimite));
+            final Date actaFechaElaboracion = buildFechaElaboracion(_actaFechaElaboracion);
+            final Date actaFechaElaboracionLimite = DateUtil.setTime(DateUtil.add(new Date(), Calendar.DATE, -diasLimiteFechaElaboracion), DateUtil.SetTimeType.START_TIME);
+            if (actaFechaElaboracion.before(actaFechaElaboracionLimite)) {
+                validation.addError(documentoActaDTO, campo, "La fecha de elaboración es menor que la fecha límite permitida: "
+                        + new SimpleDateFormat(Global.DATE_FORMAT).format(actaFechaElaboracionLimite));
             }
         } catch (ParseException ex) {
-            LOG.log(Level.SEVERE, _fechaElaboracion, ex);
-            validation.addError(documentoActaDTO, "fechaElaboracion", "Debe enviar una fecha de elaboración válida.");
+            LOG.log(Level.SEVERE, _actaFechaElaboracion, ex);
+            validation.addError(documentoActaDTO, campo, "Debe enviar una fecha de elaboración válida.");
         }
 
         // clasificacion
+        campo = "clasificacion";
         final String _clasificacionID = documentoActaDTO.getClasificacion();
         if (_clasificacionID == null || _clasificacionID.trim().isEmpty()) {
-            validation.addError(documentoActaDTO, "clasificacion", "Debe seleccionar el nivel de clasificación.");
+            validation.addError(documentoActaDTO, campo, "Debe seleccionar el nivel de clasificación.");
         }
 
         try {
             final Integer clasificacionID = Integer.parseInt(_clasificacionID);
             final Clasificacion clasificacion = clasificacionService.findActivo(clasificacionID);
             if (clasificacion == null) {
-                validation.addError(documentoActaDTO, "clasificacion", "Debe seleccionar un nivel de clasificación activo.");
+                validation.addError(documentoActaDTO, campo, "Debe seleccionar un nivel de clasificación activo.");
             }
 
             // TODO: Verificar si hay más reglas asociadas a la clasificación seleccionada.
         } catch (NumberFormatException ex) {
             LOG.log(Level.SEVERE, _clasificacionID, ex);
-            validation.addError(documentoActaDTO, "clasificacion", "Debe enviar una clasificación válida.");
+            validation.addError(documentoActaDTO, campo, "Debe enviar una clasificación válida.");
         }
 
         // trd
+        campo = "trd";
         final String _trdID = documentoActaDTO.getTrd();
         if (_trdID == null || _trdID.trim().isEmpty()) {
-            validation.addError(documentoActaDTO, "trd", "Debe seleccionar la subserie TRD.");
+            validation.addError(documentoActaDTO, campo, "Debe seleccionar la subserie TRD.");
         }
 
         try {
             final Integer trdID = Integer.parseInt(_trdID);
             boolean trdValida = trdService.validateSubserieTrdForUser(new Trd(trdID), new Trd(serieActasID), usuario);
             if (!trdValida) {
-                validation.addError(documentoActaDTO, "trd", "Debe seleccionar la subserie TRD válida y/o asignada.");
+                validation.addError(documentoActaDTO, campo, "Debe seleccionar la subserie TRD válida y/o asignada.");
             }
         } catch (NumberFormatException ex) {
             LOG.log(Level.SEVERE, _trdID, ex);
-            validation.addError(documentoActaDTO, "trd", "Debe enviar una subserie TRD válida.");
+            validation.addError(documentoActaDTO, campo, "Debe enviar una subserie TRD válida.");
         }
 
         // numeroFolios
+        campo = "numeroFolios";
         final String _numeroFolios = documentoActaDTO.getNumeroFolios();
         if (_numeroFolios == null || _numeroFolios.trim().isEmpty()) {
-            validation.addError(documentoActaDTO, "numeroFolios", "Debe ingresar el número de folios.");
+            validation.addError(documentoActaDTO, campo, "Debe ingresar el número de folios.");
         }
 
         try {
             final Integer numeroFolios = Integer.parseInt(_numeroFolios);
             if (numeroFolios <= 0) {
-                validation.addError(documentoActaDTO, "numeroFolios", "Debe ingresar un número de folios mayor o igual a 1.");
+                validation.addError(documentoActaDTO, campo, "Debe ingresar un número de folios mayor o igual a 1.");
             }
         } catch (NumberFormatException ex) {
             LOG.log(Level.SEVERE, _numeroFolios, ex);
-            validation.addError(documentoActaDTO, "numeroFolios", "Debe ingresar un número de folios válido.");
+            validation.addError(documentoActaDTO, campo, "Debe ingresar un número de folios válido.");
         }
 
         return validation;
+    }
+
+    public Documento guardarRegistroDatos(final DocumentoActaDTO documentoActaDTO, final Usuario usuario) throws ParseException {
+        final Date fechaHoraActual = new Date();
+
+        Documento documento = documentoService.buscarDocumento(documentoActaDTO.getDocId());
+        documento.setAsunto(documentoActaDTO.getAsunto());
+        documento.setClasificacion(new Clasificacion(Integer.parseInt(documentoActaDTO.getClasificacion())));
+        documento.setTrd(new Trd(Integer.parseInt(documentoActaDTO.getTrd())));
+        documento.setNumeroFolios(Integer.parseInt(documentoActaDTO.getNumeroFolios()));
+        documento.setQuienMod(usuario.getId());
+        documento.setCuandoMod(fechaHoraActual);
+        documento.setPlazo(buildFechaPlazo(fechaHoraActual));
+        documento.setElabora(usuario);
+        documento.setDependenciaDestino(usuario.getDependencia());
+        documento.setCargoIdElabora(usuario.getUsuCargoPrincipalId()); // TODO: Cambiar por selector de cargos.
+        documento.setActaLugar(documentoActaDTO.getActaLugar());
+        documento.setActaFechaElaboracion(buildFechaElaboracion(documentoActaDTO.getActaFechaElaboracion()));
+        documento.setEstadoTemporal(null);
+
+        return documentoService.actualizar(documento);
+    }
+
+    /**
+     * Construye la fecha de elaboración a partir del dato enviado en el
+     * formulario, estableciendo la hora como 00:00:00.
+     *
+     * @param fechaElaboracion Valor de la fecha de elaboración en formato
+     * {@link Global#DATE_FORMAT}.
+     * @return Instancia de fecha correspondiente al valor de la fecha de
+     * elaboración.
+     * @throws ParseException En caso que el valor recibido por formulario no
+     * corresponda al formato esperado.
+     */
+    private Date buildFechaElaboracion(final String fechaElaboracion) throws ParseException {
+        return DateUtil.setTime(new SimpleDateFormat(Global.DATE_FORMAT).parse(fechaElaboracion), DateUtil.SetTimeType.START_TIME);
+    }
+
+    /**
+     * Construye la fecha límite de plazo de construcción del documento acta a
+     * partir de la fecha de registro de datos en el sistema, estableciendo la
+     * hora de la fecha resultante como 00:00:00.
+     *
+     * @param fechaHora Fecha y hora de registro de datos.
+     * @return Instancia de fecha de límite de plazo.
+     */
+    private Date buildFechaPlazo(final Date fechaHora) {
+        return DateUtil.setTime(DateUtil.add(fechaHora, Calendar.DATE, +diasLimiteFechaPlazo), DateUtil.SetTimeType.START_TIME);
     }
 
 }

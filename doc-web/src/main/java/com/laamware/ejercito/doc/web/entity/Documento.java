@@ -22,6 +22,7 @@ import com.laamware.ejercito.doc.web.ctrl.DocumentoMode;
 import com.laamware.ejercito.doc.web.dto.UsuarioVistoBuenoDTO;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import java.util.Objects;
+import javax.persistence.Temporal;
 
 @Entity
 @Table(name = "DOCUMENTO")
@@ -291,6 +292,21 @@ public class Documento extends AuditModifySupport {
     @Size(max = 32)
     @Column(name = "DOC_FIRMA_ENVIO_UUID")
     private String firmaEnvioUUID;
+
+    /*
+     * 2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Campo para lugar del acta.
+     */
+    @Column(name = "ACTA_LUGAR")
+    private String actaLugar;
+
+    /*
+     * 2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Campo para la fecha de elaboración del acta.
+     */
+    @Column(name = "ACTA_FECHA_ELABORACION")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date actaFechaElaboracion;
 
     @OneToMany
     @JoinColumn(name = "DOC_ID_ORIGINAL")
@@ -1207,6 +1223,22 @@ public class Documento extends AuditModifySupport {
 
     public void setFirmaEnvioUUID(String firmaEnvioUUID) {
         this.firmaEnvioUUID = firmaEnvioUUID;
+    }
+
+    public String getActaLugar() {
+        return actaLugar;
+    }
+
+    public void setActaLugar(String actaLugar) {
+        this.actaLugar = actaLugar;
+    }
+
+    public Date getActaFechaElaboracion() {
+        return actaFechaElaboracion;
+    }
+
+    public void setActaFechaElaboracion(Date actaFechaElaboracion) {
+        this.actaFechaElaboracion = actaFechaElaboracion;
     }
 
 }
