@@ -5,6 +5,7 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.serv.CargoService;
 import com.laamware.ejercito.doc.web.serv.ClasificacionService;
 import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
@@ -49,6 +50,9 @@ public class DocumentoActaController extends UtilController {
     @Autowired
     private ClasificacionService clasificacionService;
 
+    @Autowired
+    private CargoService cargoService;
+
     /**
      * Procesa el documento de acta, según la transición a aplicar.
      *
@@ -78,17 +82,11 @@ public class DocumentoActaController extends UtilController {
         if (documentoID == null) {
             documento = actaService.crearDocumento(procesoInstancia, usuarioSesion);
             procesoInstancia = procesoService.instancia(procesoInstanciaID);
-            documentoID = documento.getId();
         } else {
             documento = actaService.buscarDocumento(documentoID);
         }
 
-        uiModel.addAttribute("documento", documento);
-        uiModel.addAttribute("procesoInstancia", procesoInstancia);
-        uiModel.addAttribute("usuarioSesion", usuarioSesion);
-        uiModel.addAttribute("estadoModeMap", DocumentoActaService.ESTADO_MODE_MAP_FOR_UI);
-        uiModel.addAttribute("clasificaciones", clasificacionService.findAllActivoOrderByOrden());
-        uiModel.addAttribute("subseriesTrdActas", actaService.buscarSubseriesActasPorUsuario(usuarioSesion));
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
         return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
     }
@@ -110,12 +108,7 @@ public class DocumentoActaController extends UtilController {
         Documento documento = actaService.buscarDocumento(docId);
         Instancia procesoInstancia = procesoService.instancia(documento.getInstancia().getId());
 
-        uiModel.addAttribute("documento", documento);
-        uiModel.addAttribute("procesoInstancia", procesoInstancia);
-        uiModel.addAttribute("usuarioSesion", usuarioSesion);
-        uiModel.addAttribute("estadoModeMap", DocumentoActaService.ESTADO_MODE_MAP_FOR_UI);
-        uiModel.addAttribute("clasificaciones", clasificacionService.findAllActivoOrderByOrden());
-        uiModel.addAttribute("subseriesTrdActas", actaService.buscarSubseriesActasPorUsuario(usuarioSesion));
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
         final BusinessLogicValidation logicValidation = actaService.validarGuardarActa(documentoActaDTO, usuarioSesion);
         if (!logicValidation.isAllOK()) {
@@ -134,10 +127,29 @@ public class DocumentoActaController extends UtilController {
             uiModel.addAttribute(AppConstants.FLASH_ERROR, "Excepción: Error registrando datos del acta: " + ex.getMessage());
             return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
         }
-        
+
         uiModel.addAttribute("documento", documento);
 
         return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
+    }
+
+    /**
+     * Carga la información básica y necesaria para la construcción de las
+     * interfaces gráficas.
+     *
+     * @param uiModel Modelo de UI.
+     * @param documento Documento.
+     * @param procesoInstancia Instancia del proceso.
+     * @param usuarioSesion Usuario en sesión.
+     */
+    private void cargarInformacionBasicaUIModel(final Model uiModel, final Documento documento, final Instancia procesoInstancia, final Usuario usuarioSesion) {
+        uiModel.addAttribute("documento", documento);
+        uiModel.addAttribute("procesoInstancia", procesoInstancia);
+        uiModel.addAttribute("usuarioSesion", usuarioSesion);
+        uiModel.addAttribute("estadoModeMap", DocumentoActaService.ESTADO_MODE_MAP_FOR_UI);
+        uiModel.addAttribute("clasificaciones", clasificacionService.findAllActivoOrderByOrden());
+        uiModel.addAttribute("subseriesTrdActas", actaService.buscarSubseriesActasPorUsuario(usuarioSesion));
+        uiModel.addAttribute("cargosUsuario", cargoService.buildCargosXUsuario(usuarioSesion));
     }
 
 }

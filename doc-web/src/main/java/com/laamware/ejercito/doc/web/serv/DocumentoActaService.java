@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
+import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
@@ -199,18 +200,18 @@ public class DocumentoActaService {
         final String _actaFechaElaboracion = documentoActaDTO.getActaFechaElaboracion();
         if (_actaFechaElaboracion == null || _actaFechaElaboracion.trim().isEmpty()) {
             validation.addError(documentoActaDTO, campo, "Debe seleccionar una fecha de elaboración.");
-        }
-
-        try {
-            final Date actaFechaElaboracion = buildFechaElaboracion(_actaFechaElaboracion);
-            final Date actaFechaElaboracionLimite = DateUtil.setTime(DateUtil.add(new Date(), Calendar.DATE, -diasLimiteFechaElaboracion), DateUtil.SetTimeType.START_TIME);
-            if (actaFechaElaboracion.before(actaFechaElaboracionLimite)) {
-                validation.addError(documentoActaDTO, campo, "La fecha de elaboración es menor que la fecha límite permitida: "
-                        + new SimpleDateFormat(Global.DATE_FORMAT).format(actaFechaElaboracionLimite));
+        } else {
+            try {
+                final Date actaFechaElaboracion = buildFechaElaboracion(_actaFechaElaboracion);
+                final Date actaFechaElaboracionLimite = DateUtil.setTime(DateUtil.add(new Date(), Calendar.DATE, -diasLimiteFechaElaboracion), DateUtil.SetTimeType.START_TIME);
+                if (actaFechaElaboracion.before(actaFechaElaboracionLimite)) {
+                    validation.addError(documentoActaDTO, campo, "La fecha de elaboración es menor que la fecha límite permitida: "
+                            + new SimpleDateFormat(Global.DATE_FORMAT).format(actaFechaElaboracionLimite));
+                }
+            } catch (ParseException ex) {
+                LOG.log(Level.SEVERE, _actaFechaElaboracion, ex);
+                validation.addError(documentoActaDTO, campo, "Debe enviar una fecha de elaboración válida.");
             }
-        } catch (ParseException ex) {
-            LOG.log(Level.SEVERE, _actaFechaElaboracion, ex);
-            validation.addError(documentoActaDTO, campo, "Debe enviar una fecha de elaboración válida.");
         }
 
         // clasificacion
@@ -218,19 +219,19 @@ public class DocumentoActaService {
         final String _clasificacionID = documentoActaDTO.getClasificacion();
         if (_clasificacionID == null || _clasificacionID.trim().isEmpty()) {
             validation.addError(documentoActaDTO, campo, "Debe seleccionar el nivel de clasificación.");
-        }
+        } else {
+            try {
+                final Integer clasificacionID = Integer.parseInt(_clasificacionID);
+                final Clasificacion clasificacion = clasificacionService.findActivo(clasificacionID);
+                if (clasificacion == null) {
+                    validation.addError(documentoActaDTO, campo, "Debe seleccionar un nivel de clasificación activo.");
+                }
 
-        try {
-            final Integer clasificacionID = Integer.parseInt(_clasificacionID);
-            final Clasificacion clasificacion = clasificacionService.findActivo(clasificacionID);
-            if (clasificacion == null) {
-                validation.addError(documentoActaDTO, campo, "Debe seleccionar un nivel de clasificación activo.");
+                // TODO: Verificar si hay más reglas asociadas a la clasificación seleccionada.
+            } catch (NumberFormatException ex) {
+                LOG.log(Level.SEVERE, _clasificacionID, ex);
+                validation.addError(documentoActaDTO, campo, "Debe enviar una clasificación válida.");
             }
-
-            // TODO: Verificar si hay más reglas asociadas a la clasificación seleccionada.
-        } catch (NumberFormatException ex) {
-            LOG.log(Level.SEVERE, _clasificacionID, ex);
-            validation.addError(documentoActaDTO, campo, "Debe enviar una clasificación válida.");
         }
 
         // trd
@@ -238,17 +239,17 @@ public class DocumentoActaService {
         final String _trdID = documentoActaDTO.getTrd();
         if (_trdID == null || _trdID.trim().isEmpty()) {
             validation.addError(documentoActaDTO, campo, "Debe seleccionar la subserie TRD.");
-        }
-
-        try {
-            final Integer trdID = Integer.parseInt(_trdID);
-            boolean trdValida = trdService.validateSubserieTrdForUser(new Trd(trdID), new Trd(serieActasID), usuario);
-            if (!trdValida) {
-                validation.addError(documentoActaDTO, campo, "Debe seleccionar la subserie TRD válida y/o asignada.");
+        } else {
+            try {
+                final Integer trdID = Integer.parseInt(_trdID);
+                boolean trdValida = trdService.validateSubserieTrdForUser(new Trd(trdID), new Trd(serieActasID), usuario);
+                if (!trdValida) {
+                    validation.addError(documentoActaDTO, campo, "Debe seleccionar la subserie TRD válida y/o asignada.");
+                }
+            } catch (NumberFormatException ex) {
+                LOG.log(Level.SEVERE, _trdID, ex);
+                validation.addError(documentoActaDTO, campo, "Debe enviar una subserie TRD válida.");
             }
-        } catch (NumberFormatException ex) {
-            LOG.log(Level.SEVERE, _trdID, ex);
-            validation.addError(documentoActaDTO, campo, "Debe enviar una subserie TRD válida.");
         }
 
         // numeroFolios
@@ -256,16 +257,23 @@ public class DocumentoActaService {
         final String _numeroFolios = documentoActaDTO.getNumeroFolios();
         if (_numeroFolios == null || _numeroFolios.trim().isEmpty()) {
             validation.addError(documentoActaDTO, campo, "Debe ingresar el número de folios.");
+        } else {
+            try {
+                final Integer numeroFolios = Integer.parseInt(_numeroFolios);
+                if (numeroFolios <= 0) {
+                    validation.addError(documentoActaDTO, campo, "Debe ingresar un número de folios mayor o igual a 1.");
+                }
+            } catch (NumberFormatException ex) {
+                LOG.log(Level.SEVERE, _numeroFolios, ex);
+                validation.addError(documentoActaDTO, campo, "Debe ingresar un número de folios válido.");
+            }
         }
 
-        try {
-            final Integer numeroFolios = Integer.parseInt(_numeroFolios);
-            if (numeroFolios <= 0) {
-                validation.addError(documentoActaDTO, campo, "Debe ingresar un número de folios mayor o igual a 1.");
-            }
-        } catch (NumberFormatException ex) {
-            LOG.log(Level.SEVERE, _numeroFolios, ex);
-            validation.addError(documentoActaDTO, campo, "Debe ingresar un número de folios válido.");
+        // cargoElabora
+        campo = "cargoElabora";
+        final String cargoElabora = documentoActaDTO.getCargoElabora();
+        if (cargoElabora == null || cargoElabora.trim().isEmpty()) {
+            validation.addError(documentoActaDTO, campo, "Debe ingresar el cargo con el cual elabora el acta.");
         }
 
         return validation;
@@ -284,7 +292,7 @@ public class DocumentoActaService {
         documento.setPlazo(buildFechaPlazo(fechaHoraActual));
         documento.setElabora(usuario);
         documento.setDependenciaDestino(usuario.getDependencia());
-        documento.setCargoIdElabora(usuario.getUsuCargoPrincipalId()); // TODO: Cambiar por selector de cargos.
+        documento.setCargoIdElabora(new Cargo(Integer.parseInt(documentoActaDTO.getCargoElabora())));
         documento.setActaLugar(documentoActaDTO.getActaLugar());
         documento.setActaFechaElaboracion(buildFechaElaboracion(documentoActaDTO.getActaFechaElaboracion()));
         documento.setEstadoTemporal(null);

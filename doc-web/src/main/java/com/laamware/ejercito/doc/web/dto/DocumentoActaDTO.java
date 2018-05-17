@@ -22,6 +22,7 @@ public class DocumentoActaDTO implements Serializable {
     private String clasificacion;
     private String numeroFolios;
     private String trd;
+    private String cargoElabora;
 
     public DocumentoActaDTO() {
     }
@@ -90,6 +91,14 @@ public class DocumentoActaDTO implements Serializable {
         this.trd = trd;
     }
 
+    public String getCargoElabora() {
+        return cargoElabora;
+    }
+
+    public void setCargoElabora(String cargoElabora) {
+        this.cargoElabora = cargoElabora;
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;
@@ -101,6 +110,7 @@ public class DocumentoActaDTO implements Serializable {
         hash = 97 * hash + Objects.hashCode(this.clasificacion);
         hash = 97 * hash + Objects.hashCode(this.numeroFolios);
         hash = 97 * hash + Objects.hashCode(this.trd);
+        hash = 97 * hash + Objects.hashCode(this.cargoElabora);
         return hash;
     }
 
@@ -137,12 +147,15 @@ public class DocumentoActaDTO implements Serializable {
         if (!Objects.equals(this.numeroFolios, other.numeroFolios)) {
             return false;
         }
-        return Objects.equals(this.trd, other.trd);
+        if (!Objects.equals(this.trd, other.trd)) {
+            return false;
+        }
+        return Objects.equals(this.cargoElabora, other.cargoElabora);
     }
 
     @Override
     public String toString() {
-        return "DocumentoActaDTO{" + "docId=" + docId + ", pinId=" + pinId + ", asunto=" + asunto + ", lugar=" + actaLugar + ", fechaElaboracion=" + actaFechaElaboracion + ", clasificacion=" + clasificacion + ", numeroFolios=" + numeroFolios + ", trd=" + trd + '}';
+        return "DocumentoActaDTO{" + "docId=" + docId + ", pinId=" + pinId + ", asunto=" + asunto + ", actaLugar=" + actaLugar + ", actaFechaElaboracion=" + actaFechaElaboracion + ", clasificacion=" + clasificacion + ", numeroFolios=" + numeroFolios + ", trd=" + trd + ", cargoElabora=" + cargoElabora + '}';
     }
 
 }
