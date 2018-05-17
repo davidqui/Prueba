@@ -116,7 +116,7 @@ INSERT INTO PROCESO_TRANSICION
     (PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL, PES_ID_FINAL,
         CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO) 
 VALUES 
-    (150, 1, '/documento-acta/generar-numero-radicado', 'Generar No. Radicado', 150, 152,
+    (150, 1, '/documento-acta/generar-numero-radicado?pin={instancia.id}&tid={transicion.id}', 'Generar No. Radicado', 150, 152,
         SYSDATE, 3390, SYSDATE, 3390, 1) 
 ;
 
@@ -124,7 +124,7 @@ INSERT INTO PROCESO_TRANSICION
     (PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL, PES_ID_FINAL,
         CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO) 
 VALUES 
-    (151, 1, '/documento-acta/anular', 'Anular', 150, 151,
+    (151, 1, '/documento-acta/anular?pin={instancia.id}&tid={transicion.id}', 'Anular', 150, 151,
         SYSDATE, 3390, SYSDATE, 3390, 1) 
 ;
 
@@ -132,11 +132,15 @@ INSERT INTO PROCESO_TRANSICION
     (PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL, PES_ID_FINAL,
         CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO) 
 VALUES 
-    (152, 1, '/documento-acta/cargar-acta-digitalizada', 'Digitalizar', 152, 153,
+    (152, 1, '/documento-acta/cargar-acta-digitalizada?pin={instancia.id}&tid={transicion.id}', 'Digitalizar', 152, 153,
         SYSDATE, 3390, SYSDATE, 3390, 1) 
 ;
 
 -- UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (150, 151, 152);
+
+-- UPDATE PROCESO_TRANSICION SET PTR_DEFINICION = '/documento-acta/generar-numero-radicado?pin={instancia.id}&tid={transicion.id}' WHERE PTR_ID = 150;
+-- UPDATE PROCESO_TRANSICION SET PTR_DEFINICION = '/documento-acta/anular?pin={instancia.id}&tid={transicion.id}' WHERE PTR_ID = 151;
+-- UPDATE PROCESO_TRANSICION SET PTR_DEFINICION = '/documento-acta/cargar-acta-digitalizada?pin={instancia.id}&tid={transicion.id}' WHERE PTR_ID = 152;
 
 -- -----------------------------------------------------------------------------
 -- TABLA: DOCUMENTO

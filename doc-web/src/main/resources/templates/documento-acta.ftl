@@ -10,6 +10,7 @@
 <#assign headScripts>
 <script src="/js/eventos_documento.js"></script>
 <script src="/js/app/funciones-documento.js"></script>
+<script src="/js/app/documento-acta-observaciones.js"></script>
 <script src="/js/tinymce.min.js"></script>
 </#assign>
 
@@ -23,16 +24,12 @@
 <#include "gen-arbol-dependencias.ftl">
 <#include "gen-arbol-trd.ftl">
 
+<#include "lib/documento-acta/documento-acta-observaciones.ftl">
+
 <#assign estadoModo = estadoModeMap[procesoInstancia.estado.id?string] />
 
 <div class="col-md-8">    
-    <#if estadoModo == "SOLO_CONSULTA" || estadoModo == "CARGA_ACTA_DIGITAL">
-    <table class="table table-sm">    	
-        <#-- TODO: Poblar tabla con información de solo consulta. -->
-    </table>
-    </#if>
-
-    <#if estadoModo == "EDICION_INFORMACION" || estadoModo == "CARGA_ACTA_DIGITAL">   
+    <#if estadoModo == "EDICION_INFORMACION">   
     <form action="/documento-acta/guardar" method="POST" id="formdoc" enctype='multipart/form-data'>
         <input type="hidden" name="docId" id="docId" value="${(documento.id)!""}" />
         <input type="hidden" name="pinId" id="pinId" value="${(procesoInstancia.id)!""}" />
@@ -169,29 +166,7 @@
     <!--
         Observaciones
     -->       	
-    <div class="card m-y">                           		        
-	<#if (documento.observaciones)??>
-        <div class="card-block" id="obsDiv">
-            <h5>Observaciones</h5>
-            <#list documento.observaciones as observacion>
-            <hr/>
-            <strong>${utilController.nombre(observacion.quien)}</strong>, <em> ${observacion.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
-            <p>${observacion.texto}</p>
-	    </#list>
-        </div>
-	</#if>
-
-        <#if estadoModo == "EDICION_INFORMACION" || estadoModo == "CARGA_ACTA_DIGITAL">
-        <div class="card-block cus-gray-bg">
-            <form method="post" id="obsForm" >
-                <fieldset class="form-group">
-                    <textarea class="form-control" id="observacion" name="observacion"></textarea>
-                </fieldset>
-                <a href="#" class="btn btn-secondary btn-sm" id="obsButton">Comentar</a>
-            </form>
-        </div>
-        </#if>
-    </div>
+    <@presentarObservaciones documento utilController estadoModo "observacion" />    
 </div>
 
 <div class="col-md-4">
