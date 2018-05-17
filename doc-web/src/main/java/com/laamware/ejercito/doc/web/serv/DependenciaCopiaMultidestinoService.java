@@ -13,9 +13,11 @@ import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import java.sql.Array;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 import oracle.sql.ARRAY;
@@ -235,6 +237,7 @@ public class DependenciaCopiaMultidestinoService {
      * de sus registros de dependencias copia multidestino.
      *
      * @param documentoOriginal Documento original.
+     * @param usuarioSesion Usuario en sesión.
      * @throws java.sql.SQLException
      * @throws com.laamware.ejercito.doc.web.serv.OFSException
      */
@@ -255,12 +258,13 @@ public class DependenciaCopiaMultidestinoService {
                 uuids.add(p_doc_docx_documento);
                 clonarDocumentoMultidestino(conn, documentoOriginal, copiaMultidestino, p_doc_content_file, p_doc_content_file, usuarioSesion);
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             for (String uuid : uuids) {
                 ofs.delete(uuid);
             }
-            e.printStackTrace();
-            throw e;
+            // 2018-05-17 jgarcia@controltechcg.com Issue #165 (SICDI-Controltech) hotfix-165
+            LOG.log(Level.SEVERE, documentoOriginal.getId(), ex);
+            throw ex;
         }
     }
 
@@ -290,15 +294,24 @@ public class DependenciaCopiaMultidestinoService {
      * @param copiaMultidestino Registro de dependencia copia multidestino.
      */
     // TODO: Quitar logs de ejecución.
+    @SuppressWarnings("UseSpecificCatch")
     private void clonarDocumentoMultidestino(final Connection conn, final Documento documentoOriginal, final DependenciaCopiaMultidestino copiaMultidestino, final String p_doc_content_file, final String p_doc_docx_documento, final Usuario usuarioSesion) throws Exception {
         try {
+            // 2018-05-17 jgarcia@controltechcg.com Issue #165 (SICDI-Controltech) hotfix-165
+            LOG.info("com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService.clonarDocumentoMultidestino()");
             final String p_doc_id_origen = documentoOriginal.getId();
+            // 2018-05-17 jgarcia@controltechcg.com Issue #165 (SICDI-Controltech) hotfix-165
+            LOG.log(Level.INFO, "p_doc_id_origen = {0}", p_doc_id_origen);
             final String p_pin_id_nuevo = GeneralUtils.newId();
             final String p_doc_id_nuevo = GeneralUtils.newId();
             final Integer p_dep_id_des = copiaMultidestino.getDependenciaDestino().getId();
 
             final List<Adjunto> adjuntos = adjuntoService.findAllActivos(documentoOriginal);
+            // 2018-05-17 jgarcia@controltechcg.com Issue #165 (SICDI-Controltech) hotfix-165
+            LOG.log(Level.INFO, "adjuntos = {0}", adjuntos.size());
             final String[] adjuntosUUIDs = GeneralUtils.generateUUIDs(adjuntos.size());
+            // 2018-05-17 jgarcia@controltechcg.com Issue #165 (SICDI-Controltech) hotfix-165
+            LOG.log(Level.INFO, "adjuntosUUIDs = {0}", Arrays.toString(adjuntosUUIDs));
 
             // TODO: Enviar la información a la función PL/SQL del proceso de clonación.
             final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -309,6 +322,8 @@ public class DependenciaCopiaMultidestinoService {
             final ArrayDescriptor arrayDescriptor = ArrayDescriptor.createDescriptor(T_ARRAY_UUID, conn);
 
             final Array p_array_uuid_doc_adjunto = new ARRAY(arrayDescriptor, conn, adjuntosUUIDs);
+            // 2018-05-17 jgarcia@controltechcg.com Issue #165 (SICDI-Controltech) hotfix-165
+            LOG.log(Level.INFO, "p_array_uuid_doc_adjunto = {0}", p_array_uuid_doc_adjunto);
 
             final SqlParameterSource sqlParameterSource = new MapSqlParameterSource()
                     .addValue(P_DOC_ID_ORIGEN, p_doc_id_origen)
@@ -327,9 +342,10 @@ public class DependenciaCopiaMultidestinoService {
             copiaMultidestino.setFechaHoraCreacionDocumentoResultado(new Date());
 
             multidestinoRepository.saveAndFlush(copiaMultidestino);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+        } catch (Exception ex) {
+            // 2018-05-17 jgarcia@controltechcg.com Issue #165 (SICDI-Controltech) hotfix-165
+            LOG.log(Level.SEVERE, documentoOriginal.getId() + "\t" + copiaMultidestino.getId(), ex);
+            throw ex;
         }
     }
 
