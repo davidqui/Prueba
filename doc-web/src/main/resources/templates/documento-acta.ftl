@@ -166,7 +166,7 @@
     <!--
         Observaciones
     -->       	
-    <@presentarObservaciones documento utilController estadoModo "observacion" />    
+    <@presentarObservaciones documentoObservaciones utilController estadoModo "observacion" />    
 </div>
 
 <div class="col-md-4">

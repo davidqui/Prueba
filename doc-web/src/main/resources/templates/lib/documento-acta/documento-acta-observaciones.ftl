@@ -3,14 +3,14 @@
     feature-162: Macro para la presentación de campo y visualización de
     observaciones de documentos.
 -->
-<#macro presentarObservaciones documento utilController estadoModo idAreaObservacion >
+<#macro presentarObservaciones documentoObservaciones utilController estadoModo idAreaObservacion >
     <div class="card m-y">                           		        
-        <#if (documento.observaciones)??>
+        <#if (documentoObservaciones)??>
         <div class="card-block" id="obsDiv">
             <h5>Observaciones</h5>
-            <#list documento.observaciones as observacion >
+            <#list documentoObservaciones as observacion >
             <hr/>
-            <strong>${utilController.nombre(observacion.quien)}</strong>, <em> ${observacion.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
+            <strong>${utilController.nombre(observacion.quien)}</strong>, <em> ${observacion.cuando?string('yyyy-MM-dd hh:mm:ss a')}</em>
             <p>${observacion.texto}</p>
             </#list>
         </div>

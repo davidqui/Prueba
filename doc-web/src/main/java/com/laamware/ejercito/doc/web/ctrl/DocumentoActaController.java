@@ -217,6 +217,7 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("clasificaciones", clasificacionService.findAllActivoOrderByOrden());
         uiModel.addAttribute("subseriesTrdActas", actaService.buscarSubseriesActasPorUsuario(usuarioSesion));
         uiModel.addAttribute("cargosUsuario", cargoService.buildCargosXUsuario(usuarioSesion));
+        uiModel.addAttribute("documentoObservaciones", observacionService.findAllByDocumento(documento));
     }
 
 }
