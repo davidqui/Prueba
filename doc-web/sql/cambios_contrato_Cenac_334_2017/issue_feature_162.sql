@@ -157,3 +157,26 @@ COMMENT ON COLUMN DOCUMENTO.ACTA_FECHA_ELABORACION
 IS 'Determina la fecha donde se llevó a cabo la actividad que motivo la elaboración del acta.';
 
 CREATE INDEX DOC_ACTA_FECHA_ELABORACION_IDX ON DOCUMENTO (ACTA_FECHA_ELABORACION);
+
+-- -----------------------------------------------------------------------------
+-- TABLA: RADICACION
+-- -----------------------------------------------------------------------------
+
+-- TODO: Pendiente determinar el número con el cual iniciará esta secuencia.
+CREATE SEQUENCE RADICADO_REGISTRO_ACTAS_SEQ START WITH 12345;
+
+INSERT INTO SECUENCIA_RADICACION 
+    (SEQ_ID, SEQ_NOMBRE)
+VALUES 
+    (4, 'RADICADO_REGISTRO_ACTAS_SEQ')
+;
+
+-- -----------------------------------------------------------------------------
+-- TABLA: RADICACION
+-- -----------------------------------------------------------------------------
+
+INSERT INTO RADICACION
+    (RAD_ID, RAD_NOMBRE, RAD_INDICATIVO, SECUENCIA, PROCESO) 
+VALUES
+    (5, 'Radicado para Registro de Actas', 4, 4, 100)
+;

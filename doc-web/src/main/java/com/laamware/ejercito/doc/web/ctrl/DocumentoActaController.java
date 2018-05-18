@@ -4,8 +4,9 @@ import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
 import com.laamware.ejercito.doc.web.dto.DocumentoObservacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Documento;
-import com.laamware.ejercito.doc.web.entity.DocumentoObservacion;
 import com.laamware.ejercito.doc.web.entity.Instancia;
+import com.laamware.ejercito.doc.web.entity.Radicacion;
+import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.serv.CargoService;
@@ -13,6 +14,8 @@ import com.laamware.ejercito.doc.web.serv.ClasificacionService;
 import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
+import com.laamware.ejercito.doc.web.serv.RadicadoService;
+import com.laamware.ejercito.doc.web.serv.TransicionService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import java.security.Principal;
 import java.text.ParseException;
@@ -52,6 +55,10 @@ public class DocumentoActaController extends UtilController {
 
     private static final String DOCUMENTO_ACTA_GUARDAR_TEMPLATE = "documento-acta";
 
+    private static final String SECURITY_DENIED_TEMPLATE = "security-denied";
+
+    private static final String REDIRECT_ACCESO_DENEGADO_URL = "redirect:/documento/acceso-denegado";
+
     @Autowired
     private DocumentoActaService actaService;
 
@@ -66,6 +73,12 @@ public class DocumentoActaController extends UtilController {
 
     @Autowired
     private DocumentoObservacionService observacionService;
+
+    @Autowired
+    private TransicionService transicionService;
+
+    @Autowired
+    private RadicadoService radicadoService;
 
     @Override
     public String nombre(Integer idUsuario) {
@@ -86,7 +99,7 @@ public class DocumentoActaController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
         if (!tieneAccesoPorAsignacion) {
-            return "security-denied";
+            return SECURITY_DENIED_TEMPLATE;
         }
 
         Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
@@ -97,7 +110,7 @@ public class DocumentoActaController extends UtilController {
 
         final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
         if (!tieneAccesoPorClasificacion) {
-            return "redirect:/documento/acceso-denegado";
+            return REDIRECT_ACCESO_DENEGADO_URL;
         }
 
         String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
@@ -198,6 +211,48 @@ public class DocumentoActaController extends UtilController {
         observacionService.crearObservacion(documento, observacion, usuarioSesion);
 
         return ResponseEntity.ok("Comentario registrado exitosamente.");
+    }
+
+    @RequestMapping(value = "/generar-numero-radicado", method = RequestMethod.GET)
+    public String generarNumeroRadicado(@RequestParam("pin") String procesoInstanciaID, @RequestParam("tid") Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        final Transicion transicion = transicionService.find(procesoTransicionID);
+        if (transicion == null || !transicion.getActivo()) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "Transición no válida.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        if (!transicion.getEstadoInicial().getId().equals(procesoInstancia.getEstado().getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada no se encuentra en el estado requisito para la aplicación de la transición.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        final Documento documento = actaService.buscarDocumento(documentoID);
+
+        if (documento.getRadicado() == null || documento.getRadicado().trim().isEmpty()) {
+            final Radicacion radicacion = radicadoService.findByProceso(procesoInstancia.getProceso());
+        }
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
     }
 
     /**
