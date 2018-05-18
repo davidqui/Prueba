@@ -25,6 +25,7 @@
 <#include "gen-arbol-trd.ftl">
 
 <#include "lib/documento-acta/documento-acta-observaciones.ftl">
+<#include "lib/documento-acta/documento-acta-info-proceso.ftl">
 
 <#assign estadoModo = estadoModeMap[procesoInstancia.estado.id?string] />
 
@@ -170,14 +171,7 @@
 </div>
 
 <div class="col-md-4">
-    <div class="card">
-        <div class="card-header">
-            <a href="/proceso/instancia/detalle?pin=${procesoInstancia.id}">Proceso</a>
-        </div>
-        <div class="card-block">
-            <#-- TODO: Información de la instancia del proceso -->
-        </div>
-    </div>
+    <@presentarInformacionProcesoInstancia procesoInstancia documento />
 
     <#-- Adjuntos -->    
     <div class="card">
