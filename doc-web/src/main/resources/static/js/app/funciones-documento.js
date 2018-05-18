@@ -24,6 +24,11 @@ function onChangeDocumentoCargoFirma(select, trxId) {
     var selectedValue = select.options[select.selectedIndex].value;
     var trxAnchor = document.getElementById("trx_" + trxId);
     var lastIndex = trxAnchor.getAttribute('onclick').lastIndexOf("=");
-    var href = trxAnchor.getAttribute('onclick').substr(0, lastIndex + 1) + selectedValue + ")";
-    trxAnchor.setAttribute('onclick',href);
+    /*
+     * 2018-05-18 jgarcia@controltechcg.com Issue #167 (SICDI-Controltech)
+     * hotfix-167: Corrección en construcción del valor onclick, encerrando
+     * correctamente la URL a invocar durante la acción de firma y envío.
+     */
+    var href = trxAnchor.getAttribute('onclick').substr(0, lastIndex + 1) + selectedValue + "')";
+    trxAnchor.setAttribute('onclick', href);
 }
