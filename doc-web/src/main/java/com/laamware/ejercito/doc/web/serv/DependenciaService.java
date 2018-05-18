@@ -175,4 +175,38 @@ public class DependenciaService {
     public Dependencia findOne(final Integer id) {
         return dependenciaRepository.findOne(id);
     }
+
+    /**
+     * Busca la súper dependencia de una dependencia.
+     *
+     * @param dependencia Dependencia.
+     * @return Súper dependencia.
+     */
+    /*
+     * 2018-05-18 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Se mueve este método proveniente de DocumentoController.
+     */
+    public Dependencia getSuperDependencia(Dependencia dependencia) {
+        /*
+	 * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
+	 * campo Indicador de envio documentos.
+         */
+        if (dependencia.getPadre() == null || (dependencia.getDepIndEnvioDocumentos() != null && dependencia.getDepIndEnvioDocumentos())) {
+            return dependencia;
+        }
+
+        Dependencia jefatura = dependencia;
+        Integer jefaturaId = dependencia.getPadre();
+        while (jefaturaId != null) {
+            jefatura = dependenciaRepository.getOne(jefaturaId);
+
+            if (jefatura.getDepIndEnvioDocumentos() != null && jefatura.getDepIndEnvioDocumentos()) {
+                return jefatura;
+            }
+
+            jefaturaId = jefatura.getPadre();
+        }
+        return jefatura;
+    }
+
 }

@@ -1138,7 +1138,7 @@ public class DocumentoController extends UtilController {
              */
 
             Radicacion radicacion = radicacionRepository.findByProceso(doc.getInstancia().getProceso());
-            doc.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(doc.getDependenciaDestino()).getId(), radicacion.getRadId()));
+            doc.setRadicado(radicadoService.retornaNumeroRadicado(dependenciaService.getSuperDependencia(doc.getDependenciaDestino()).getId(), radicacion.getRadId()));
         }
 
         try {
@@ -1974,7 +1974,7 @@ public class DocumentoController extends UtilController {
 				 * descritas, se selecciona el Jefe de la Super Dependencia.
                  */
                 Dependencia dependenciaDestino = d.getDependenciaDestino();
-                Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
+                Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
 
                 Usuario jefeActivo = dependenciaService.getJefeActivoDependencia(superDependencia);
                 /*
@@ -2352,7 +2352,7 @@ public class DocumentoController extends UtilController {
 			 * dependencias para presentar desde la super dependencia (unidad)
 			 * correspondiente a la dependencia destino del documento.
              */
-            Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
+            Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
             depsHierarchy(superDependencia);
             listaDependencias.add(superDependencia);
 
@@ -3018,7 +3018,7 @@ public class DocumentoController extends UtilController {
          * de proceso.
          */
         Radicacion radicacion = radicacionRepository.findByProceso(documento.getInstancia().getProceso());
-        documento.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(usuarioSesion.getDependencia()).getId(), radicacion.getRadId()));
+        documento.setRadicado(radicadoService.retornaNumeroRadicado(dependenciaService.getSuperDependencia(usuarioSesion.getDependencia()).getId(), radicacion.getRadId()));
 
         /*
          * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los
@@ -3330,7 +3330,7 @@ public class DocumentoController extends UtilController {
          * de proceso.
          */
         Radicacion radicacion = radicacionRepository.findByProceso(doc.getInstancia().getProceso());
-        doc.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(yo.getDependencia()).getId(), radicacion.getRadId()));
+        doc.setRadicado(radicadoService.retornaNumeroRadicado(dependenciaService.getSuperDependencia(yo.getDependencia()).getId(), radicacion.getRadId()));
 
         /*
          * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los
@@ -3672,7 +3672,7 @@ public class DocumentoController extends UtilController {
 
             Usuario usuarioSesion = getUsuario(principal);
             Dependencia dependencia = usuarioSesion.getDependencia();
-            Dependencia unidadDependencia = getSuperDependencia(dependencia);
+            Dependencia unidadDependencia = dependenciaService.getSuperDependencia(dependencia);
             depsHierarchy(unidadDependencia);
             listaDependencias.add(unidadDependencia);
 
@@ -3937,7 +3937,7 @@ public class DocumentoController extends UtilController {
         } else {
 
             Dependencia dependenciaUsuario = usuarioSesion.getDependencia();
-            Dependencia superDependenciaUsuario = getSuperDependencia(dependenciaUsuario);
+            Dependencia superDependenciaUsuario = dependenciaService.getSuperDependencia(dependenciaUsuario);
             if (superDependenciaUsuario.getJefe().getId() == usuarioSesion.getId()) {
                 // Determina si el usuario es un jefe de superdependencia.
                 // Obtiene el listado de las dependencias que se encuentran
@@ -4205,7 +4205,7 @@ public class DocumentoController extends UtilController {
 
             List<Dependencia> listaDependencias = new ArrayList<>(1);
             Dependencia dependenciaDestino = usuarioSesion.getDependencia();
-            Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
+            Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
             depsHierarchy(superDependencia);
             listaDependencias.add(superDependencia);
             model.addAttribute("dependencias_arbol", listaDependencias);
@@ -4728,28 +4728,6 @@ public class DocumentoController extends UtilController {
         return i;
     }
 
-    protected Dependencia getSuperDependencia(Dependencia dep) {
-        /*
-	 * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
-	 * campo Indicador de envio documentos.
-         */
-        if (dep.getPadre() == null || (dep.getDepIndEnvioDocumentos() != null && dep.getDepIndEnvioDocumentos())) {
-            return dep;
-        }
-
-        Dependencia jefatura = dep;
-        Integer jefaturaId = dep.getPadre();
-        while (jefaturaId != null) {
-            jefatura = dependenciaRepository.getOne(jefaturaId);
-
-            if (jefatura.getDepIndEnvioDocumentos() != null && jefatura.getDepIndEnvioDocumentos()) {
-                return jefatura;
-            }
-
-            jefaturaId = jefatura.getPadre();
-        }
-        return jefatura;
-    }
 
     /* --------------------------- privados -------------------------- */
     /**

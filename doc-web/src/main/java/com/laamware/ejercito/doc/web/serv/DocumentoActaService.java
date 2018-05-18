@@ -3,8 +3,11 @@ package com.laamware.ejercito.doc.web.serv;
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
+import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
+import com.laamware.ejercito.doc.web.entity.Proceso;
+import com.laamware.ejercito.doc.web.entity.Radicacion;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
@@ -76,6 +79,12 @@ public class DocumentoActaService {
 
     @Autowired
     private ClasificacionService clasificacionService;
+
+    @Autowired
+    private RadicadoService radicadoService;
+
+    @Autowired
+    private DependenciaService dependenciaService;
 
     /**
      * Constructor.
@@ -296,6 +305,30 @@ public class DocumentoActaService {
         documento.setActaLugar(documentoActaDTO.getActaLugar());
         documento.setActaFechaElaboracion(buildFechaElaboracion(documentoActaDTO.getActaFechaElaboracion()));
         documento.setEstadoTemporal(null);
+
+        return documentoService.actualizar(documento);
+    }
+
+    /**
+     * Genera y asigna el número de radicación para el documento, según el
+     * proceso al que pertenece y la súper dependencia de la dependencia
+     * destino.
+     *
+     * @param documento Documento.
+     * @param usuarioSesion Usuario en sesión.
+     * @return Documento actualizado con el número de radicación asignado.
+     */
+    public Documento asignarNumeroRadicacion(Documento documento, final Usuario usuarioSesion) {
+        final Dependencia dependenciaDestino = documento.getDependenciaDestino();
+        final Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
+
+        final Proceso proceso = documento.getInstancia().getProceso();
+        final Radicacion radicacion = radicadoService.findByProceso(proceso);
+
+        documento.setRadicado(radicadoService.retornaNumeroRadicado(superDependencia.getId(), radicacion.getRadId()));
+
+        documento.setQuienMod(usuarioSesion.getId());
+        documento.setCuandoMod(new Date());
 
         return documentoService.actualizar(documento);
     }

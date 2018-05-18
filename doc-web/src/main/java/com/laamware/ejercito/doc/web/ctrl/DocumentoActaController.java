@@ -5,7 +5,6 @@ import com.laamware.ejercito.doc.web.dto.DocumentoObservacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
-import com.laamware.ejercito.doc.web.entity.Radicacion;
 import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
@@ -14,7 +13,6 @@ import com.laamware.ejercito.doc.web.serv.ClasificacionService;
 import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
-import com.laamware.ejercito.doc.web.serv.RadicadoService;
 import com.laamware.ejercito.doc.web.serv.TransicionService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import java.security.Principal;
@@ -55,6 +53,8 @@ public class DocumentoActaController extends UtilController {
 
     private static final String DOCUMENTO_ACTA_GUARDAR_TEMPLATE = "documento-acta";
 
+    private static final String DOCUMENTO_ACTA_CARGAR_TEMPLATE = "documento-acta-carga";
+
     private static final String SECURITY_DENIED_TEMPLATE = "security-denied";
 
     private static final String REDIRECT_ACCESO_DENEGADO_URL = "redirect:/documento/acceso-denegado";
@@ -76,9 +76,6 @@ public class DocumentoActaController extends UtilController {
 
     @Autowired
     private TransicionService transicionService;
-
-    @Autowired
-    private RadicadoService radicadoService;
 
     @Override
     public String nombre(Integer idUsuario) {
@@ -145,10 +142,10 @@ public class DocumentoActaController extends UtilController {
         Documento documento = actaService.buscarDocumento(docId);
         Instancia procesoInstancia = procesoService.instancia(documento.getInstancia().getId());
 
-        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
-
         final BusinessLogicValidation logicValidation = actaService.validarGuardarActa(documentoActaDTO, usuarioSesion);
         if (!logicValidation.isAllOK()) {
+            cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
             uiModel.addAttribute("documentoActaDTO", documentoActaDTO);
             uiModel.addAttribute("logicValidation", logicValidation);
             uiModel.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el formulario.");
@@ -160,12 +157,14 @@ public class DocumentoActaController extends UtilController {
         } catch (ParseException ex) {
             LOG.log(Level.SEVERE, documentoActaDTO.toString(), ex);
 
+            cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
             uiModel.addAttribute("documentoActaDTO", documentoActaDTO);
             uiModel.addAttribute(AppConstants.FLASH_ERROR, "Excepción: Error registrando datos del acta: " + ex.getMessage());
             return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
         }
 
-        uiModel.addAttribute("documento", documento);
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
         return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
     }
@@ -214,7 +213,7 @@ public class DocumentoActaController extends UtilController {
     }
 
     @RequestMapping(value = "/generar-numero-radicado", method = RequestMethod.GET)
-    public String generarNumeroRadicado(@RequestParam("pin") String procesoInstanciaID, @RequestParam("tid") Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+    public String generarNumeroRadicado(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
         final Usuario usuarioSesion = getUsuario(principal);
         final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
         if (!tieneAccesoPorAsignacion) {
@@ -232,27 +231,36 @@ public class DocumentoActaController extends UtilController {
             return REDIRECT_ACCESO_DENEGADO_URL;
         }
 
-        final Transicion transicion = transicionService.find(procesoTransicionID);
-        if (transicion == null || !transicion.getActivo()) {
-            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "Transición no válida.");
-            return REDIRECT_MAIN_URL;
-        }
+        if (procesoTransicionID != null) {
+            final Transicion transicion = transicionService.find(procesoTransicionID);
+            if (transicion == null || !transicion.getActivo()) {
+                redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "Transición no válida.");
+                return REDIRECT_MAIN_URL;
+            }
 
-        if (!transicion.getEstadoInicial().getId().equals(procesoInstancia.getEstado().getId())) {
-            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada no se encuentra en el estado requisito para la aplicación de la transición.");
-            return REDIRECT_MAIN_URL;
+            if (!transicion.getEstadoInicial().getId().equals(procesoInstancia.getEstado().getId())) {
+                redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada no se encuentra en el estado requisito para la aplicación de la transición.");
+                return REDIRECT_MAIN_URL;
+            }
         }
 
         final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
-        final Documento documento = actaService.buscarDocumento(documentoID);
+        Documento documento = actaService.buscarDocumento(documentoID);
 
         if (documento.getRadicado() == null || documento.getRadicado().trim().isEmpty()) {
-            final Radicacion radicacion = radicadoService.findByProceso(procesoInstancia.getProceso());
+            documento = actaService.asignarNumeroRadicacion(documento, usuarioSesion);
+
+            procesoInstancia.setAsignado(usuarioSesion);
+            procesoInstancia.setQuienMod(usuarioSesion.getId());
+            procesoInstancia.setCuandoMod(new Date());
+            procesoInstancia.forward(procesoTransicionID);
+
+            uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado el número de radicación \"" + documento.getRadicado() + "\" al acta \"" + documento.getAsunto() + "\".");
         }
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
-        return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
+        return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
     }
 
     /**

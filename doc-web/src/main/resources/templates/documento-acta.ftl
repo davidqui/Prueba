@@ -2,32 +2,7 @@
     2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
     feature-162.
 -->
-<#setting number_format="computer">
-
-<#assign pageTitle = documento.asunto!"Acta" />
-<#assign deferredJS = "" />
-
-<#assign headScripts>
-<script src="/js/eventos_documento.js"></script>
-<script src="/js/app/funciones-documento.js"></script>
-<script src="/js/app/documento-acta-observaciones.js"></script>
-<script src="/js/tinymce.min.js"></script>
-</#assign>
-
-<#if archivoHeader??>	
-    <#include "archivo-header.ftl">
-<#else>
-    <#include "bandeja-header.ftl" />
-</#if>
-
-<#include "lib/documento_functions.ftl" />
-<#include "gen-arbol-dependencias.ftl">
-<#include "gen-arbol-trd.ftl">
-
-<#include "lib/documento-acta/documento-acta-observaciones.ftl">
-<#include "lib/documento-acta/documento-acta-info-proceso.ftl">
-
-<#assign estadoModo = estadoModeMap[procesoInstancia.estado.id?string] />
+<#include "documento-acta-config.ftl">
 
 <div class="col-md-8">    
     <#if estadoModo == "EDICION_INFORMACION">   
@@ -153,7 +128,6 @@
             <button id="guardar-doc-btn" type="submit" class="btn btn-success btn-sm">Guardar</button>
             <#if (!logicValidation?? || (logicValidation?? && logicValidation.isAllOK())) && !documento.estadoTemporal?? >
                 <#list procesoInstancia.transiciones() as transicion >
-                    <#-- &cargoIdFirma=${cargosXusuario?first.id} -->
                 <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
                     ${transicion.nombre}
                 </button>

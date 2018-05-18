@@ -68,7 +68,7 @@ INSERT INTO PROCESO_ESTADO
         PES_TRUNCATED) 
 VALUES
     (152, 'Número de radicación generado', 'El acta cuenta con número de radicación generado y se encuentra en espera de la carga del archivo', SYSDATE, 3390, SYSDATE, 3390,
-        1, 100, 0, 0, '/documento-acta?pin={instancia.id}', null,
+        1, 100, 0, 0, '/documento-acta/generar-numero-radicado?pin={instancia.id}', null,
         null)
 ;
 
