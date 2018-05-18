@@ -16,10 +16,12 @@
                     <tr><th>Proceso:</th><td>${procesoInstancia.proceso.nombre}</td></tr>
                     <tr><th>Estado:</th><td>${procesoInstancia.estado.nombre}</td></tr>
                     <tr><th>Usuario asignado:</th><td>${procesoInstancia.asignado}</td></tr>
-                    <#if documento.cargoIdElabora ?? >
+                    <#if documento.cargoIdElabora.carNombre?? >
                     <tr><th>Cargo:</th><td>${documento.cargoIdElabora.carNombre}</td></tr>
                     </#if>
-                    <tr><th>Número de radicación:</th><td>${documento.radicado!""}</td></tr>
+                    <#if documento.radicado?? >
+                    <tr><th>Número de radicación:</th><td>${documento.radicado}</td></tr>
+                    </#if>
                 </tbody>
             </table>
         </div>

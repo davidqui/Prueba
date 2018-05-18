@@ -15,6 +15,8 @@ import com.laamware.ejercito.doc.web.serv.DocumentoObservacionService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.TransicionService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
+import com.laamware.ejercito.doc.web.util.Global;
+import java.io.IOException;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Date;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -169,6 +172,15 @@ public class DocumentoActaController extends UtilController {
         return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
     }
 
+    /**
+     * Aplica la anulación del acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return URL de redirección tras aplicada la transición.
+     */
     @RequestMapping(value = "/anular", method = RequestMethod.GET)
     public String anular(@RequestParam("pin") String procesoInstanciaID, @RequestParam("tid") Integer procesoTransicionID, Principal principal, RedirectAttributes redirectAttributes) {
         final Usuario usuarioSesion = getUsuario(principal);
@@ -187,9 +199,16 @@ public class DocumentoActaController extends UtilController {
         return REDIRECT_MAIN_URL;
     }
 
+    /**
+     * Registra una nueva observación al acta.
+     *
+     * @param observacionDTO DTO con la información de la observación.
+     * @param principal Información de sesión.
+     * @return Entidad de respuesta con el código HTTP correspondiente.
+     */
     @ResponseBody
     @RequestMapping(value = "/observacion", method = RequestMethod.POST)
-    public ResponseEntity<?> registrarComentarios(final DocumentoObservacionDTO observacionDTO, Principal principal) {
+    public ResponseEntity<?> registrarObservacion(final DocumentoObservacionDTO observacionDTO, Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
 
         final String documentoID = observacionDTO.getDocumentoID();
@@ -212,6 +231,19 @@ public class DocumentoActaController extends UtilController {
         return ResponseEntity.ok("Comentario registrado exitosamente.");
     }
 
+    /**
+     * Genera el número de radicado para el acta y carga la información
+     * necesaria en el modelo de UI para la visualización del resultado y
+     * presentación del formulario de carga.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
     @RequestMapping(value = "/generar-numero-radicado", method = RequestMethod.GET)
     public String generarNumeroRadicado(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
         final Usuario usuarioSesion = getUsuario(principal);
@@ -256,6 +288,58 @@ public class DocumentoActaController extends UtilController {
             procesoInstancia.forward(procesoTransicionID);
 
             uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado el número de radicación \"" + documento.getRadicado() + "\" al acta \"" + documento.getAsunto() + "\".");
+        }
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
+    }
+
+    @RequestMapping(value = "/cargar-acta-digital", method = RequestMethod.POST)
+    public String cargarActaDigital(@RequestParam("pin") String procesoInstanciaID, @RequestParam("archivo") MultipartFile multipartFile, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        if (multipartFile.getSize() == 0) {
+            cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+            uiModel.addAttribute(AppConstants.FLASH_ERROR, "Debe cargar un archivo.");
+            return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
+        }
+
+        if (!multipartFile.getContentType().equals(Global.PDF_FILE_CONTENT_TYPE)) {
+            cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+            uiModel.addAttribute(AppConstants.FLASH_ERROR, "Únicamente se permiten cargar archivos en formato PDF como actas digitalizadas.");
+            return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
+        }
+
+        try {
+            documento = actaService.cargarActaDigitalizada(documento, multipartFile, usuarioSesion);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, procesoInstanciaID + "\t" + multipartFile.getName(), ex);
+
+            cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+            uiModel.addAttribute(AppConstants.FLASH_ERROR, "ERROR: Se presentó la siguiente excepción al cargar el archivo: " + ex.getMessage());
+            return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
         }
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);

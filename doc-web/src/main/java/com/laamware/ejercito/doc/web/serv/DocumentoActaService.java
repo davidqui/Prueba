@@ -15,6 +15,7 @@ import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.Global;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,6 +29,7 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Servicio para proceso documental de "Registro de Acta".
@@ -85,6 +87,9 @@ public class DocumentoActaService {
 
     @Autowired
     private DependenciaService dependenciaService;
+
+    @Autowired
+    private OFS ofs;
 
     /**
      * Constructor.
@@ -306,7 +311,10 @@ public class DocumentoActaService {
         documento.setActaFechaElaboracion(buildFechaElaboracion(documentoActaDTO.getActaFechaElaboracion()));
         documento.setEstadoTemporal(null);
 
-        return documentoService.actualizar(documento);
+        documento = documentoService.actualizar(documento);
+        final Documento buscarDocumento = buscarDocumento(documento.getId());
+        System.out.println("buscarDocumento = " + buscarDocumento.getCargoIdElabora().getCarNombre());
+        return buscarDocumento;
     }
 
     /**
@@ -326,6 +334,26 @@ public class DocumentoActaService {
         final Radicacion radicacion = radicadoService.findByProceso(proceso);
 
         documento.setRadicado(radicadoService.retornaNumeroRadicado(superDependencia.getId(), radicacion.getRadId()));
+
+        documento.setQuienMod(usuarioSesion.getId());
+        documento.setCuandoMod(new Date());
+
+        return documentoService.actualizar(documento);
+    }
+
+    /**
+     * Carga el acta digitalizada al documento, almacenándolo en el OFS.
+     *
+     * @param documento Documento.
+     * @param multipartFile Archivo cargado desde la UI.
+     * @param usuarioSesion Usuario en sesión.
+     * @return Documento actualizado con el OFS ID del archivo cargado.
+     * @throws IOException En caso que se presente una situación de error
+     * durante el proceso de almacenamiento del archivo en el OFS.
+     */
+    public Documento cargarActaDigitalizada(Documento documento, final MultipartFile multipartFile, final Usuario usuarioSesion) throws IOException {
+        final String ofsFileID = ofs.save(multipartFile.getBytes(), multipartFile.getContentType());
+        documento.setPdf(ofsFileID);
 
         documento.setQuienMod(usuarioSesion.getId());
         documento.setCuandoMod(new Date());
