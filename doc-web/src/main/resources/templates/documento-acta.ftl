@@ -138,9 +138,7 @@
     </form> <#-- Cierra formulario principal -->
     </#if>
 
-    <!--
-        Observaciones
-    -->       	
+    <#-- Observaciones -->       	
     <@presentarObservaciones documentoObservaciones utilController estadoModo "observacion" />    
 </div>
 
@@ -148,49 +146,7 @@
     <@presentarInformacionProcesoInstancia procesoInstancia documento />
 
     <#-- Adjuntos -->    
-    <div class="card">
-        <#if (documento.adjuntos?size > 0) >
-        <div class="card-block">
-            <h5 class="m-b">Adjuntos actuales</h5>
-            <#list documento.adjuntos as adjunto >
-                <#if adjunto.activo>
-                <hr/>
-                <strong>${adjunto.tipologia.nombre}</strong><br/>
-                <em>Subido el ${yyyymmdd.format(adjunto.cuando)} por ${utilController.nombre(adjunto.quien)}</em>
-                <a href="/documento/adjunto/${adjunto.id}/eliminar?pin=${procesoInstancia.id}" onclick="return confirm('¿Está seguro que desea eliminar el archivo ${adjunto.tipologia.nombre}?');">Eliminar</a><br/>
-                <a href="#" onclick="visualizar('/ofs/viewer?file=/ofs/download/${adjunto.contenido}')">
-                    <img src="/ofs/download/tmb/${adjunto.contenido}" />
-                    <br/>
-                    ${adjunto.original}
-                </a>
-                <br/>
-	        </#if>
-            </#list>
-        </div>
-        </#if>
-
-        <#if estadoModo == "EDICION_INFORMACION" >
-        <div class="card-block cus-gray-bg">
-            <form action="/documento/adjunto?doc=${documento.id}" method="post" enctype="multipart/form-data">
-                <fieldset class="form-group">
-                    <label for="destinatario"><strong>Tipología y archivo</strong></label>
-                    </br>
-                    <span style="font-style: italic">Únicamente se permiten cargar archivos en formato PDF, JPG y PNG.</span>                    
-                    <select class="form-control" id="tipologia" name="tipologia">
-                    <#if tipologias??>
-                        <option value=""></option>
-                        <#list tipologias as tipologia>
-                        <option value="${tipologia.id}">${tipologia.nombre}</option>
-                        </#list>
-                    </#if>
-                        </select>
-                    <input type="file" class="form-control" id="archivo" name="archivo"/>
-                </fieldset>
-                <button type="submit" class="btn btn-secondary btn-sm">Subir</button>
-            </form>
-        </div>
-        </#if>
-    </div>   
+    <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "EDICION_INFORMACION" tipologias "archivo" />
     <br />
 </div>
 

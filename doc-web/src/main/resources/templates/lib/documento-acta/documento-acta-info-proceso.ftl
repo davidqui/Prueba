@@ -2,6 +2,9 @@
     2018-05-17 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
     feature-162: Macro para la presentación de visualización de
     información de la instancia del proceso del documento.
+
+    procesoInstancia    Instancia del proceso.
+    documento           Documento.
 -->
 <#macro presentarInformacionProcesoInstancia procesoInstancia documento >
     <div class="card">
@@ -16,7 +19,7 @@
                     <tr><th>Proceso:</th><td>${procesoInstancia.proceso.nombre}</td></tr>
                     <tr><th>Estado:</th><td>${procesoInstancia.estado.nombre}</td></tr>
                     <tr><th>Usuario asignado:</th><td>${procesoInstancia.asignado}</td></tr>
-                    <#if documento.cargoIdElabora.carNombre?? >
+                    <#if documento.cargoIdElabora?? && documento.cargoIdElabora.carNombre?? >
                     <tr><th>Cargo:</th><td>${documento.cargoIdElabora.carNombre}</td></tr>
                     </#if>
                     <#if documento.radicado?? >

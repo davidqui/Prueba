@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
 import com.laamware.ejercito.doc.web.dto.DocumentoObservacionDTO;
+import com.laamware.ejercito.doc.web.entity.Adjunto;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
@@ -13,6 +14,7 @@ import com.laamware.ejercito.doc.web.serv.ClasificacionService;
 import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
+import com.laamware.ejercito.doc.web.serv.TipologiaService;
 import com.laamware.ejercito.doc.web.serv.TransicionService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.Global;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -79,6 +83,9 @@ public class DocumentoActaController extends UtilController {
 
     @Autowired
     private TransicionService transicionService;
+
+    @Autowired
+    private TipologiaService tipologiaService;
 
     @Override
     public String nombre(Integer idUsuario) {
@@ -347,6 +354,43 @@ public class DocumentoActaController extends UtilController {
         return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
     }
 
+    // TODO: Completar para aplicar la eliminación de adjuntos.
+    
+//    @RequestMapping(value = "/adjunto/{dad}/eliminar", method = RequestMethod.GET)
+//    public String adjuntoEliminar(@PathVariable("dad") String documentoAdjuntoID, @RequestParam("pin") String pin, RedirectAttributes redirect, Principal principal) {
+//
+//        // Obtiene la instancia de proceso
+//        Instancia i = procesoService.instancia(pin);
+//
+//        // Obtiene el documento asociado a la instancia de proceso
+//        String docId = i.getVariable(Documento.DOC_ID);
+//        Documento doc = documentRepository.getOne(docId);
+//
+//        // Determina el modo de visualización y edición del documento
+//        DocumentoMode mode = DocumentoMode.getByName(i.getVariable(Documento.DOC_MODE));
+//        doc.setMode(mode);
+//        boolean deleted = false;
+//        if (mode.get("adjuntos_edit")) {
+//            List<Adjunto> adjuntos = doc.getAdjuntos();
+//            for (Adjunto adjunto : adjuntos) {
+//                if (adjunto.getId().equals(documentoAdjuntoID)) {
+//                    adjunto.setActivo(false);
+//                    adjuntoRepository.save(adjunto);
+//                    deleted = true;
+//                    break;
+//                }
+//            }
+//        }
+//
+//        if (!deleted) {
+//            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "El adjunto no se encuentra o no se puede borrar");
+//        } else {
+//            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "El adjunto se ha eliminado");
+//        }
+//
+//        return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
+//    }
+
     /**
      * Carga la información básica y necesaria para la construcción de las
      * interfaces gráficas.
@@ -365,6 +409,7 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("subseriesTrdActas", actaService.buscarSubseriesActasPorUsuario(usuarioSesion));
         uiModel.addAttribute("cargosUsuario", cargoService.buildCargosXUsuario(usuarioSesion));
         uiModel.addAttribute("documentoObservaciones", observacionService.findAllByDocumento(documento));
+        uiModel.addAttribute("tipologias", tipologiaService.listarActivas());
     }
 
 }
