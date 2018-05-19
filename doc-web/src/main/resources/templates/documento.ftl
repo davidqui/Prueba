@@ -1,4 +1,4 @@
-<!-- 2017-04-25 jgarcia@controltechcg.com Issue #53 #54 (SICDI-Controltech): Se asigna formato numerico para manejo de los miles -->
+<#-- 2017-04-25 jgarcia@controltechcg.com Issue #53 #54 (SICDI-Controltech): Se asigna formato numerico para manejo de los miles -->
 <#setting number_format="computer">
 
 <#assign pageTitle = documento.asunto!"Documento" />
