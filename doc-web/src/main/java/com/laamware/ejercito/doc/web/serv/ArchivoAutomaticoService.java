@@ -31,7 +31,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @since Abril 18, 2017
  *
  */
-// 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
+/*
+ * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
+ */
 @Service
 public class ArchivoAutomaticoService {
 
@@ -45,13 +47,12 @@ public class ArchivoAutomaticoService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-    
+
     @Autowired
     private CargosRepository cargosRepository;
-    
+
     @Autowired
     DependenciaRepository dependenciaRepository;
-    
 
     /**
      * Permite aplicar el archivo automático para los procesos de documento,
@@ -63,25 +64,26 @@ public class ArchivoAutomaticoService {
     public void archivarAutomaticamente(Documento documento, Usuario usuarioSesion) {
 
         /*
-        2017-12-14 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) 
-        feature-151: Ajuste de cargos en el archivo de documentos.
+         * 2017-12-14 edison.gonzalez@controltechcg.com Issue #151
+         * (SICDI-Controltech) feature-151: Ajuste de cargos en el archivo de
+         * documentos.
          */
         final Usuario usuarioArchivador;
         final Cargo cargoArchivador;
         final Instancia instancia = documento.getInstancia();
         final Proceso proceso = instancia.getProceso();
-        
-        if(Objects.equals(proceso.getId(),Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)){
+
+        if (Objects.equals(proceso.getId(), Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
             usuarioArchivador = getUsuarioArchivadorAutomaticoRegistroDocumento(documento, usuarioSesion);
             cargoArchivador = usuarioArchivador.getUsuCargoPrincipalId();
-        }else{
+        } else {
             usuarioArchivador = usuarioRepository.findOne(documento.getQuien());
-            cargoArchivador = cargosRepository.findOne(documento.getCargoIdElabora().getId());    
+            cargoArchivador = cargosRepository.findOne(documento.getCargoIdElabora().getId());
         }
-        
+
         /*
-        2017-12-14 edison.gonzalez@controltechcg.com Issue #144 (SICDI-Controltech) 
-        hotfix-144: Duplicidad de registros.
+         * 2017-12-14 edison.gonzalez@controltechcg.com Issue #144
+         * (SICDI-Controltech) hotfix-144: Duplicidad de registros.
          */
         List<DocumentoDependencia> docDependencias = documentoDependenciaRepository.findAllActivoByUsuarioAndDocumento(usuarioArchivador.getId(), documento.getId());
 
@@ -105,10 +107,10 @@ public class ArchivoAutomaticoService {
         jdbcTemplate.update(sql, params);
     }
 
-    
     /**
-     * Permite saber el usuario quien se le archivara el documento en el caso de los
-     * procesos de registro de documentos.
+     * Permite saber el usuario quien se le archivara el documento en el caso de
+     * los procesos de registro de documentos.
+     *
      * @param d Documento
      * @param usuarioSesion Usuario
      * @return Usuario archivador del proceso de registro de documentos
@@ -116,24 +118,23 @@ public class ArchivoAutomaticoService {
     public Usuario getUsuarioArchivadorAutomaticoRegistroDocumento(Documento d, Usuario usuarioSesion) {
 
         /*
-        * 2017-02-06 jgarcia@controltechcg.com Issue# 150: Para
-        * asignación de Jefe Máximo, se busca la Super Dependencia
-        * Destino. Sobre esta se consulta si tiene un Jefe Segundo
-        * (Encargado). Si lo tiene se compara el rango de fechas
-        * asignado en la Super Dependencia. En caso que la fecha actual
-        * corresponda al rango, se selecciona el Jefe Segundo
-        * (Encargado). De lo contrario, a las reglas anteriormente
-        * descritas, se selecciona el Jefe de la Super Dependencia.
+         * 2017-02-06 jgarcia@controltechcg.com Issue# 150: Para asignación de
+         * Jefe Máximo, se busca la Super Dependencia Destino. Sobre esta se
+         * consulta si tiene un Jefe Segundo (Encargado). Si lo tiene se compara
+         * el rango de fechas asignado en la Super Dependencia. En caso que la
+         * fecha actual corresponda al rango, se selecciona el Jefe Segundo
+         * (Encargado). De lo contrario, a las reglas anteriormente descritas,
+         * se selecciona el Jefe de la Super Dependencia.
          */
         Dependencia dependenciaDestino = d.getDependenciaDestino();
         Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
 
         Usuario jefeActivo = getJefeActivoDependencia(superDependencia);
         /*
-        * 2017-02-09 jgarcia@controltechcg.com Issue #11
-        * (SIGDI-Incidencias01): En caso que el usuario en sesión
-        * corresponda como Jefe Segundo de la Dependencia Destino, se
-        * asigna el documento al Jefe principal de la Dependencia.
+         * 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01):
+         * En caso que el usuario en sesión corresponda como Jefe Segundo de la
+         * Dependencia Destino, se asigna el documento al Jefe principal de la
+         * Dependencia.
          */
         if (jefeActivo != null && usuarioSesion.getId().equals(jefeActivo.getId())) {
             return superDependencia.getJefe();
@@ -145,13 +146,14 @@ public class ArchivoAutomaticoService {
     /**
      * Permite buscar la dependencia inmediatamente superior que es unidad padre
      * de la dependencia que entra como parametro.
+     *
      * @param dep Dependencia
      * @return Dependencia inmediatamente superior que es unidad padre
      */
     protected Dependencia getSuperDependencia(Dependencia dep) {
         /*
-	 * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
-	 * campo Indicador de envio documentos.
+         * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Validacion
+         * para que tenga en cuenta el campo Indicador de envio documentos.
          */
         if (dep.getPadre() == null || (dep.getDepIndEnvioDocumentos() != null && dep.getDepIndEnvioDocumentos())) {
             return dep;
@@ -180,9 +182,10 @@ public class ArchivoAutomaticoService {
      * este se encuentre activo en el sistema, se retorna el jefe encargado; de
      * lo contrario, se retorna el jefe principal de la dependencia.
      */
-    // 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01)
-    // 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01):
-    // Paso a static
+    /*
+     * 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01):
+     * Paso a static
+     */
     private static Usuario getJefeActivoDependencia(final Dependencia dependencia) {
 
         Usuario jefe = dependencia.getJefe();

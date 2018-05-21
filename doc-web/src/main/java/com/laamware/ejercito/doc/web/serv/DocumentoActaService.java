@@ -91,6 +91,9 @@ public class DocumentoActaService {
     @Autowired
     private OFS ofs;
 
+    @Autowired
+    private ArchivoAutomaticoService archivoAutomaticoService;
+
     /**
      * Constructor.
      *
@@ -386,6 +389,28 @@ public class DocumentoActaService {
      */
     private Date buildFechaPlazo(final Date fechaHora) {
         return DateUtil.setTime(DateUtil.add(fechaHora, Calendar.DATE, +diasLimiteFechaPlazo), DateUtil.SetTimeType.START_TIME);
+    }
+
+    /**
+     * Digitaliza definitivamente el acta y archiva el documento correspondiente
+     * al usuario creador del registro.
+     *
+     * @param documento Documento.
+     * @param procesoInstancia Instancia del proceso.
+     * @param usuarioSesion Usuario en sesión.
+     * @param procesoTransicionID
+     * @return Instancia del proceso modificada por el proceso de
+     * digitalización.
+     */
+    public Instancia digitalizarYArchivarActa(Documento documento, Instancia procesoInstancia, final Usuario usuarioSesion, Integer procesoTransicionID) {
+        procesoInstancia.setAsignado(usuarioSesion);
+        procesoInstancia.setQuienMod(usuarioSesion.getId());
+        procesoInstancia.setCuandoMod(new Date());
+        procesoInstancia.forward(procesoTransicionID);
+
+        archivoAutomaticoService.archivarAutomaticamente(documento, usuarioSesion);
+
+        return procesoInstancia;
     }
 
 }

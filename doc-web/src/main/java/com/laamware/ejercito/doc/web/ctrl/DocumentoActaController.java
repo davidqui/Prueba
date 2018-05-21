@@ -63,6 +63,8 @@ public class DocumentoActaController extends UtilController {
 
     private static final String DOCUMENTO_ACTA_CARGAR_TEMPLATE = "documento-acta-carga";
 
+    private static final String DOCUMENTO_ACTA_CONSULTAR_TEMPLATE = "documento-acta-consultar";
+
     private static final String SECURITY_DENIED_TEMPLATE = "security-denied";
 
     private static final String REDIRECT_ACCESO_DENEGADO_URL = "redirect:/documento/acceso-denegado";
@@ -308,6 +310,17 @@ public class DocumentoActaController extends UtilController {
         return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
     }
 
+    /**
+     * Carga el archivo digital correspondiente al acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param multipartFile Archivo multiparte correspondiente al acta digital.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
     @RequestMapping(value = "/cargar-acta-digital", method = RequestMethod.POST)
     public String cargarActaDigital(@RequestParam("pin") String procesoInstanciaID, @RequestParam("archivo") MultipartFile multipartFile, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
         final Usuario usuarioSesion = getUsuario(principal);
@@ -360,8 +373,20 @@ public class DocumentoActaController extends UtilController {
         return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
     }
 
+    /**
+     * Carga y guarda un archivo adjunto, asociado al acta.
+     *
+     * @param documentoID ID del documento.
+     * @param tipologiaID ID de al tipología del adjunto.
+     * @param archivo Archivo multiparte correspondiente al adjunto.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
     @RequestMapping(value = "/adjunto/{docid}/guardar", method = RequestMethod.POST)
-    public String cargarGuardarAdjunto(@PathVariable("docid") String documentoID, @RequestParam("tipologia") Integer tipologiaID, @RequestParam("archivo") MultipartFile archivo, Model uiModel, Principal principal, RedirectAttributes redirect) {
+    public String cargarGuardarAdjunto(@PathVariable("docid") String documentoID, @RequestParam("tipologia") Integer tipologiaID, @RequestParam("archivo") MultipartFile archivo, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
         final Usuario usuarioSesion = getUsuario(principal);
 
         Documento documento = actaService.buscarDocumento(documentoID);
@@ -370,43 +395,55 @@ public class DocumentoActaController extends UtilController {
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
         if (archivo.isEmpty()) {
-            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Debe seleccionar un archivo adjunto.");
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Debe seleccionar un archivo adjunto.");
             return redirectProcesoInstanciaURL(documento);
         }
 
         if (tipologiaID == null || tipologiaID <= 0) {
-            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Debe seleccionar una tipología para el archivo adjunto.");
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Debe seleccionar una tipología para el archivo adjunto.");
             return redirectProcesoInstanciaURL(documento);
         }
 
         final Tipologia tipologia = tipologiaService.find(tipologiaID);
         if (tipologia == null || !tipologia.getActivo()) {
-            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Debe seleccionar una tipología activa para el sistema.");
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Debe seleccionar una tipología activa para el sistema.");
             return redirectProcesoInstanciaURL(documento);
         }
 
         final String contentType = archivo.getContentType();
         boolean validAttachmentContentType = adjuntoService.isValidAttachmentContentType(contentType);
         if (!validAttachmentContentType) {
-            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Únicamente se permiten cargar archivos adjuntos tipo PDF, JPG o PNG.");
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Únicamente se permiten cargar archivos adjuntos tipo PDF, JPG o PNG.");
             return redirectProcesoInstanciaURL(documento);
         }
 
         try {
             final Adjunto adjunto = adjuntoService.guardarAdjunto(documento, tipologia, usuarioSesion, archivo);
 
-            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Archivo adjuntado: " + adjunto.getOriginal());
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Archivo adjuntado: " + adjunto.getOriginal());
             return redirectProcesoInstanciaURL(documento);
         } catch (IOException | RuntimeException ex) {
             LOG.log(Level.SEVERE, documentoID, ex);
 
-            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "No se adjuntó el archivo: Ocurrio un error inesperado.");
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "No se adjuntó el archivo: Ocurrio un error inesperado.");
             return redirectProcesoInstanciaURL(documento);
         }
     }
 
+    /**
+     * Elimina un archivo adjunto, asociado a un documento acta de la instancia
+     * del proceso.
+     *
+     * @param documentoAdjuntoID ID del adjunto.
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
     @RequestMapping(value = "/adjunto/{dad}/{pin}/eliminar", method = RequestMethod.DELETE)
-    public String adjuntoEliminar(@PathVariable("dad") String documentoAdjuntoID, @PathVariable("pin") String procesoInstanciaID, Model uiModel, RedirectAttributes redirect, Principal principal) {
+    public String adjuntoEliminar(@PathVariable("dad") String documentoAdjuntoID, @PathVariable("pin") String procesoInstanciaID, Model uiModel, RedirectAttributes redirectAttributes, Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
 
         Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
@@ -418,21 +455,64 @@ public class DocumentoActaController extends UtilController {
 
         final Adjunto adjunto = adjuntoService.findByIDActivoAndDocumento(documentoAdjuntoID, documento);
         if (adjunto == null) {
-            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: No hay correspondencia en el sistema para el adjunto seleccionado.");
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: No hay correspondencia en el sistema para el adjunto seleccionado.");
             return redirectProcesoInstanciaURL(documento);
         }
 
         try {
             adjuntoService.eliminarAdjunto(adjunto, usuarioSesion);
 
-            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "El adjunto se ha eliminado.");
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS, "El adjunto se ha eliminado.");
             return redirectProcesoInstanciaURL(documento);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, documentoAdjuntoID, ex);
 
-            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "El adjunto no se encuentra o no se puede borrar.");
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El adjunto no se encuentra o no se puede borrar.");
             return redirectProcesoInstanciaURL(documento);
         }
+    }
+
+    /**
+     * Carga el acta digitalizada al sistema de forma definitiva, archivando el
+     * acta al usuario creador del documento.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
+    @RequestMapping(value = "/cargar-acta-digitalizada", method = RequestMethod.GET)
+    public String cargarActaDigitalizada(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        procesoInstancia = actaService.digitalizarYArchivarActa(documento, procesoInstancia, usuarioSesion, procesoTransicionID);
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "El acta ha sido digitalizada y archivada.");
+
+        return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
     }
 
     /**
