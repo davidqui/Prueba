@@ -21,7 +21,9 @@
             <hr/>
             <strong>${adjunto.tipologia.nombre}</strong><br/>
             <em>Subido el ${yyyymmdd.format(adjunto.cuando)} por ${utilController.nombre(adjunto.quien)}</em>
+            <#if estadoModo == estadoModoCarga >
             <a href="#" onclick="eliminarArchivoAdjunto('${adjunto.original}', '${adjunto.id}', '${procesoInstancia.id}');">Eliminar</a><br/>
+            </#if>
             <a href="#" onclick="visualizar('/ofs/viewer?file=/ofs/download/${adjunto.contenido}')">
                 <img src="/ofs/download/tmb/${adjunto.contenido}" />
                 <br/>
