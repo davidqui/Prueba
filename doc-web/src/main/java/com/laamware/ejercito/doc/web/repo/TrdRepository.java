@@ -28,4 +28,14 @@ public interface TrdRepository extends GenJpaRepository<Trd, Integer> {
     @Query(nativeQuery = true, value = "SELECT distinct T.* FROM TRD T JOIN DEPENDENCIA_TRD DT ON DT.TRD_ID=T.TRD_ID WHERE TRD_SERIE=? AND DT.DEP_ID = ? AND DT.TRD_ID=T.TRD_ID order by T.TRD_NOMBRE, T.TRD_CODIGO")
     List<Trd> findSubseries(Integer serieId, Integer idDependencia);
 
+    /**
+     * Lista todas las subseries TRD activas.
+     *
+     * @return Lista de las subseries TRD activas.
+     */
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #170 (SICDI-Controltech)
+     * feature-170.
+     */
+    public List<Trd> findAllByActivoTrueAndSerieNotNull();
 }

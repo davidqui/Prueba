@@ -2,7 +2,6 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
-import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +16,8 @@ import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificableComparator;
 import java.util.ArrayList;
 import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -209,12 +210,43 @@ public class TRDService {
         final RowMapper<TrdArchivoDocumentosDTO> rowMapper = new BeanPropertyRowMapper<>(TrdArchivoDocumentosDTO.class);
         return jdbcTemplate.query(sql, params.toArray(), rowMapper);
     }
-    
-    public List<Trd> findSeriesByUsuario(Usuario usuario){
+
+    public List<Trd> findSeriesByUsuario(Usuario usuario) {
         return trdRepository.findSeriesByDependencia(usuario.getDependencia().getId());
     }
-    
-    public List<Trd> findSubseriesbySerieAndUsuario(Trd serie, Usuario usuario){
+
+    public List<Trd> findSubseriesbySerieAndUsuario(Trd serie, Usuario usuario) {
         return trdRepository.findSubseries(serie.getId(), usuario.getDependencia().getId());
     }
+
+    /**
+     * Lista todas las subseries TRD activas.
+     *
+     * @return Lista de las subseries TRD activas, ordenadas por el código de la
+     * TRD.
+     */
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #170 (SICDI-Controltech)
+     * feature-170.
+     */
+    public List<Trd> findAllSubseriesActivas() {
+        final List<Trd> subseries = trdRepository.findAllByActivoTrueAndSerieNotNull();
+        ordenarPorCodigo(subseries);
+        return subseries;
+    }
+
+    /**
+     * Lista todas las subseries TRD activas.
+     *
+     * @return Lista de las subseries TRD activas, ordenadas por el nombre de la
+     * TRD.
+     */
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #170 (SICDI-Controltech)
+     * feature-170.
+     */
+    public List<Trd> findAllSubseriesActivasOrdenPorNombre() {
+        return trdRepository.findByActivoAndSerieNotNull(Boolean.TRUE, (new Sort(Direction.ASC, "nombre")));
+    }
+
 }

@@ -31,8 +31,8 @@ import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaTrdRepository;
-import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
+import com.laamware.ejercito.doc.web.serv.TRDService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,13 +48,17 @@ public class DependenciaController extends UtilController {
     DependenciaRepository dependenciaRepository;
 
     @Autowired
-    TrdRepository trdRepository;
-
-    @Autowired
     DependenciaTrdRepository dependenciaTrdRepository;
 
     @Autowired
     UsuarioRepository usuarioRepository;
+
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #170 (SICDI-Controltech)
+     * feature-170: Ordenamiento de subseries TRD por códigos.
+     */
+    @Autowired
+    private TRDService trdService;
 
     @PreAuthorize("hasRole('ADMIN_DEPENDENCIAS')")
     @RequestMapping(value = {""}, method = RequestMethod.GET)
@@ -189,7 +193,7 @@ public class DependenciaController extends UtilController {
         /* 
          *2017-10-05 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech)
          * feature-131: Ajuste de orden segun el peso de los grados.
-        */
+         */
         map.put("usuarios", usuarioRepository.findAllByActivoTrueOrderByGradoDesc());
     }
 
@@ -239,12 +243,14 @@ public class DependenciaController extends UtilController {
     @PreAuthorize("hasRole('ADMIN_DEPENDENCIAS')")
     @RequestMapping(value = "/trds-subseries", method = RequestMethod.GET)
     public String dependenciaTrd(@RequestParam("depId") Integer depId, Model model) {
+        final Dependencia dependencia = dependenciaRepository.findOne(depId);
+        model.addAttribute("dependencia", dependencia);
 
-        Dependencia dep = dependenciaRepository.findOne(depId);
-        List<Trd> trds = trdRepository.findByActivoAndSerieNotNull(true, (new Sort(Direction.ASC, "nombre")));
-
-        model.addAttribute("dependencia", dep);
-        model.addAttribute("trds", trds);
+        /*
+         * 2018-05-21 jgarcia@controltechcg.com Issue #170 (SICDI-Controltech)
+         * feature-170: Funcionalidad por servicio.
+         */
+        model.addAttribute("trds", trdService.findAllSubseriesActivasOrdenPorNombre());
         model.addAttribute("controller", this);
 
         return "admin-dependencia-trds";
@@ -298,6 +304,34 @@ public class DependenciaController extends UtilController {
             }
         }
         return false;
+    }
+
+    /**
+     * Indica si todas las subseries activas han sido asignadas a la
+     * dependencia.
+     *
+     * @param dependencia Dependencia.
+     * @param subseries Lista de subseries activas.
+     * @return {@code true} si y solo si todas las subseries activas en el
+     * sistema están asignadas a la dependencia; de lo contrario, {@code false}.
+     */
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #170 (SICDI-Controltech)
+     * feature-170.
+     */
+    public boolean hasAllSubseriesSelected(final Dependencia dependencia, final List<Trd> subseries) {
+        final List<DependenciaTrd> selectedTrds = dependencia.getTrds();
+        if (subseries.size() != selectedTrds.size()) {
+            return false;
+        }
+
+        for (Trd subserie : subseries) {
+            if (!has(subserie.getId(), selectedTrds)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
