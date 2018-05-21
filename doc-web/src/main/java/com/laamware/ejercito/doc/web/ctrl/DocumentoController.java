@@ -106,6 +106,7 @@ import com.laamware.ejercito.doc.web.repo.TipologiaRepository;
 import com.laamware.ejercito.doc.web.repo.TransicionRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
+import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.ArchivoAutomaticoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
@@ -286,6 +287,13 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private DependenciaService dependenciaService;
+
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Servicio de archivos adjuntos.
+     */
+    @Autowired
+    private AdjuntoService adjuntoService;
 
     /* ---------------------- públicos ------------------------------- */
     /**
@@ -1653,7 +1661,7 @@ public class DocumentoController extends UtilController {
                 } else {
                     String contentType = archivo.getContentType();
 
-                    boolean validAttachmentContentType = isValidAttachmentContentType(contentType);
+                    boolean validAttachmentContentType = adjuntoService.isValidAttachmentContentType(contentType);
                     if (!validAttachmentContentType) {
                         redirect.addFlashAttribute(AppConstants.FLASH_ERROR,
                                 "ERROR: Únicamente se permiten cargar archivos adjuntos tipo PDF, JPG o PNG.");
@@ -1681,27 +1689,6 @@ public class DocumentoController extends UtilController {
         }
 
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, doc.getInstancia().getId());
-    }
-
-    /**
-     * Indica si el tipo de contenido del archivo adjunto es válido para el
-     * sistema.
-     *
-     * @param contentType Tipo de contenido.
-     * @return {@code true} si el tipo de contenido es válido (PDF, JPG, JPEG,
-     * PNG); de lo contrario, {@code false}.
-     */
-    // 2017-04-11 jgarcia@controltechcg.com Issue #46 (SIGDI-Controltech)
-    private boolean isValidAttachmentContentType(String contentType) {
-        String[] validContentTypes = {"application/pdf", "image/jpeg", "image/jpg", "image/png"};
-
-        for (String validContentType : validContentTypes) {
-            if (contentType.equals(validContentType)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

@@ -28,4 +28,16 @@ public class TipologiaService {
     public List<Tipologia> listarActivas() {
         return tipologiaRepository.findByActivo(true, new Sort(Sort.Direction.ASC, "nombre"));
     }
+
+    /**
+     * Busca una tipología por su ID.
+     *
+     * @param id ID.
+     * @return Instancia de la tipología, o {@code null} en caso que no haya
+     * correspondencia en el sistema.
+     */
+    public Tipologia find(final Integer id) {
+        return tipologiaRepository.findOne(id);
+    }
+
 }

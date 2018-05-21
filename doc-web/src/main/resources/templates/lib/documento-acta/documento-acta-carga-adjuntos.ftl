@@ -35,7 +35,7 @@
 
     <#if estadoModo == estadoModoCarga >
     <div class="card-block cus-gray-bg">
-        <form action="/documento/adjunto?doc=${documento.id}" method="post" enctype="multipart/form-data">
+        <form action="/documento-acta/adjunto/${documento.id}/guardar" method="post" enctype="multipart/form-data">
             <fieldset class="form-group">
                 <label for="destinatario"><strong>Tipología y archivo</strong></label>
                 </br>

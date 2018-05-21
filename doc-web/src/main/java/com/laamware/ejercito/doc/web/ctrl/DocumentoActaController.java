@@ -6,9 +6,11 @@ import com.laamware.ejercito.doc.web.entity.Adjunto;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
+import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
+import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.CargoService;
 import com.laamware.ejercito.doc.web.serv.ClasificacionService;
 import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
@@ -22,7 +24,6 @@ import java.io.IOException;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,13 +59,15 @@ public class DocumentoActaController extends UtilController {
 
     private static final String REDIRECT_MAIN_URL = "redirect:/";
 
-    private static final String DOCUMENTO_ACTA_GUARDAR_TEMPLATE = "documento-acta";
+    private static final String DOCUMENTO_ACTA_REGISTRAR_TEMPLATE = "documento-acta-registro";
 
     private static final String DOCUMENTO_ACTA_CARGAR_TEMPLATE = "documento-acta-carga";
 
     private static final String SECURITY_DENIED_TEMPLATE = "security-denied";
 
     private static final String REDIRECT_ACCESO_DENEGADO_URL = "redirect:/documento/acceso-denegado";
+
+    private static final String REDIRECT_PROCESO_INSTANCIA_URL_FORMAT = "redirect:" + ProcesoController.PATH + "/instancia?pin=%s";
 
     @Autowired
     private DocumentoActaService actaService;
@@ -86,6 +89,9 @@ public class DocumentoActaController extends UtilController {
 
     @Autowired
     private TipologiaService tipologiaService;
+
+    @Autowired
+    private AdjuntoService adjuntoService;
 
     @Override
     public String nombre(Integer idUsuario) {
@@ -132,7 +138,7 @@ public class DocumentoActaController extends UtilController {
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
-        return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
+        return DOCUMENTO_ACTA_REGISTRAR_TEMPLATE;
     }
 
     /**
@@ -159,7 +165,7 @@ public class DocumentoActaController extends UtilController {
             uiModel.addAttribute("documentoActaDTO", documentoActaDTO);
             uiModel.addAttribute("logicValidation", logicValidation);
             uiModel.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el formulario.");
-            return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
+            return DOCUMENTO_ACTA_REGISTRAR_TEMPLATE;
         }
 
         try {
@@ -171,12 +177,12 @@ public class DocumentoActaController extends UtilController {
 
             uiModel.addAttribute("documentoActaDTO", documentoActaDTO);
             uiModel.addAttribute(AppConstants.FLASH_ERROR, "Excepción: Error registrando datos del acta: " + ex.getMessage());
-            return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
+            return DOCUMENTO_ACTA_REGISTRAR_TEMPLATE;
         }
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
-        return DOCUMENTO_ACTA_GUARDAR_TEMPLATE;
+        return DOCUMENTO_ACTA_REGISTRAR_TEMPLATE;
     }
 
     /**
@@ -354,8 +360,52 @@ public class DocumentoActaController extends UtilController {
         return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
     }
 
+    @RequestMapping(value = "/adjunto/{docid}/guardar", method = RequestMethod.POST)
+    public String cargarGuardarAdjunto(@PathVariable("docid") String documentoID, @RequestParam("tipologia") Integer tipologiaID, @RequestParam("archivo") MultipartFile archivo, Model uiModel, Principal principal, RedirectAttributes redirect) {
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        Documento documento = actaService.buscarDocumento(documentoID);
+        Instancia procesoInstancia = procesoService.instancia(documento.getInstancia().getId());
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        if (archivo.isEmpty()) {
+            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Debe seleccionar un archivo adjunto.");
+            return redirectProcesoInstanciaURL(documento);
+        }
+
+        if (tipologiaID == null || tipologiaID <= 0) {
+            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Debe seleccionar una tipología para el archivo adjunto.");
+            return redirectProcesoInstanciaURL(documento);
+        }
+
+        final Tipologia tipologia = tipologiaService.find(tipologiaID);
+        if (tipologia == null || !tipologia.getActivo()) {
+            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Debe seleccionar una tipología activa para el sistema.");
+            return redirectProcesoInstanciaURL(documento);
+        }
+
+        final String contentType = archivo.getContentType();
+        boolean validAttachmentContentType = adjuntoService.isValidAttachmentContentType(contentType);
+        if (!validAttachmentContentType) {
+            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: Únicamente se permiten cargar archivos adjuntos tipo PDF, JPG o PNG.");
+            return redirectProcesoInstanciaURL(documento);
+        }
+
+        try {
+            final Adjunto adjunto = adjuntoService.guardarAdjunto(documento, tipologia, usuarioSesion, archivo);
+
+            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Archivo adjuntado: " + adjunto.getOriginal());
+            return redirectProcesoInstanciaURL(documento);
+        } catch (IOException | RuntimeException ex) {
+            LOG.log(Level.SEVERE, documentoID, ex);
+
+            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "No se adjuntó el archivo: Ocurrio un error inesperado.");
+            return redirectProcesoInstanciaURL(documento);
+        }
+    }
+
     // TODO: Completar para aplicar la eliminación de adjuntos.
-    
 //    @RequestMapping(value = "/adjunto/{dad}/eliminar", method = RequestMethod.GET)
 //    public String adjuntoEliminar(@PathVariable("dad") String documentoAdjuntoID, @RequestParam("pin") String pin, RedirectAttributes redirect, Principal principal) {
 //
@@ -390,7 +440,6 @@ public class DocumentoActaController extends UtilController {
 //
 //        return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
 //    }
-
     /**
      * Carga la información básica y necesaria para la construcción de las
      * interfaces gráficas.
@@ -412,4 +461,14 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("tipologias", tipologiaService.listarActivas());
     }
 
+    /**
+     * Construye la URL de redirección a la pantalla asignada para la instancia
+     * del proceso del documento.
+     *
+     * @param documento Documento.
+     * @return URL de la redirección a la pantalla asignada.
+     */
+    private String redirectProcesoInstanciaURL(Documento documento) {
+        return String.format(REDIRECT_PROCESO_INSTANCIA_URL_FORMAT, documento.getInstancia().getId());
+    }
 }
