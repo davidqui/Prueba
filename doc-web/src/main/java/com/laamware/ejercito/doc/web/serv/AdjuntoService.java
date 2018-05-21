@@ -115,4 +115,38 @@ public class AdjuntoService {
         adjunto = adjuntoRepository.saveAndFlush(adjunto);
         return adjunto;
     }
+
+    /**
+     * Busca un adjunto por su ID y ID de documento, siempre y cuando el
+     * registro se encuentre activo.
+     *
+     * @param id ID del adjunto.
+     * @param documento Documento.
+     * @return Instancia del adjunto activo correspondiente al ID y al ID del
+     * documento, o {@code null} en caso que no exista correspondencia en el
+     * sistema o en caso que el registro no esté activo.
+     */
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Proceso de eliminación de adjuntos para registro de actas.
+     */
+    public Adjunto findByIDActivoAndDocumento(final String id, final Documento documento) {
+        return adjuntoRepository.findByIdAndDocumentoAndActivoTrue(id, documento);
+    }
+
+    /**
+     * Elimina un adjunto (de forma lógica).
+     *
+     * @param adjunto Adjunto a eliminar.
+     * @param usuario Usuario que realiza el proceso de eliminación.
+     * @return Instancia del archivo adjunto eliminado.
+     */
+    public Adjunto eliminarAdjunto(Adjunto adjunto, final Usuario usuario) {
+        adjunto.setActivo(Boolean.FALSE);
+        adjunto.setQuien(usuario.getId());
+        adjunto.setCuando(new Date());
+
+        adjunto = adjuntoRepository.saveAndFlush(adjunto);
+        return adjunto;
+    }
 }

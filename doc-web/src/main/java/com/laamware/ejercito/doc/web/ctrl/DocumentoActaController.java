@@ -405,41 +405,36 @@ public class DocumentoActaController extends UtilController {
         }
     }
 
-    // TODO: Completar para aplicar la eliminación de adjuntos.
-//    @RequestMapping(value = "/adjunto/{dad}/eliminar", method = RequestMethod.GET)
-//    public String adjuntoEliminar(@PathVariable("dad") String documentoAdjuntoID, @RequestParam("pin") String pin, RedirectAttributes redirect, Principal principal) {
-//
-//        // Obtiene la instancia de proceso
-//        Instancia i = procesoService.instancia(pin);
-//
-//        // Obtiene el documento asociado a la instancia de proceso
-//        String docId = i.getVariable(Documento.DOC_ID);
-//        Documento doc = documentRepository.getOne(docId);
-//
-//        // Determina el modo de visualización y edición del documento
-//        DocumentoMode mode = DocumentoMode.getByName(i.getVariable(Documento.DOC_MODE));
-//        doc.setMode(mode);
-//        boolean deleted = false;
-//        if (mode.get("adjuntos_edit")) {
-//            List<Adjunto> adjuntos = doc.getAdjuntos();
-//            for (Adjunto adjunto : adjuntos) {
-//                if (adjunto.getId().equals(documentoAdjuntoID)) {
-//                    adjunto.setActivo(false);
-//                    adjuntoRepository.save(adjunto);
-//                    deleted = true;
-//                    break;
-//                }
-//            }
-//        }
-//
-//        if (!deleted) {
-//            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "El adjunto no se encuentra o no se puede borrar");
-//        } else {
-//            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "El adjunto se ha eliminado");
-//        }
-//
-//        return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
-//    }
+    @RequestMapping(value = "/adjunto/{dad}/{pin}/eliminar", method = RequestMethod.DELETE)
+    public String adjuntoEliminar(@PathVariable("dad") String documentoAdjuntoID, @PathVariable("pin") String procesoInstanciaID, Model uiModel, RedirectAttributes redirect, Principal principal) {
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        final Adjunto adjunto = adjuntoService.findByIDActivoAndDocumento(documentoAdjuntoID, documento);
+        if (adjunto == null) {
+            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "ERROR: No hay correspondencia en el sistema para el adjunto seleccionado.");
+            return redirectProcesoInstanciaURL(documento);
+        }
+
+        try {
+            adjuntoService.eliminarAdjunto(adjunto, usuarioSesion);
+
+            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "El adjunto se ha eliminado.");
+            return redirectProcesoInstanciaURL(documento);
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, documentoAdjuntoID, ex);
+
+            redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "El adjunto no se encuentra o no se puede borrar.");
+            return redirectProcesoInstanciaURL(documento);
+        }
+    }
+
     /**
      * Carga la información básica y necesaria para la construcción de las
      * interfaces gráficas.
