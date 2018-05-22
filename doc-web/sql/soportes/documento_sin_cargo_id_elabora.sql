@@ -8,7 +8,7 @@ SELECT
      || DOCUMENTO_USU_ELABORA_MAX.CARGO_ID_ELABORA
      || ' WHERE DOCUMENTO.DOC_ID = '''
      || DOCUMENTO.DOC_ID
-     || ''';'
+     || ''';' AS "UPDATE"
 FROM
     DOCUMENTO
     JOIN (
