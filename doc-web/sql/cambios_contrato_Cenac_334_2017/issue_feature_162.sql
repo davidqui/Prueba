@@ -78,7 +78,7 @@ INSERT INTO PROCESO_ESTADO
         PES_TRUNCATED) 
 VALUES
     (153, 'Acta digitalizada', 'El acta se encuentra digitalizada y archivada en el sistema', SYSDATE, 3390, SYSDATE, 3390,
-        1, 100, 0, 1, '/documento-acta?pin={instancia.id}', null,
+        1, 100, 0, 1, '/documento-acta/cargar-acta-digitalizada?pin={instancia.id}', null,
         null)
 ;
 

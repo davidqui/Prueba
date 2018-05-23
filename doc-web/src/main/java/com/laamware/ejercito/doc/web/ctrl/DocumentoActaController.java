@@ -506,6 +506,11 @@ public class DocumentoActaController extends UtilController {
         final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
         Documento documento = actaService.buscarDocumento(documentoID);
 
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ACTA_DIGITALIZADA.getId())) {
+            cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+            return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
+        }
+
         procesoInstancia = actaService.digitalizarYArchivarActa(documento, procesoInstancia, usuarioSesion, procesoTransicionID);
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
