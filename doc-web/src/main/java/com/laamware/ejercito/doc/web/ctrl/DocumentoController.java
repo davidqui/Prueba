@@ -233,9 +233,6 @@ public class DocumentoController extends UtilController {
     RestriccionDifusionRepository restriccionDifusionRepository;
 
     @Autowired
-    ProcesoRepository procesoRepository;
-
-    @Autowired
     InstanciaRepository instanciaRepository;
 
     @Autowired
@@ -4444,17 +4441,12 @@ public class DocumentoController extends UtilController {
         model.addAttribute("pin", instanciaID);
         model.addAttribute("tid", transicionID);
         model.addAttribute("documento", documento);
-
-        List<Proceso> list = procesoRepository.findAll();
-        List<Proceso> procesos = new ArrayList<>();
-        for (Proceso proceso : list) {
-            if (proceso.getActivo()
-                    && !proceso.getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
-                procesos.add(proceso);
-            }
-        }
-
-        model.addAttribute("procesos", procesos);
+        /*
+         * 2018-05-23 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech
+         * feature-162: Uso de servicio para obtención únicamente de los
+         * procesos asignados como respuesta para un documento radicado.
+         */
+        model.addAttribute("procesos", procesoService.getProcesosRespuestaRadicado());
 
         return "seleccionar-proceso-respuesta-ciclico";
     }

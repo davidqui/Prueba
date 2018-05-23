@@ -40,6 +40,16 @@ public class ProcesoService {
      */
     private static final Logger LOG = Logger.getLogger(ProcesoService.class.getName());
 
+    /*
+     * 2018-05-23 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Arreglo de procesos para generar respuesta a documento
+     * radicado.
+     */
+    private static final Integer[] PROCESOS_RESPUESTA_RADICADO = {
+        Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA,
+        Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS
+    };
+
     @Autowired
     EntityManager em;
 
@@ -204,6 +214,55 @@ public class ProcesoService {
     public void asignar(Instancia instancia, Usuario usuario) {
         instancia.setAsignado(usuario);
         instanciaRepository.save(instancia);
+    }
+
+    /**
+     * Obtiene la lista de procesos que pueden ser utilizados como respuesta
+     * para un documento radicado.
+     *
+     * @return Lista de procesos respuesta para un documento radicado.
+     */
+    /*
+     * 2018-05-23 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public List<Proceso> getProcesosRespuestaRadicado() {
+        final List<Proceso> procesosActivos = procesoRepository.findByActivoTrue();
+        final List<Proceso> procesosRespuestaRadicado = new LinkedList<>();
+
+        for (final Proceso procesoActivo : procesosActivos) {
+            if (isProcesoRespuestaRadicado(procesoActivo)) {
+                procesosRespuestaRadicado.add(procesoActivo);
+            }
+        }
+
+        return procesosRespuestaRadicado;
+    }
+
+    /**
+     * Indica si un proceso corresponde como respuesta a un documento radicado.
+     *
+     * @param proceso Proceso.
+     * @return {@code true} si el proceso se encuentra activo y hace parte de la
+     * lista de procesos considerados como respuesta a un documento radicado; de
+     * lo contrario, {@code false}.
+     */
+    /*
+     * 2018-05-23 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    private boolean isProcesoRespuestaRadicado(final Proceso proceso) {
+        if (!proceso.getActivo()) {
+            return false;
+        }
+
+        for (final Integer procesoRespuestaRadicado : PROCESOS_RESPUESTA_RADICADO) {
+            if (proceso.getId().equals(procesoRespuestaRadicado)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
