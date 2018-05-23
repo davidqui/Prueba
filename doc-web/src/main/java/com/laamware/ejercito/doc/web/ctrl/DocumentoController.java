@@ -565,6 +565,19 @@ public class DocumentoController extends UtilController {
             @RequestParam(value = "archivoHeader", required = false) String archivoHeader, Model model,
             Principal principal, final RedirectAttributes redirect) {
 
+        // Obtiene la instancia de proceso
+        Instancia i = procesoService.instancia(pin);
+
+        /*
+         * 2018-05-23 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+         * feature-162: Redirección para instancias de proceso de documentos
+         * correspondientes al proceso de registro de actas, para que lo procese
+         * el controlador correspondiente.
+         */
+        if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS)) {
+            return "redirect:" + DocumentoActaController.PATH + "?pin=" + pin;
+        }
+
         // Si el request trae información en headerView, se envía a la vista
         // para que se muestre otro header al que está por defecto
         model.addAttribute("archivoHeader", archivoHeader);
@@ -589,9 +602,6 @@ public class DocumentoController extends UtilController {
         if (!acceso) {
             return "security-denied";
         }
-
-        // Obtiene la instancia de proceso
-        Instancia i = procesoService.instancia(pin);
 
         // Obtiene el identificador de documento
         String docId = i.getVariable(Documento.DOC_ID);

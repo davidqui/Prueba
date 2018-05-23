@@ -140,6 +140,10 @@ public class DocumentoActaController extends UtilController {
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ACTA_DIGITALIZADA.getId())) {
+            return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
+        }
+
         return DOCUMENTO_ACTA_REGISTRAR_TEMPLATE;
     }
 
