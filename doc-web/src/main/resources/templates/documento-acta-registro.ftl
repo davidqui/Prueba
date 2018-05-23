@@ -73,7 +73,7 @@
         <div class="form-group">
             <#assign campo = "trd" />
             <label for="${campo}">TRD de Acta (*)</label>           
-            <select class="form-control" id="${campo}" name="${campo}">
+            <select class="form-control" id="${campo}" name="${campo}" onchange="trdActaSelectOnChange()">
                 <option value=""></option>
                 <#if subseriesTrdActas??>
                     <#list subseriesTrdActas as subseriesTrdActa>

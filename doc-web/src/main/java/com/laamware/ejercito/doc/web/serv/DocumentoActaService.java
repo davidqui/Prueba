@@ -12,6 +12,7 @@ import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
+import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.Global;
@@ -93,6 +94,9 @@ public class DocumentoActaService {
 
     @Autowired
     private ArchivoAutomaticoService archivoAutomaticoService;
+
+    @Autowired
+    private UsuarioXDocumentoActaRepository usuarioXDocumentoActaRepository;
 
     /**
      * Constructor.

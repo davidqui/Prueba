@@ -12,6 +12,7 @@
 <script src="/js/eventos_documento.js"></script>
 <script src="/js/app/funciones-documento.js"></script>
 <script src="/js/app/documento-acta-observaciones.js"></script>
+<script src="/js/app/documento-acta.js"></script>
 <script src="/js/tinymce.min.js"></script>
 </#assign>
 
