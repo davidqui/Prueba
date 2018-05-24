@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
 import com.laamware.ejercito.doc.web.repo.DocumentoObservacionDefectoRepository;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,4 +18,15 @@ public class DocumentoObservacionDefectoService {
 
     @Autowired
     private DocumentoObservacionDefectoRepository observacionDefectoRepository;
+
+    /**
+     * Lista todas las observaciones por defecto activas, ordenadas por el
+     * texto.
+     *
+     * @return Lista de observaciones activas ordenadas por texto.
+     */
+    public List<DocumentoObservacionDefecto> listarActivas() {
+        return observacionDefectoRepository.findAllByActivoTrueOrderByTextoObservacionAsc();
+    }
+
 }

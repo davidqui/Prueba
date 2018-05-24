@@ -67,13 +67,6 @@ public class DocumentoObservacionDefecto implements Serializable {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date cuandoMod;
 
-    public DocumentoObservacionDefecto() {
-    }
-
-    public DocumentoObservacionDefecto(Integer id) {
-        this.id = id;
-    }
-
     public Integer getId() {
         return id;
     }
