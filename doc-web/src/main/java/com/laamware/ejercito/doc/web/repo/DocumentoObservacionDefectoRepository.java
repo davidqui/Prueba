@@ -15,7 +15,12 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface DocumentoObservacionDefectoRepository extends JpaRepository<DocumentoObservacionDefecto, Integer> {
-
+    
+    /**
+     * Lista todas las observaciones activas
+     * @param sort
+     * @return 
+     */
     List<DocumentoObservacionDefecto> getByActivoTrue(Sort sort);
 
     /**

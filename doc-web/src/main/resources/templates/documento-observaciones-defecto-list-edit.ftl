@@ -13,7 +13,7 @@
         <form action="/admin/doc-observacion-defecto/actualizar" method="POST" enctype="multipart/form-data" >
             <input type="hidden" id="id" name="id" value="${observacionDefecto.id}" />
             <fieldset class="form-group">
-                <label for="textoObservacion">Código</label>
+                <label for="textoObservacion">Texto</label>
                 <input type="text" class="form-control" id="textoObservacion" name="textoObservacion" value="${(observacionDefecto.textoObservacion)!""}" />
             </fieldset>
             

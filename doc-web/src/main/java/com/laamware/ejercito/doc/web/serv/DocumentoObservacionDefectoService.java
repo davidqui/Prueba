@@ -25,15 +25,30 @@ public class DocumentoObservacionDefectoService {
 
     @Autowired
     private DocumentoObservacionDefectoRepository documentoObservacionDefectoRepository;
-
+    
+    /***
+     * Lista todas las observaciones
+     * @param sort
+     * @return 
+     */
     public List<DocumentoObservacionDefecto> findAll(Sort sort) {
         return documentoObservacionDefectoRepository.findAll(sort);
     }
-
+    
+    /***
+     * Lista todas las observaciones activas
+     * @param sort
+     * @return 
+     */
     public List<DocumentoObservacionDefecto> findActive(Sort sort) {
         return documentoObservacionDefectoRepository.getByActivoTrue(sort);
     }
 
+    /***
+     * Busca una observacion por defecto por id
+     * @param id identificador de la observacion por defecto
+     * @return 
+     */
     public DocumentoObservacionDefecto findOne(Integer id) {
         return documentoObservacionDefectoRepository.findOne(id);
     }
@@ -50,13 +65,13 @@ public class DocumentoObservacionDefectoService {
         String mensaje = "OK";
         try {
             System.err.println("documentoobservacionservice= " + documentoObservacionDefecto);
-            if (documentoObservacionDefecto.getTextoObservacion() == null) {
-                if (documentoObservacionDefecto.getTextoObservacion().trim().length() == 0) {
+            if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() == 0) {
                     return "Error-El texto de la observación es obligatorio.";
-                }
-                if (documentoObservacionDefecto.getTextoObservacion().trim().length() > 64) {
+            }
+            
+         
+            if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() > 64) {
                     return "Error-El texto de la observación está restringido a 64 caracteres.";
-                }
             }
             documentoObservacionDefecto.setQuien(usuario);
             documentoObservacionDefecto.setCuando(new Date());
@@ -84,16 +99,17 @@ public class DocumentoObservacionDefectoService {
             Usuario usuario) {
         String mensaje = "OK";
         try {
+            
             System.err.println("documentoobservacionservice= " + documentoObservacionDefecto);
-            if (documentoObservacionDefecto.getTextoObservacion() == null) {
-                if (documentoObservacionDefecto.getTextoObservacion().trim().length() == 0) {
+            if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() == 0) {
                     return "Error-El texto de la observación es obligatorio.";
-                }
-                if (documentoObservacionDefecto.getTextoObservacion().trim().length() > 64) {
-                    return "Error-El texto de la observación está restringido a 64 caracteres.";
-                }
             }
-
+            
+         
+            if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() > 64) {
+                    return "Error-El texto de la observación está restringido a 64 caracteres.";
+            }
+           
             DocumentoObservacionDefecto documentoObservacionAnterior
                     = findOne(documentoObservacionDefecto.getId());
 

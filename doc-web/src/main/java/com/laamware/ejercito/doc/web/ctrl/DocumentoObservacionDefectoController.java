@@ -99,7 +99,6 @@ public class DocumentoObservacionDefectoController extends UtilController {
      * Permite crear una observación por defecto del sistema
      *
      * @param observacionDefecto
-     * @param e
      * @param req
      * @param eResult
      * @param model
@@ -112,7 +111,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
     public String crear(DocumentoObservacionDefecto observacionDefecto, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
             MultipartFile archivo, Principal principal) {
         model.addAttribute("dominio", observacionDefecto);
-        Usuario logueado = getUsuario(principal);
+        Usuario logueado = getUsuario(principal);     
         String retorno = documentoObservacionDefectoService.crearObservacionDefecto(observacionDefecto, logueado);
 
         if ("OK".equals(retorno)) {
@@ -123,7 +122,6 @@ public class DocumentoObservacionDefectoController extends UtilController {
         if (retorno != null && retorno.trim().length() > 0 && retorno.contains("-")) {
             String tipo = retorno.substring(0, retorno.indexOf("-"));
             String mensaje = retorno.substring(retorno.indexOf("-") + 1, retorno.length());
-
             if ("Excepcion".equals(tipo)) {
                 redirect.addFlashAttribute(AppConstants.FLASH_ERROR, mensaje);
             }
@@ -138,7 +136,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
     /**
      * Permite actualizar una observación por defecto del sistema
      *
-     * @param e
+     * @param observacionDefecto
      * @param req
      * @param eResult
      * @param model
@@ -173,6 +171,14 @@ public class DocumentoObservacionDefectoController extends UtilController {
         return "documento-observaciones-defecto-edit";
     }
 
+    /***
+     * Permite eliminar una observación por defecto del sistema
+     * @param model
+     * @param req
+     * @param redirect
+     * @param principal
+     * @return 
+     */
     @RequestMapping(value = {"/delete"}, method = RequestMethod.GET)
     public String delete(Model model, HttpServletRequest req, RedirectAttributes redirect, Principal principal) {
         try {
@@ -188,7 +194,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
 
         return "redirect:" + PATH;
     }
-
+    
     @ModelAttribute("descriptor")
     GenDescriptor getDescriptor() {
         return GenDescriptor.find(DocumentoObservacionDefecto.class);
