@@ -26,6 +26,7 @@ import org.hibernate.annotations.Parameter;
 @Entity
 @Table(name = "DOC_OBSERVACION_DEFECTO")
 @SuppressWarnings("PersistenceUnitPresent")
+@LaamLabel("Observaciones por defecto")
 public class DocumentoObservacionDefecto implements Serializable {
 
     private static final long serialVersionUID = 8751114401184751828L;
@@ -43,6 +44,9 @@ public class DocumentoObservacionDefecto implements Serializable {
     @Column(name = "DOD_ID")
     private Integer id;
 
+    @LaamLabel("Texto")
+    @LaamListColumn(order = 10)
+    @LaamCreate(order = 10)
     @Basic(optional = false)
     @Column(name = "TEXTO_OBSERVACION")
     private String textoObservacion;
