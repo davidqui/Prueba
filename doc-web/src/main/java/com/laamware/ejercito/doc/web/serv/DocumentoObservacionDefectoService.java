@@ -97,19 +97,19 @@ public class DocumentoObservacionDefectoService {
      *
      * @param documentoObservacionDefecto obsevación por defecto a ser editada
      * @param usuario Usuario que aplico el cambio
-     * @return
+     * @throws com.laamware.ejercito.doc.web.util.ReflectionException En caso
+     * que se presenten errores con funciones de relection.
      */
-    public String editarObservacionDefecto(DocumentoObservacionDefecto documentoObservacionDefecto, Usuario usuario) {
-        String mensaje = "OK";
-        try {
-
-            System.err.println("documentoobservacionservice= " + documentoObservacionDefecto);
-            if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() == 0) {
-                return "Error-El texto de la observación es obligatorio.";
+    public void editarObservacionDefecto(DocumentoObservacionDefecto documentoObservacionDefecto, Usuario usuario) throws BusinessLogicException, ReflectionException{
+        
+            final String textoObservacion = documentoObservacionDefecto.getTextoObservacion();
+            if (textoObservacion == null || textoObservacion.trim().length() == 0) {
+                throw new BusinessLogicException("El texto de la observación es obligatorio.");
             }
 
-            if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() > 64) {
-                return "Error-El texto de la observación está restringido a 64 caracteres.";
+            final int textoObservacionColumnLength = ReflectionUtil.getColumnLength(DocumentoObservacionDefecto.class, "textoObservacion");
+            if (textoObservacion.trim().length() > textoObservacionColumnLength) {
+                throw new BusinessLogicException("El texto de la observación permite máximo " + textoObservacionColumnLength + " caracteres.");
             }
 
             DocumentoObservacionDefecto documentoObservacionAnterior
@@ -123,12 +123,6 @@ public class DocumentoObservacionDefectoService {
             documentoObservacionDefecto.setCuandoMod(new Date());
 
             documentoObservacionDefectoRepository.saveAndFlush(documentoObservacionDefecto);
-
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            mensaje = "Excepcion-" + ex.getMessage();
-        }
-        return mensaje;
     }
 
     /**
@@ -136,23 +130,13 @@ public class DocumentoObservacionDefectoService {
      *
      * @param documentoObservacionDefecto obsevación por defecto a ser eliminada
      * @param usuario Usuario que aplico el cambio
-     * @return
      */
-    public String eliminarObservacionDefecto(DocumentoObservacionDefecto documentoObservacionDefecto,
+    public void eliminarObservacionDefecto(DocumentoObservacionDefecto documentoObservacionDefecto,
             Usuario usuario) {
-        String mensaje = "OK";
-        try {
-            documentoObservacionDefecto.setQuien(usuario);
-            documentoObservacionDefecto.setCuando(new Date());
-
-            documentoObservacionDefecto.setActivo(Boolean.FALSE);
-
-            documentoObservacionDefectoRepository.saveAndFlush(documentoObservacionDefecto);
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            mensaje = "Excepcion-" + ex.getMessage();
-        }
-        return mensaje;
+        documentoObservacionDefecto.setQuien(usuario);
+        documentoObservacionDefecto.setCuando(new Date());
+        documentoObservacionDefecto.setActivo(Boolean.FALSE);
+        documentoObservacionDefectoRepository.saveAndFlush(documentoObservacionDefecto);
     }
 
     /**

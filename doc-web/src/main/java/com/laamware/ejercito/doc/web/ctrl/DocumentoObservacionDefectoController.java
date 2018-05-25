@@ -47,6 +47,8 @@ public class DocumentoObservacionDefectoController extends UtilController {
 
     private static final String EDIT_TEMPLATE = "documento-observaciones-defecto-list-edit";
 
+    private static final String OBSERVACION_DEFECTO_FTL = "observacionDefecto";
+
     @Autowired
     private DocumentoObservacionDefectoService documentoObservacionDefectoService;
 
@@ -84,7 +86,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(Model model) {
         DocumentoObservacionDefecto documentoObservacionDefecto = new DocumentoObservacionDefecto();
-        model.addAttribute("observacionDefecto", documentoObservacionDefecto);
+        model.addAttribute(OBSERVACION_DEFECTO_FTL, documentoObservacionDefecto);
         return CREATE_TEMPLATE;
     }
 
@@ -100,7 +102,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
     public String edit(Model model, HttpServletRequest req) {
         Integer id = Integer.parseInt(req.getParameter("id"));
         DocumentoObservacionDefecto documentoObservacionDefecto = documentoObservacionDefectoService.findOne(id);
-        model.addAttribute("observacionDefecto", documentoObservacionDefecto);
+        model.addAttribute(OBSERVACION_DEFECTO_FTL, documentoObservacionDefecto);
         return EDIT_TEMPLATE;
     }
 
@@ -119,17 +121,15 @@ public class DocumentoObservacionDefectoController extends UtilController {
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
     public String crear(DocumentoObservacionDefecto observacionDefecto, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
             MultipartFile archivo, Principal principal) {
-        model.addAttribute("observacionDefecto", observacionDefecto);
+        model.addAttribute(OBSERVACION_DEFECTO_FTL, observacionDefecto);
         final Usuario usuarioSesion = getUsuario(principal);
 
         try {
             documentoObservacionDefectoService.crearObservacionDefecto(observacionDefecto, usuarioSesion);
-
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
-
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
             return CREATE_TEMPLATE;
         }
@@ -150,27 +150,18 @@ public class DocumentoObservacionDefectoController extends UtilController {
     @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
     public String actualizar(DocumentoObservacionDefecto observacionDefecto, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
             MultipartFile archivo, Principal principal) {
-        Usuario logueado = getUsuario(principal);
-        String retorno = documentoObservacionDefectoService.editarObservacionDefecto(observacionDefecto, logueado);
+        final Usuario usuarioSesion = getUsuario(principal);
+        model.addAttribute(OBSERVACION_DEFECTO_FTL, observacionDefecto);
 
-        if ("OK".equals(retorno)) {
+        try {
+            documentoObservacionDefectoService.editarObservacionDefecto(observacionDefecto, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
+        } catch (BusinessLogicException | ReflectionException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            return EDIT_TEMPLATE;
         }
-
-        if (retorno != null && retorno.trim().length() > 0 && retorno.contains("-")) {
-            String tipo = retorno.substring(0, retorno.indexOf("-"));
-            String mensaje = retorno.substring(retorno.indexOf("-") + 1, retorno.length());
-
-            if ("Excepcion".equals(tipo)) {
-                redirect.addFlashAttribute(AppConstants.FLASH_ERROR, mensaje);
-            }
-
-            if ("Error".equals(tipo)) {
-                model.addAttribute(AppConstants.FLASH_ERROR, mensaje);
-            }
-        }
-        return EDIT_TEMPLATE;
     }
 
     /**

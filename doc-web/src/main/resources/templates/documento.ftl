@@ -963,14 +963,14 @@
                     <textarea class="form-control" id="observacion" name="observacion"></textarea>
                 </fieldset>
                 <div class="row">
-                    <div class="col-xs-1">
+                    <div class="col-xs-4">
                         <a href="#" class="btn btn-secondary btn-sm" id="obsButton">Comentar</a>
                     </div>
                     <#--
                         2018-05-24 jgarcia@controltechcg.com Issue #172 (SICDI-Controltech)
                         feature-172: Selector para observaciones por defecto.
                     -->
-                    <div class="col-xs-4">
+                    <div class="col-xs-8">
                         <select id="doc-obs-defecto-select" name="doc-obs-defecto-select" class="form-control input-sm" onchange="setObservacionDefecto(this, 'observacion')">
                             <option value="">Lista de observaciones por defecto:</option>
                             <#list observacionesDefecto as observacionDefecto >
