@@ -48,7 +48,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
      *
      * @param all
      * @param model
-     * @return Pagina de consulta de dominio
+     * @return Pagina de consulta de observaciones por defecto
      */
     @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
@@ -71,7 +71,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
      * defecto del sistema
      *
      * @param model
-     * @return Pagina que crea el dominio
+     * @return Pagina que crea una observacion por defecto
      */
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(Model model) {
@@ -81,11 +81,11 @@ public class DocumentoObservacionDefectoController extends UtilController {
     }
 
     /**
-     * Permite visualizar el formulario de edición de un dominio del sistema
+     * Permite visualizar el formulario de edición de una observación por defecto del sistema
      *
      * @param model
      * @param req
-     * @return Pagina que edita el dominio
+     * @return Pagina que edita una observación por defecto. 
      */
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
@@ -110,7 +110,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
     public String crear(DocumentoObservacionDefecto observacionDefecto, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
             MultipartFile archivo, Principal principal) {
-        model.addAttribute("dominio", observacionDefecto);
+        model.addAttribute("observacionDefecto", observacionDefecto);
         Usuario logueado = getUsuario(principal);     
         String retorno = documentoObservacionDefectoService.crearObservacionDefecto(observacionDefecto, logueado);
 

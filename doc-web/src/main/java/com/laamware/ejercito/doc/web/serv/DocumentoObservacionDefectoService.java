@@ -56,7 +56,7 @@ public class DocumentoObservacionDefectoService {
     /**
      * Creación de una obsevación por defecto
      *
-     * @param documentoObservacionDefecto dominio a ser creado
+     * @param documentoObservacionDefecto observación por defecto a ser creada
      * @param usuario Usuario que aplico el cambio
      * @return
      */
