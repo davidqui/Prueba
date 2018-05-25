@@ -3,6 +3,9 @@ package com.laamware.ejercito.doc.web.serv;
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DocumentoObservacionDefectoRepository;
+import com.laamware.ejercito.doc.web.util.BusinessLogicException;
+import com.laamware.ejercito.doc.web.util.ReflectionException;
+import com.laamware.ejercito.doc.web.util.ReflectionUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -25,29 +28,35 @@ public class DocumentoObservacionDefectoService {
 
     @Autowired
     private DocumentoObservacionDefectoRepository documentoObservacionDefectoRepository;
-    
-    /***
+
+    /**
+     * *
      * Lista todas las observaciones
+     *
      * @param sort
-     * @return 
+     * @return
      */
     public List<DocumentoObservacionDefecto> findAll(Sort sort) {
         return documentoObservacionDefectoRepository.findAll(sort);
     }
-    
-    /***
+
+    /**
+     * *
      * Lista todas las observaciones activas
+     *
      * @param sort
-     * @return 
+     * @return
      */
     public List<DocumentoObservacionDefecto> findActive(Sort sort) {
         return documentoObservacionDefectoRepository.getByActivoTrue(sort);
     }
 
-    /***
+    /**
+     * *
      * Busca una observacion por defecto por id
+     *
      * @param id identificador de la observacion por defecto
-     * @return 
+     * @return
      */
     public DocumentoObservacionDefecto findOne(Integer id) {
         return documentoObservacionDefectoRepository.findOne(id);
@@ -58,34 +67,29 @@ public class DocumentoObservacionDefectoService {
      *
      * @param documentoObservacionDefecto observación por defecto a ser creada
      * @param usuario Usuario que aplico el cambio
-     * @return
+     * @throws com.laamware.ejercito.doc.web.util.BusinessLogicException En caso
+     * que no se cumplan las validaciones de negocio.
+     * @throws com.laamware.ejercito.doc.web.util.ReflectionException En caso
+     * que se presenten errores con funciones de relection.
      */
-    public String crearObservacionDefecto(DocumentoObservacionDefecto documentoObservacionDefecto,
-            Usuario usuario) {
-        String mensaje = "OK";
-        try {
-            System.err.println("documentoobservacionservice= " + documentoObservacionDefecto);
-            if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() == 0) {
-                    return "Error-El texto de la observación es obligatorio.";
-            }
-            
-         
-            if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() > 64) {
-                    return "Error-El texto de la observación está restringido a 64 caracteres.";
-            }
-            documentoObservacionDefecto.setQuien(usuario);
-            documentoObservacionDefecto.setCuando(new Date());
-            documentoObservacionDefecto.setActivo(Boolean.TRUE);
-            documentoObservacionDefecto.setQuienMod(usuario);
-            documentoObservacionDefecto.setCuandoMod(new Date());
-
-            documentoObservacionDefectoRepository.saveAndFlush(documentoObservacionDefecto);
-
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            mensaje = "Excepcion-" + ex.getMessage();
+    public void crearObservacionDefecto(DocumentoObservacionDefecto documentoObservacionDefecto, Usuario usuario) throws BusinessLogicException, ReflectionException {
+        final String textoObservacion = documentoObservacionDefecto.getTextoObservacion();
+        if (textoObservacion == null || textoObservacion.trim().length() == 0) {
+            throw new BusinessLogicException("El texto de la observación es obligatorio.");
         }
-        return mensaje;
+
+        final int textoObservacionColumnLength = ReflectionUtil.getColumnLength(DocumentoObservacionDefecto.class, "textoObservacion");
+        if (textoObservacion.trim().length() > textoObservacionColumnLength) {
+            throw new BusinessLogicException("El texto de la observación permite máximo " + textoObservacionColumnLength + " caracteres.");
+        }
+
+        documentoObservacionDefecto.setQuien(usuario);
+        documentoObservacionDefecto.setCuando(new Date());
+        documentoObservacionDefecto.setActivo(Boolean.TRUE);
+        documentoObservacionDefecto.setQuienMod(usuario);
+        documentoObservacionDefecto.setCuandoMod(new Date());
+
+        documentoObservacionDefectoRepository.saveAndFlush(documentoObservacionDefecto);
     }
 
     /**
@@ -95,21 +99,19 @@ public class DocumentoObservacionDefectoService {
      * @param usuario Usuario que aplico el cambio
      * @return
      */
-    public String editarObservacionDefecto(DocumentoObservacionDefecto documentoObservacionDefecto,
-            Usuario usuario) {
+    public String editarObservacionDefecto(DocumentoObservacionDefecto documentoObservacionDefecto, Usuario usuario) {
         String mensaje = "OK";
         try {
-            
+
             System.err.println("documentoobservacionservice= " + documentoObservacionDefecto);
             if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() == 0) {
-                    return "Error-El texto de la observación es obligatorio.";
+                return "Error-El texto de la observación es obligatorio.";
             }
-            
-         
+
             if (documentoObservacionDefecto.getTextoObservacion() == null || documentoObservacionDefecto.getTextoObservacion().trim().length() > 64) {
-                    return "Error-El texto de la observación está restringido a 64 caracteres.";
+                return "Error-El texto de la observación está restringido a 64 caracteres.";
             }
-           
+
             DocumentoObservacionDefecto documentoObservacionAnterior
                     = findOne(documentoObservacionDefecto.getId());
 

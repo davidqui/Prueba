@@ -5,6 +5,8 @@ import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
+import com.laamware.ejercito.doc.web.util.BusinessLogicException;
+import com.laamware.ejercito.doc.web.util.ReflectionException;
 import java.security.Principal;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +41,12 @@ public class DocumentoObservacionDefectoController extends UtilController {
 
     static final String PATH = "/admin/doc-observacion-defecto";
 
+    private static final String LIST_TEMPLATE = "documento-observaciones-defecto-list";
+
+    private static final String CREATE_TEMPLATE = "documento-observaciones-defecto-list-create";
+
+    private static final String EDIT_TEMPLATE = "documento-observaciones-defecto-list-edit";
+
     @Autowired
     private DocumentoObservacionDefectoService documentoObservacionDefectoService;
 
@@ -63,7 +71,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
         model.addAttribute("list", list);
         model.addAttribute("all", all);
 
-        return "documento-observaciones-defecto-list";
+        return LIST_TEMPLATE;
     }
 
     /**
@@ -77,22 +85,23 @@ public class DocumentoObservacionDefectoController extends UtilController {
     public String create(Model model) {
         DocumentoObservacionDefecto documentoObservacionDefecto = new DocumentoObservacionDefecto();
         model.addAttribute("observacionDefecto", documentoObservacionDefecto);
-        return "documento-observaciones-defecto-list-create";
+        return CREATE_TEMPLATE;
     }
 
     /**
-     * Permite visualizar el formulario de edición de una observación por defecto del sistema
+     * Permite visualizar el formulario de edición de una observación por
+     * defecto del sistema
      *
      * @param model
      * @param req
-     * @return Pagina que edita una observación por defecto. 
+     * @return Pagina que edita una observación por defecto.
      */
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
         Integer id = Integer.parseInt(req.getParameter("id"));
         DocumentoObservacionDefecto documentoObservacionDefecto = documentoObservacionDefectoService.findOne(id);
         model.addAttribute("observacionDefecto", documentoObservacionDefecto);
-        return "documento-observaciones-defecto-list-edit";
+        return EDIT_TEMPLATE;
     }
 
     /**
@@ -111,26 +120,19 @@ public class DocumentoObservacionDefectoController extends UtilController {
     public String crear(DocumentoObservacionDefecto observacionDefecto, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
             MultipartFile archivo, Principal principal) {
         model.addAttribute("observacionDefecto", observacionDefecto);
-        Usuario logueado = getUsuario(principal);     
-        String retorno = documentoObservacionDefectoService.crearObservacionDefecto(observacionDefecto, logueado);
+        final Usuario usuarioSesion = getUsuario(principal);
 
-        if ("OK".equals(retorno)) {
+        try {
+            documentoObservacionDefectoService.crearObservacionDefecto(observacionDefecto, usuarioSesion);
+
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
-        }
+        } catch (BusinessLogicException | ReflectionException ex) {
+            LOG.log(Level.SEVERE, null, ex);
 
-        if (retorno != null && retorno.trim().length() > 0 && retorno.contains("-")) {
-            String tipo = retorno.substring(0, retorno.indexOf("-"));
-            String mensaje = retorno.substring(retorno.indexOf("-") + 1, retorno.length());
-            if ("Excepcion".equals(tipo)) {
-                redirect.addFlashAttribute(AppConstants.FLASH_ERROR, mensaje);
-            }
-
-            if ("Error".equals(tipo)) {
-                model.addAttribute(AppConstants.FLASH_ERROR, mensaje);
-            }
+            model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            return CREATE_TEMPLATE;
         }
-        return "documento-observaciones-defecto-create";
     }
 
     /**
@@ -168,16 +170,18 @@ public class DocumentoObservacionDefectoController extends UtilController {
                 model.addAttribute(AppConstants.FLASH_ERROR, mensaje);
             }
         }
-        return "documento-observaciones-defecto-edit";
+        return EDIT_TEMPLATE;
     }
 
-    /***
+    /**
+     * *
      * Permite eliminar una observación por defecto del sistema
+     *
      * @param model
      * @param req
      * @param redirect
      * @param principal
-     * @return 
+     * @return
      */
     @RequestMapping(value = {"/delete"}, method = RequestMethod.GET)
     public String delete(Model model, HttpServletRequest req, RedirectAttributes redirect, Principal principal) {
@@ -194,7 +198,7 @@ public class DocumentoObservacionDefectoController extends UtilController {
 
         return "redirect:" + PATH;
     }
-    
+
     @ModelAttribute("descriptor")
     GenDescriptor getDescriptor() {
         return GenDescriptor.find(DocumentoObservacionDefecto.class);

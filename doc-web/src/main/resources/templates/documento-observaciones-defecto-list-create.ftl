@@ -1,5 +1,5 @@
 <#setting number_format="computer">
-<#assign pageTitle = observacionDefecto.textoObservacion!"Observacion por defecto" />
+<#assign pageTitle = "Observacion por defecto" />
 <#-- <#assign mode = observacionDefecto.mode!"" /> -->
 <#assign deferredJS = "" />
 <#import "spring.ftl" as spring />
@@ -9,7 +9,6 @@
 <div class="container">
     <div class="row">
         <h1 class="cus-h1-page-title">${pageTitle}</h1>
-	<@flash/>
         <form action="/admin/doc-observacion-defecto/crear" method="POST" enctype="multipart/form-data" >
             <fieldset class="form-group">
                 <label for="textoObservacion">Texto</label>

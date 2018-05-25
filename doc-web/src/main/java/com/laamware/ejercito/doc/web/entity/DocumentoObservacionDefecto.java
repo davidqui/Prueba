@@ -48,7 +48,7 @@ public class DocumentoObservacionDefecto implements Serializable {
     @LaamListColumn(order = 10)
     @LaamCreate(order = 10)
     @Basic(optional = false)
-    @Column(name = "TEXTO_OBSERVACION")
+    @Column(name = "TEXTO_OBSERVACION", length = 64)
     private String textoObservacion;
 
     @Basic(optional = false)
