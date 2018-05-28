@@ -13,6 +13,7 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.UsuarioXDocumentoActa;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
+import com.laamware.ejercito.doc.web.enums.DocumentoActaUsuarioSeleccion;
 import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
@@ -416,39 +417,21 @@ public class DocumentoActaService {
     }
 
     /**
-     * Indica si la subserie corresponde a una subserie de acta con seleccion
-     * de, máx y mín, 1 usuario.
+     * Obtiene el tipo de selección de usuario según la subserie TRD.
      *
-     * @param subserieTrdID ID de la subserie.
-     * @return {@code true} si la subserie corresponde a la lista de subseries
-     * con el tipo de selección de usuario; de lo contrario, {@code false}.
+     * @param subserieTrdID ID de la subserie TRD.
+     * @return Tipo de selección de usuario según la subserie.
      */
-    public boolean esSubserieActaUsuario1_1(final Integer subserieTrdID) {
-        for (final Integer subserie : subseriesActasUsuario_1_1) {
-            if (subserie.equals(subserieTrdID)) {
-                return true;
-            }
+    public DocumentoActaUsuarioSeleccion obtenerSeleccionUsuarioSubserieActa(final Integer subserieTrdID) {
+        if (esSubserieActaUsuario0_0(subserieTrdID)) {
+            return DocumentoActaUsuarioSeleccion.SELECCION_0_0;
         }
 
-        return false;
-    }
-
-    /**
-     * Indica si la subserie corresponde a una subserie de acta con seleccion
-     * de, máx y mín, 0 usuarios.
-     *
-     * @param subserieTrdID ID de la subserie.
-     * @return {@code true} si la subserie corresponde a la lista de subseries
-     * con el tipo de selección de usuario; de lo contrario, {@code false}.
-     */
-    public boolean esSubserieActaUsuario0_0(final Integer subserieTrdID) {
-        for (final Integer subserie : subseriesActasUsuario_0_0) {
-            if (subserie.equals(subserieTrdID)) {
-                return true;
-            }
+        if (esSubserieActaUsuario1_1(subserieTrdID)) {
+            return DocumentoActaUsuarioSeleccion.SELECCION_1_1;
         }
 
-        return false;
+        return DocumentoActaUsuarioSeleccion.SELECCION_1_N;
     }
 
     /**
@@ -476,6 +459,42 @@ public class DocumentoActaService {
      */
     private Date buildFechaPlazo(final Date fechaHora) {
         return DateUtil.setTime(DateUtil.add(fechaHora, Calendar.DATE, +diasLimiteFechaPlazo), DateUtil.SetTimeType.START_TIME);
+    }
+
+    /**
+     * Indica si la subserie corresponde a una subserie de acta con seleccion
+     * de, máx y mín, 1 usuario.
+     *
+     * @param subserieTrdID ID de la subserie.
+     * @return {@code true} si la subserie corresponde a la lista de subseries
+     * con el tipo de selección de usuario; de lo contrario, {@code false}.
+     */
+    private boolean esSubserieActaUsuario1_1(final Integer subserieTrdID) {
+        for (final Integer subserie : subseriesActasUsuario_1_1) {
+            if (subserie.equals(subserieTrdID)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Indica si la subserie corresponde a una subserie de acta con seleccion
+     * de, máx y mín, 0 usuarios.
+     *
+     * @param subserieTrdID ID de la subserie.
+     * @return {@code true} si la subserie corresponde a la lista de subseries
+     * con el tipo de selección de usuario; de lo contrario, {@code false}.
+     */
+    private boolean esSubserieActaUsuario0_0(final Integer subserieTrdID) {
+        for (final Integer subserie : subseriesActasUsuario_0_0) {
+            if (subserie.equals(subserieTrdID)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

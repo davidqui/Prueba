@@ -528,18 +528,8 @@ public class DocumentoActaController extends UtilController {
      */
     @ResponseBody
     @RequestMapping(value = "/seleccion-subserie/{subserieTrdID}", method = RequestMethod.GET)
-    public ResponseEntity<DocumentoActaUsuarioSeleccion> obtenerSubserieActaUsuario(@PathVariable("subserieTrdID") Integer subserieTrdID) {
-        final boolean esSubserieActaUsuario0_0 = actaService.esSubserieActaUsuario0_0(subserieTrdID);
-        if (esSubserieActaUsuario0_0) {
-            return ResponseEntity.ok(DocumentoActaUsuarioSeleccion.SELECCION_0_0);
-        }
-
-        final boolean esSubserieActaUsuario1_1 = actaService.esSubserieActaUsuario1_1(subserieTrdID);
-        if (esSubserieActaUsuario1_1) {
-            return ResponseEntity.ok(DocumentoActaUsuarioSeleccion.SELECCION_1_1);
-        }
-
-        return ResponseEntity.ok(DocumentoActaUsuarioSeleccion.SELECCION_1_N);
+    public ResponseEntity<DocumentoActaUsuarioSeleccion> obtenerSeleccionUsuarioSubserieActa(@PathVariable("subserieTrdID") Integer subserieTrdID) {
+        return ResponseEntity.ok(actaService.obtenerSeleccionUsuarioSubserieActa(subserieTrdID));
     }
 
     /**

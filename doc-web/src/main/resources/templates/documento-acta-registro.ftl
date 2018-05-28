@@ -92,7 +92,7 @@
         </div>
         
         <#-- Usuarios -->
-        <@presentarUsuariosAsignados usuariosAsignados />
+        <@agregarUsuariosAsignados usuariosAsignados />
 
         <#-- Número de folios -->
         <div class="form-group">

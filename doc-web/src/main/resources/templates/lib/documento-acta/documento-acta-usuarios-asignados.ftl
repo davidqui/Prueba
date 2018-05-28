@@ -5,7 +5,7 @@
 
     usuariosAsignados Lista de usuarios previamente asignados al documento.
 -->
-<#macro presentarUsuariosAsignados usuariosAsignados >
+<#macro agregarUsuariosAsignados usuariosAsignados >
         <div class="form-group">
             <#assign campo = "usuariosAsignados" />
             <label for="${campo}">Usuarios asignados (*)</label>            

@@ -95,6 +95,7 @@ function agregarUsuarioActa() {
                                     .attr({type: 'button'})
                                     .addClass("btn")
                                     .addClass("btn-primary")
+                                    .addClass("btn-sm")
                                     .text("Buscar")
                                     )
                             )
