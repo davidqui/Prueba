@@ -23,5 +23,5 @@ public enum DocumentoActaMode {
      * En este modo el formulario únicamente debe permitir consultar la
      * información del acta.
      */
-    SOLO_CONSULTA
+    SOLO_CONSULTA;
 }

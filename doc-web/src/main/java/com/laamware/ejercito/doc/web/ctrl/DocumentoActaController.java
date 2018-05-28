@@ -10,6 +10,7 @@ import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
+import com.laamware.ejercito.doc.web.enums.DocumentoActaUsuarioSeleccion;
 import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.CargoService;
 import com.laamware.ejercito.doc.web.serv.ClasificacionService;
@@ -520,6 +521,28 @@ public class DocumentoActaController extends UtilController {
     }
 
     /**
+     * Obtiene el tipo de selección de usuario según la subserie TRD.
+     *
+     * @param subserieTrdID ID de la subserie TRD.
+     * @return Tipo de selección de usuario según la subserie.
+     */
+    @ResponseBody
+    @RequestMapping(value = "/seleccion-subserie/{subserieTrdID}", method = RequestMethod.GET)
+    public ResponseEntity<DocumentoActaUsuarioSeleccion> obtenerSubserieActaUsuario(@PathVariable("subserieTrdID") Integer subserieTrdID) {
+        final boolean esSubserieActaUsuario0_0 = actaService.esSubserieActaUsuario0_0(subserieTrdID);
+        if (esSubserieActaUsuario0_0) {
+            return ResponseEntity.ok(DocumentoActaUsuarioSeleccion.SELECCION_0_0);
+        }
+
+        final boolean esSubserieActaUsuario1_1 = actaService.esSubserieActaUsuario1_1(subserieTrdID);
+        if (esSubserieActaUsuario1_1) {
+            return ResponseEntity.ok(DocumentoActaUsuarioSeleccion.SELECCION_1_1);
+        }
+
+        return ResponseEntity.ok(DocumentoActaUsuarioSeleccion.SELECCION_1_N);
+    }
+
+    /**
      * Carga la información básica y necesaria para la construcción de las
      * interfaces gráficas.
      *
@@ -538,6 +561,7 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("cargosUsuario", cargoService.buildCargosXUsuario(usuarioSesion));
         uiModel.addAttribute("documentoObservaciones", observacionService.findAllByDocumento(documento));
         uiModel.addAttribute("tipologias", tipologiaService.listarActivas());
+        uiModel.addAttribute("usuariosAsignados", actaService.listarRegistrosUsuariosAsignados(documento));
     }
 
     /**

@@ -10,6 +10,7 @@ import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Radicacion;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.entity.UsuarioXDocumentoActa;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
 import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
@@ -71,6 +72,10 @@ public class DocumentoActaService {
 
     private final Integer diasLimiteFechaPlazo;
 
+    private final Integer[] subseriesActasUsuario_1_1;
+
+    private final Integer[] subseriesActasUsuario_0_0;
+
     @Autowired
     private UsuarioService usuarioService;
 
@@ -108,16 +113,24 @@ public class DocumentoActaService {
      * @param diasLimiteFechaPlazo Número de días para el establecimiento de la
      * fecha límite de plazo de construcción del acta en el sistema. Cargado por
      * archivo de propiedades.
+     * @param subseriesActasUsuario_1_1 Arreglo de ID de subseries TRD de actas
+     * con selección de mínimo y máximo 1 usuario.
+     * @param subseriesActasUsuario_0_0 Arreglo de ID de subseries TRD de actas
+     * con selección de mínimo y máximo 0 usuarios.
      */
     @Autowired
     public DocumentoActaService(
             @Value("${com.mil.imi.sicdi.trd.serie.actas}") Integer serieActasID,
             @Value("${com.mil.imi.sicdi.documento.acta.limite.fecha-elaboracion.dias}") Integer diasLimiteFechaElaboracion,
-            @Value("${com.mil.imi.sicdi.documento.acta.limite.fecha-plazo.dias}") Integer diasLimiteFechaPlazo
+            @Value("${com.mil.imi.sicdi.documento.acta.limite.fecha-plazo.dias}") Integer diasLimiteFechaPlazo,
+            @Value("${com.mil.imi.sicdi.trd.subseries.actas.usuario-1-1}") Integer[] subseriesActasUsuario_1_1,
+            @Value("${com.mil.imi.sicdi.trd.subseries.actas.usuario-0-0}") Integer[] subseriesActasUsuario_0_0
     ) {
         this.serieActasID = serieActasID;
         this.diasLimiteFechaElaboracion = diasLimiteFechaElaboracion;
         this.diasLimiteFechaPlazo = diasLimiteFechaPlazo;
+        this.subseriesActasUsuario_1_1 = subseriesActasUsuario_1_1;
+        this.subseriesActasUsuario_0_0 = subseriesActasUsuario_0_0;
     }
 
     /**
@@ -369,6 +382,76 @@ public class DocumentoActaService {
     }
 
     /**
+     * Digitaliza definitivamente el acta y archiva el documento correspondiente
+     * al usuario creador del registro.
+     *
+     * @param documento Documento.
+     * @param procesoInstancia Instancia del proceso.
+     * @param usuarioSesion Usuario en sesión.
+     * @param procesoTransicionID
+     * @return Instancia del proceso modificada por el proceso de
+     * digitalización.
+     */
+    public Instancia digitalizarYArchivarActa(Documento documento, Instancia procesoInstancia, final Usuario usuarioSesion, Integer procesoTransicionID) {
+        procesoInstancia.setAsignado(usuarioSesion);
+        procesoInstancia.setQuienMod(usuarioSesion.getId());
+        procesoInstancia.setCuandoMod(new Date());
+        procesoInstancia.forward(procesoTransicionID);
+
+        archivoAutomaticoService.archivarAutomaticamente(documento, usuarioSesion);
+
+        return procesoInstancia;
+    }
+
+    /**
+     * Busca todos los registros activos de usuarios asignados al documento
+     * acta.
+     *
+     * @param documento Documento acta.
+     * @return Lista de todos los registros activos de usuarios asignados al
+     * documento acta.
+     */
+    public List<UsuarioXDocumentoActa> listarRegistrosUsuariosAsignados(final Documento documento) {
+        return usuarioXDocumentoActaRepository.findAllByActivoTrueAndDocumento(documento);
+    }
+
+    /**
+     * Indica si la subserie corresponde a una subserie de acta con seleccion
+     * de, máx y mín, 1 usuario.
+     *
+     * @param subserieTrdID ID de la subserie.
+     * @return {@code true} si la subserie corresponde a la lista de subseries
+     * con el tipo de selección de usuario; de lo contrario, {@code false}.
+     */
+    public boolean esSubserieActaUsuario1_1(final Integer subserieTrdID) {
+        for (final Integer subserie : subseriesActasUsuario_1_1) {
+            if (subserie.equals(subserieTrdID)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Indica si la subserie corresponde a una subserie de acta con seleccion
+     * de, máx y mín, 0 usuarios.
+     *
+     * @param subserieTrdID ID de la subserie.
+     * @return {@code true} si la subserie corresponde a la lista de subseries
+     * con el tipo de selección de usuario; de lo contrario, {@code false}.
+     */
+    public boolean esSubserieActaUsuario0_0(final Integer subserieTrdID) {
+        for (final Integer subserie : subseriesActasUsuario_0_0) {
+            if (subserie.equals(subserieTrdID)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Construye la fecha de elaboración a partir del dato enviado en el
      * formulario, estableciendo la hora como 00:00:00.
      *
@@ -393,28 +476,6 @@ public class DocumentoActaService {
      */
     private Date buildFechaPlazo(final Date fechaHora) {
         return DateUtil.setTime(DateUtil.add(fechaHora, Calendar.DATE, +diasLimiteFechaPlazo), DateUtil.SetTimeType.START_TIME);
-    }
-
-    /**
-     * Digitaliza definitivamente el acta y archiva el documento correspondiente
-     * al usuario creador del registro.
-     *
-     * @param documento Documento.
-     * @param procesoInstancia Instancia del proceso.
-     * @param usuarioSesion Usuario en sesión.
-     * @param procesoTransicionID
-     * @return Instancia del proceso modificada por el proceso de
-     * digitalización.
-     */
-    public Instancia digitalizarYArchivarActa(Documento documento, Instancia procesoInstancia, final Usuario usuarioSesion, Integer procesoTransicionID) {
-        procesoInstancia.setAsignado(usuarioSesion);
-        procesoInstancia.setQuienMod(usuarioSesion.getId());
-        procesoInstancia.setCuandoMod(new Date());
-        procesoInstancia.forward(procesoTransicionID);
-
-        archivoAutomaticoService.archivarAutomaticamente(documento, usuarioSesion);
-
-        return procesoInstancia;
     }
 
 }

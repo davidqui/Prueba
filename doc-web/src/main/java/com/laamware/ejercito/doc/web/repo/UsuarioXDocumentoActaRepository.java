@@ -1,6 +1,8 @@
 package com.laamware.ejercito.doc.web.repo;
 
+import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.UsuarioXDocumentoActa;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +16,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UsuarioXDocumentoActaRepository extends JpaRepository<UsuarioXDocumentoActa, Integer> {
 
+    /**
+     * Busca todos los registros activos de usuarios asignados al documento
+     * acta.
+     *
+     * @param documento Documento acta.
+     * @return Lista de todos los registros activos de usuarios asignados al
+     * documento acta.
+     */
+    public List<UsuarioXDocumentoActa> findAllByActivoTrueAndDocumento(Documento documento);
 }
