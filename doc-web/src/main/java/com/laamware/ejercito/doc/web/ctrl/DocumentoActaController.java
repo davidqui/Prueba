@@ -533,7 +533,7 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("procesoInstancia", procesoInstancia);
         uiModel.addAttribute("usuarioSesion", usuarioSesion);
         uiModel.addAttribute("estadoModeMap", DocumentoActaService.ESTADO_MODE_MAP_FOR_UI);
-        uiModel.addAttribute("clasificaciones", clasificacionService.findAllActivoOrderByOrden());
+        uiModel.addAttribute("clasificaciones", clasificacionService.listarClasificacionesActivasYAutorizadas(usuarioSesion));
         uiModel.addAttribute("subseriesTrdActas", actaService.buscarSubseriesActasPorUsuario(usuarioSesion));
         uiModel.addAttribute("cargosUsuario", cargoService.buildCargosXUsuario(usuarioSesion));
         uiModel.addAttribute("documentoObservaciones", observacionService.findAllByDocumento(documento));

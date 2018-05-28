@@ -1,7 +1,9 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -37,12 +39,30 @@ public class ClasificacionService {
      * @return Instancia de la clasificación correspondiente al ID, si y solo
      * si, esta se encuentra activa; de lo contrario, {@code null}.
      */
-    /*
-     * 2018-05-16 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
-     * feature-162.
-     */
     public Clasificacion findActivo(Integer id) {
         return clasificacionRepository.findOneByIdAndActivoTrue(id);
+    }
+
+    /**
+     * Lista las clasificaciones activas y autorizadas para un usuario, donde se
+     * autorizan aquellas menores e iguales en orden a la clasificación asignada
+     * al usuario.
+     *
+     * @param usuario Usuario.
+     * @return Lista de las clasificaciones activas y autorizadas para un
+     * usuario.
+     */
+    public List<Clasificacion> listarClasificacionesActivasYAutorizadas(final Usuario usuario) {
+        final List<Clasificacion> clasificacionesActivas = findAllActivoOrderByOrden();
+        final List<Clasificacion> clasificaciones = new LinkedList<>();
+
+        for (final Clasificacion clasificacionActiva : clasificacionesActivas) {
+            if (usuario.getClasificacion().getOrden() >= clasificacionActiva.getOrden()) {
+                clasificaciones.add(clasificacionActiva);
+            }
+        }
+
+        return clasificaciones;
     }
 
 }
