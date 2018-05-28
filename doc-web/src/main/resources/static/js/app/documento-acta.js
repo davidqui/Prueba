@@ -74,3 +74,50 @@ function showAndHideSeleccionUsuarioDivs(seleccionUsuarioDivIDs, divShowID) {
         }
     }
 }
+
+function agregarUsuarioActa() {
+    $("#usuarios-a-asignar-n-content").append(
+            $("<div>")
+            .attr("id", "usuario_x")
+            .append(
+                    $("<div>")
+                    .addClass("input-group")
+                    .append(
+                            $("<input/>")
+                            .attr({type: 'text', id: 'test', name: 'test', disabled: 'disabled'})
+                            .addClass("form-control")
+                            )
+                    .append(
+                            $("<span>")
+                            .addClass("input-group-btn")
+                            .append(
+                                    $("<button>")
+                                    .attr({type: 'button'})
+                                    .addClass("btn")
+                                    .addClass("btn-primary")
+                                    .text("Buscar")
+                                    )
+                            )
+                    )
+            .append(
+                    $("<div>")
+                    .addClass("input-group")
+                    .append(
+                            $("<select>")
+                            .addClass("form-control")
+                            )
+                    .append(
+                            $("<span>")
+                            .addClass("input-group-btn")
+                            .append(
+                                    $("<button>")
+                                    .attr({type: 'button'})
+                                    .addClass("btn")
+                                    .addClass("btn-danger")
+                                    .addClass("btn-sm")
+                                    .text("Eliminar")
+                                    )
+                            )
+                    )
+            );
+}

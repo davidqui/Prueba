@@ -8,15 +8,26 @@
 <#macro presentarUsuariosAsignados usuariosAsignados >
         <div class="form-group">
             <#assign campo = "usuariosAsignados" />
-            <label for="${campo}">Usuarios asignados (*)</label>
+            <label for="${campo}">Usuarios asignados (*)</label>            
             <div id="usuarios-a-asignar-0" style="display: none;">
-                Hola Mundo 0!
+                <div class="alert alert-info" role="alert">La subserie TRD no necesita selección de usuarios para asociar al acta.</div>
             </div>
+            
             <div id="usuarios-a-asignar-1" style="display: none;">
-                Hola Mundo 1!
+                <div class="input-group">
+                    <input type="text" class="form-control" disabled />
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="button">Buscar</button>
+                    </span>
+                 </div>
+                <select class="form-control">
+                </select>
             </div>
+            
             <div id="usuarios-a-asignar-n" style="display: none;">
-                Hola Mundo n!
+                <button type="button" class="btn btn-primary" onclick="agregarUsuarioActa()">Agregar usuario</button>
+                <div id="usuarios-a-asignar-n-content">
+                </div>
             </div>
         </div>   
 </#macro>
