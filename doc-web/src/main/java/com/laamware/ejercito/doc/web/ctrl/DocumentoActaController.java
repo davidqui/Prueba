@@ -288,11 +288,6 @@ public class DocumentoActaController extends UtilController {
                 redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "Transición no válida.");
                 return REDIRECT_MAIN_URL;
             }
-
-            if (!transicion.getEstadoInicial().getId().equals(procesoInstancia.getEstado().getId())) {
-                redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada no se encuentra en el estado requisito para la aplicación de la transición.");
-                return REDIRECT_MAIN_URL;
-            }
         }
 
         final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);

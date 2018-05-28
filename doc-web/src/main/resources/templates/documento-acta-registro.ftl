@@ -4,6 +4,8 @@
 -->
 <#include "documento-acta-config.ftl">
 
+<#assign activarOpciones = (!logicValidation?? || (logicValidation?? && logicValidation.isAllOK())) && !documento.estadoTemporal?? />
+
 <div class="col-md-8">    
     <#if estadoModo == "EDICION_INFORMACION">   
     <form action="/documento-acta/guardar" method="POST" id="formdoc" enctype='multipart/form-data'>
@@ -14,7 +16,7 @@
         <div class="form-group">
             <#assign campo = "asunto" />
             <label for="${campo}">Asunto (*)</label>
-            <input type="text" class="form-control" id="${campo}" name="${campo}" value="<#if documentoActaDTO?? >${documentoActaDTO.asunto}<#elseif documento.asunto?? >${documento.asunto}</#if>"/>
+            <input type="text" class="form-control" id="${campo}" name="${campo}" value="<#if documentoActaDTO?? >${documentoActaDTO.asunto}<#elseif documento.asunto?? >${documento.asunto}</#if>" maxlength="256" />
             <small class="text-muted">Describe el objeto de la reunión de manera clara y sucinta.</small>
             <div class="error">
                 <#if logicValidation?? && logicValidation.containsError("${campo}") >
@@ -27,7 +29,7 @@
         <div class="form-group">
             <#assign campo = "actaLugar" />
             <label for="${campo}">Lugar (*)</label>
-            <input type="text" class="form-control" id="${campo}" name="${campo}" value="<#if documentoActaDTO?? >${documentoActaDTO.actaLugar}<#elseif documento.actaLugar?? >${documento.actaLugar}</#if>"/>
+            <input type="text" class="form-control" id="${campo}" name="${campo}" value="<#if documentoActaDTO?? >${documentoActaDTO.actaLugar}<#elseif documento.actaLugar?? >${documento.actaLugar}</#if>" maxlength="64" />
             <small class="text-muted">Determina la ciudad donde se llevó a cabo la actividad que motivo la elaboración del acta.</small>
             <div class="error">
                 <#if logicValidation?? && logicValidation.containsError("${campo}") >
@@ -126,7 +128,7 @@
 
         <nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
             <button id="guardar-doc-btn" type="submit" class="btn btn-success btn-sm">Guardar</button>
-            <#if (!logicValidation?? || (logicValidation?? && logicValidation.isAllOK())) && !documento.estadoTemporal?? >
+            <#if activarOpciones >
                 <#list procesoInstancia.transiciones() as transicion >
                 <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
                     ${transicion.nombre}
@@ -138,15 +140,19 @@
     </form> <#-- Cierra formulario principal -->
     </#if>
 
-    <#-- Observaciones -->       	
-    <@presentarObservaciones documentoObservaciones utilController estadoModo "observacion" />    
+    <#-- Observaciones -->
+    <#if activarOpciones >
+        <@presentarObservaciones documentoObservaciones utilController estadoModo "observacion" />
+    </#if>
 </div>
 
 <div class="col-md-4">
     <@presentarInformacionProcesoInstancia procesoInstancia documento />
 
-    <#-- Adjuntos -->    
-    <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "EDICION_INFORMACION" tipologias "archivo" />
+    <#-- Adjuntos -->
+    <#if activarOpciones >
+        <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "EDICION_INFORMACION" tipologias "archivo" />
+    </#if>
     <br />
 </div>
 

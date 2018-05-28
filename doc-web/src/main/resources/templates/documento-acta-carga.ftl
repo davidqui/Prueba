@@ -59,7 +59,7 @@
     <@presentarInformacionProcesoInstancia procesoInstancia documento />
 
     <#-- Adjuntos -->    
-    <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "EDICION_INFORMACION" tipologias "archivo" />
+    <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "CARGA_ACTA_DIGITAL" tipologias "archivo" />
     <br />
 </div>
 

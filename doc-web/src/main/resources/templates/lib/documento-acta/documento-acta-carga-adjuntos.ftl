@@ -53,6 +53,8 @@
             }    
         </script>
     </div>
+    <#elseif estadoModo != estadoModoCarga >
+    <div class="alert" role="alert">No hay archivos adjuntos.</div>
     </#if>
 
     <#if estadoModo == estadoModoCarga >

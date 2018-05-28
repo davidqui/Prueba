@@ -1,4 +1,4 @@
-<!--
+<#--
     2018-05-17 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
     feature-162: Macro para la presentación de campo y visualización de
     observaciones de documentos.
