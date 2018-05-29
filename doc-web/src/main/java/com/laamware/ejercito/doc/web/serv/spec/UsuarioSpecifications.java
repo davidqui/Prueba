@@ -60,4 +60,23 @@ public class UsuarioSpecifications {
         };
     }
 
+    /**
+     * Especificación con la condición para obtener únicamente los usuarios con
+     * orden de clasificación igual o mayor.
+     *
+     * @param clasificacionOrden Orden de clasificación.
+     * @return Especificación.
+     */
+    /*
+     * 2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public static Specification<Usuario> condicionPorOrdenGradoClasificacion(final Integer clasificacionOrden) {
+        return new Specification<Usuario>() {
+            @Override
+            public Predicate toPredicate(Root<Usuario> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                return cb.greaterThanOrEqualTo(root.<Clasificacion>get("clasificacion").<Integer>get("orden"), clasificacionOrden);
+            }
+        };
+    }
 }

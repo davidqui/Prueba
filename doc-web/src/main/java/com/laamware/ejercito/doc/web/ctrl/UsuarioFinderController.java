@@ -1,7 +1,9 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.enums.UsuarioFinderTipo;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
+import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/finder/usuario")
-public class UsuarioFinderController {
+public class UsuarioFinderController extends UtilController {
 
     /**
      * Tamaño de la lista de presentación en la página de búsqueda de usuarios.
@@ -35,7 +37,10 @@ public class UsuarioFinderController {
      *
      * @param criteria Criteria de búsqueda.
      * @param pageIndex Índice de la página a presentar.
-     * @param model Modelo de UI.
+     * @param type Tipo de finder a presentar. Por defecto lleva el valor de
+     * {@link UsuarioFinderTipo#TRANSFERENCIA_ARCHIVO}
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
      * @return Nombre del template Freemarker del formulario.
      */
     /*
@@ -46,14 +51,21 @@ public class UsuarioFinderController {
      * "transferencia-archivo-buscar-usuario" a "finder-buscar-usuario".
      */
     @RequestMapping(value = "/finder-buscar-usuario", method = {RequestMethod.GET, RequestMethod.POST})
-    public String presentarFormularioBusquedaUsuarioPOST(@RequestParam(value = "criteria", required = false) String criteria,
-            @RequestParam(value = "pageIndex", required = false, defaultValue = "0") Integer pageIndex, Model model) {
-        final Page<Usuario> page = usuarioService.findAllByCriteriaSpecification(criteria, pageIndex, BUSQUEDA_PAGE_SIZE);
+    public String presentarFormularioBusquedaUsuarioPOST(
+            @RequestParam(value = "criteria", required = false) String criteria,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "0") Integer pageIndex,
+            @RequestParam(value = "type", required = false, defaultValue = "TRANSFERENCIA_ARCHIVO") String type,
+            Model uiModel, Principal principal) {
 
-        model.addAttribute("criteria", criteria);
-        model.addAttribute("usuarios", page.getContent());
-        model.addAttribute("pageIndex", pageIndex);
-        model.addAttribute("totalPages", page.getTotalPages());
+        final UsuarioFinderTipo usuarioFinderTipo = UsuarioFinderTipo.valueOf(type);
+        final Usuario usuarioSesion = getUsuario(principal);
+        final Page<Usuario> page = usuarioService.findAllByCriteriaSpecification(criteria, pageIndex, BUSQUEDA_PAGE_SIZE, usuarioFinderTipo, usuarioSesion);
+
+        uiModel.addAttribute("criteria", criteria);
+        uiModel.addAttribute("usuarios", page.getContent());
+        uiModel.addAttribute("pageIndex", pageIndex);
+        uiModel.addAttribute("totalPages", page.getTotalPages());
+        uiModel.addAttribute("type", type);
 
         return "finder-buscar-usuario";
     }

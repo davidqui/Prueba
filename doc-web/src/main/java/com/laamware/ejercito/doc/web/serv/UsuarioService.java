@@ -10,6 +10,7 @@ import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.enums.UsuarioFinderTipo;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
@@ -72,18 +73,35 @@ public class UsuarioService {
     ProcesoService procesoService;
 
     /**
-     * Obtiene una primera página de usuarios correspondientes a la criteria de
-     * búsqueda asignada.
+     * Obtiene una página de usuarios correspondientes a la criteria de búsqueda
+     * asignada, según las reglas de búsqueda para el tipo de finder de usuario.
      *
      * @param criteria Criteria de búsqueda.
      * @param pageIndex Índice de la página.
      * @param pageSize Tamaño de la página.
+     * @param usuarioFinderTipo Tipo de finder de usuario. En caso de ser
+     * {@link UsuarioFinderTipo#ACTA} únicamente se presentan los usuarios con
+     * igual o mayor grado de clasificación que el usuario en sesión.
+     * @param usuarioSesion Usuario en sesión.
      * @return Página de usuarios.
      */
-    public Page<Usuario> findAllByCriteriaSpecification(final String criteria,
-            final int pageIndex, final int pageSize) {
+    /*
+     * 2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Adición de usuarioFinderTipo y usuarioSesion.
+     */
+    public Page<Usuario> findAllByCriteriaSpecification(final String criteria, final int pageIndex, final int pageSize, final UsuarioFinderTipo usuarioFinderTipo,
+            final Usuario usuarioSesion) {
 
         Specifications<Usuario> where = Specifications.where(UsuarioSpecifications.inicio());
+
+        /*
+         * 2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+         * feature-162: Filtro por orden de clasificación para finder tipo ACTA.
+         */
+        if (usuarioFinderTipo.equals(UsuarioFinderTipo.ACTA)) {
+            final Integer clasificacionOrden = usuarioSesion.getClasificacion().getOrden();
+            where = where.and(UsuarioSpecifications.condicionPorOrdenGradoClasificacion(clasificacionOrden));
+        }
 
         if (criteria != null) {
             final String[] tokens = criteria.replaceAll("'", " ").split(" ");
@@ -95,8 +113,15 @@ public class UsuarioService {
          * 2017-11-10 edison.gonzalez@controltechcg.com Issue #131
          * (SICDI-Controltech) feature-131: Cambio en la entidad usuario, se
          * coloca llave foranea el grado.
+         *
+         * 2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+         * feature-162: Orden de los nombres cuando los usuarios tienen el mismo
+         * grado.
          */
-        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "usuGrado.pesoOrden"));
+        final Sort sort = new Sort(
+                new Sort.Order(Sort.Direction.DESC, "usuGrado.pesoOrden"),
+                new Sort.Order(Sort.Direction.ASC, "nombre")
+        );
 
         final PageRequest pageRequest = new PageRequest(pageIndex, pageSize, sort);
         final Page<Usuario> users = repository.findAll(where, pageRequest);
@@ -304,8 +329,6 @@ public class UsuarioService {
     public Usuario buscarActivoPorDocumento(final String documento) {
         return usuarioRepository.findByActivoTrueAndDocumento(documento);
     }
-    
-    
 
     private boolean verficaAccesoDocumentoCorrelacionado(Integer usuId, String pinId) {
         Instancia i = procesoService.instancia(pinId);

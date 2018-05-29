@@ -75,7 +75,7 @@
         <div class="form-group">
             <#assign campo = "trd" />
             <label for="${campo}">TRD de Acta (*)</label>           
-            <select class="form-control" id="${campo}" name="${campo}" onchange="trdActaSelectOnChange(this)">
+            <select class="form-control" id="${campo}" name="${campo}">
                 <option value=""></option>
                 <#if subseriesTrdActas??>
                     <#list subseriesTrdActas as subseriesTrdActa>
@@ -90,9 +90,6 @@
                 </#if>                
             </div>
         </div>
-        
-        <#-- Usuarios -->
-        <@agregarUsuariosAsignados usuariosAsignados />
 
         <#-- Número de folios -->
         <div class="form-group">

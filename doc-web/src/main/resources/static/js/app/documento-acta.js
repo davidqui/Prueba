@@ -10,6 +10,13 @@
  * feature-162.
  */
 function trdActaSelectOnChange(select) {
+    var nivelClasificacion = $("#clasificacion").find(":selected").val();
+    if (nivelClasificacion === undefined || $.trim(nivelClasificacion) === "") {
+        alert("Debe seleccionar primero un nivel de clasificación.");
+        $(select).find('option:first-child').attr("selected", "selected");
+        return;
+    }
+
     var subserie = $(select).find(":selected").val();
     console.log(subserie);
 
@@ -28,7 +35,7 @@ function trdActaSelectOnChange(select) {
     } else if (seleccionUsuario === "SELECCION_1_N") {
         showAndHideSeleccionUsuarioDivs(seleccionUsuarioDivIDs, "usuarios-a-asignar-n");
     } else {
-        alert("Error en la selección de usuarios para la TRD.");
+        showAndHideSeleccionUsuarioDivs(seleccionUsuarioDivIDs, "");
     }
 }
 
@@ -125,4 +132,25 @@ function agregarUsuarioActa() {
                             )
                     )
             );
+}
+
+/**
+ * Abre la ventana del finder de usuarios.
+ * @returns {undefined}
+ */
+function openUsuariosFinderWindow() {
+    var minWidth = 1200;
+    var minHeight = 600;
+
+    var dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left;
+    var dualScreenTop = window.screenTop !== undefined ? window.screenTop : screen.top;
+
+    var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    var left = ((width / 2) - (minWidth / 2)) + dualScreenLeft;
+    var top = ((height / 2) - (minHeight / 2)) + dualScreenTop;
+
+    window.open("/finder/usuario/finder-buscar-usuario?type=ACTA", "_blank", "width=" + minWidth + ", height=" + minHeight + ", top=" + top + ", left=" + left
+            + ",location=no,menubar=no,resizable=no,status=no,titlebar=no,toolbar=no");
 }
