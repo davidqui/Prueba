@@ -79,9 +79,11 @@ function agregarUsuarioActa() {
     $("#usuarios-a-asignar-n-content").append(
             $("<div>")
             .attr("id", "usuario_x")
+            .css({"margin-top": "10px"})
             .append(
                     $("<div>")
                     .addClass("input-group")
+                    .css({"margin-bottom": "5px"})
                     .append(
                             $("<input/>")
                             .attr({type: 'text', id: 'test', name: 'test', disabled: 'disabled'})
@@ -96,6 +98,7 @@ function agregarUsuarioActa() {
                                     .addClass("btn")
                                     .addClass("btn-primary")
                                     .addClass("btn-sm")
+                                    .css({"height": "38px"})
                                     .text("Buscar")
                                     )
                             )
@@ -116,6 +119,7 @@ function agregarUsuarioActa() {
                                     .addClass("btn")
                                     .addClass("btn-danger")
                                     .addClass("btn-sm")
+                                    .css({"height": "33px", "width": "71px", "padding": "2px"})
                                     .text("Eliminar")
                                     )
                             )
