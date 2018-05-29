@@ -68,4 +68,19 @@ public class CargoService {
         }
         return cargos;
     }
+
+    /**
+     * Obtiene una lista de IDs y nombres de los cargos asociados a un usuario.
+     *
+     * @param usuID ID del usuario.
+     * @return Lista de IDs y nombres de los cargos asociados al usuario.
+     */
+    /*
+     * 2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public List<Object[]> findCargosXusuario(Integer usuID) {
+        return cargosRepository.findCargosXusuario(usuID);
+    }
+
 }

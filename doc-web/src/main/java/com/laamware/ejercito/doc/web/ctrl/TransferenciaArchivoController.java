@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -46,11 +45,6 @@ public class TransferenciaArchivoController extends UtilController {
             = Logger.getLogger(TransferenciaArchivoController.class.getName());
 
     /**
-     * Tamaño de la lista de presentación en la página de búsqueda de usuarios.
-     */
-    private static final int BUSQUEDA_PAGE_SIZE = 10;
-
-    /**
      * Ruta raíz del controlador.
      */
     public static final String PATH = "/transferencia-archivo";
@@ -72,29 +66,6 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @Autowired
     CargosRepository cargosRepository;
-
-    /**
-     * Presenta el formulario de búsqueda de usuario destino, para el finder
-     * correspondiente.
-     *
-     * @param criteria Criteria de búsqueda.
-     * @param pageIndex Índice de la página a presentar.
-     * @param model Modelo de UI.
-     * @return Nombre del template Freemarker del formulario.
-     */
-    @RequestMapping(value = "/formulario-buscar-usuario", method = {RequestMethod.GET, RequestMethod.POST})
-    public String presentarFormularioBusquedaUsuarioPOST(@RequestParam(value = "criteria", required = false) String criteria,
-            @RequestParam(value = "pageIndex", required = false, defaultValue = "0") Integer pageIndex,
-            Model model) {
-        final Page<Usuario> page = usuarioService.findAllByCriteriaSpecification(criteria, pageIndex, BUSQUEDA_PAGE_SIZE);
-
-        model.addAttribute("criteria", criteria);
-        model.addAttribute("usuarios", page.getContent());
-        model.addAttribute("pageIndex", pageIndex);
-        model.addAttribute("totalPages", page.getTotalPages());
-
-        return "transferencia-archivo-buscar-usuario";
-    }
 
     /**
      * Presenta el formulario de creación para el proceso de transferencia de
@@ -157,7 +128,7 @@ public class TransferenciaArchivoController extends UtilController {
 
         final Usuario origenUsuario = getUsuario(principal);
         model.addAttribute("origenUsuario", origenUsuario);
-        
+
         model.addAttribute("cargoOrigen", cargoOrigen);
         model.addAttribute("cargoDestino", cargoDestino);
 
@@ -187,7 +158,7 @@ public class TransferenciaArchivoController extends UtilController {
 
         final Usuario destinoUsuario = usuarioService.findOne(destinoUsuarioID);
         model.addAttribute("destinoUsuario", destinoUsuario);
-        
+
         // 2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SIGDI-Controltech):
         // Se añade la lista de cargos del usuario destino
         List<Object[]> list = cargosRepository.findCargosXusuario(destinoUsuario.getId());
@@ -218,20 +189,20 @@ public class TransferenciaArchivoController extends UtilController {
                     + "transferir.");
             return "transferencia-archivo-crear";
         }
-        
+
         Cargo cOrigen = cargosRepository.findOne(cargoOrigen);
         Cargo cDestino = cargosRepository.findOne(cargoDestino);
-        
+
         model.addAttribute("nombreCargoOrigen", cOrigen.getCarNombre());
         model.addAttribute("nombreCargoDestino", cDestino.getCarNombre());
-        
+
         return "transferencia-archivo-confirmar";
     }
 
     /*
         2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) 
         feature-151: Se añaden los campos de los cargos de los usuarios origen y destino.
-    */
+     */
     /**
      * Procesa la transferencia de archivo.
      *
@@ -285,7 +256,7 @@ public class TransferenciaArchivoController extends UtilController {
             nuevatransferencia = transferenciaService
                     .crearTransferenciaConActa(creadorUsuario,
                             origenUsuario, destinoUsuario, tipoTransferencia,
-                            transferenciaAnterior, asposeLicense,cargoOrigen,cargoDestino);
+                            transferenciaAnterior, asposeLicense, cargoOrigen, cargoDestino);
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR,

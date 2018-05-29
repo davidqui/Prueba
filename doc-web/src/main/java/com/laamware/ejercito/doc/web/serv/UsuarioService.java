@@ -26,17 +26,15 @@ import org.springframework.data.jpa.domain.Specifications;
  * Servicio para las operaciones de negocio de usuario.
  *
  * @author jgarcia@controltechcg.com
- * @since May 15, 2017
+ * @since May 15, 2017 Issue #78 (SICDI-Controltech) feature-78
  */
-// 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech) feature-78
 @Service
 public class UsuarioService {
 
     /**
      * Logger.
      */
-    private static final Logger LOG
-            = Logger.getLogger(UsuarioService.class.getName());
+    private static final Logger LOG = Logger.getLogger(UsuarioService.class.getName());
 
     /**
      * Repositorio de usuarios.
@@ -94,8 +92,9 @@ public class UsuarioService {
             }
         }
         /*
-            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
-            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+         * 2017-11-10 edison.gonzalez@controltechcg.com Issue #131
+         * (SICDI-Controltech) feature-131: Cambio en la entidad usuario, se
+         * coloca llave foranea el grado.
          */
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "usuGrado.pesoOrden"));
 
@@ -129,8 +128,9 @@ public class UsuarioService {
 
         StringBuilder builder = new StringBuilder();
         /*
-            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
-            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
+         * 2017-11-10 edison.gonzalez@controltechcg.com Issue #131
+         * (SICDI-Controltech) feature-131: Cambio en la entidad usuario, se
+         * coloca llave foranea el grado.
          */
         final String grado = usuario.getUsuGrado().getId();
         if (grado != null && !grado.trim().isEmpty()) {
@@ -141,11 +141,10 @@ public class UsuarioService {
         builder.append(nombre).append(" ");
 
         /*
-            2018-02-13 edison.gonzalez@controltechcg.com Issue #149 (SICDI-Controltech) 
-            feature-149: Se coloca en comentarios la columna de cargo, la cual se remplaza
-            por la columna usuCArgoPrincipalId.
+         * 2018-02-13 edison.gonzalez@controltechcg.com Issue #149
+         * (SICDI-Controltech) feature-149: Se coloca en comentarios la columna
+         * de cargo, la cual se remplaza por la columna usuCArgoPrincipalId.
          */
-//        final String cargo = usuario.getCargo();
         final String cargo = (usuario.getUsuCargoPrincipalId() != null) ? usuario.getUsuCargoPrincipalId().getCarNombre() : null;
         if (cargo != null && !cargo.trim().isEmpty()) {
             builder.append(" - ").append(cargo).append(" ");
@@ -155,8 +154,9 @@ public class UsuarioService {
         if (dependencia != null) {
             final Dependencia unidad = buscarUnidad(dependencia);
             /*
-             * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Se realiza la validacion
-             * para que muestre el nombre de la dependencia en caso de que la sigla sea nula.
+             * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Se
+             * realiza la validacion para que muestre el nombre de la
+             * dependencia en caso de que la sigla sea nula.
              */
             if (unidad.getSigla() == null || unidad.getSigla().trim().length() == 0) {
                 builder.append("(").append(unidad.getNombre()).append(")");
@@ -183,12 +183,14 @@ public class UsuarioService {
 
         StringBuilder builder = new StringBuilder();
         /*
-            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
-            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-            2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) 
-            feature-132: Se quita la dependencia, para mostrarla en otra columna
+         * 2017-11-10 edison.gonzalez@controltechcg.com Issue #131
+         * (SICDI-Controltech) feature-131: Cambio en la entidad usuario, se
+         * coloca llave foranea el grado.
+         *
+         * 2017-10-23 edison.gonzalez@controltechcg.com Issue #132
+         * (SICDI-Controltech) feature-132: Se quita la dependencia, para
+         * mostrarla en otra columna
          */
-
         final String grado = usuario.getUsuGrado().getId();
         if (grado != null && !grado.trim().isEmpty()) {
             builder.append(grado).append(". ");
@@ -198,11 +200,10 @@ public class UsuarioService {
         builder.append(nombre).append(" ");
 
         /*
-            2018-02-13 edison.gonzalez@controltechcg.com Issue #149 (SICDI-Controltech) 
-            feature-149: Se coloca en comentarios la columna de cargo, la cual se remplaza
-            por la columna usuCArgoPrincipalId.
+         * 2018-02-13 edison.gonzalez@controltechcg.com Issue #149
+         * (SICDI-Controltech) feature-149: Se coloca en comentarios la columna
+         * de cargo, la cual se remplaza por la columna usuCArgoPrincipalId.
          */
-//        final String cargo = usuario.getCargo();
         final String cargo = (usuario.getUsuCargoPrincipalId() != null) ? usuario.getUsuCargoPrincipalId().getCarNombre() : null;
         if (cargo != null && !cargo.trim().isEmpty()) {
             builder.append("</br>").append(cargo);
@@ -224,16 +225,17 @@ public class UsuarioService {
 
         StringBuilder builder = new StringBuilder();
         /*
-            2017-10-23 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech) 
-            feature-132: Se Agrega la dependencia, para mostrarla en otra columna
+         * 2017-10-23 edison.gonzalez@controltechcg.com Issue #132
+         * (SICDI-Controltech) feature-132: Se Agrega la dependencia, para
+         * mostrarla en otra columna
          */
-
         final Dependencia dependencia = usuario.getDependencia();
         if (dependencia != null) {
             final Dependencia unidad = buscarUnidad(dependencia);
             /*
-             * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Se realiza la validacion
-             * para que muestre el nombre de la dependencia en caso de que la sigla sea nula.
+             * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Se
+             * realiza la validacion para que muestre el nombre de la
+             * dependencia en caso de que la sigla sea nula.
              */
             if (unidad.getSigla() == null || unidad.getSigla().trim().length() == 0) {
                 builder.append(unidad.getNombre());
@@ -288,6 +290,23 @@ public class UsuarioService {
         return acceso.equals(BigDecimal.ONE);
     }
 
+    /**
+     * Busca un usuario activo por su número de documento.
+     *
+     * @param documento Número de documento.
+     * @return Instancia del usuario activo del documento, o {@code null} en
+     * caso de no existir correspondencia en el sistema.
+     */
+    /*
+     * 2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public Usuario buscarActivoPorDocumento(final String documento) {
+        return usuarioRepository.findByActivoTrueAndDocumento(documento);
+    }
+    
+    
+
     private boolean verficaAccesoDocumentoCorrelacionado(Integer usuId, String pinId) {
         Instancia i = procesoService.instancia(pinId);
         // Obtiene el identificador de documento
@@ -312,6 +331,6 @@ public class UsuarioService {
         } else {
             return true;
         }
-
     }
+
 }

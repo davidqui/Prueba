@@ -1,3 +1,8 @@
+<#--
+    2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+    feature-162: Cambio de nombre del template "transferencia-archivo-buscar-usuario.ftl"
+    a "finder-buscar-usuario.ftl" para unificar el componente.
+-->
 <#setting number_format="computer">
 
 <!DOCTYPE html>
@@ -28,7 +33,7 @@
         </head>
     <body>
         <div class="container-fluid">
-            <form action = "/transferencia-archivo/formulario-buscar-usuario" method="POST">
+            <form action = "/finder/usuario/finder-buscar-usuario" method="POST">
                 <div class="form-group row">
                     <div class="input-group">
                         <input type="text" id="criteria" name="criteria" class="form-control" value="${criteria!""}" placeholder="Ingrese los valores de búsqueda..."/>
@@ -65,14 +70,14 @@
 
             <center>
             <#if pageIndex gt 0>
-                <a href="/transferencia-archivo/formulario-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex - 1}" class="btn btn-primary btn-sm">Anterior</a>
+                <a href="/finder/usuario/finder-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex - 1}" class="btn btn-primary btn-sm">Anterior</a>
                     </#if>
 
             <#if pageIndex lt (totalPages - 1)>
-                <a href="/transferencia-archivo/formulario-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex + 1}" class="btn btn-primary btn-sm">Siguiente</a>
+                <a href="/finder/usuario/finder-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex + 1}" class="btn btn-primary btn-sm">Siguiente</a>
             </#if>
                 </center>
-            
+
             </div>
 
         <script src="/js/app/transferencia-archivo-crear.js"></script>
