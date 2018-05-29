@@ -66,6 +66,8 @@ public class DocumentoActaController extends UtilController {
 
     private static final String DOCUMENTO_ACTA_CONSULTAR_TEMPLATE = "documento-acta-consultar";
 
+    private static final String DOCUMENTO_ACTA_USUARIOS_TEMPLATE = "documento-acta-usuarios";
+
     private static final String SECURITY_DENIED_TEMPLATE = "security-denied";
 
     private static final String REDIRECT_ACCESO_DENEGADO_URL = "redirect:/documento/acceso-denegado";
@@ -530,6 +532,65 @@ public class DocumentoActaController extends UtilController {
     @RequestMapping(value = "/seleccion-subserie/{subserieTrdID}", method = RequestMethod.GET)
     public ResponseEntity<DocumentoActaUsuarioSeleccion> obtenerSeleccionUsuarioSubserieActa(@PathVariable("subserieTrdID") Integer subserieTrdID) {
         return ResponseEntity.ok(actaService.obtenerSeleccionUsuarioSubserieActa(subserieTrdID));
+    }
+
+    /**
+     *
+     * @param procesoInstanciaID
+     * @param procesoTransicionID
+     * @param uiModel
+     * @param principal
+     * @param redirectAttributes
+     * @return
+     */
+    @RequestMapping(value = "/seleccionar-usuarios", method = RequestMethod.GET)
+    public String seleccionarUsuarios(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel,
+            Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        if (procesoTransicionID != null) {
+            final Transicion transicion = transicionService.find(procesoTransicionID);
+            if (transicion == null || !transicion.getActivo()) {
+                redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "Transición no válida.");
+                return REDIRECT_MAIN_URL;
+            }
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        /**
+         * TODO: Verificar el estado de la instancia del documento. Si no
+         * corresponde al esperado para esta acció, se aplica el forward.
+         */
+//        if (documento.getRadicado() == null || documento.getRadicado().trim().isEmpty()) {
+//            documento = actaService.asignarNumeroRadicacion(documento, usuarioSesion);
+//
+//            procesoInstancia.setAsignado(usuarioSesion);
+//            procesoInstancia.setQuienMod(usuarioSesion.getId());
+//            procesoInstancia.setCuandoMod(new Date());
+//            procesoInstancia.forward(procesoTransicionID);
+//
+//            uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado el número de radicación \"" + documento.getRadicado() + "\" al acta \"" + documento.getAsunto() + "\".");
+//        }
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        return DOCUMENTO_ACTA_USUARIOS_TEMPLATE;
     }
 
     /**
