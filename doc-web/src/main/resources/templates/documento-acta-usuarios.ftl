@@ -23,10 +23,48 @@
         <#if debeSeleccionarUsuarios >
         <div class="card">
             <div class="card-header">
-                <strong>Usuarios (*)</strong>
+                <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#exampleModal">
+                    Agregar usuario
+                </button>
+                <strong>Usuarios (*)</strong>                
             </div>
             <div class="card-body">
-                <@agregarUsuariosAsignados usuariosAsignados seleccionUsuarioSubserieActa />
+                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Agregar usuario</h5>
+                            </div>
+                            <div class="modal-body">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <form>
+                                            <div class="form-group">
+                                                <label for="usuarioAsignado">Usuario (*)</label>
+                                                <div class="input-group">
+                                                    <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="" disabled />
+                                                    <div class="input-group-btn">
+                                                        <button type="button" class="btn btn-primary" onclick="openUsuariosFinderWindow()">Buscar</button>
+                                                    </div> 
+                                                </div> 
+                                                <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="cargoAsignado">Cargo (*)</label>
+                                                <select class="form-control" id="cargoAsignado" name="cargoAsignado">
+                                                </select>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="agregarUsuarioActa()">Agregar</button>                                
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
             </div>
         </div>        
         <#else>

@@ -29,6 +29,5 @@
 <#include "lib/documento-acta/documento-acta-observaciones.ftl">
 <#include "lib/documento-acta/documento-acta-info-proceso.ftl">
 <#include "lib/documento-acta/documento-acta-carga-adjuntos.ftl">
-<#include "lib/documento-acta/documento-acta-usuarios-asignados.ftl">
 
 <#assign estadoModo = estadoModeMap[procesoInstancia.estado.id?string] />

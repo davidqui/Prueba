@@ -4,6 +4,7 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.UsuarioFinderTipo;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import java.security.Principal;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -41,6 +42,7 @@ public class UsuarioFinderController extends UtilController {
      * {@link UsuarioFinderTipo#TRANSFERENCIA_ARCHIVO}
      * @param uiModel Modelo de UI.
      * @param principal Información de sesión.
+     * @param request HTTP Request.
      * @return Nombre del template Freemarker del formulario.
      */
     /*
@@ -55,7 +57,7 @@ public class UsuarioFinderController extends UtilController {
             @RequestParam(value = "criteria", required = false) String criteria,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "0") Integer pageIndex,
             @RequestParam(value = "type", required = false, defaultValue = "TRANSFERENCIA_ARCHIVO") String type,
-            Model uiModel, Principal principal) {
+            Model uiModel, Principal principal, HttpServletRequest request) {
 
         final UsuarioFinderTipo usuarioFinderTipo = UsuarioFinderTipo.valueOf(type);
         final Usuario usuarioSesion = getUsuario(principal);

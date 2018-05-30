@@ -597,6 +597,8 @@ public class DocumentoActaController extends UtilController {
         LOG.info("com.laamware.ejercito.doc.web.ctrl.DocumentoActaController.registrarUsuarios()");
         return DOCUMENTO_ACTA_USUARIOS_TEMPLATE;
     }
+    
+    // public ResponseEntity<?> 
 
     /**
      * Carga la información básica y necesaria para la construcción de las

@@ -16,7 +16,7 @@
 <#macro getSelectionJavaScript type usuario >
     <#switch type >
         <#case "ACTA" >
-            <a href="javascript:selectFindResult(${usuario.id});">Seleccionar Acta</a>
+            <a href="javascript:selectUsuarioActa(${usuario.id});">Seleccionar</a>
         <#break>
         <#case "TRANSFERENCIA_ARCHIVO" >
         <#default>
@@ -105,5 +105,10 @@
         </div>
 
         <script src="/js/app/transferencia-archivo-crear.js"></script>
+        <#--
+            2018-05-30 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+            feature-162: Javascript genérico para el finder de usuarios.
+        -->
+        <script src="/js/app/finder-usuarios.js"></script>
     </body>
 </html>
