@@ -21,6 +21,7 @@ import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.TipologiaService;
 import com.laamware.ejercito.doc.web.serv.TransicionService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
+import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.Global;
 import java.io.IOException;
@@ -615,8 +616,8 @@ public class DocumentoActaController extends UtilController {
      */
     @ResponseBody
     @RequestMapping(value = "/asignar-usuario-acta/{pin}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
-    public ResponseEntity<?> asignarUsuarioActa(@PathVariable("pin") String procesoInstanciaID, @PathVariable("usuarioID") Integer usuarioID, @PathVariable("cargoID") Integer cargoID,
-            Principal principal) {
+    public ResponseEntity<?> asignarUsuarioActa(@PathVariable("pin") String procesoInstanciaID, @PathVariable("usuarioID") Integer usuarioID,
+            @PathVariable("cargoID") Integer cargoID, Principal principal) {
         final Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
         final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
         final Documento documento = actaService.buscarDocumento(documentoID);
@@ -628,6 +629,33 @@ public class DocumentoActaController extends UtilController {
         final UsuarioXDocumentoActa usuarioActa = actaService.asignarUsuarioActa(documento, usuario, cargo, usuarioSesion);
 
         return ResponseEntity.ok(usuarioActa.getId());
+    }
+
+    /**
+     * Elimina la asignación de un usuario a un documento acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param registroID ID del registro de asociación a eliminar.
+     * @param principal Información de sesión.
+     * @return ID del registro eliminado.
+     */
+    @ResponseBody
+    @RequestMapping(value = "/eliminar-usuario-acta/{pin}/{registroID}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> eliminarUsuarioActa(@PathVariable("pin") String procesoInstanciaID, @PathVariable("registroID") Integer registroID, Principal principal) {
+        final Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        final Documento documento = actaService.buscarDocumento(documentoID);
+
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        try {
+            final UsuarioXDocumentoActa usuarioXDocumentoActa = actaService.eliminarUsuarioActa(documento, registroID, usuarioSesion);
+
+            return ResponseEntity.ok(usuarioXDocumentoActa.getId());
+        } catch (BusinessLogicException ex) {
+            LOG.log(Level.SEVERE, procesoInstanciaID + "\t" + registroID, ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+        }
     }
 
     /**

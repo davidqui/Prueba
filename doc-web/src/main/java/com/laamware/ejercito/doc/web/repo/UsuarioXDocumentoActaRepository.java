@@ -25,7 +25,7 @@ public interface UsuarioXDocumentoActaRepository extends JpaRepository<UsuarioXD
      * @return Lista de todos los registros activos de usuarios asignados al
      * documento acta.
      */
-    public List<UsuarioXDocumentoActa> findAllByActivoTrueAndDocumento(Documento documento);
+    List<UsuarioXDocumentoActa> findAllByActivoTrueAndDocumento(Documento documento);
 
     /**
      * Busca un registro activo para el usuario y el documento.
@@ -36,6 +36,6 @@ public interface UsuarioXDocumentoActaRepository extends JpaRepository<UsuarioXD
      * documento acta, o {@code null} en caso que no exista correspondencia
      * activa.
      */
-    public UsuarioXDocumentoActa findByUsuarioAndDocumentoAndActivoTrue(Usuario usuario, Documento documento);
+    UsuarioXDocumentoActa findByUsuarioAndDocumentoAndActivoTrue(Usuario usuario, Documento documento);
 
 }

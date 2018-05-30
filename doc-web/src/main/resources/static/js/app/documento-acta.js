@@ -19,6 +19,12 @@ function openUsuariosFinderWindow() {
             + ",location=no,menubar=no,resizable=no,status=no,titlebar=no,toolbar=no");
 }
 
+/**
+ * Establece la información de un usuario seleccionado a través del finder, en 
+ * los componetes de interfaz gráfica del modal de asignación.
+ * @param {type} usuarioID ID del usuario seleccionado.
+ * @returns {undefined}
+ */
 function setUsuarioActa(usuarioID) {
     $.ajax({
         method: "POST",
@@ -41,6 +47,10 @@ function setUsuarioActa(usuarioID) {
     });
 }
 
+/**
+ * Agrega un usuario al documento acta.
+ * @returns {undefined}
+ */
 function agregarUsuarioActa() {
     var usuarioID = $("#destinoUsuario").val();
     if (usuarioID === undefined || $.trim(usuarioID) === "") {
@@ -59,6 +69,23 @@ function agregarUsuarioActa() {
     $.ajax({
         method: "POST",
         url: "/documento-acta/asignar-usuario-acta/" + pin + "/" + usuarioID + "/" + cargoID
+    }).always(function (id) {
+        console.log("usuario-documento-acta: " + id);
+        location.reload();
+    });
+}
+
+/**
+ * Elimina la asociación de un usuario con el documento acta.
+ * @param {type} registroID ID del registro a eliminar.
+ * @returns {undefined}
+ */
+function eliminarUsuarioActa(registroID) {
+    var pin = $("#pin").val();
+
+    $.ajax({
+        method: "DELETE",
+        url: "/documento-acta/eliminar-usuario-acta/" + pin + "/" + registroID
     }).always(function (id) {
         console.log("usuario-documento-acta: " + id);
         location.reload();

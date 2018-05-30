@@ -15,6 +15,7 @@ import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaUsuarioSeleccion;
 import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
+import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.Global;
@@ -462,17 +463,22 @@ public class DocumentoActaService {
     }
 
     /**
+     * Asigna un usuario y uno de sus cargos al documento acta.
      *
-     * @param documento
-     * @param usuario
-     * @param cargo
-     * @param usuarioSesion
-     * @return
+     * @param documento Documento acta.
+     * @param usuario Usuario a asignar.
+     * @param cargo Cargo a asignar.
+     * @param usuarioSesion Usuario en sesión.
+     * @return Instancia del registro.
      */
     public UsuarioXDocumentoActa asignarUsuarioActa(final Documento documento, final Usuario usuario, final Cargo cargo, final Usuario usuarioSesion) {
         final UsuarioXDocumentoActa registroActual = usuarioXDocumentoActaRepository.findByUsuarioAndDocumentoAndActivoTrue(usuario, documento);
         if (registroActual != null) {
-            return registroActual;
+            registroActual.setCargo(cargo);
+            registroActual.setCuando(new Date());
+            registroActual.setQuien(usuarioSesion);
+
+            return usuarioXDocumentoActaRepository.saveAndFlush(registroActual);
         }
 
         UsuarioXDocumentoActa nuevoRegistro = new UsuarioXDocumentoActa();
@@ -484,6 +490,29 @@ public class DocumentoActaService {
         nuevoRegistro.setUsuario(usuario);
 
         return usuarioXDocumentoActaRepository.saveAndFlush(nuevoRegistro);
+    }
+
+    /**
+     * Elimina, de forma lógica, un registro de usuario para documento acta.
+     *
+     * @param documento Documento asociado.
+     * @param id ID del registro.
+     * @param usuarioSesion Usuario en sesión.
+     * @return Instancia del registro eliminado.
+     * @throws BusinessLogicException En caso que el registro correspondiente al
+     * ID no esté asociada al documento.
+     */
+    public UsuarioXDocumentoActa eliminarUsuarioActa(final Documento documento, final Integer id, final Usuario usuarioSesion) throws BusinessLogicException {
+        UsuarioXDocumentoActa usuarioXDocumentoActa = usuarioXDocumentoActaRepository.findOne(id);
+        if (!usuarioXDocumentoActa.getDocumento().getId().equals(documento.getId())) {
+            throw new BusinessLogicException("Registro de usuario por documento acta no corresponde al documento: " + id + "-" + documento.getId());
+        }
+
+        usuarioXDocumentoActa.setActivo(Boolean.FALSE);
+        usuarioXDocumentoActa.setCuando(new Date());
+        usuarioXDocumentoActa.setQuien(usuarioSesion);
+
+        return usuarioXDocumentoActaRepository.saveAndFlush(usuarioXDocumentoActa);
     }
 
     /**

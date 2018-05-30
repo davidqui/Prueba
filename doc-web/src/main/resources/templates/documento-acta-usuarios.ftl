@@ -42,7 +42,7 @@
                         <tr>
                             <td>${usuarioAsignado.usuario.usuGrado}. ${usuarioAsignado.usuario.nombre}</td>
                             <td>${usuarioAsignado.cargo.carNombre}</td>
-                            <td><button type="button" class="btn btn-danger btn-sm">Eliminar</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarUsuarioActa(${usuarioAsignado.id})">Eliminar</button></td>
                         </tr>
                         </#list>
                     </tbody>
