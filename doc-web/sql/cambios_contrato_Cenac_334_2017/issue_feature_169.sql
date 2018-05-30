@@ -24,9 +24,6 @@ IS 'Nombre asignado a la variable del cuerpo de la notificación.';
 COMMENT ON COLUMN WILDCARD_NOTIFICACION.VALOR
 IS 'Valor asignado a la variable del cuerpo de la notificación.';
 
-INSERT INTO WILDCARD_NOTIFICACION (WNF_ID, NOMBRE, VALOR) VALUES (10, 'Nombre Usuario', '$(usuario.nombre)');
-INSERT INTO WILDCARD_NOTIFICACION (WNF_ID, NOMBRE, VALOR) VALUES (20, 'Clasificación Usuario', '$(usuario.usuGrado)');
-
 -- -----------------------------------------------------------------------------
 -- TABLA: TIPO_NOTIFICACION
 -- -----------------------------------------------------------------------------
@@ -110,7 +107,7 @@ CREATE TABLE NOTIFICACION(
     NTF_ID              NUMBER(38)          NOT NULL,
     TNF_ID              NUMBER(38)          NOT NULL,
     CLA_ID              NUMBER(38)          NOT NULL,
-    CUERPO              BLOB                NOT NULL,
+    CUERPO              CLOB                NOT NULL,
     ACTIVO              NUMBER(1)           NOT NULL,
     QUIEN               NUMBER(38)          NOT NULL,
     CUANDO              TIMESTAMP           NOT NULL,
@@ -118,6 +115,8 @@ CREATE TABLE NOTIFICACION(
     CUANDO_MOD          TIMESTAMP           NULL,
     PRIMARY KEY (NTF_ID)
 )
+
+CREATE SEQUENCE NOTIFICACION_SEQ;
 
 COMMENT ON TABLE NOTIFICACION
 IS 'Información y parametrización de notificaciones utilizadas en el sistema.';
@@ -154,7 +153,7 @@ REFERENCES USUARIO (USU_ID);
 ALTER TABLE NOTIFICACION
 ADD CONSTRAINT NOTIFICACION_TNF_ID_FK
 FOREIGN KEY (TNF_ID)
-REFERENCES TIPO_NOTIFICACION (USU_ID);
+REFERENCES TIPO_NOTIFICACION (TNF_ID);
 
 CREATE INDEX NOTIFICACION_ACTIVO_IDX 
 ON NOTIFICACION (ACTIVO);
@@ -164,10 +163,10 @@ ON NOTIFICACION (ACTIVO);
 -- -----------------------------------------------------------------------------
 
 CREATE TABLE H_NOTIFICACION(
-    HNT_ID                NUMBER(38)          NOT NULL,
-    TNF_ID               NUMBER(38)          NOT NULL,
+    HNT_ID              NUMBER(38)          NOT NULL,
+    TNF_ID              NUMBER(38)          NOT NULL,
     CLA_ID              NUMBER(38)          NOT NULL,
-    CUERPO              TEXT                NOT NULL,
+    CUERPO              CLOB                NOT NULL,
     ACTIVO              NUMBER(1)           NOT NULL,
     QUIEN               NUMBER(38)          NOT NULL,
     CUANDO              TIMESTAMP           NOT NULL,
@@ -213,7 +212,7 @@ REFERENCES USUARIO (USU_ID);
 ALTER TABLE H_NOTIFICACION
 ADD CONSTRAINT H_NOTIFICACION_TNF_ID_FK
 FOREIGN KEY (TNF_ID)
-REFERENCES TIPO_NOTIFICACION (USU_ID);
+REFERENCES TIPO_NOTIFICACION (TNF_ID);
 
 CREATE INDEX H_NOTIFICACION_ACTIVO_IDX 
 ON H_NOTIFICACION (ACTIVO);
@@ -222,8 +221,8 @@ ON H_NOTIFICACION (ACTIVO);
 -- TRIGGER: TRG_REGISTRO_H_NOTIFICACION
 -- -----------------------------------------------------------------------------
 
-CREATE OR REPLACE TRIGGER 'TRG_REGISTRO_H_NOTIFICACION' 
-AFTER INSERT OR UPDATE ON H_NOTIFICACION 
+CREATE OR REPLACE TRIGGER TRG_REGISTRO_H_NOTIFICACION
+AFTER INSERT OR UPDATE ON NOTIFICACION 
 FOR EACH ROW
 BEGIN
     INSERT INTO H_NOTIFICACION
