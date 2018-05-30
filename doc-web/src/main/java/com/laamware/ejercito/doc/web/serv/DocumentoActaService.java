@@ -56,6 +56,7 @@ public class DocumentoActaService {
         baseMap.put(DocumentoActaEstado.ANULADO, DocumentoActaMode.SOLO_CONSULTA);
         baseMap.put(DocumentoActaEstado.NUMERO_DE_RADICACION_GENERADO, DocumentoActaMode.CARGA_ACTA_DIGITAL);
         baseMap.put(DocumentoActaEstado.REGISTRO_DE_DATOS_DEL_ACTA, DocumentoActaMode.EDICION_INFORMACION);
+        baseMap.put(DocumentoActaEstado.REGISTRO_DE_USUARIOS_DEL_ACTA, DocumentoActaMode.SELECCION_USUARIOS);
 
         ESTADO_MODE_MAP = Collections.unmodifiableMap(baseMap);
 
@@ -432,6 +433,29 @@ public class DocumentoActaService {
         }
 
         return DocumentoActaUsuarioSeleccion.SELECCION_1_N;
+    }
+
+    /**
+     * Obtiene el tipo de selección de usuario según la subserie TRD del
+     * documento.
+     *
+     * @param documento Documento.
+     * @return Tipo de selección de usuario según la subserie.
+     */
+    public DocumentoActaUsuarioSeleccion obtenerSeleccionUsuarioSubserieActa(final Documento documento) {
+        return obtenerSeleccionUsuarioSubserieActa(documento.getTrd().getId());
+    }
+
+    /**
+     * Indica si el documento acta debe seleccionar usuarios, según la subserie
+     * TRD asociada.
+     *
+     * @param documento Documento acta.
+     * @return {@code true} en caso que la subserie TRD del documento
+     * corresponde a una selección de usuarios; de lo contrario, {@code false}.
+     */
+    public boolean debeSeleccionarUsuarios(final Documento documento) {
+        return !obtenerSeleccionUsuarioSubserieActa(documento.getTrd().getId()).equals(DocumentoActaUsuarioSeleccion.SELECCION_0_0);
     }
 
     /**

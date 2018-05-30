@@ -5,7 +5,7 @@
 <#include "documento-acta-config.ftl">
 
 <div class="col-md-8">    
-    <#if estadoModo == "CARGA_ACTA_DIGITAL">
+    <#if estadoModo == "SELECCION_USUARIOS">
     <table class="table table-sm">    	
         <tbody>
             <tr><th>Asunto</th><td>${documento.asunto}</td></tr>
@@ -17,29 +17,27 @@
         </tbody>            
     </table>
     
-    <div class="alert alert-info" role="alert">
-        <h3>Número de radicado</h3>
-        <h5>${documento.radicado}</h5>
-    </div>
-    
-    <form action="/documento-acta/cargar-acta-digital" method="POST" id="formdoc" enctype='multipart/form-data'>
+    <form action="/documento-acta/registrar-usuarios" method="POST" id="formdoc" enctype='multipart/form-data'>
         <input type="hidden" id="pin" name="pin" value="${procesoInstancia.id}" />
         
-        <fieldset class="form-group">
-            <label for="archivo">Archivo (*)</label>
-            <input type="file" class="form-control" id="archivo" name="archivo"/>
-        </fieldset>
-        
-        <#if documento.pdf?? >
+        <#if debeSeleccionarUsuarios >
         <div class="card">
-            <div class="card-header">Acta digitalizada</div>
-            <iframe src="/ofs/viewer?file=/ofs/download/${documento.pdf}" width="100%" height="700px"></iframe>                    
-        </div>                   	               
+            <div class="card-header">
+                <strong>Usuarios (*)</strong>
+            </div>
+            <div class="card-body">
+                <@agregarUsuariosAsignados usuariosAsignados seleccionUsuarioSubserieActa />
+            </div>
+        </div>        
+        <#else>
+        <div class="alert alert-info" role="alert">La subserie TRD seleccionada no requiere selección de usuarios.</div>
         </#if>
         
         <nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
-            <button id="guardar-doc-btn" type="submit" class="btn btn-success btn-sm">Cargar Archivo</button>
-            <#if documento.pdf?? >
+            <#if debeSeleccionarUsuarios >
+            <button id="registrar-usuarios-btn" type="submit" class="btn btn-success btn-sm">Registrar</button>
+            </#if>
+            <#if !debeSeleccionarUsuarios || (usuariosAsignados?? && (usuariosAsignados?size > 0)) >
                 <#list procesoInstancia.transiciones() as transicion >
                 <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
                     ${transicion.nombre}
@@ -59,7 +57,7 @@
     <@presentarInformacionProcesoInstancia procesoInstancia documento />
 
     <#-- Adjuntos -->    
-    <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "CARGA_ACTA_DIGITAL" tipologias "archivo" />
+    <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "SELECCION_USUARIOS" tipologias "archivo" />
     <br />
 </div>
 

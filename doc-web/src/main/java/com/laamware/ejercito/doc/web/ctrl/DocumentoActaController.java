@@ -10,7 +10,6 @@ import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
-import com.laamware.ejercito.doc.web.enums.DocumentoActaUsuarioSeleccion;
 import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.CargoService;
 import com.laamware.ejercito.doc.web.serv.ClasificacionService;
@@ -523,25 +522,17 @@ public class DocumentoActaController extends UtilController {
     }
 
     /**
-     * Obtiene el tipo de selección de usuario según la subserie TRD.
+     * Procesa el registro de información del acta y presenta el formulario de
+     * selección de usuarios, según la TRD y nivel de clasificación asignadas al
+     * acta.
      *
-     * @param subserieTrdID ID de la subserie TRD.
-     * @return Tipo de selección de usuario según la subserie.
-     */
-    @ResponseBody
-    @RequestMapping(value = "/seleccion-subserie/{subserieTrdID}", method = RequestMethod.GET)
-    public ResponseEntity<DocumentoActaUsuarioSeleccion> obtenerSeleccionUsuarioSubserieActa(@PathVariable("subserieTrdID") Integer subserieTrdID) {
-        return ResponseEntity.ok(actaService.obtenerSeleccionUsuarioSubserieActa(subserieTrdID));
-    }
-
-    /**
-     *
-     * @param procesoInstanciaID
-     * @param procesoTransicionID
-     * @param uiModel
-     * @param principal
-     * @param redirectAttributes
-     * @return
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
      */
     @RequestMapping(value = "/seleccionar-usuarios", method = RequestMethod.GET)
     public String seleccionarUsuarios(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel,
@@ -574,22 +565,36 @@ public class DocumentoActaController extends UtilController {
         final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
         Documento documento = actaService.buscarDocumento(documentoID);
 
-        /**
-         * TODO: Verificar el estado de la instancia del documento. Si no
-         * corresponde al esperado para esta acció, se aplica el forward.
-         */
-//        if (documento.getRadicado() == null || documento.getRadicado().trim().isEmpty()) {
-//            documento = actaService.asignarNumeroRadicacion(documento, usuarioSesion);
-//
-//            procesoInstancia.setAsignado(usuarioSesion);
-//            procesoInstancia.setQuienMod(usuarioSesion.getId());
-//            procesoInstancia.setCuandoMod(new Date());
-//            procesoInstancia.forward(procesoTransicionID);
-//
-//            uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado el número de radicación \"" + documento.getRadicado() + "\" al acta \"" + documento.getAsunto() + "\".");
-//        }
+        if (!procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.REGISTRO_DE_USUARIOS_DEL_ACTA.getId())) {
+            procesoInstancia.setAsignado(usuarioSesion);
+            procesoInstancia.setQuienMod(usuarioSesion.getId());
+            procesoInstancia.setCuandoMod(new Date());
+            procesoInstancia.forward(procesoTransicionID);
+
+            procesoInstancia = procesoService.instancia(procesoInstanciaID);
+
+            uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "La información básica del acta \"" + documento.getAsunto() + "\" ha sido registrada.");
+        }
+
+        cargarInformacionSeleccionUsuariosUIModel(uiModel, documento);
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
+        return DOCUMENTO_ACTA_USUARIOS_TEMPLATE;
+    }
+
+    /**
+     * Registra la lista de usuarios asociados al acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
+    @RequestMapping(value = "/registrar-usuarios", method = RequestMethod.POST)
+    public String registrarUsuarios(@RequestParam("pin") String procesoInstanciaID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        LOG.info("com.laamware.ejercito.doc.web.ctrl.DocumentoActaController.registrarUsuarios()");
         return DOCUMENTO_ACTA_USUARIOS_TEMPLATE;
     }
 
@@ -624,5 +629,17 @@ public class DocumentoActaController extends UtilController {
      */
     private String redirectProcesoInstanciaURL(Documento documento) {
         return String.format(REDIRECT_PROCESO_INSTANCIA_URL_FORMAT, documento.getInstancia().getId());
+    }
+
+    /**
+     * Carga la información de selección de usuarios necesaria para la
+     * construcción de las interfaces gráficas asociadas.
+     *
+     * @param uiModel Modelo de UI.
+     * @param documento Documento.
+     */
+    private void cargarInformacionSeleccionUsuariosUIModel(final Model uiModel, final Documento documento) {
+        uiModel.addAttribute("debeSeleccionarUsuarios", actaService.debeSeleccionarUsuarios(documento));
+        uiModel.addAttribute("seleccionUsuarioSubserieActa", actaService.obtenerSeleccionUsuarioSubserieActa(documento).name());
     }
 }

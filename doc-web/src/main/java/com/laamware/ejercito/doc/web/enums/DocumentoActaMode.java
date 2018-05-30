@@ -23,5 +23,10 @@ public enum DocumentoActaMode {
      * En este modo el formulario únicamente debe permitir consultar la
      * información del acta.
      */
-    SOLO_CONSULTA;
+    SOLO_CONSULTA,
+    /**
+     * En este modo, el formulario no debe permitir el registro y edición de la
+     * información básica, pero debe permitir la selección de los usuarios-.
+     */
+    SELECCION_USUARIOS;
 }

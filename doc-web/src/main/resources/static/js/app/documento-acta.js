@@ -83,6 +83,8 @@ function showAndHideSeleccionUsuarioDivs(seleccionUsuarioDivIDs, divShowID) {
 }
 
 function agregarUsuarioActa() {
+    console.log("agregarUsuarioActa()");
+    
     $("#usuarios-a-asignar-n-content").append(
             $("<div>")
             .attr("id", "usuario_x")

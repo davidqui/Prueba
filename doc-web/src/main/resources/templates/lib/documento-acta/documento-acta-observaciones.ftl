@@ -10,26 +10,26 @@
 -->
 <#macro presentarObservaciones documentoObservaciones utilController estadoModo idAreaObservacion >
 <div class="card m-y">                           		        
-        <#if (documentoObservaciones)??>
+    <#if (documentoObservaciones)??>
     <div class="card-block" id="obsDiv">
         <h5>Observaciones</h5>
-            <#list documentoObservaciones as observacion >
+        <#list documentoObservaciones as observacion >
         <hr/>
         <strong>${utilController.nombre(observacion.quien)}</strong>, <em> ${observacion.cuando?string('yyyy-MM-dd hh:mm:ss a')}</em>
         <p>${observacion.texto}</p>
-            </#list>
-        </div>
-        </#if>
+        </#list>
+    </div>
+    </#if>
 
-        <#if estadoModo == "EDICION_INFORMACION" || estadoModo == "CARGA_ACTA_DIGITAL">
+    <#if estadoModo != "SOLO_CONSULTA" >
     <div class="card-block cus-gray-bg">
         <fieldset class="form-group">
             <textarea class="form-control" id="${idAreaObservacion}" name="${idAreaObservacion}"></textarea>
-            </fieldset>
-            <#assign obsButtonID = "obs-button" />
+        </fieldset>
+        <#assign obsButtonID = "obs-button" />
         <button class="btn btn-secondary btn-sm" id="${obsButtonID}" name="${obsButtonID}" onclick="enviarComentario('${idAreaObservacion}', '${documento.id}')">Comentar</button>
         <span id="msg-enviar-comentario"></span>
-        </div>
-        </#if>
     </div>
+    </#if>
+</div>
 </#macro>

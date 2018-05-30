@@ -25,7 +25,11 @@ public enum DocumentoActaEstado {
     /**
      * El acta se encuentra digitalizada y archivada en el sistema.
      */
-    ACTA_DIGITALIZADA(153);
+    ACTA_DIGITALIZADA(153),
+    /**
+     * Registra los usuarios asociados al acta.
+     */
+    REGISTRO_DE_USUARIOS_DEL_ACTA(154);
 
     private final Integer id;
 

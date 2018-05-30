@@ -5,29 +5,38 @@
 
     usuariosAsignados Lista de usuarios previamente asignados al documento.
 -->
-<#macro agregarUsuariosAsignados usuariosAsignados >
-        <div class="form-group">
-            <#assign campo = "usuariosAsignados" />
-            <label for="${campo}">Usuarios asignados (*)</label>            
-            <div id="usuarios-a-asignar-0" style="display: none;">
-                <div class="alert alert-info" role="alert">La subserie TRD no necesita selección de usuarios para asociar al acta.</div>
-            </div>
-            
-            <div id="usuarios-a-asignar-1" style="display: none;">
+<#macro agregarUsuariosAsignados usuariosAsignados seleccionUsuarioSubserieActa >
+<input type="hidden" id="usuarios-asignados-count" name="usuarios-asignados-count" value="${usuariosAsignados?size}"/>
+    <#if seleccionUsuarioSubserieActa == "SELECCION_1_N" >
+    <button type="button" class="btn btn-primary" onclick="agregarUsuarioActa()">Agregar usuario</button>
+    </#if>
+<table id="table-usuarios-asignados" class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Cargo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <#if seleccionUsuarioSubserieActa == "SELECCION_1_1" >
+        <tr>
+            <td>
                 <div class="input-group">
+                    <input type="hidden" id="usuario-asignado-1" name="usuario-asignado-1" value="">
                     <input type="text" class="form-control" disabled />
                     <span class="input-group-btn">
                         <button class="btn btn-primary" type="button" onclick="openUsuariosFinderWindow()">Buscar</button>
                     </span>
-                 </div>
+                 </div>                
+            </td>
+            <td>
                 <select class="form-control">
-                </select>
-            </div>
-            
-            <div id="usuarios-a-asignar-n" style="display: none;">
-                <button type="button" class="btn btn-primary" onclick="agregarUsuarioActa()">Agregar usuario</button>
-                <div id="usuarios-a-asignar-n-content">
-                </div>
-            </div>
-        </div>   
+                </select>                
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+        </#if>
+    </tbody>
+</table>
 </#macro>
