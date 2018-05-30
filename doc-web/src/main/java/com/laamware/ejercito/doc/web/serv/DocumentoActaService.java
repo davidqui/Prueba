@@ -18,6 +18,7 @@ import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.Global;
+import com.laamware.ejercito.doc.web.util.UsuarioXDocumentoActaComparator;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -414,7 +415,9 @@ public class DocumentoActaService {
      * documento acta.
      */
     public List<UsuarioXDocumentoActa> listarRegistrosUsuariosAsignados(final Documento documento) {
-        return usuarioXDocumentoActaRepository.findAllByActivoTrueAndDocumento(documento);
+        List<UsuarioXDocumentoActa> list = usuarioXDocumentoActaRepository.findAllByActivoTrueAndDocumento(documento);
+        Collections.sort(list, new UsuarioXDocumentoActaComparator());
+        return list;
     }
 
     /**
@@ -456,6 +459,31 @@ public class DocumentoActaService {
      */
     public boolean debeSeleccionarUsuarios(final Documento documento) {
         return !obtenerSeleccionUsuarioSubserieActa(documento.getTrd().getId()).equals(DocumentoActaUsuarioSeleccion.SELECCION_0_0);
+    }
+
+    /**
+     *
+     * @param documento
+     * @param usuario
+     * @param cargo
+     * @param usuarioSesion
+     * @return
+     */
+    public UsuarioXDocumentoActa asignarUsuarioActa(final Documento documento, final Usuario usuario, final Cargo cargo, final Usuario usuarioSesion) {
+        final UsuarioXDocumentoActa registroActual = usuarioXDocumentoActaRepository.findByUsuarioAndDocumentoAndActivoTrue(usuario, documento);
+        if (registroActual != null) {
+            return registroActual;
+        }
+
+        UsuarioXDocumentoActa nuevoRegistro = new UsuarioXDocumentoActa();
+        nuevoRegistro.setActivo(Boolean.TRUE);
+        nuevoRegistro.setCargo(cargo);
+        nuevoRegistro.setCuando(new Date());
+        nuevoRegistro.setDocumento(documento);
+        nuevoRegistro.setQuien(usuarioSesion);
+        nuevoRegistro.setUsuario(usuario);
+
+        return usuarioXDocumentoActaRepository.saveAndFlush(nuevoRegistro);
     }
 
     /**

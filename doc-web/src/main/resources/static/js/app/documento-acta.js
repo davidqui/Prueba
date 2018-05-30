@@ -42,17 +42,25 @@ function setUsuarioActa(usuarioID) {
 }
 
 function agregarUsuarioActa() {
-    var destinoUsuario = $("#destinoUsuario").val();
-    if (destinoUsuario === undefined || $.trim(destinoUsuario) === "") {
+    var usuarioID = $("#destinoUsuario").val();
+    if (usuarioID === undefined || $.trim(usuarioID) === "") {
         alert("Debe seleccionar un usuario.");
         return;
     }
-    
-    var cargoAsignado = $("#cargoAsignado").val();
-    if(cargoAsignado === undefined || $.trim(cargoAsignado) === ""){
+
+    var cargoID = $("#cargoAsignado").val();
+    if (cargoID === undefined || $.trim(cargoID) === "") {
         alert("Debe seleccionar un cargo del usuario.");
-        return;        
+        return;
     }
-    
+
     var pin = $("#pin").val();
+
+    $.ajax({
+        method: "POST",
+        url: "/documento-acta/asignar-usuario-acta/" + pin + "/" + usuarioID + "/" + cargoID
+    }).always(function (id) {
+        console.log("usuario-documento-acta: " + id);
+        location.reload();
+    });
 }

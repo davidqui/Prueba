@@ -83,4 +83,15 @@ public class CargoService {
         return cargosRepository.findCargosXusuario(usuID);
     }
 
+    /**
+     * Busca un cargo por su ID.
+     *
+     * @param id ID del cargo.
+     * @return Instancia del cargo del ID, o {@code null} en caso que no exista
+     * correspondencia en el sistema.
+     */
+    public Cargo findOne(Integer id) {
+        return cargosRepository.findOne(id);
+    }
+
 }

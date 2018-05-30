@@ -4,11 +4,13 @@ import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
 import com.laamware.ejercito.doc.web.dto.DocumentoObservacionDTO;
 import com.laamware.ejercito.doc.web.entity.Adjunto;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.entity.UsuarioXDocumentoActa;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.CargoService;
@@ -18,6 +20,7 @@ import com.laamware.ejercito.doc.web.serv.DocumentoObservacionService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.TipologiaService;
 import com.laamware.ejercito.doc.web.serv.TransicionService;
+import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.Global;
 import java.io.IOException;
@@ -96,6 +99,9 @@ public class DocumentoActaController extends UtilController {
 
     @Autowired
     private AdjuntoService adjuntoService;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Override
     public String nombre(Integer idUsuario) {
@@ -597,8 +603,32 @@ public class DocumentoActaController extends UtilController {
         LOG.info("com.laamware.ejercito.doc.web.ctrl.DocumentoActaController.registrarUsuarios()");
         return DOCUMENTO_ACTA_USUARIOS_TEMPLATE;
     }
-    
-    // public ResponseEntity<?> 
+
+    /**
+     * Asigna un usuario, con un cargo correspondiente, al documento acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param usuarioID ID del usuario a asignar.
+     * @param cargoID ID del cargo seleccionado para el usuario a asignar.
+     * @param principal Información de sesión.
+     * @return ID del nuevo registro.
+     */
+    @ResponseBody
+    @RequestMapping(value = "/asignar-usuario-acta/{pin}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
+    public ResponseEntity<?> asignarUsuarioActa(@PathVariable("pin") String procesoInstanciaID, @PathVariable("usuarioID") Integer usuarioID, @PathVariable("cargoID") Integer cargoID,
+            Principal principal) {
+        final Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        final Documento documento = actaService.buscarDocumento(documentoID);
+
+        final Usuario usuario = usuarioService.findOne(usuarioID);
+        final Cargo cargo = cargoService.findOne(cargoID);
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        final UsuarioXDocumentoActa usuarioActa = actaService.asignarUsuarioActa(documento, usuario, cargo, usuarioSesion);
+
+        return ResponseEntity.ok(usuarioActa.getId());
+    }
 
     /**
      * Carga la información básica y necesaria para la construcción de las

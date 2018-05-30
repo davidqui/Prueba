@@ -29,6 +29,25 @@
                 <strong>Usuarios (*)</strong>                
             </div>
             <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Cargo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <#list usuariosAsignados as usuarioAsignado >
+                        <tr>
+                            <td>${usuarioAsignado.usuario.usuGrado}. ${usuarioAsignado.usuario.nombre}</td>
+                            <td>${usuarioAsignado.cargo.carNombre}</td>
+                            <td><button type="button" class="btn btn-danger btn-sm">Eliminar</button></td>
+                        </tr>
+                        </#list>
+                    </tbody>
+                </table>
+                
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
