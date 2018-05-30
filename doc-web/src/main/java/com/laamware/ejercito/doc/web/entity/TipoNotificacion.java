@@ -205,7 +205,7 @@ public class TipoNotificacion implements Serializable {
 
     @Override
     public String toString() {
-        return "TipoNotificacion{" + "id=" + id + ", nombre=" + nombre + ", valor=" + valor + ", activo=" + activo + ", quien=" + quien + ", cuando=" + cuando + ", quienMod=" + quienMod + ", cuandoMod=" + cuandoMod + '}';
+        return nombre;
     }
 
 }

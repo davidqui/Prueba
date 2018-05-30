@@ -1,7 +1,10 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Notificacion;
+import com.laamware.ejercito.doc.web.entity.TipoNotificacion;
+import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.serv.NotificacionService;
 import com.laamware.ejercito.doc.web.serv.TipoNotificacionService;
 import com.laamware.ejercito.doc.web.serv.WildCardNotificacionService;
@@ -47,7 +50,7 @@ public class AdminNotificacionController {
     private TipoNotificacionService tipoNotificacionService;
     
     @Autowired
-    private WildCardNotificacionService wildCardNotificacionService;
+    private ClasificacionRepository clasificacionRepository;
     
     
     /**
@@ -81,8 +84,14 @@ public class AdminNotificacionController {
      */
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(Model model) {
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         Notificacion notificacion = new Notificacion();
+        List<TipoNotificacion> tiposNotificaciones = tipoNotificacionService.findActive(sort);
+        List<Clasificacion> clasificaciones = clasificacionRepository.findByActivo(true);
+        
         model.addAttribute("notificacion", notificacion);
+        model.addAttribute("tiposNotificaciones", tiposNotificaciones);
+        model.addAttribute("clasificaciones", clasificaciones);
         return CREATE_TEMPLATE;
     }
 
@@ -95,9 +104,14 @@ public class AdminNotificacionController {
      */
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         Integer id = Integer.parseInt(req.getParameter("id"));
         Notificacion notificacion = notificacionService.findOne(id);
+        List<TipoNotificacion> tiposNotificaciones = tipoNotificacionService.findActive(sort);
+        List<Clasificacion> clasificaciones = clasificacionRepository.findByActivo(true);
         model.addAttribute("notificacion", notificacion);
+        model.addAttribute("tiposNotificaciones", tiposNotificaciones);
+        model.addAttribute("clasificaciones", clasificaciones);
         return EDIT_TEMPLATE;
     }
     

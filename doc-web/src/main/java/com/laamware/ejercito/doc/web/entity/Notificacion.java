@@ -44,6 +44,9 @@ public class Notificacion implements Serializable {
     @Column(name = "NTF_ID")
     private Integer id;
 
+    @LaamLabel("Tipo de Notificación")
+    @LaamCreate(order = 60)
+    @LaamListColumn(order = 60)
     @ManyToOne
     @JoinColumn(name = "TNF_ID")
     private TipoNotificacion tipoNotificacion;
@@ -55,11 +58,11 @@ public class Notificacion implements Serializable {
     @ManyToOne
     @JoinColumn(name = "CLA_ID")
     private Clasificacion clasificacion;
-
+    
     @Basic(optional = false)
     @Column(name = "CUERPO")
     private String template;
-
+    
     @Basic(optional = false)
     @Column(name = "ACTIVO")
     private Boolean activo;
