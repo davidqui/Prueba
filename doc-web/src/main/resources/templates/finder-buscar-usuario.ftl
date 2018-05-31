@@ -94,11 +94,11 @@
 
             <center>
             <#if pageIndex gt 0>
-                <a href="/finder/usuario/finder-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex - 1}&type=${type}" class="btn btn-primary btn-sm">Anterior</a>
+                <a href="/finder/usuario/finder-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex - 1}&type=${type}&pin=${pin!''}" class="btn btn-primary btn-sm">Anterior</a>
             </#if>
 
             <#if pageIndex lt (totalPages - 1)>
-                <a href="/finder/usuario/finder-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex + 1}&type=${type}" class="btn btn-primary btn-sm">Siguiente</a>
+                <a href="/finder/usuario/finder-buscar-usuario?criteria=${criteria!""}&pageIndex=${pageIndex + 1}&type=${type}&pin=${pin!''}" class="btn btn-primary btn-sm">Siguiente</a>
             </#if>
             </center>
 

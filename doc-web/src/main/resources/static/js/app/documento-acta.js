@@ -1,8 +1,9 @@
 /**
  * Abre la ventana del finder de usuarios.
+ * @param {type} pin
  * @returns {undefined}
  */
-function openUsuariosFinderWindow() {
+function openUsuariosFinderWindow(pin) {
     var minWidth = 1200;
     var minHeight = 600;
 
@@ -15,7 +16,7 @@ function openUsuariosFinderWindow() {
     var left = ((width / 2) - (minWidth / 2)) + dualScreenLeft;
     var top = ((height / 2) - (minHeight / 2)) + dualScreenTop;
 
-    window.open("/finder/usuario/finder-buscar-usuario?type=ACTA", "_blank", "width=" + minWidth + ", height=" + minHeight + ", top=" + top + ", left=" + left
+    window.open("/finder/usuario/finder-buscar-usuario?type=ACTA&pin=" + pin, "_blank", "width=" + minWidth + ", height=" + minHeight + ", top=" + top + ", left=" + left
             + ",location=no,menubar=no,resizable=no,status=no,titlebar=no,toolbar=no");
 }
 

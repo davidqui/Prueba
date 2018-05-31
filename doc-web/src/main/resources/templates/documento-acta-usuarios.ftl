@@ -36,6 +36,7 @@
                         <tr>
                             <th>Usuario</th>
                             <th>Cargo</th>
+                            <th>Clasificación</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -44,12 +45,14 @@
                         <tr>
                             <td>${usuarioAsignado.usuario.usuGrado}. ${usuarioAsignado.usuario.nombre}</td>
                             <td>${usuarioAsignado.cargo.carNombre}</td>
+                            <td>${usuarioAsignado.usuario.clasificacion.nombre}</td>
                             <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarUsuarioActa(${usuarioAsignado.id})">Eliminar</button></td>
                         </tr>
                         </#list>
                     </tbody>
                 </table>
                 
+                <#-- Modal de selección de usuarios. -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
@@ -64,7 +67,7 @@
                                             <div class="input-group">
                                                 <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="" disabled />
                                                 <div class="input-group-btn">
-                                                    <button type="button" class="btn btn-primary" onclick="openUsuariosFinderWindow()">Buscar</button>
+                                                    <button type="button" class="btn btn-primary" onclick="openUsuariosFinderWindow('${procesoInstancia.id}')">Buscar</button>
                                                 </div> 
                                             </div> 
                                             <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
@@ -84,6 +87,7 @@
                         </div>
                     </div>
                 </div>                
+                
             </div>
         </div>        
         <#else>

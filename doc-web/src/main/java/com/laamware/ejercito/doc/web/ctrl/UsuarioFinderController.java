@@ -4,6 +4,8 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.UsuarioFinderTipo;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import java.security.Principal;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -59,9 +61,11 @@ public class UsuarioFinderController extends UtilController {
             @RequestParam(value = "type", required = false, defaultValue = "TRANSFERENCIA_ARCHIVO") String type,
             Model uiModel, Principal principal, HttpServletRequest request) {
 
+        final Map<String, ?> criteriaParametersMap = buildCriteriaParametersMap(request);
+
         final UsuarioFinderTipo usuarioFinderTipo = UsuarioFinderTipo.valueOf(type);
         final Usuario usuarioSesion = getUsuario(principal);
-        final Page<Usuario> page = usuarioService.findAllByCriteriaSpecification(criteria, pageIndex, BUSQUEDA_PAGE_SIZE, usuarioFinderTipo, usuarioSesion);
+        final Page<Usuario> page = usuarioService.findAllByCriteriaSpecification(criteria, pageIndex, BUSQUEDA_PAGE_SIZE, usuarioFinderTipo, usuarioSesion, criteriaParametersMap);
 
         uiModel.addAttribute("criteria", criteria);
         uiModel.addAttribute("usuarios", page.getContent());
@@ -69,7 +73,27 @@ public class UsuarioFinderController extends UtilController {
         uiModel.addAttribute("totalPages", page.getTotalPages());
         uiModel.addAttribute("type", type);
 
+        fillUIModelWithCriteriaParameters(uiModel, criteriaParametersMap);
+
         return "finder-buscar-usuario";
+    }
+
+    private Map<String, ?> buildCriteriaParametersMap(final HttpServletRequest request) {
+        Map<String, Object> map = new LinkedHashMap<>();
+
+        String parameter = "pin";
+        final String pin = request.getParameter(parameter);
+        if (pin != null && !pin.trim().isEmpty()) {
+            map.put(parameter, pin);
+        }
+
+        return map;
+    }
+
+    private void fillUIModelWithCriteriaParameters(final Model uiModel, final Map<String, ?> criteriaParametersMap) {
+        for (final Map.Entry<String, ? extends Object> entry : criteriaParametersMap.entrySet()) {
+            uiModel.addAttribute(entry.getKey(), entry.getValue());
+        }
     }
 
 }

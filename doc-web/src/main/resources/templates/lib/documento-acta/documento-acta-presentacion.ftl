@@ -14,6 +14,7 @@
         <tr>
             <th>Usuario</th>
             <th>Cargo</th>
+            <th>Clasificación</th>
         </tr>
     </thead>
     <tbody>
@@ -21,6 +22,7 @@
         <tr>
             <td>${usuarioAsignado.usuario.usuGrado}. ${usuarioAsignado.usuario.nombre}</td>
             <td>${usuarioAsignado.cargo.carNombre}</td>
+            <td>${usuarioAsignado.usuario.clasificacion.nombre}</td>
         </tr>        
         </#list>
     </tbody>

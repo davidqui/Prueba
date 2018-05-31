@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -83,6 +84,8 @@ public class UsuarioService {
      * {@link UsuarioFinderTipo#ACTA} únicamente se presentan los usuarios con
      * igual o mayor grado de clasificación que el usuario en sesión.
      * @param usuarioSesion Usuario en sesión.
+     * @param criteriaParametersMap Mapa de otros parámetros para la criteria de
+     * búsqueda.
      * @return Página de usuarios.
      */
     /*
@@ -90,7 +93,7 @@ public class UsuarioService {
      * feature-162: Adición de usuarioFinderTipo y usuarioSesion.
      */
     public Page<Usuario> findAllByCriteriaSpecification(final String criteria, final int pageIndex, final int pageSize, final UsuarioFinderTipo usuarioFinderTipo,
-            final Usuario usuarioSesion) {
+            final Usuario usuarioSesion, final Map<String, ?> criteriaParametersMap) {
 
         Specifications<Usuario> where = Specifications.where(UsuarioSpecifications.inicio());
 
@@ -99,8 +102,10 @@ public class UsuarioService {
          * feature-162: Filtro por orden de clasificación para finder tipo ACTA.
          */
         if (usuarioFinderTipo.equals(UsuarioFinderTipo.ACTA)) {
-            final Integer clasificacionOrden = usuarioSesion.getClasificacion().getOrden();
-            where = where.and(UsuarioSpecifications.condicionPorOrdenGradoClasificacion(clasificacionOrden));
+            final String pin = (String) criteriaParametersMap.get("pin");
+            final Documento documento = documentoRepository.findOneByInstanciaId(pin);
+            final Clasificacion clasificacion = documento.getClasificacion();
+            where = where.and(UsuarioSpecifications.condicionPorOrdenGradoClasificacion(clasificacion.getOrden()));
         }
 
         if (criteria != null) {
