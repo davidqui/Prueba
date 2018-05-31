@@ -6,7 +6,7 @@
 
 <div class="col-md-8">    
     <#if estadoModo == "CARGA_ACTA_DIGITAL">
-    <@presentarInformacionRegistrada documento />
+    <@presentarInformacionRegistrada documento estadoModo />
     
     <@presentarUsuariosAsignados usuariosAsignados />
     

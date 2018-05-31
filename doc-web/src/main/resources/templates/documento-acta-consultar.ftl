@@ -6,7 +6,7 @@
 
 <div class="col-md-8">    
     <#if estadoModo == "SOLO_CONSULTA">
-    <@presentarInformacionRegistrada documento />
+    <@presentarInformacionRegistrada documento estadoModo />
     
     <@presentarUsuariosAsignados usuariosAsignados />
 
