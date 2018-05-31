@@ -516,6 +516,45 @@ public class DocumentoActaService {
     }
 
     /**
+     * Valida los usuarios registrados sobre el tipo de selección asociada a la
+     * subserie TRD del documento.
+     *
+     * @param documento Documento.
+     * @return Resumen del proceso de validación.
+     */
+    public BusinessLogicValidation validarRegistroUsuarios(final Documento documento) {
+        final List<UsuarioXDocumentoActa> usuariosActa = listarRegistrosUsuariosAsignados(documento);
+        final DocumentoActaUsuarioSeleccion usuarioSeleccion = obtenerSeleccionUsuarioSubserieActa(documento);
+
+        final BusinessLogicValidation validation = new BusinessLogicValidation();
+
+        switch (usuarioSeleccion) {
+            case SELECCION_0_0: {
+                if (!usuariosActa.isEmpty()) {
+                    validation.addError(null, null, "La subserie TRD seleccionada no debe tener ningún usuario seleccionado.");
+                }
+                break;
+            }
+
+            case SELECCION_1_1: {
+                if (usuariosActa.size() != 1) {
+                    validation.addError(null, null, "La subserie TRD seleccionada debe tener únicamente un usuario seleccionado.");
+                }
+                break;
+            }
+
+            case SELECCION_1_N: {
+                if (usuariosActa.isEmpty()) {
+                    validation.addError(null, null, "La subserie TRD seleccionada debe tener al menos un usuario seleccionado.");
+                }
+                break;
+            }
+        }
+
+        return validation;
+    }
+
+    /**
      * Construye la fecha de elaboración a partir del dato enviado en el
      * formulario, estableciendo la hora como 00:00:00.
      *

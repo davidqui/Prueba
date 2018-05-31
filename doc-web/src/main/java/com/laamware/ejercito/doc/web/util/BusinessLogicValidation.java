@@ -103,6 +103,12 @@ public class BusinessLogicValidation implements Serializable {
 
     private static final long serialVersionUID = -4006163667304822282L;
 
+    /*
+     * 2018-05-31 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    private static final String ERRORS_TO_STRING_SEPARATOR = " - ";
+
     private final List<ValidationError> errors = new LinkedList<>();
     /**
      * 2018-05-16 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
@@ -191,6 +197,30 @@ public class BusinessLogicValidation implements Serializable {
      */
     public boolean containsError(final String attribute) {
         return errorsMap.containsKey(attribute);
+    }
+
+    /**
+     * Imprime en una cadena de caracteres la lista de errores de la validación.
+     *
+     * @return Cadena de caracteres enlazando la lista de errores.
+     */
+    /*
+     * 2018-05-31 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public String errorsToString() {
+        final StringBuilder builder = new StringBuilder();
+
+        for (int index = 0; index < getNumberOfErrors(); index++) {
+            final String message = getError(index).getMessage();
+            builder.append(message);
+
+            if (index < (getNumberOfErrors() - 1)) {
+                builder.append(ERRORS_TO_STRING_SEPARATOR);
+            }
+        }
+
+        return builder.toString();
     }
 
     @Override

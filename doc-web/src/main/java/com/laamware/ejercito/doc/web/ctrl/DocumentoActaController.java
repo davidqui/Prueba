@@ -302,6 +302,16 @@ public class DocumentoActaController extends UtilController {
         final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
         Documento documento = actaService.buscarDocumento(documentoID);
 
+        final BusinessLogicValidation validation = actaService.validarRegistroUsuarios(documento);
+        if (!validation.isAllOK()) {
+            uiModel.addAttribute(AppConstants.FLASH_ERROR, validation.errorsToString());
+
+            cargarInformacionSeleccionUsuariosUIModel(uiModel, documento);
+            cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+            return DOCUMENTO_ACTA_USUARIOS_TEMPLATE;
+        }
+
         if (documento.getRadicado() == null || documento.getRadicado().trim().isEmpty()) {
             documento = actaService.asignarNumeroRadicacion(documento, usuarioSesion);
 
@@ -601,7 +611,22 @@ public class DocumentoActaController extends UtilController {
      */
     @RequestMapping(value = "/registrar-usuarios", method = RequestMethod.POST)
     public String registrarUsuarios(@RequestParam("pin") String procesoInstanciaID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
-        LOG.info("com.laamware.ejercito.doc.web.ctrl.DocumentoActaController.registrarUsuarios()");
+        final Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        final Documento documento = actaService.buscarDocumento(documentoID);
+
+        final BusinessLogicValidation validation = actaService.validarRegistroUsuarios(documento);
+        if (validation.isAllOK()) {
+            uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Se han registrado los usuarios seleccionados al acta.");
+        } else {
+            uiModel.addAttribute(AppConstants.FLASH_ERROR, validation.errorsToString());
+        }
+
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        cargarInformacionSeleccionUsuariosUIModel(uiModel, documento);
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
         return DOCUMENTO_ACTA_USUARIOS_TEMPLATE;
     }
 
