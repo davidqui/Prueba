@@ -71,4 +71,15 @@ public interface TrdRepository extends GenJpaRepository<Trd, Integer> {
             + "AND usuario.usu_id = :usu_id"
             + "")
     public BigInteger validateSubserieTrdForUser(@Param("trd_id") Integer subserieTrdID, @Param("trd_serie") Integer serieTrdID, @Param("usu_id") Integer usuarioID);
+
+    /**
+     * Lista todas las subseries TRD activas.
+     *
+     * @return Lista de las subseries TRD activas.
+     */
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #170 (SICDI-Controltech)
+     * feature-170.
+     */
+    public List<Trd> findAllByActivoTrueAndSerieNotNull();
 }

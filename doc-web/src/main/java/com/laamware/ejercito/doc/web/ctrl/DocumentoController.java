@@ -70,6 +70,7 @@ import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependenciaDestino;
 import com.laamware.ejercito.doc.web.entity.DocumentoEnConsulta;
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacion;
+import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
 import com.laamware.ejercito.doc.web.entity.Estado;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
@@ -99,7 +100,6 @@ import com.laamware.ejercito.doc.web.repo.FormatoRepository;
 import com.laamware.ejercito.doc.web.repo.HProcesoInstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaRepository;
-import com.laamware.ejercito.doc.web.repo.ProcesoRepository;
 import com.laamware.ejercito.doc.web.repo.RadicacionRepository;
 import com.laamware.ejercito.doc.web.repo.RestriccionDifusionRepository;
 import com.laamware.ejercito.doc.web.repo.TipologiaRepository;
@@ -111,6 +111,7 @@ import com.laamware.ejercito.doc.web.serv.ArchivoAutomaticoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
+import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
 import com.laamware.ejercito.doc.web.serv.DriveService;
 import com.laamware.ejercito.doc.web.serv.JasperService;
 import com.laamware.ejercito.doc.web.serv.OFS;
@@ -125,9 +126,7 @@ import com.laamware.ejercito.doc.web.util.DocumentProperties;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import com.laamware.ejercito.doc.web.util.Global;
 import com.laamware.ejercito.doc.web.util.UsuarioGradoComparator;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -271,7 +270,7 @@ public class DocumentoController extends UtilController {
     @Autowired
     TRDService tRDService;
 
-    /**
+    /*
      * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
      * feature-156: Servicio de multidestino.
      */
@@ -291,6 +290,13 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private AdjuntoService adjuntoService;
+
+    /*
+     * 2018-05-24 jgarcia@controltechcg.com Issue #172 (SICDI-Controltech)
+     * feature-172: Servicio de observaciones por defecto.
+     */
+    @Autowired
+    private DocumentoObservacionDefectoService observacionDefectoService;
 
     /* ---------------------- públicos ------------------------------- */
     /**
@@ -5387,4 +5393,19 @@ public class DocumentoController extends UtilController {
 
         return uuid;
     }
+
+    /**
+     * Lista las observaciones por defecto activas, ordenadas por texto.
+     *
+     * @return Lista de observaciones por defecto activas.
+     */
+    /*
+     * 2018-05-24 jgarcia@controltechcg.com Issue #172 (SICDI-Controltech)
+     * feature-172: Lista de observaciones por defecto para el modelo de UI.
+     */
+    @ModelAttribute("observacionesDefecto")
+    public List<DocumentoObservacionDefecto> listarObservacionDefectoActivas() {
+        return observacionDefectoService.listarActivas();
+    }
+
 }
