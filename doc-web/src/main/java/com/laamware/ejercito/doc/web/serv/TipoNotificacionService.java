@@ -4,6 +4,7 @@ import com.laamware.ejercito.doc.web.entity.TipoNotificacion;
 import com.laamware.ejercito.doc.web.repo.TipoNotificacionRepository;
 import java.util.List;
 import java.util.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +20,12 @@ public class TipoNotificacionService {
     
     private static final Logger LOG = Logger.getLogger(TipoNotificacionService.class.getName());
     
+    @Autowired
     private TipoNotificacionRepository tipoNotificacionRepository;
     
     /**
      * *
-     * Lista todas las observaciones
+     * Lista todas los Tipo de notificación
      *
      * @param sort
      * @return
@@ -34,7 +36,7 @@ public class TipoNotificacionService {
 
     /**
      * *
-     * Lista todas las observaciones activas
+     * Lista todas los Tipo de notificación activas
      *
      * @param sort
      * @return
@@ -45,7 +47,7 @@ public class TipoNotificacionService {
 
     /**
      * *
-     * Busca una observacion por defecto por id
+     * Busca un Tipo de notificación por defecto por id
      *
      * @param id identificador de la observacion por defecto
      * @return
