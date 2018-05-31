@@ -22,13 +22,25 @@
     </#if>
 
     <#if estadoModo != "SOLO_CONSULTA" >
-    <div class="card-block cus-gray-bg">
+    <div class="card-block cus-gray-bg">        
         <fieldset class="form-group">
             <textarea class="form-control" id="${idAreaObservacion}" name="${idAreaObservacion}"></textarea>
         </fieldset>
-        <#assign obsButtonID = "obs-button" />
-        <button class="btn btn-secondary btn-sm" id="${obsButtonID}" name="${obsButtonID}" onclick="enviarComentario('${idAreaObservacion}', '${documento.id}')">Comentar</button>
-        <span id="msg-enviar-comentario"></span>
+        <div class="row">
+            <div class="col-xs-4">
+                <#assign obsButtonID = "obs-button" />
+                <button class="btn btn-secondary btn-sm" id="${obsButtonID}" name="${obsButtonID}" onclick="enviarComentario('${idAreaObservacion}', '${documento.id}')">Comentar</button>
+                <span id="msg-enviar-comentario"></span>
+            </div>
+            <div class="col-xs-8">
+                <select id="doc-obs-defecto-select" name="doc-obs-defecto-select" class="form-control input-sm" onchange="setObservacionDefecto(this, 'observacion')">
+                    <option value="">Lista de observaciones por defecto:</option>
+                    <#list observacionesDefecto as observacionDefecto >
+                    <option value="${observacionDefecto.id}">${observacionDefecto.textoObservacion}</option>
+                    </#list>
+                </select>
+            </div>
+        </div>
     </div>
     </#if>
 </div>

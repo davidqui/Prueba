@@ -16,6 +16,7 @@ import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.CargoService;
 import com.laamware.ejercito.doc.web.serv.ClasificacionService;
 import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
+import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.TipologiaService;
@@ -103,6 +104,9 @@ public class DocumentoActaController extends UtilController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private DocumentoObservacionDefectoService observacionDefectoService;
 
     @Override
     public String nombre(Integer idUsuario) {
@@ -703,6 +707,7 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("documentoObservaciones", observacionService.findAllByDocumento(documento));
         uiModel.addAttribute("tipologias", tipologiaService.listarActivas());
         uiModel.addAttribute("usuariosAsignados", actaService.listarRegistrosUsuariosAsignados(documento));
+        uiModel.addAttribute("observacionesDefecto", observacionDefectoService.listarActivas());
     }
 
     /**
