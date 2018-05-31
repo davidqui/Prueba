@@ -23,9 +23,11 @@
         <#if debeSeleccionarUsuarios >
         <div class="card">
             <div class="card-header">
+                <#if (seleccionUsuarioSubserieActa != "SELECCION_1_1") || (usuariosAsignados?size == 0) >
                 <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#exampleModal">
                     Agregar usuario
                 </button>
+                </#if>
                 <strong>Usuarios (*)</strong>                
             </div>
             <div class="card-body">
@@ -56,24 +58,22 @@
                             </div>
                             <div class="modal-body">
                                 <div class="card">
-                                    <div class="card-body">
-                                        <form>
-                                            <div class="form-group">
-                                                <label for="usuarioAsignado">Usuario (*)</label>
-                                                <div class="input-group">
-                                                    <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="" disabled />
-                                                    <div class="input-group-btn">
-                                                        <button type="button" class="btn btn-primary" onclick="openUsuariosFinderWindow()">Buscar</button>
-                                                    </div> 
+                                    <div class="card-body">                                        
+                                        <div class="form-group">
+                                            <label for="usuarioAsignado">Usuario (*)</label>
+                                            <div class="input-group">
+                                                <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="" disabled />
+                                                <div class="input-group-btn">
+                                                    <button type="button" class="btn btn-primary" onclick="openUsuariosFinderWindow()">Buscar</button>
                                                 </div> 
-                                                <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="cargoAsignado">Cargo (*)</label>
-                                                <select class="form-control" id="cargoAsignado" name="cargoAsignado">
-                                                </select>
-                                            </div>
-                                        </form>
+                                            </div> 
+                                            <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="cargoAsignado">Cargo (*)</label>
+                                            <select class="form-control" id="cargoAsignado" name="cargoAsignado">
+                                            </select>
+                                        </div>                                        
                                     </div>
                                 </div>
                             </div>
