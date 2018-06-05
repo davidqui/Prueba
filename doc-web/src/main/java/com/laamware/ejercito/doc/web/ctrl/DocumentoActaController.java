@@ -509,12 +509,19 @@ public class DocumentoActaController extends UtilController {
     @RequestMapping(value = "/cargar-acta-digitalizada", method = RequestMethod.GET)
     public String cargarActaDigitalizada(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
         final Usuario usuarioSesion = getUsuario(principal);
-        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
-        if (!tieneAccesoPorAsignacion) {
-            return SECURITY_DENIED_TEMPLATE;
-        }
 
         Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            final boolean esUsuarioAsociadoParaConsulta = actaService.esUsuarioAsociadoParaConsulta(usuarioSesion, documento);
+            if (!esUsuarioAsociadoParaConsulta) {
+                return SECURITY_DENIED_TEMPLATE;
+            }
+        }
+
         if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
             redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
             return REDIRECT_MAIN_URL;
@@ -524,9 +531,6 @@ public class DocumentoActaController extends UtilController {
         if (!tieneAccesoPorClasificacion) {
             return REDIRECT_ACCESO_DENEGADO_URL;
         }
-
-        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
-        Documento documento = actaService.buscarDocumento(documentoID);
 
         if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ACTA_DIGITALIZADA.getId())) {
             cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);

@@ -555,6 +555,18 @@ public class DocumentoActaService {
     }
 
     /**
+     * Indica si el usuario se encuentra asociado al documento acta.
+     *
+     * @param usuario Usuario.
+     * @param documento Documento acta.
+     * @return {@code true} si el usuario se encuentra asociado (con registro
+     * activo) al documento acta; de lo contrario, {@code false}.
+     */
+    public boolean esUsuarioAsociadoParaConsulta(final Usuario usuario, final Documento documento) {
+        return usuarioXDocumentoActaRepository.findByUsuarioAndDocumentoAndActivoTrue(usuario, documento) != null;
+    }
+
+    /**
      * Construye la fecha de elaboración a partir del dato enviado en el
      * formulario, estableciendo la hora como 00:00:00.
      *
