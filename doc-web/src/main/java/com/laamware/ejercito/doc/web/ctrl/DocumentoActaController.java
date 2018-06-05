@@ -6,6 +6,7 @@ import com.laamware.ejercito.doc.web.entity.Adjunto;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
@@ -516,8 +517,8 @@ public class DocumentoActaController extends UtilController {
 
         final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
         if (!tieneAccesoPorAsignacion) {
-            final boolean esUsuarioAsociadoParaConsulta = actaService.esUsuarioAsociadoParaConsulta(usuarioSesion, documento);
-            if (!esUsuarioAsociadoParaConsulta) {
+            final boolean puedeConsultarPorAsociacionOArchivo = puedeConsultarPorAsociacionOArchivo(usuarioSesion, documento);
+            if (!puedeConsultarPorAsociacionOArchivo) {
                 return SECURITY_DENIED_TEMPLATE;
             }
         }
@@ -689,6 +690,25 @@ public class DocumentoActaController extends UtilController {
             LOG.log(Level.SEVERE, procesoInstanciaID + "\t" + registroID, ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         }
+    }
+
+    /**
+     * Indica si el usuario puede consultar el documento acta por asociación en
+     * el registro de acta o porque tiene el acta en su archivo.
+     *
+     * @param usuario Usuario.
+     * @param documento Documento acta.
+     * @return {@code true} si el usuario puede consultar el documento; de lo
+     * contrario, {@code false}.
+     */
+    private boolean puedeConsultarPorAsociacionOArchivo(final Usuario usuario, final Documento documento) {
+        final boolean esUsuarioAsociadoParaConsulta = actaService.esUsuarioAsociadoParaConsulta(usuario, documento);
+        if (esUsuarioAsociadoParaConsulta) {
+            return esUsuarioAsociadoParaConsulta;
+        }
+
+        final DocumentoDependencia registroArchivoActivo = actaService.buscarRegistroArchivoActivo(documento, usuario);
+        return registroArchivoActivo != null;
     }
 
     /**

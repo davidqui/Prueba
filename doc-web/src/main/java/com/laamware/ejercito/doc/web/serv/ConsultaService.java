@@ -92,11 +92,10 @@ public class ConsultaService {
         LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
                 dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs);
 
-        LOG.info("**************************************************");
-        LOG.info("sql = " + sql);
-        LOG.info("parameters = " + parameters);
-        LOG.info("**************************************************");
-
+//        LOG.info("**************************************************");
+//        LOG.info("sql = " + sql);
+//        LOG.info("parameters = " + parameters);
+//        LOG.info("**************************************************");
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
         String count = ""
@@ -155,11 +154,10 @@ public class ConsultaService {
         LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen,
                 sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs);
 
-        LOG.info("##################################################");
-        LOG.info("sql = " + sql);
-        LOG.info("parameters = " + parameters);
-        LOG.info("##################################################");
-
+//        LOG.info("##################################################");
+//        LOG.info("sql = " + sql);
+//        LOG.info("parameters = " + parameters);
+//        LOG.info("##################################################");
         String consulta = ""
                 + "select *\n"
                 + "from(\n"
@@ -248,12 +246,23 @@ public class ConsultaService {
          * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
          * feature-162: Filtro de usuario asociado a una acta y validación del
          * cargo. En caso que el usuario sea un asociado, este únicamente podrá
-         * consultar el acta cuando esta haya sido digitalizada.
+         * consultar el acta cuando esta haya sido digitalizada. Modificación
+         * para visualización de actas tras transferencia de archivo.
          */
-        sql.append(" AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ? OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ? ");
+        sql.append(" AND ((PROCESO.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)) \n");
+        sql.append(" OR ((PROCESO.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?) OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ? \n");
+        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
+        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
+        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
         parameters.add(usuarioID);
         parameters.add(usuarioID);
         parameters.add(usuarioID);
+
+        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
+        parameters.add(usuarioID);
+        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+        parameters.add(usuarioID);
+        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
         parameters.add(usuarioID);
         parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
 
@@ -266,7 +275,7 @@ public class ConsultaService {
             }
             sql.append(")");
         }
-        sql.append(")) \n");
+        sql.append("))))) \n");
 
         // Issue #128
         sql.append("AND ( \n");
@@ -471,7 +480,7 @@ public class ConsultaService {
          *
          * 2018-06-05 jgarcia@controltechcg.com Issue #162: Nuevas asociaciones
          * correspondientes al proceso de Registro de Actas
-         * (USUARIO_X_DOCUMENTO_ACTA).
+         * (USUARIO_X_DOCUMENTO_ACTA, DOCUMENTO_DEPENDENCIA).
          */
         return new StringBuilder("\n"
                 + " SELECT DISTINCT "
@@ -509,7 +518,8 @@ public class ConsultaService {
                 + " LEFT JOIN CLASIFICACION                  ON (DOC.CLA_ID                  = CLASIFICACION.CLA_ID) \n"
                 + " LEFT JOIN (SELECT DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_ORI_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_ORI_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID) DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ELABORA.DEP_ID)\n"
                 + " LEFT JOIN (SELECT DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_DES_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_DES_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_DES_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID) DEP_DESTINO ON (DEP_DESTINO.DEP_ID = DOC.DEP_ID_DES)\n"
-                + " LEFT JOIN USUARIO_X_DOCUMENTO_ACTA       ON (USUARIO_X_DOCUMENTO_ACTA.DOC_ID  = DOC.DOC_ID AND USUARIO_X_DOCUMENTO_ACTA.ACTIVO = 1)"
+                + " LEFT JOIN USUARIO_X_DOCUMENTO_ACTA       ON (USUARIO_X_DOCUMENTO_ACTA.DOC_ID  = DOC.DOC_ID AND USUARIO_X_DOCUMENTO_ACTA.ACTIVO = 1)\n"
+                + " LEFT JOIN DOCUMENTO_DEPENDENCIA          ON (DOCUMENTO_DEPENDENCIA.DOC_ID  = DOC.DOC_ID AND DOCUMENTO_DEPENDENCIA.ACTIVO = 1)\n"
                 + " WHERE 1 = 1 \n"
                 + "");
     }

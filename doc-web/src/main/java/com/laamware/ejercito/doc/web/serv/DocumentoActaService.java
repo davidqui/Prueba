@@ -5,6 +5,7 @@ import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Radicacion;
@@ -106,6 +107,9 @@ public class DocumentoActaService {
 
     @Autowired
     private UsuarioXDocumentoActaRepository usuarioXDocumentoActaRepository;
+
+    @Autowired
+    private DocumentoDependenciaService documentoDependenciaService;
 
     /**
      * Constructor.
@@ -627,6 +631,27 @@ public class DocumentoActaService {
         }
 
         return false;
+    }
+
+    /**
+     * Busca un registro de archivo activo para un documento y un usuario
+     * asociado.
+     *
+     * @param documento Documento.
+     * @param usuario Usuario.
+     * @return Instancia del registro activo de archivo para el documento y el
+     * usuario. En caso de no existir correspondencia en el sistema, se retorna
+     * {@code null}.
+     * @see
+     * DocumentoDependenciaService#buscarRegistroActivo(com.laamware.ejercito.doc.web.entity.Documento,
+     * com.laamware.ejercito.doc.web.entity.Usuario)
+     */
+    /*
+     * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public DocumentoDependencia buscarRegistroArchivoActivo(Documento documento, Usuario usuario) {
+        return documentoDependenciaService.buscarRegistroActivo(documento, usuario);
     }
 
 }
