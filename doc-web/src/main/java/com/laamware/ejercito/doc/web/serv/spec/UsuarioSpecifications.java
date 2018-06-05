@@ -24,6 +24,12 @@ public class UsuarioSpecifications {
     private static final String UPPER_FUNCTION = "UPPER";
 
     /**
+     * Constructor privado.
+     */
+    private UsuarioSpecifications() {
+    }
+
+    /**
      * Especificación de inicio, con las condiciones iniciales del filtro.
      * (Usuario activo).
      *
@@ -76,6 +82,26 @@ public class UsuarioSpecifications {
             @Override
             public Predicate toPredicate(Root<Usuario> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 return cb.greaterThanOrEqualTo(root.<Clasificacion>get("clasificacion").<Integer>get("orden"), clasificacionOrden);
+            }
+        };
+    }
+
+    /**
+     * Especificación con la condición para no seleccionar un usuario en
+     * específico.
+     *
+     * @param usuario Usuario a no aparecer en el listado de resultados.
+     * @return Especificación.
+     */
+    /*
+     * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public static Specification<Usuario> noSeleccionarUsuario(final Usuario usuario) {
+        return new Specification<Usuario>() {
+            @Override
+            public Predicate toPredicate(Root<Usuario> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                return cb.notEqual(root.<Integer>get("id"), usuario.getId());
             }
         };
     }

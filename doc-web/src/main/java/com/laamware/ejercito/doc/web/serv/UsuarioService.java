@@ -97,11 +97,16 @@ public class UsuarioService {
 
         Specifications<Usuario> where = Specifications.where(UsuarioSpecifications.inicio());
 
-        /*
+        /**
          * 2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
          * feature-162: Filtro por orden de clasificación para finder tipo ACTA.
+         *
+         * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+         * feature-162: No listar el usuario en sesión para el finder tipo ACTA.
          */
         if (usuarioFinderTipo.equals(UsuarioFinderTipo.ACTA)) {
+            where = where.and(UsuarioSpecifications.noSeleccionarUsuario(usuarioSesion));
+
             final String pin = (String) criteriaParametersMap.get("pin");
             final Documento documento = documentoRepository.findOneByInstanciaId(pin);
             final Clasificacion clasificacion = documento.getClasificacion();
