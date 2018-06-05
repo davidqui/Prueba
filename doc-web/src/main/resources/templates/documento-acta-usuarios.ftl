@@ -6,16 +6,7 @@
 
 <div class="col-md-8">    
     <#if estadoModo == "SELECCION_USUARIOS">
-    <table class="table table-sm">    	
-        <tbody>
-            <tr><th>Asunto</th><td>${documento.asunto}</td></tr>
-            <tr><th>Lugar</th><td>${documento.actaLugar}</td></tr>
-            <tr><th>Fecha de elaboración</th><td>${yyyymmdd.format(documento.actaFechaElaboracion)}</td></tr>
-            <tr class="table-danger"><th>Nivel de clasificación</th><td>${documento.clasificacion.nombre}</td></tr>
-            <tr><th>TRD</th><td>${documento.trd.codigo} - ${documento.trd.nombre}</td></tr>
-            <tr><th>Número de folios</th><td>${documento.numeroFolios}</td></tr>
-        </tbody>            
-    </table>
+    <@presentarInformacionRegistrada documento estadoModo />
     
     <form action="/documento-acta/registrar-usuarios" method="POST" id="formdoc" enctype='multipart/form-data'>
         <input type="hidden" id="pin" name="pin" value="${procesoInstancia.id}" />

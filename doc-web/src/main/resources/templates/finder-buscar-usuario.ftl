@@ -55,6 +55,9 @@
         <div class="container-fluid">
             <form action = "/finder/usuario/finder-buscar-usuario" method="POST">
                 <input type="hidden" id="type" name="type" value="${type}" />
+                <#if pin??>
+                <input type="hidden" id="pin" name="pin" value="${pin}" />
+                </#if>
                 <div class="form-group row">
                     <div class="input-group">
                         <input type="text" id="criteria" name="criteria" class="form-control" value="${criteria!""}" placeholder="Ingrese los valores de búsqueda..."/>
