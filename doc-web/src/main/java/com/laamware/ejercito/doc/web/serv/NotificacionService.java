@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Notificacion;
 import com.laamware.ejercito.doc.web.entity.TipoNotificacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
@@ -71,6 +72,10 @@ public class NotificacionService {
         if (tipoNotificacion == null) {
             throw new BusinessLogicException("Debe seleccionar un tipo de notificación");
         }
+        final Clasificacion clasificacion = notificacion.getClasificacion();
+        if (clasificacion == null) {
+            throw new BusinessLogicException("Debe seleccionar una clasificación");
+        }
         final String template = notificacion.getTemplate();
         if (template.trim().length() < 1) {
             throw new BusinessLogicException("El texto del template es un campo obligatorio.");
@@ -95,6 +100,10 @@ public class NotificacionService {
         final TipoNotificacion tipoNotificacion = notificacion.getTipoNotificacion();
         if (tipoNotificacion == null) {
             throw new BusinessLogicException("Debe seleccionar un tipo de notificación");
+        }
+        final Clasificacion clasificacion = notificacion.getClasificacion();
+        if (clasificacion == null) {
+            throw new BusinessLogicException("Debe seleccionar una clasificación");
         }
         final String template = notificacion.getTemplate();
         if (template.trim().length() < 1) {

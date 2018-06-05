@@ -10,6 +10,7 @@
     <div class="row">
         <h1 class="cus-h1-page-title">${pageTitle}</h1>
         <form action="/admin/notificacion/actualizar" method="POST" enctype="multipart/form-data" >
+            <input type="hidden" id="id" name="id" value="${notificacion.id}" />
             <fieldset class="form-group">
                 <label for="trd">Tipo de Notificación</label>
                 <select id="tipo-notificacion-form" name="tipoNotificacion" class="form-control input-sm" onchange="cambioTipoNotificacion(${(notificacion.tipoNotificacion.id)!""})">
