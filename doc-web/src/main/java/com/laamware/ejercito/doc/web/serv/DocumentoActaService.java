@@ -249,6 +249,11 @@ public class DocumentoActaService {
                 if (actaFechaElaboracion.before(actaFechaElaboracionLimite)) {
                     validation.addError(documentoActaDTO, campo, "La fecha de elaboración es menor que la fecha límite permitida: "
                             + new SimpleDateFormat(Global.DATE_FORMAT).format(actaFechaElaboracionLimite));
+                } else {
+                    final Date fechaSistema = DateUtil.setTime(new Date(), DateUtil.SetTimeType.END_TIME);
+                    if (actaFechaElaboracion.after(fechaSistema)) {
+                        validation.addError(documentoActaDTO, campo, "La fecha de elaboración es mayor a la fecha del sistema.");
+                    }
                 }
             } catch (ParseException ex) {
                 LOG.log(Level.SEVERE, _actaFechaElaboracion, ex);
