@@ -32,7 +32,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * Controlador para {@link Notificacion}.
  *
- * @author samuel.delgado@controltechcg.com 
+ * @author samuel.delgado@controltechcg.com
  * @since 1.8
  * @version 30/05/2018 Issue #169 (SICDI-Controltech) feature-169
  */
@@ -40,27 +40,26 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @PreAuthorize(value = "hasRole('ADMIN_NOTIFICACIONES')")
 @RequestMapping(AdminNotificacionController.PATH)
 public class AdminNotificacionController extends UtilController {
-    
+
     private static final Logger LOG = Logger.getLogger(AdminNotificacionController.class.getName());
 
     static final String PATH = "/admin/notificacion";
-    
+
     private static final String LIST_TEMPLATE = "admin-notificaciones-list";
 
     private static final String CREATE_TEMPLATE = "admin-notificaciones-create";
 
     private static final String EDIT_TEMPLATE = "admin-notificaciones-edit";
-    
+
     @Autowired
     private NotificacionService notificacionService;
-    
+
     @Autowired
     private TipoNotificacionService tipoNotificacionService;
-    
+
     @Autowired
     private ClasificacionRepository clasificacionRepository;
-    
-    
+
     /**
      * Permite listar todos las notificaciones del sistema
      *
@@ -77,23 +76,23 @@ public class AdminNotificacionController extends UtilController {
         } else {
             list = notificacionService.findAll(sort);
         }
-        
-        System.out.println("QUE SUCEDE? "+ list.get(0).toString());
+
         model.addAttribute("list", list);
         model.addAttribute("all", all);
-        
+
         for (int i = 0; i < list.size(); i++) {
             List<WildCardNotificacion> wildcards = list.get(i).getTipoNotificacion().getWildCards();
             for (int j = 0; j < wildcards.size(); j++) {
-               System.out.println("Wildcards"+ wildcards.get(j).toString());
+                System.out.println("Wildcards" + wildcards.get(j).toString());
             }
         }
 
         return LIST_TEMPLATE;
     }
-    
-     /**
-     * Permite visualizar el formulario de creación de una notificación del sistema
+
+    /**
+     * Permite visualizar el formulario de creación de una notificación del
+     * sistema
      *
      * @param idTipoNotificacion
      * @param model
@@ -107,7 +106,7 @@ public class AdminNotificacionController extends UtilController {
         model.addAttribute("tiposNotificaciones", tiposNotificaciones);
         model.addAttribute("clasificaciones", clasificaciones);
         Notificacion notificacion = new Notificacion();
-        
+
         if (!idTipoNotificacion.equals("false")) {
             String id_clasificacion = req.getParameter("clasificacion");
             notificacion.setTipoNotificacion(getTipoNotificacionById(tiposNotificaciones, idTipoNotificacion));
@@ -120,7 +119,8 @@ public class AdminNotificacionController extends UtilController {
     }
 
     /**
-     * Permite visualizar el formulario de edición de una notificación defecto del sistema
+     * Permite visualizar el formulario de edición de una notificación defecto
+     * del sistema
      *
      * @param idTipoNotificacion
      * @param model
@@ -138,7 +138,7 @@ public class AdminNotificacionController extends UtilController {
         model.addAttribute("notificacion", notificacion);
         model.addAttribute("tiposNotificaciones", tiposNotificaciones);
         model.addAttribute("clasificaciones", clasificaciones);
-        
+
         if (!idTipoNotificacion.equals("false")) {
             String id_clasificacion = req.getParameter("clasificacion");
             notificacion.setTipoNotificacion(getTipoNotificacionById(tiposNotificaciones, idTipoNotificacion));
@@ -148,12 +148,10 @@ public class AdminNotificacionController extends UtilController {
         }
         return EDIT_TEMPLATE;
     }
-    
-    
-    
+
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
     public String crear(Notificacion notificacion, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
-            MultipartFile archivo, Principal principal) {  
+            MultipartFile archivo, Principal principal) {
         model.addAttribute("notificacion", notificacion);
         Usuario logueado = getUsuario(principal);
         try {
@@ -166,9 +164,8 @@ public class AdminNotificacionController extends UtilController {
             return CREATE_TEMPLATE;
         }
     }
-    
-    
-     /**
+
+    /**
      * Permite actualizar una notificación del sistema
      *
      * @param notificacion
@@ -184,7 +181,7 @@ public class AdminNotificacionController extends UtilController {
     public String actualizar(Notificacion notificacion, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
             MultipartFile archivo, Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
-       
+
         model.addAttribute("notificacion", notificacion);
         try {
             notificacionService.editarNotifiacion(notificacion, usuarioSesion);
@@ -196,9 +193,8 @@ public class AdminNotificacionController extends UtilController {
             return EDIT_TEMPLATE;
         }
     }
-    
-    
-     /**
+
+    /**
      * *
      * Permite eliminar una notificación del sistema
      *
@@ -222,7 +218,7 @@ public class AdminNotificacionController extends UtilController {
         }
         return "redirect:" + PATH;
     }
-    
+
     @ModelAttribute("descriptor")
     GenDescriptor getDescriptor() {
         return GenDescriptor.find(Notificacion.class);
@@ -252,19 +248,22 @@ public class AdminNotificacionController extends UtilController {
     public List<TipoNotificacion> findActiveTipoNotificacion() {
         return tipoNotificacionService.findActive(new Sort(new Sort.Order(Sort.Direction.DESC, "cuando")));
     }
-    
+
     @ModelAttribute("clasificaciones")
     public List<Clasificacion> findActiveClasificacion() {
         return clasificacionRepository.findByActivo(true);
     }
-    
-    /***
+
+    /**
+     * *
      * Retorna un tipo de notificación en una lista dado un id
+     *
      * @param tiposNotificaciones lista de tipos de notificación
      * @param idTipoNotificacion id del tipo de notificación
-     * @return tipo de notificación en caso de encontrar o null en caso contrario
+     * @return tipo de notificación en caso de encontrar o null en caso
+     * contrario
      */
-    public static TipoNotificacion getTipoNotificacionById(List<TipoNotificacion> tiposNotificaciones, String idTipoNotificacion){
+    public static TipoNotificacion getTipoNotificacionById(List<TipoNotificacion> tiposNotificaciones, String idTipoNotificacion) {
         for (int i = 0; i < tiposNotificaciones.size(); i++) {
             if (tiposNotificaciones.get(i).getId() == Integer.parseInt(idTipoNotificacion)) {
                 return tiposNotificaciones.get(i);
@@ -272,20 +271,22 @@ public class AdminNotificacionController extends UtilController {
         }
         return null;
     }
-    
-    /***
+
+    /**
+     * *
      * Retorna una clasificación en una lista dado un id
+     *
      * @param clasificaciones lista de clasificaciones
      * @param id_clasificacion id del la clasificación
      * @return clasificación en caso de encontrar o null en caso contrario
      */
-    public static Clasificacion getClasificacionById(List<Clasificacion> clasificaciones, String id_clasificacion){
+    public static Clasificacion getClasificacionById(List<Clasificacion> clasificaciones, String id_clasificacion) {
         for (int i = 0; i < clasificaciones.size(); i++) {
             if (clasificaciones.get(i).getId() == Integer.parseInt(id_clasificacion)) {
                 return clasificaciones.get(i);
             }
         }
-        
+
         return null;
     }
 }

@@ -12,7 +12,7 @@ CREATE TABLE WILDCARD_NOTIFICACION(
     NOMBRE              VARCHAR2(32 CHAR)   NOT NULL,
     VALOR               VARCHAR2(32 CHAR)   NOT NULL,
     PRIMARY KEY (WNF_ID)
-)
+);
 
 COMMENT ON TABLE WILDCARD_NOTIFICACION
 IS 'Información y parametrización de variables para agregar en el cuerpo de la notificación';
@@ -38,12 +38,12 @@ CREATE TABLE TIPO_NOTIFICACION(
     QUIEN_MOD           NUMBER(38)          NULL,
     CUANDO_MOD          TIMESTAMP           NULL,
     PRIMARY KEY (TNF_ID)
-)
+);
 
 COMMENT ON TABLE TIPO_NOTIFICACION
 IS 'Información y parametrización de notificaciones utilizadas en el sistema.';
 
-COMMENT ON COLUMN TIPO_NOTIFICACION.NTF_ID
+COMMENT ON COLUMN TIPO_NOTIFICACION.TNF_ID
 IS 'Código asignado al tipo de notificación.';
 COMMENT ON COLUMN TIPO_NOTIFICACION.NOMBRE
 IS 'Nombre asignado al tipo de notificación.';
@@ -78,7 +78,7 @@ CREATE TABLE WILDCARD_TIPO_NOTIFICACION(
     TNF_ID               NUMBER(38)          NOT NULL,
     WNF_ID               NUMBER(38)          NOT NULL,
     PRIMARY KEY (TNF_ID, WNF_ID)
-)
+);
 
 COMMENT ON TABLE WILDCARD_TIPO_NOTIFICACION
 IS 'Tabla intermedia entre TIPO_NOTIFICACION y WILDCARD_NOTIFICACION.';
@@ -114,7 +114,7 @@ CREATE TABLE NOTIFICACION(
     QUIEN_MOD           NUMBER(38)          NULL,
     CUANDO_MOD          TIMESTAMP           NULL,
     PRIMARY KEY (NTF_ID)
-)
+);
 
 CREATE SEQUENCE NOTIFICACION_SEQ;
 
@@ -173,7 +173,7 @@ CREATE TABLE H_NOTIFICACION(
     QUIEN_MOD           NUMBER(38)          NULL,
     CUANDO_MOD          TIMESTAMP           NULL,
     PRIMARY KEY (HNT_ID)
-)
+);
 
 COMMENT ON TABLE H_NOTIFICACION
 IS 'Información y parametrización histórica de notificaciones en el sistema.';
@@ -218,6 +218,16 @@ CREATE INDEX H_NOTIFICACION_ACTIVO_IDX
 ON H_NOTIFICACION (ACTIVO);
 
 -- -----------------------------------------------------------------------------
+-- TABLA: ROL
+-- -----------------------------------------------------------------------------
+
+INSERT INTO ROL 
+    (ROL_ID, QUIEN, CUANDO, QUIEN_MOD, CUANDO_MOD, ACTIVO, ROL_NOMBRE) 
+VALUES 
+    ('ADMIN_NOTIFICACIONES',3390, SYSDATE,3390,SYSDATE,1,'Administrar notificaciones')
+;
+
+-- -----------------------------------------------------------------------------
 -- TRIGGER: TRG_REGISTRO_H_NOTIFICACION
 -- -----------------------------------------------------------------------------
 
@@ -248,6 +258,3 @@ BEGIN
         :NEW.CUANDO_MOD
     );
 END;
-
-insert into ROL (ROL_ID, QUIEN, CUANDO, QUIEN_MOD, CUANDO_MOD, ACTIVO, ROL_NOMBRE) values ('ADMIN_NOTIFICACIONES',3390, sysdate,3390,sysdate,1,'Administrar notificaciones');
-COMMIT;
