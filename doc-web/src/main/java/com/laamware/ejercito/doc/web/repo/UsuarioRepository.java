@@ -77,38 +77,51 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      * feature-120: Funciones para buscador de usuarios.
      */
     Usuario findByActivoTrueAndDocumento(String documento);
-    
+
     /**
-     * Obtiene la lista de todos los usuarios ordenados por el
-     * peso del grado.
+     * Obtiene la lista de todos los usuarios ordenados por el peso del grado.
      *
      * @return
      */
-    // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
-    // segun el peso de los grados.
-    @Query(value = "select t from Usuario t order by t.usuGrado.pesoOrden DESC")
+    /*
+     * 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
+     * segun el peso de los grados.
+     *
+     * 2018-06-06 jgarcia@controltechcg.com Issue #174 (SICDI-Controltech)
+     * feature-174: Adición de ordenamiento por nombre.
+     */
+    @Query(value = "select t from Usuario t order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
     List<Usuario> findAllOrderByGradoDesc();
-    
+
     /**
-     * Obtiene la lista de los usuarios activos ordenados por el
-     * peso del grado.
+     * Obtiene la lista de los usuarios activos ordenados por el peso del grado.
      *
      * @return
      */
-    // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
-    // segun el peso de los grados.
-    @Query(value = "select t from Usuario t where t.activo = 1 order by t.usuGrado.pesoOrden DESC")
+    /*
+     * 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
+     * segun el peso de los grados.
+     * 
+     * 2018-06-06 jgarcia@controltechcg.com Issue #174 (SICDI-Controltech)
+     * feature-174: Adición de ordenamiento por nombre.
+     */
+    @Query(value = "select t from Usuario t where t.activo = 1 order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
     List<Usuario> findAllByActivoTrueOrderByGradoDesc();
 
     /**
-     * Obtiene los usuarios activos que pertenecen a la dependencia ordenados por el
-     * peso del grado, segun la dependencia.
+     * Obtiene los usuarios activos que pertenecen a la dependencia ordenados
+     * por el peso del grado, segun la dependencia.
      *
      * @param dep
      * @return
      */
-    // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
-    // segun el peso de los grados.
-    @Query(value = "select t from Usuario t where t.activo = 1 and t.dependencia.id = :depId order by t.usuGrado.pesoOrden DESC")
+    /*
+     * 2017-10-05 edison.gonzalez@controltechcg.com Issue #131: Ajuste de orden
+     * segun el peso de los grados.
+     * 
+     * 2018-06-06 jgarcia@controltechcg.com Issue #174 (SICDI-Controltech)
+     * feature-174: Adición de ordenamiento por nombre.
+     */
+    @Query(value = "select t from Usuario t where t.activo = 1 and t.dependencia.id = :depId order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
     List<Usuario> findByDependenciaAndActivoTrueOrderByGradoDesc(@Param(value = "depId") Integer dep);
 }
