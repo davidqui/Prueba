@@ -190,9 +190,10 @@ public class DependenciaController extends UtilController {
     }
 
     protected void registerLists(Map<String, Object> map) {
-        /* 
-         *2017-10-05 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech)
-         * feature-131: Ajuste de orden segun el peso de los grados.
+        /**
+         * 2017-10-05 edison.gonzalez@controltechcg.com Issue #131
+         * (SICDI-Controltech) feature-131: Ajuste de orden segun el peso de los
+         * grados.
          */
         map.put("usuarios", usuarioRepository.findAllByActivoTrueOrderByGradoDesc());
     }
