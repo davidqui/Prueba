@@ -80,13 +80,6 @@ public class AdminNotificacionController extends UtilController {
         model.addAttribute("list", list);
         model.addAttribute("all", all);
 
-        for (int i = 0; i < list.size(); i++) {
-            List<WildCardNotificacion> wildcards = list.get(i).getTipoNotificacion().getWildCards();
-            for (int j = 0; j < wildcards.size(); j++) {
-                System.out.println("Wildcards" + wildcards.get(j).toString());
-            }
-        }
-
         return LIST_TEMPLATE;
     }
 
@@ -181,7 +174,6 @@ public class AdminNotificacionController extends UtilController {
     public String actualizar(Notificacion notificacion, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
             MultipartFile archivo, Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
-
         model.addAttribute("notificacion", notificacion);
         try {
             notificacionService.editarNotifiacion(notificacion, usuarioSesion);
@@ -286,7 +278,6 @@ public class AdminNotificacionController extends UtilController {
                 return clasificaciones.get(i);
             }
         }
-
         return null;
     }
 }

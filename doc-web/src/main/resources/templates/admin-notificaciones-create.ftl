@@ -36,8 +36,8 @@
                     </#list>
                 </select>
             </fieldset>
-            <label for="textoObservacion">Template</label>
             <#if notificacion.tipoNotificacion??>
+                <label for="textoObservacion">Template</label>
                 <fieldset class="form-group">
                     <div style="display: flex;">
                         <textarea id="text-area-notificacion" class="form-control" name="template" rows="20" style="width: 70%;">${(notificacion.template)!""}</textarea>

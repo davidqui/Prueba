@@ -258,3 +258,41 @@ BEGIN
         :NEW.CUANDO_MOD
     );
 END;
+
+
+-- -----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+-- TEST: CASES 
+-- -----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------
+
+--------------------------------------------------------
+-- Archivo creado  - miercoles-junio-06-2018   
+--------------------------------------------------------
+
+INSERT INTO NOTIFICACION (NTF_ID,      
+        TNF_ID,
+        CLA_ID,     
+        CUERPO,    
+        ACTIVO,    
+        QUIEN,     
+        CUANDO,    
+        QUIEN_MOD, 
+        CUANDO_MOD) VALUES(1, 10, 6, '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello ${name}!</title>
+</head>
+<body>
+    <h2 class="hello-title">Hello ${name}!</h2>
+</body>
+</html>', 1, 3390, sysdate,3390,sysdate);
+
+INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('10','Nombre Usuario','usuario.nombre');
+INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('20','Clasificación Usuario','usuario.clasificacion');
+INSERT INTO TIPO_NOTIFICACION (TNF_ID,NOMBRE,VALOR,ACTIVO,QUIEN,CUANDO,QUIEN_MOD,CUANDO_MOD) VALUES ('10','NOTIFICACI�N B�SICA - PROCESO 8','8','1','3390',sysdate,'3390',sysdate);
+INSERT INTO WILDCARD_TIPO_NOTIFICACION (TNF_ID,WNF_ID) VALUES ('10','10');
+INSERT INTO WILDCARD_TIPO_NOTIFICACION (TNF_ID,WNF_ID) VALUES ('10','20');
