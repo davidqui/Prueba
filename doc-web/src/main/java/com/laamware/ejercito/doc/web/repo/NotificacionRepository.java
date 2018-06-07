@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 public interface NotificacionRepository extends JpaRepository<Notificacion, Integer>{
     
     /**
-     * Lista todas los tipos de notificación activas
+     * Lista todas las notificaciones activas
      * @param sort
      * @return 
      */

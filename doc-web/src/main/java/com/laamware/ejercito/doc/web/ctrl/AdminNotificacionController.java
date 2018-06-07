@@ -6,7 +6,6 @@ import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Notificacion;
 import com.laamware.ejercito.doc.web.entity.TipoNotificacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
-import com.laamware.ejercito.doc.web.entity.WildCardNotificacion;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.serv.NotificacionService;
 import com.laamware.ejercito.doc.web.serv.TipoNotificacionService;
