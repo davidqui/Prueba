@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.dto;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -16,7 +17,7 @@ public class EmailDTO implements Serializable{
     
     private String remitente;
     private String destino;
-    private String copiaDestino;
+    private List<String> copiaDestino;
     
     private String asunto;
     
@@ -26,7 +27,7 @@ public class EmailDTO implements Serializable{
     
     private File adjunto;
 
-    public EmailDTO(String remitente, String destino, String copiaDestino, String asunto, String cabecera, String cuerpo, String piePagina) {
+    public EmailDTO(String remitente, String destino, List<String> copiaDestino, String asunto, String cabecera, String cuerpo, String piePagina, File adjunto) {
         this.remitente = remitente;
         this.destino = destino;
         this.copiaDestino = copiaDestino;
@@ -34,58 +35,60 @@ public class EmailDTO implements Serializable{
         this.cabecera = cabecera;
         this.cuerpo = cuerpo;
         this.piePagina = piePagina;
+        this.adjunto = adjunto;
     }
+    
 
     public String getRemitente() {
         return remitente;
-    }
-
-    public String getDestino() {
-        return destino;
-    }
-
-    public String getCopiaDestino() {
-        return copiaDestino;
-    }
-
-    public String getAsunto() {
-        return asunto;
-    }
-
-    public String getCabecera() {
-        return cabecera;
-    }
-
-    public String getCuerpo() {
-        return cuerpo;
-    }
-
-    public String getPiePagina() {
-        return piePagina;
     }
 
     public void setRemitente(String remitente) {
         this.remitente = remitente;
     }
 
+    public String getDestino() {
+        return destino;
+    }
+
     public void setDestino(String destino) {
         this.destino = destino;
     }
 
-    public void setCopiaDestino(String copiaDestino) {
+    public List<String> getCopiaDestino() {
+        return copiaDestino;
+    }
+
+    public void setCopiaDestino(List<String> copiaDestino) {
         this.copiaDestino = copiaDestino;
+    }
+
+    public String getAsunto() {
+        return asunto;
     }
 
     public void setAsunto(String asunto) {
         this.asunto = asunto;
     }
 
+    public String getCabecera() {
+        return cabecera;
+    }
+
     public void setCabecera(String cabecera) {
         this.cabecera = cabecera;
     }
 
+    public String getCuerpo() {
+        return cuerpo;
+    }
+
     public void setCuerpo(String cuerpo) {
         this.cuerpo = cuerpo;
+    }
+
+    public String getPiePagina() {
+        return piePagina;
     }
 
     public void setPiePagina(String piePagina) {
@@ -102,7 +105,21 @@ public class EmailDTO implements Serializable{
 
     @Override
     public String toString() {
-        return "EmailDTO{" + "remitente=" + remitente + ", destino=" + destino + ", copiaDestino=" + copiaDestino + ", asunto=" + asunto + ", cabecera=" + cabecera + ", cuerpo=" + cuerpo + ", piePagina=" + piePagina + '}';
+        return "EmailDTO{" + "remitente=" + remitente + ", destino=" + destino + ", copiaDestino=" + copiaDestino + ", asunto=" + asunto + ", cabecera=" + cabecera + ", cuerpo=" + cuerpo + ", piePagina=" + piePagina + ", adjunto=" + adjunto + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 23 * hash + Objects.hashCode(this.remitente);
+        hash = 23 * hash + Objects.hashCode(this.destino);
+        hash = 23 * hash + Objects.hashCode(this.copiaDestino);
+        hash = 23 * hash + Objects.hashCode(this.asunto);
+        hash = 23 * hash + Objects.hashCode(this.cabecera);
+        hash = 23 * hash + Objects.hashCode(this.cuerpo);
+        hash = 23 * hash + Objects.hashCode(this.piePagina);
+        hash = 23 * hash + Objects.hashCode(this.adjunto);
+        return hash;
     }
 
     @Override
@@ -123,9 +140,6 @@ public class EmailDTO implements Serializable{
         if (!Objects.equals(this.destino, other.destino)) {
             return false;
         }
-        if (!Objects.equals(this.copiaDestino, other.copiaDestino)) {
-            return false;
-        }
         if (!Objects.equals(this.asunto, other.asunto)) {
             return false;
         }
@@ -135,21 +149,16 @@ public class EmailDTO implements Serializable{
         if (!Objects.equals(this.cuerpo, other.cuerpo)) {
             return false;
         }
-        return Objects.equals(this.piePagina, other.piePagina);
+        if (!Objects.equals(this.piePagina, other.piePagina)) {
+            return false;
+        }
+        if (!Objects.equals(this.copiaDestino, other.copiaDestino)) {
+            return false;
+        }
+        if (!Objects.equals(this.adjunto, other.adjunto)) {
+            return false;
+        }
+        return true;
     }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 79 * hash + Objects.hashCode(this.remitente);
-        hash = 79 * hash + Objects.hashCode(this.destino);
-        hash = 79 * hash + Objects.hashCode(this.copiaDestino);
-        hash = 79 * hash + Objects.hashCode(this.asunto);
-        hash = 79 * hash + Objects.hashCode(this.cabecera);
-        hash = 79 * hash + Objects.hashCode(this.cuerpo);
-        hash = 79 * hash + Objects.hashCode(this.piePagina);
-        return hash;
-    }
-    
     
 }
