@@ -12,6 +12,10 @@ import com.laamware.ejercito.doc.web.serv.MailQueueService;
 import com.laamware.ejercito.doc.web.serv.NotificacionService;
 import com.laamware.ejercito.doc.web.serv.TipoNotificacionService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.security.Principal;
 import java.util.List;
 import java.util.logging.Level;
@@ -23,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -296,13 +301,27 @@ public class AdminNotificacionController extends UtilController {
      */
     @ResponseBody
     @RequestMapping(value = {"/testmail"}, method = RequestMethod.GET)
-    public ResponseEntity<?> TestMail(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
+    public ResponseEntity<?> TestMail(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) throws IOException {
         
-        
-        EmailDTO msgPrueba = new EmailDTO("samuel.delgado@controltechcg.com", "samuel.delgado@controltechcg.com", null, "Prueba", "Cabecera", "Cuerpo", "Footer", null);
-        
-        mailQueueService.enviarCorreo(msgPrueba);
-        
-        return ResponseEntity.ok("ok!");
+        try {
+            Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+            
+            
+            String cuerpo = notificacionService.findAll(sort).get(0).getTemplate();
+            
+            
+            Template t = new Template("mail", new StringReader(cuerpo));
+            String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
+            
+            
+            EmailDTO msgPrueba = new EmailDTO("samuel.delgado@controltechcg.com", "samuel.delgado@controltechcg.com", null, "Prueba", "Cabecera", cuerpo, "Footer", null);
+            
+            mailQueueService.enviarCorreo(msgPrueba);
+            
+            return ResponseEntity.ok("ok!");
+        } catch (TemplateException ex) {
+            Logger.getLogger(AdminNotificacionController.class.getName()).log(Level.SEVERE, null, ex);
+            return ResponseEntity.ok("No ok!!");
+        }
     }
 }

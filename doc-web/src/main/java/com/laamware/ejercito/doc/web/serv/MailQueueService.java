@@ -28,6 +28,20 @@ public class MailQueueService {
      * @param emailDTO mensaje a enviar
      */
     public void enviarCorreo(final EmailDTO emailDTO){
-        jmsMessagingTemplate.convertAndSend(this.queue, emailDTO);
+        
+        jmsMessagingTemplate.convertAndSend(this.queue, emailDTO_ToJsonString(emailDTO));
+    }
+    
+    public String emailDTO_ToJsonString(final EmailDTO emailDTO){
+        String jsonString = "{"
+                + "'remitente':"+emailDTO.getRemitente()
+                + ", 'destino':"+emailDTO.getDestino()
+                + ", 'copiaDestinos':"+null
+                + ", 'asunto':"+emailDTO.getAsunto()
+                + ", 'cabecera':"+emailDTO.getCabecera()
+                + ", 'cuerpo':"+emailDTO.getCuerpo()
+                + ", 'piePagina':"+emailDTO.getPiePagina()
+                + "}";
+        return jsonString;
     }
 }

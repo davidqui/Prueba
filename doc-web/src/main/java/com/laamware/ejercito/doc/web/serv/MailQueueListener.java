@@ -4,6 +4,8 @@ package com.laamware.ejercito.doc.web.serv;
 import com.laamware.ejercito.doc.web.dto.EmailDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.json.JSONObject;
+import org.springframework.jms.annotation.JmsListener;
 
 /**
  * Servicio para la recepción de elementos entrantes a la cola de correos.
@@ -21,12 +23,30 @@ public class MailQueueListener {
      * Recive los elementos de la cola de correo de ActiveMQ
      * @param mensaje 
      */
-    public void receptorNotificaciones(EmailDTO mensaje){
+    @JmsListener(destination = "MAIL_ACTIVEMQ_QUEUE")
+    public void receptorNotificaciones(String mensaje){
         try {
-            correoNotificacionService.enviarNotificacion(mensaje);
+            correoNotificacionService.enviarNotificacion(JsonStringToEmailDTO(mensaje));
         } catch (Exception e) {
             //TODO reintentar enviar
             e.printStackTrace();
         }
     }
+    
+    
+    public EmailDTO JsonStringToEmailDTO(String message){
+        JSONObject obj = new JSONObject(message);
+        EmailDTO emailMessage = new EmailDTO(
+                                            obj.getString("remitente"), 
+                                            obj.getString("destino"), 
+                                            null,
+                                            obj.getString("asunto"),
+                                            obj.getString("cabecera"), 
+                                            obj.getString("cuerpo"), 
+                                            obj.getString("piePagina"),
+                                            null);
+        
+        return emailMessage;
+    }
+            
 }

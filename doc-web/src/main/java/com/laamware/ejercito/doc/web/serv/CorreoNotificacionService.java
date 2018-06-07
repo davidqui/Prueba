@@ -32,6 +32,7 @@ public class CorreoNotificacionService {
      * @throws javax.mail.MessagingException 
      */
     public void enviarNotificacion(EmailDTO mensaje) throws MessagingException{
+        System.out.println("TEST EMAIL"+ mensaje.toString());
         final MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
         final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         
@@ -52,7 +53,6 @@ public class CorreoNotificacionService {
             bodyHtml += mensaje.getPiePagina();
         
         message.setText(bodyHtml);
-        
         // Enviar Correo
         this.javaMailSender.send(mimeMessage);
     }
