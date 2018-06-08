@@ -28,7 +28,11 @@
         <#-- Lugar -->
         <div class="form-group">
             <#assign campo = "actaLugar" />
-            <label for="${campo}">Lugar (*)</label>
+            <#--
+                2018-06-07 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech) feature-162:
+                Cambia "Lugar (*)" por "Lugar donde se suscribió el acta (*)"
+            -->
+            <label for="${campo}">Lugar donde se suscribió el acta (*)</label>
             <input type="text" class="form-control" id="${campo}" name="${campo}" value="<#if documentoActaDTO?? >${documentoActaDTO.actaLugar}<#elseif documento.actaLugar?? >${documento.actaLugar}</#if>" maxlength="64" />
             <small class="text-muted">Determina la ciudad donde se llevó a cabo la actividad que motivo la elaboración del acta.</small>
             <div class="error">
@@ -41,7 +45,11 @@
         <#-- Fecha -->
         <div class="form-group">
             <#assign campo = "actaFechaElaboracion" />
-            <label for="${campo}">Fecha (*)</label>
+            <#--
+                2018-06-07 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech) feature-162:
+                Cambia "Fecha (*)" por "Fecha de suscripción del acta (*)"
+            -->            
+            <label for="${campo}">Fecha de suscripción del acta (*)</label>
             <input type="text" class="form-control datepicker" id="${campo}" name="${campo}"  value="<#if documentoActaDTO?? >${documentoActaDTO.actaFechaElaboracion}<#elseif documento.actaFechaElaboracion?? >${yyyymmdd.format(documento.actaFechaElaboracion)}</#if>" />
             <small class="text-muted">Determina la fecha donde se llevó a cabo la actividad que motivo la elaboración del acta.</small>
             <div class="error">

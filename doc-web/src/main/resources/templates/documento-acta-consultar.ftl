@@ -8,7 +8,7 @@
     <#if estadoModo == "SOLO_CONSULTA">
     <@presentarInformacionRegistrada documento estadoModo />
     
-    <@presentarUsuariosAsignados usuariosAsignados />
+    <@presentarUsuariosAsignados usuariosAsignadosConsulta />
 
         <#if documento.pdf?? >
         <div class="card">

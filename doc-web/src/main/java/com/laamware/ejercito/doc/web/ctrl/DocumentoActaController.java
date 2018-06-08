@@ -732,6 +732,7 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("tipologias", tipologiaService.listarActivas());
         uiModel.addAttribute("usuariosAsignados", actaService.listarRegistrosUsuariosAsignados(documento));
         uiModel.addAttribute("observacionesDefecto", observacionDefectoService.listarActivas());
+        uiModel.addAttribute("usuariosAsignadosConsulta", actaService.listarRegistrosUsuariosAsignadosConsulta(documento));
     }
 
     /**

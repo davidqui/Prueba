@@ -431,6 +431,27 @@ public class DocumentoActaService {
     }
 
     /**
+     * Busca todos los registros activos de usuarios asignados al documento
+     * acta, incluyendo al usuario que elabora el acta, con fines de consulta.
+     *
+     * @param documento Documento acta.
+     * @return Lista de todos los registros activos de usuarios asignados al
+     * documento acta.
+     */
+    public List<UsuarioXDocumentoActa> listarRegistrosUsuariosAsignadosConsulta(final Documento documento) {
+        List<UsuarioXDocumentoActa> list = usuarioXDocumentoActaRepository.findAllByActivoTrueAndDocumento(documento);
+
+        UsuarioXDocumentoActa usuarioElaboraXDocumentoActa = new UsuarioXDocumentoActa();
+        usuarioElaboraXDocumentoActa.setUsuario(documento.getElabora());
+        usuarioElaboraXDocumentoActa.setCargo(documento.getCargoIdElabora());
+        usuarioElaboraXDocumentoActa.setDocumento(documento);
+        list.add(usuarioElaboraXDocumentoActa);
+
+        Collections.sort(list, new UsuarioXDocumentoActaComparator());
+        return list;
+    }
+
+    /**
      * Obtiene el tipo de selección de usuario según la subserie TRD.
      *
      * @param subserieTrdID ID de la subserie TRD.
