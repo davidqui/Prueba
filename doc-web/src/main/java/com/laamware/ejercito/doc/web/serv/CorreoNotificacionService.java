@@ -2,6 +2,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.EmailDTO;
+import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,15 @@ public class CorreoNotificacionService {
      * @throws javax.mail.MessagingException 
      */
     public void enviarNotificacion(EmailDTO mensaje) throws MessagingException{
-        System.out.println("TEST EMAIL"+ mensaje.toString());
         final MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
         final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        
+        if (mensaje.getCopiaDestino() != null) {
+            List<String> ccDestino = mensaje.getCopiaDestino();
+            String[] array = new String[ccDestino.size()];
+            String[] copias = mensaje.getCopiaDestino().toArray(array);
+            message.setBcc(copias);
+        }
         
         message.setSubject(mensaje.getAsunto());
         
@@ -52,7 +59,7 @@ public class CorreoNotificacionService {
         if (mensaje.getPiePagina()!= null)
             bodyHtml += mensaje.getPiePagina();
         
-        message.setText(bodyHtml);
+        message.setText(bodyHtml, true);
         // Enviar Correo
         this.javaMailSender.send(mimeMessage);
     }

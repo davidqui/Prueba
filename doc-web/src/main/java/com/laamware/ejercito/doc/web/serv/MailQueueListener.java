@@ -2,6 +2,9 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.EmailDTO;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.json.JSONObject;
@@ -35,14 +38,22 @@ public class MailQueueListener {
     
     
     public EmailDTO JsonStringToEmailDTO(String message){
+        System.out.println(message);
         JSONObject obj = new JSONObject(message);
+        String cuerpo = obj.getString("cuerpo");
+        
+        List<String> destinatarioCopia = new ArrayList<>();
+        
+        String[] dtc = obj.getString("copiaDestinos").split(";");
+        destinatarioCopia.addAll(Arrays.asList(dtc));
+
         EmailDTO emailMessage = new EmailDTO(
                                             obj.getString("remitente"), 
                                             obj.getString("destino"), 
-                                            null,
+                                            destinatarioCopia,
                                             obj.getString("asunto"),
                                             obj.getString("cabecera"), 
-                                            obj.getString("cuerpo"), 
+                                            cuerpo, 
                                             obj.getString("piePagina"),
                                             null);
         

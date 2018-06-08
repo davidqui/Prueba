@@ -17,6 +17,7 @@ import freemarker.template.TemplateException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -149,7 +150,18 @@ public class AdminNotificacionController extends UtilController {
         }
         return EDIT_TEMPLATE;
     }
-
+    
+    /***
+     * permite crear una notificación del sistema
+     * @param notificacion 
+     * @param req 
+     * @param eResult 
+     * @param model
+     * @param redirect
+     * @param archivo
+     * @param principal
+     * @return template ftl
+     */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
     public String crear(Notificacion notificacion, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
             MultipartFile archivo, Principal principal) {
@@ -301,20 +313,23 @@ public class AdminNotificacionController extends UtilController {
      */
     @ResponseBody
     @RequestMapping(value = {"/testmail"}, method = RequestMethod.GET)
-    public ResponseEntity<?> TestMail(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) throws IOException {
+    public ResponseEntity<?> TestMail(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
+            Model model, Principal principal) throws IOException {
         
         try {
             Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
             
             
             String cuerpo = notificacionService.findAll(sort).get(0).getTemplate();
-            
-            
+            final Usuario usuarioSesion = getUsuario(principal);
+            model.addAttribute("usuario", usuarioSesion);
             Template t = new Template("mail", new StringReader(cuerpo));
             String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
             
-            
-            EmailDTO msgPrueba = new EmailDTO("samuel.delgado@controltechcg.com", "samuel.delgado@controltechcg.com", null, "Prueba", "Cabecera", cuerpo, "Footer", null);
+            List<String> copia = new ArrayList<>();
+            copia.add("jgarcia@controltechcg.com");
+            copia.add("samuel.delgado@controltechcg.com");
+            EmailDTO msgPrueba = new EmailDTO("samuel.delgado@controltechcg.com", usuarioSesion.getEmail(), copia, "Prueba", "Cabecera", html, "Footer", null);
             
             mailQueueService.enviarCorreo(msgPrueba);
             

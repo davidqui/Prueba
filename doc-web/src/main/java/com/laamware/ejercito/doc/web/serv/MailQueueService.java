@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.EmailDTO;
+import java.util.List;
 import javax.jms.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsMessagingTemplate;
@@ -33,15 +34,27 @@ public class MailQueueService {
     }
     
     public String emailDTO_ToJsonString(final EmailDTO emailDTO){
+        String emailCp = "";
+        if (emailDTO.getCopiaDestino() != null && !emailDTO.getCopiaDestino().isEmpty()) {
+            List<String> listaCp = emailDTO.getCopiaDestino();
+            for (int i = 0; i < listaCp.size()-1; i++) {
+                emailCp += listaCp.get(i)+";";
+            }
+            emailCp += listaCp.get(listaCp.size()-1);
+        }
+        
+        String body = emailDTO.getCuerpo().replaceAll("\"", "\\\\\"");
+        body = body.replaceAll("'", "\\\\\"");
+
         String jsonString = "{"
-                + "'remitente':"+emailDTO.getRemitente()
-                + ", 'destino':"+emailDTO.getDestino()
-                + ", 'copiaDestinos':"+null
-                + ", 'asunto':"+emailDTO.getAsunto()
-                + ", 'cabecera':"+emailDTO.getCabecera()
-                + ", 'cuerpo':"+emailDTO.getCuerpo()
-                + ", 'piePagina':"+emailDTO.getPiePagina()
-                + "}";
+                + "'remitente':'"+emailDTO.getRemitente()
+                + "', 'destino':'"+"samueldm98@gmail.com"
+                + "', 'copiaDestinos':'"+emailCp
+                + "', 'asunto':'"+emailDTO.getAsunto()
+                + "', 'cabecera':'"+emailDTO.getCabecera()
+                + "', 'cuerpo':'"+body.replaceAll("[\r][\n]", " ")
+                + "', 'piePagina':'"+emailDTO.getPiePagina()
+                + "'}";
         return jsonString;
     }
 }
