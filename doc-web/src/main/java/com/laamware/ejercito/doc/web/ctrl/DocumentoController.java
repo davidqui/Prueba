@@ -137,6 +137,7 @@ import java.util.logging.Level;
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
 import org.springframework.jdbc.UncategorizedSQLException;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Controller(value = "documentoController")
 @RequestMapping(DocumentoController.PATH)
@@ -5172,7 +5173,7 @@ public class DocumentoController extends UtilController {
 
         final Map<Integer, Usuario> jefesMap = new LinkedHashMap<>();
         jefesMap.put(instancia.getAsignado().getId(), instancia.getAsignado());
-
+        
         final Map<String, Usuario> radicadoJefe = new LinkedHashMap<>();
 
         for (int i = 0; i < copiaMultidestinos.size(); i++) {
@@ -5210,7 +5211,14 @@ public class DocumentoController extends UtilController {
         final UsuarioGradoComparator usuarioGradoComparator = new UsuarioGradoComparator();
         final List<Usuario> jefes = new ArrayList<>(jefesMap.values());
         Collections.sort(jefes, usuarioGradoComparator);
-
+        
+        /*
+        * Envia las notificaciones a los usuarios.
+        * 2018-05-02 samuel.delgado@controltechcg.com Issue #169
+        * (SICDI-Controltech) feature-169
+        */
+        enviarNotificacionesCambioProceso(jefes, instancia);
+        
         String mensaje = "<table style=\"font-size:12px\">";
         for (final Usuario jefe : jefes) {
             for (Map.Entry<String, Usuario> entry : radicadoJefe.entrySet()) {
@@ -5441,5 +5449,10 @@ public class DocumentoController extends UtilController {
     public List<DocumentoObservacionDefecto> listarObservacionDefectoActivas() {
         return observacionDefectoService.listarActivas();
     }
-
+    
+    public static void enviarNotificacionesCambioProceso(List<Usuario> usuarios, final Instancia instancia){
+        for (Usuario usuario : usuarios) {
+            System.out.println("ENVIA CORREO A "+usuario.toString()+" -- "+instancia.toString());
+        }
+    }
 }
