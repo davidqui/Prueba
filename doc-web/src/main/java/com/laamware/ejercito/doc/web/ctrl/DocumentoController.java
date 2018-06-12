@@ -130,6 +130,7 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -1859,7 +1860,7 @@ public class DocumentoController extends UtilController {
                  * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
                  */
                 redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                        buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                        buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
                 return redirectToInstancia(i);
             } else {
                 if (did != null) {
@@ -2034,7 +2035,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2221,7 +2222,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2286,7 +2287,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
             if (i.transiciones().size() > 0) {
                 return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2419,7 +2420,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
             if (i.transiciones().size() > 0) {
                 return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2459,7 +2460,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2561,7 +2562,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
             return "redirect:/";
         }
 
@@ -2635,7 +2636,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2692,7 +2693,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2781,7 +2782,7 @@ public class DocumentoController extends UtilController {
                  * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
                  */
                 redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                        buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+                        buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
                 return redirectURL;
             }
 
@@ -2855,7 +2856,7 @@ public class DocumentoController extends UtilController {
              * 2018-04-25 edison.gonzalez@controltechcg.com Issue #156
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
-            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
             return redirectURL;
         }
 
@@ -2884,7 +2885,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
         return redirectURL;
     }
 
@@ -3493,7 +3494,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
     }
@@ -3555,7 +3556,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3741,7 +3742,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
             if (i.transiciones().size() > 0) {
                 return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3866,7 +3867,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instanciaOriginal, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instanciaOriginal, "Asignado a ", documentRepository));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -4259,7 +4260,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
 
             if (instancia.transiciones().size() > 0) {
                 return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
@@ -4421,7 +4422,7 @@ public class DocumentoController extends UtilController {
              */
             redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                     buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instanciaOriginal,
-                            "Documento respuesta \"" + asuntoNuevo + "\" creado. Asignado a: "));
+                            "Documento respuesta \"" + asuntoNuevo + "\" creado. Asignado a: ", documentRepository));
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -4590,7 +4591,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Reasignado a: "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Reasignado a: ", documentRepository));
 
         if (instancia.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
@@ -5118,6 +5119,7 @@ public class DocumentoController extends UtilController {
      * @param dependenciaService Servicio de dependencias.
      * @param instancia Instancia del proceso.
      * @param textoInicial Texto inicial del mensaje de asignación.
+     * @param documentoRepository Repositorio de documentos.
      *
      * @return Objeto que almacena el valor de texto inicial (Si se ha colocado
      * alguno) seguido del nombre del asignado primario. En caso que el
@@ -5132,12 +5134,16 @@ public class DocumentoController extends UtilController {
      *
      * 2018-04-25 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
      * feature-156: Se crea como reemplazo del metodo buildAsignadosText() para
-     * utilizar la información de los registros multidestino.
-     * Se cambia el objeto de retorno, para implementar los mensajes cuando se
-     * realiza la firma de un documento con multidestino.
+     * utilizar la información de los registros multidestino. Se cambia el
+     * objeto de retorno, para implementar los mensajes cuando se realiza la
+     * firma de un documento con multidestino.
+     *
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169: Adición de DocumentoRepositoy como parámetro. Notificaciones
+     * de correo.
      */
     public static FlashAttributeValue buildAsignadosTextMultidestino(final DependenciaCopiaMultidestinoService copiaMultidestinoService, final UsuarioService usuarioService,
-            final DependenciaService dependenciaService, final Instancia instancia, final String textoInicial) {
+            final DependenciaService dependenciaService, final Instancia instancia, final String textoInicial, final DocumentoRepository documentoRepository) {
         /*
          * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
          * feature-78: Presentar información básica de los usuarios asignadores
@@ -5162,18 +5168,32 @@ public class DocumentoController extends UtilController {
         }
 
         final String documentoID = instancia.getVariable(Documento.DOC_ID);
-        final Documento documento = new Documento();
-        documento.setId(documentoID);
+        /*
+         * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+         * feature-169: Búsqueda del documento.
+         */
+        final Documento documento = documentoRepository.findOne(documentoID);
 
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = copiaMultidestinoService.listarActivos(documento);
 
         if (copiaMultidestinos.isEmpty()) {
+            /**
+             * 2018-05-02 samuel.delgado@controltechcg.com Issue #169
+             * (SICDI-Controltech) feature-169: Envia las notificaciones a los
+             * usuarios.
+             */
+            try {
+                enviarNotificacionesCambioProceso(instancia, documento);
+            } catch (Exception ex) {
+                LOG.error(instancia.getId(), ex);
+            }
+
             return flashAttributeValue;
         }
 
         final Map<Integer, Usuario> jefesMap = new LinkedHashMap<>();
         jefesMap.put(instancia.getAsignado().getId(), instancia.getAsignado());
-        
+
         final Map<String, Usuario> radicadoJefe = new LinkedHashMap<>();
 
         for (int i = 0; i < copiaMultidestinos.size(); i++) {
@@ -5204,6 +5224,17 @@ public class DocumentoController extends UtilController {
                      */
                     jefesMap.put(jefe.getId(), jefe);
                     radicadoJefe.put(copiaMultidestino.getDocumentoResultado().getRadicado(), jefe);
+
+                    /**
+                     * 2018-05-02 samuel.delgado@controltechcg.com Issue #169
+                     * (SICDI-Controltech) feature-169: Envia las notificaciones
+                     * a los usuarios.
+                     */
+                    try {
+                        enviarNotificacionesCambioProceso(copiaMultidestino);
+                    } catch (Exception ex) {
+                        LOG.error(instancia.getId(), ex);
+                    }
                 }
             }
         }
@@ -5211,14 +5242,7 @@ public class DocumentoController extends UtilController {
         final UsuarioGradoComparator usuarioGradoComparator = new UsuarioGradoComparator();
         final List<Usuario> jefes = new ArrayList<>(jefesMap.values());
         Collections.sort(jefes, usuarioGradoComparator);
-        
-        /*
-        * Envia las notificaciones a los usuarios.
-        * 2018-05-02 samuel.delgado@controltechcg.com Issue #169
-        * (SICDI-Controltech) feature-169
-        */
-        enviarNotificacionesCambioProceso(jefes, instancia);
-        
+
         String mensaje = "<table style=\"font-size:12px\">";
         for (final Usuario jefe : jefes) {
             for (Map.Entry<String, Usuario> entry : radicadoJefe.entrySet()) {
@@ -5449,10 +5473,17 @@ public class DocumentoController extends UtilController {
     public List<DocumentoObservacionDefecto> listarObservacionDefectoActivas() {
         return observacionDefectoService.listarActivas();
     }
-    
-    public static void enviarNotificacionesCambioProceso(List<Usuario> usuarios, final Instancia instancia){
-        for (Usuario usuario : usuarios) {
-            System.out.println("ENVIA CORREO A "+usuario.toString()+" -- "+instancia.toString());
-        }
+
+    private static void enviarNotificacionesCambioProceso(final DependenciaCopiaMultidestino copiaMultidestino) {
+        final Documento documentoResultado = copiaMultidestino.getDocumentoResultado();
+        final Instancia instancia = documentoResultado.getInstancia();
+        enviarNotificacionesCambioProceso(instancia, documentoResultado);
     }
+
+    private static void enviarNotificacionesCambioProceso(final Instancia instancia, final Documento documento) {
+        final Usuario asignado = instancia.getAsignado();
+        
+        // TODO: Usar el proceso de notificación.
+    }
+
 }

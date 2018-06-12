@@ -466,9 +466,9 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     Integer verificaAccesoDocumento(@Param("usuId") Integer usuId, @Param("pinId") String pinId);
 
     /*
-	 * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138 (SICDI-Controltech)
-	 * feature-138: Creacion de la nueva funcion para generar el numero de radicado,
-         * segun la dependencia y el id del proceso.
+     * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138
+     * (SICDI-Controltech) feature-138: Creacion de la nueva funcion para
+     * generar el numero de radicado, segun la dependencia y el id del proceso.
      */
     @Query(nativeQuery = true, value = "select FN_GENERA_NUM_RADICADO(?,?) from dual")
     String getNumeroRadicado(Integer depId, Integer radId);
@@ -481,4 +481,98 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * exista correspondencia en el sistema.
      */
     public Documento findOneByFirmaEnvioUUID(String firmaEnvioUUID);
+
+    /**
+     * Obtiene la lista de documentos a notificar por vencimiento de plazo.
+     *
+     * @return Lista de documentos a notificar.
+     */
+    /*
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT\n"
+            + "   documento.*\n"
+            + " FROM documento\n"
+            + " LEFT JOIN proceso_instancia ON (proceso_instancia.pin_id = documento.pin_id)\n"
+            + " LEFT JOIN proceso           ON (proceso.pro_id           = proceso_instancia.pro_id)\n"
+            + " LEFT JOIN proceso_estado    ON (proceso_estado.pes_id    = proceso_instancia.pes_id)\n"
+            + " WHERE "
+            + "     documento.doc_asunto     IS NOT NULL\n"
+            + " AND documento.doc_plazo      IS NOT NULL\n"
+            + " AND proceso_instancia.pes_id NOT IN (48, 52, 83, 101, 102)\n"
+            + " AND (\n"
+            + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
+            + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
+            + " )\n"
+            + " AND TO_DATE(SYSDATE) > TO_DATE(documento.doc_plazo)\n"
+            + " ORDER BY "
+            + " documento.cuando "
+            + "")
+    List<Documento> findAllDocumentosPlazoVencido();
+
+    /**
+     * Obtiene la lista de documentos a notificar por próximo vencimiento de
+     * plazo.
+     *
+     * @param diasPlazoVencer Número de días de anticipación al vencimiento del
+     * plazo.
+     * @return Lista de documentos a notificar.
+     */
+    /*
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT\n"
+            + "   documento.*\n"
+            + " FROM documento\n"
+            + " LEFT JOIN proceso_instancia ON (proceso_instancia.pin_id = documento.pin_id)\n"
+            + " LEFT JOIN proceso           ON (proceso.pro_id           = proceso_instancia.pro_id)\n"
+            + " LEFT JOIN proceso_estado    ON (proceso_estado.pes_id    = proceso_instancia.pes_id)\n"
+            + " WHERE "
+            + "     documento.doc_asunto     IS NOT NULL\n"
+            + " AND documento.doc_plazo      IS NOT NULL\n"
+            + " AND proceso_instancia.pes_id NOT IN (48, 52, 83, 101, 102)\n"
+            + " AND (\n"
+            + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
+            + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
+            + " )\n"
+            + " AND TO_DATE(SYSDATE) > TO_DATE(documento.doc_plazo) - :diasPlazoVencer \n"
+            + " ORDER BY "
+            + " documento.cuando "
+            + "")
+    List<Documento> findAllDocumentosPlazoAVencer(@Param("diasPlazoVencer") Integer diasPlazoVencer);
+
+    /**
+     * Obtiene la lista de documentos a notificar por vencimiento de plazo el
+     * día del sistema (hoy).
+     *
+     * @return Lista de documentos a notificar.
+     */
+    /*
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT\n"
+            + "   documento.*\n"
+            + " FROM documento\n"
+            + " LEFT JOIN proceso_instancia ON (proceso_instancia.pin_id = documento.pin_id)\n"
+            + " LEFT JOIN proceso           ON (proceso.pro_id           = proceso_instancia.pro_id)\n"
+            + " LEFT JOIN proceso_estado    ON (proceso_estado.pes_id    = proceso_instancia.pes_id)\n"
+            + " WHERE "
+            + "     documento.doc_asunto     IS NOT NULL\n"
+            + " AND documento.doc_plazo      IS NOT NULL\n"
+            + " AND proceso_instancia.pes_id NOT IN (48, 52, 83, 101, 102)\n"
+            + " AND (\n"
+            + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
+            + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
+            + " )\n"
+            + " AND TO_DATE(SYSDATE) = TO_DATE(documento.doc_plazo)\n"
+            + " ORDER BY "
+            + " documento.cuando "
+            + "")
+    List<Documento> findAllDocumentosPlazoVenceHoy();
 }
