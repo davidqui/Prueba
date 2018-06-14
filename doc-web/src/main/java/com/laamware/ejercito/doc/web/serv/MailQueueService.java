@@ -47,8 +47,7 @@ public class MailQueueService {
         body = body.replaceAll("'", "\\\\\"");
 
         String jsonString = "{"
-                + "'remitente':'"+emailDTO.getRemitente()
-                + "', 'destino':'"+"samueldm98@gmail.com"
+                + "'destino':'"+"samueldm98@gmail.com"
                 + "', 'copiaDestinos':'"+emailCp
                 + "', 'asunto':'"+emailDTO.getAsunto()
                 + "', 'cabecera':'"+emailDTO.getCabecera()

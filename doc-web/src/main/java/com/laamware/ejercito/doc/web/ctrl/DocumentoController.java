@@ -56,6 +56,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.aspose.words.Document;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
+import com.laamware.ejercito.doc.web.dto.EmailDTO;
 import com.laamware.ejercito.doc.web.dto.FlashAttributeValue;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.UsuarioVistoBuenoDTO;
@@ -75,6 +76,7 @@ import com.laamware.ejercito.doc.web.entity.Estado;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
+import com.laamware.ejercito.doc.web.entity.Notificacion;
 import com.laamware.ejercito.doc.web.entity.OFSStage;
 import com.laamware.ejercito.doc.web.entity.PDFDocumento;
 import com.laamware.ejercito.doc.web.entity.Plantilla;
@@ -114,6 +116,8 @@ import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
 import com.laamware.ejercito.doc.web.serv.DriveService;
 import com.laamware.ejercito.doc.web.serv.JasperService;
+import com.laamware.ejercito.doc.web.serv.MailQueueService;
+import com.laamware.ejercito.doc.web.serv.NotificacionService;
 import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
@@ -126,6 +130,9 @@ import com.laamware.ejercito.doc.web.util.DocumentProperties;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import com.laamware.ejercito.doc.web.util.Global;
 import com.laamware.ejercito.doc.web.util.UsuarioGradoComparator;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -139,6 +146,7 @@ import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 @Controller(value = "documentoController")
 @RequestMapping(DocumentoController.PATH)
@@ -295,7 +303,21 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private DocumentoObservacionDefectoService observacionDefectoService;
-
+    
+    /*
+     * 2018-06-13 samuel.delgado@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-172: Servicio de notificaciones de correo eléctronico.
+     */
+    @Autowired
+    private MailQueueService mailQueueService;
+    
+    /*
+     * 2018-06-13 samuel.delgado@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-172: Servicio de notificaciones.
+     */
+    @Autowired
+    private NotificacionService notificacionService;
+    
     /* ---------------------- públicos ------------------------------- */
     /**
      * Muestra la página de acceso denegado
@@ -1928,7 +1950,12 @@ public class DocumentoController extends UtilController {
             documentRepository.saveAndFlush(doc);
 
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Documento asignado a " + i.getAsignado());
-
+            // TODO Aqui deveria venir buildAsignadosTextMultidestino??
+            /*
+            * 2018-06-14 samuel.delgado@controltechcg.com Issue #169
+            * (SICDI-Controltech) feature-169 Envio notificación.
+            */
+            enviarNotificacionesCambioProceso(i, doc);
             return redirectToInstancia(i);
         } else {
             model.addAttribute("mode", "nomode");
@@ -2694,7 +2721,7 @@ public class DocumentoController extends UtilController {
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                 buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
-
+        
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
         } else {
@@ -4071,7 +4098,7 @@ public class DocumentoController extends UtilController {
 
         // 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01)
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Reasignado a: " + instancia.getAsignado());
-
+        
         if (instancia.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
         } else {
@@ -5142,7 +5169,7 @@ public class DocumentoController extends UtilController {
      * feature-169: Adición de DocumentoRepositoy como parámetro. Notificaciones
      * de correo.
      */
-    public static FlashAttributeValue buildAsignadosTextMultidestino(final DependenciaCopiaMultidestinoService copiaMultidestinoService, final UsuarioService usuarioService,
+    public FlashAttributeValue buildAsignadosTextMultidestino(final DependenciaCopiaMultidestinoService copiaMultidestinoService, final UsuarioService usuarioService,
             final DependenciaService dependenciaService, final Instancia instancia, final String textoInicial, final DocumentoRepository documentoRepository) {
         /*
          * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
@@ -5163,11 +5190,9 @@ public class DocumentoController extends UtilController {
          * asignados debe manejar múltiples destinos o no.
          */
         final Estado estado = instancia.getEstado();
-        if (!estado.getId().equals(Estado.ENVIADO)) {
-            return flashAttributeValue;
-        }
-
+        
         final String documentoID = instancia.getVariable(Documento.DOC_ID);
+        
         /*
          * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
          * feature-169: Búsqueda del documento.
@@ -5175,6 +5200,20 @@ public class DocumentoController extends UtilController {
         final Documento documento = documentoRepository.findOne(documentoID);
 
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = copiaMultidestinoService.listarActivos(documento);
+        
+        if (!estado.getId().equals(Estado.ENVIADO)) {
+            /**
+             * 2018-05-02 samuel.delgado@controltechcg.com Issue #169
+             * (SICDI-Controltech) feature-169: Envia las notificaciones
+             * a los usuarios.
+             */
+            try {
+                enviarNotificacionesCambioProceso(instancia, documento);
+            } catch (Exception ex) {
+                LOG.error(instancia.getId(), ex);
+            }
+            return flashAttributeValue;
+        }
 
         if (copiaMultidestinos.isEmpty()) {
             /**
@@ -5474,16 +5513,37 @@ public class DocumentoController extends UtilController {
         return observacionDefectoService.listarActivas();
     }
 
-    private static void enviarNotificacionesCambioProceso(final DependenciaCopiaMultidestino copiaMultidestino) {
+    private void enviarNotificacionesCambioProceso(final DependenciaCopiaMultidestino copiaMultidestino) {
         final Documento documentoResultado = copiaMultidestino.getDocumentoResultado();
         final Instancia instancia = documentoResultado.getInstancia();
         enviarNotificacionesCambioProceso(instancia, documentoResultado);
     }
 
-    private static void enviarNotificacionesCambioProceso(final Instancia instancia, final Documento documento) {
-        final Usuario asignado = instancia.getAsignado();
-        
+    private void enviarNotificacionesCambioProceso(final Instancia instancia, final Documento documento){
+        System.out.println("Envio correo!!! nada");
+        final Usuario usuarioAsignado = instancia.getAsignado();
         // TODO: Usar el proceso de notificación.
+        System.out.println("Envio correo!!! "+ instancia.getEstado().getId() + " - " + instancia.getEstado().toString());
+        System.out.println("usuario !!!"+ usuarioAsignado.toString());
+        
+        List<Notificacion> notificaciones = notificacionService.fingByTypoNotificacionValor(instancia.getEstado().getId());
+        
+        if (notificaciones != null && !notificaciones.isEmpty()) {
+            System.out.println("Busco notificacion"+ notificaciones.get(0).toString());
+            try {
+                Notificacion notificacion = notificaciones.get(0);
+                Map<String, Object> model = new HashMap();
+                model.put("usuario", usuarioAsignado);
+                model.put("instancia", usuarioAsignado);
+                model.put("documento", documento);
+                Template t = new Template(notificacion.toString(), new StringReader(notificacion.getTemplate()));
+                String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
+                EmailDTO mensaje = new EmailDTO(usuarioAsignado.getEmail(), null,
+                        notificacion.getAsunto(), "", html, "", null);
+                mailQueueService.enviarCorreo(mensaje);
+            } catch (IOException | TemplateException ex) {
+                LOG.debug(ex.getMessage(), ex);
+            }
+        }
     }
-
 }

@@ -40,8 +40,11 @@
                 <label for="textoObservacion">Template</label>
                 <fieldset class="form-group">
                     <div style="display: flex;">
-                        <textarea id="text-area-notificacion" class="form-control" name="template" rows="20" style="width: 70%;">${(notificacion.template)!""}</textarea>
-                        <div class="list-group notificacion-wildcard-selector" style="width: 30%; max-height: 480px; overflow: hidden; overflow-y: auto;">
+                        <div style="width: 70%;">
+                            <input type="text" class="form-control" id="asunto" name="asunto" value="${(notificacion.asunto)!""}" placeholder="Asunto"/>
+                            <textarea id="text-area-notificacion" class="form-control" name="template" rows="20" placeholder="Template">${(notificacion.template)!""}</textarea>
+                        </div>
+                        <div class="list-group notificacion-wildcard-selector" style="width: 30%; max-height: 524px; overflow: hidden; overflow-y: auto;">
                             <#list notificacion.tipoNotificacion.wildCards as wildcard>
                                 <a class="list-group-item list-group-item-action" href="javascript:addTextArea('${wildcard.valor}');">${wildcard.nombre}</a>
                             </#list>
@@ -56,11 +59,11 @@
         </form>
         <script>
             function addTextArea(value) {
-                var textarea = document.getElementById("text-area-notificacion")
+                var textarea = document.getElementById("text-area-notificacion");
                 var val = textarea.value;
                 var part1 = val.substring(0, val.slice(0, textarea.selectionStart).length);
                 var part2 = val.substring(val.slice(0, textarea.selectionStart).length, val.length);
-                textarea.value = part1+"$"+"{"+value+"}" + part2;
+                textarea.value = part1+"$"+"{("+value+")!\"\"}" + part2;
             }
                 
             function cambioTipoNotificacion(change) {

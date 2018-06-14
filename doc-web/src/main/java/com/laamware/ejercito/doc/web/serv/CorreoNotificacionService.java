@@ -2,6 +2,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.EmailDTO;
+import java.util.Arrays;
 import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -36,11 +37,12 @@ public class CorreoNotificacionService {
         final MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
         final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         
-        if (mensaje.getCopiaDestino() != null) {
+        if (mensaje.getCopiaDestino() != null && !mensaje.getCopiaDestino().isEmpty()) {
             List<String> ccDestino = mensaje.getCopiaDestino();
             String[] array = new String[ccDestino.size()];
             String[] copias = mensaje.getCopiaDestino().toArray(array);
-            message.setBcc(copias);
+            System.out.println("ARRAYS DE CC "+Arrays.toString(copias)+copias.length);
+//            message.setBcc(copias);
         }
         
         message.setSubject(mensaje.getAsunto());

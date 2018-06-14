@@ -60,6 +60,10 @@ public class Notificacion implements Serializable {
     private Clasificacion clasificacion;
     
     @Basic(optional = false)
+    @Column(name = "ASUNTO")
+    private String asunto;
+    
+    @Basic(optional = false)
     @Column(name = "CUERPO")
     private String template;
     
@@ -105,6 +109,14 @@ public class Notificacion implements Serializable {
 
     public void setClasificacion(Clasificacion clasificacion) {
         this.clasificacion = clasificacion;
+    }
+    
+    public String getAsunto() {
+        return asunto;
+    }
+
+    public void setAsunto(String asunto) {
+        this.asunto = asunto;
     }
 
     public String getTemplate() {
@@ -157,16 +169,17 @@ public class Notificacion implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 11 * hash + Objects.hashCode(this.id);
-        hash = 11 * hash + Objects.hashCode(this.tipoNotificacion);
-        hash = 11 * hash + Objects.hashCode(this.clasificacion);
-        hash = 11 * hash + Objects.hashCode(this.template);
-        hash = 11 * hash + Objects.hashCode(this.activo);
-        hash = 11 * hash + Objects.hashCode(this.quien);
-        hash = 11 * hash + Objects.hashCode(this.cuando);
-        hash = 11 * hash + Objects.hashCode(this.quienMod);
-        hash = 11 * hash + Objects.hashCode(this.cuandoMod);
+        int hash = 5;
+        hash = 41 * hash + Objects.hashCode(this.id);
+        hash = 41 * hash + Objects.hashCode(this.tipoNotificacion);
+        hash = 41 * hash + Objects.hashCode(this.clasificacion);
+        hash = 41 * hash + Objects.hashCode(this.asunto);
+        hash = 41 * hash + Objects.hashCode(this.template);
+        hash = 41 * hash + Objects.hashCode(this.activo);
+        hash = 41 * hash + Objects.hashCode(this.quien);
+        hash = 41 * hash + Objects.hashCode(this.cuando);
+        hash = 41 * hash + Objects.hashCode(this.quienMod);
+        hash = 41 * hash + Objects.hashCode(this.cuandoMod);
         return hash;
     }
 
@@ -182,6 +195,9 @@ public class Notificacion implements Serializable {
             return false;
         }
         final Notificacion other = (Notificacion) obj;
+        if (!Objects.equals(this.asunto, other.asunto)) {
+            return false;
+        }
         if (!Objects.equals(this.template, other.template)) {
             return false;
         }
@@ -211,7 +227,7 @@ public class Notificacion implements Serializable {
 
     @Override
     public String toString() {
-        return "Notificacion{" + "id=" + id + ", tipoNotificacion=" + tipoNotificacion + ", clasificacion=" + clasificacion + ", template=" + template + ", activo=" + activo + ", quien=" + quien + ", cuando=" + cuando + ", quienMod=" + quienMod + ", cuandoMod=" + cuandoMod + '}';
+        return "Notificacion{" + "id=" + id + ", tipoNotificacion=" + tipoNotificacion + ", clasificacion=" + clasificacion + ", asunto=" + asunto + ", template=" + template + ", activo=" + activo + ", quien=" + quien + ", cuando=" + cuando + ", quienMod=" + quienMod + ", cuandoMod=" + cuandoMod + '}';
     }
 
 }

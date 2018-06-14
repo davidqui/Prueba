@@ -52,10 +52,10 @@ public class MailQueueListener {
         List<String> destinatarioCopia = new ArrayList<>();
 
         String[] dtc = obj.getString("copiaDestinos").split(";");
-        destinatarioCopia.addAll(Arrays.asList(dtc));
-
+        if (dtc.length > 0) {
+            destinatarioCopia.addAll(Arrays.asList(dtc));
+        }
         EmailDTO emailMessage = new EmailDTO(
-                obj.getString("remitente"),
                 obj.getString("destino"),
                 destinatarioCopia,
                 obj.getString("asunto"),

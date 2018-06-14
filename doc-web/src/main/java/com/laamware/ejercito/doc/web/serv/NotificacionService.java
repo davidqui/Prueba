@@ -41,7 +41,7 @@ public class NotificacionService {
 
     /**
      * *
-     * Lista todas las observaciones activas
+     * Lista todas las notificaciones activas
      *
      * @param sort
      * @return
@@ -52,13 +52,18 @@ public class NotificacionService {
 
     /**
      * *
-     * Busca una observacion por defecto por id
+     * Busca una notificación por id
      *
      * @param id identificador de la observacion por defecto
      * @return
      */
     public Notificacion findOne(Integer id) {
         return notificacionRepository.findOne(id);
+    }
+    
+    
+    public List<Notificacion> fingByTypoNotificacionValor(Integer valorTipoNotificacion) {
+        return notificacionRepository.getByIdTipoNotificacion(valorTipoNotificacion);
     }
     
     /***

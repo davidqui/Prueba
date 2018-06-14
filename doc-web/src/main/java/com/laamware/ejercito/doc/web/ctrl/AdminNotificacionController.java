@@ -329,7 +329,7 @@ public class AdminNotificacionController extends UtilController {
             List<String> copia = new ArrayList<>();
             copia.add("jgarcia@controltechcg.com");
             copia.add("samuel.delgado@controltechcg.com");
-            EmailDTO msgPrueba = new EmailDTO("samuel.delgado@controltechcg.com", usuarioSesion.getEmail(), copia, "Prueba", "Cabecera", html, "Footer", null);
+            EmailDTO msgPrueba = new EmailDTO(usuarioSesion.getEmail(), copia, "Prueba", "Cabecera", html, "Footer", null);
             
             mailQueueService.enviarCorreo(msgPrueba);
             
