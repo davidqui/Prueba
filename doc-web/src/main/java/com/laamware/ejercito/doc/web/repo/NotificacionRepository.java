@@ -29,5 +29,11 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Inte
             + "SELECT NOTIFICACION.*                                                                        "
             + "FROM NOTIFICACION JOIN TIPO_NOTIFICACION ON (NOTIFICACION.TNF_ID = TIPO_NOTIFICACION.TNF_ID) "
             + "WHERE TIPO_NOTIFICACION.VALOR = :tipoNotValue                                                ")
-    List<Notificacion> getByIdTipoNotificacion(@Param("tipoNotValue") Integer tipoNotValue);
+    List<Notificacion> getByValorTipoNotificacion(@Param("tipoNotValue") Integer tipoNotValue);
+    
+    @Query(nativeQuery = true, value = ""
+            + "SELECT NOTIFICACION.*                                                                        "
+            + "FROM NOTIFICACION JOIN TIPO_NOTIFICACION ON (NOTIFICACION.TNF_ID = TIPO_NOTIFICACION.TNF_ID) "
+            + "WHERE TIPO_NOTIFICACION.TNF_ID = :tipoNotId                                                  ")
+    List<Notificacion> getByIdTipoNotificacion(@Param("tipoNotId") Integer tipoNotId);
 }

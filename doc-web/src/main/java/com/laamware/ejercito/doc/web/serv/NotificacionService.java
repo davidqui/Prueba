@@ -61,9 +61,23 @@ public class NotificacionService {
         return notificacionRepository.findOne(id);
     }
     
-    
+    /**
+     * Busca las notificaciones por el valor de su tipo de notificación 
+     * que corresponde a el id del proceso estado
+     * @param valorTipoNotificacion id del proceso estado
+     * @return lista de notificaciones
+     */
     public List<Notificacion> fingByTypoNotificacionValor(Integer valorTipoNotificacion) {
-        return notificacionRepository.getByIdTipoNotificacion(valorTipoNotificacion);
+        return notificacionRepository.getByValorTipoNotificacion(valorTipoNotificacion);
+    }
+    
+    /**
+     * Busca las notificaciones por el id de su tipo de notificación
+     * @param IdTipoNotificacion
+     * @return lista de notificaciones
+     */
+    public List<Notificacion> fingByTypoNotificacionId(Integer IdTipoNotificacion) {
+        return notificacionRepository.getByIdTipoNotificacion(IdTipoNotificacion);
     }
     
     /***

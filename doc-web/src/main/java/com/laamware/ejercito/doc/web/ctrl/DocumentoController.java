@@ -306,14 +306,14 @@ public class DocumentoController extends UtilController {
     
     /*
      * 2018-06-13 samuel.delgado@controltechcg.com Issue #169 (SICDI-Controltech)
-     * feature-172: Servicio de notificaciones de correo eléctronico.
+     * feature-169: Servicio de notificaciones de correo eléctronico.
      */
     @Autowired
     private MailQueueService mailQueueService;
     
     /*
      * 2018-06-13 samuel.delgado@controltechcg.com Issue #169 (SICDI-Controltech)
-     * feature-172: Servicio de notificaciones.
+     * feature-169: Servicio de notificaciones.
      */
     @Autowired
     private NotificacionService notificacionService;
@@ -5520,21 +5520,16 @@ public class DocumentoController extends UtilController {
     }
 
     private void enviarNotificacionesCambioProceso(final Instancia instancia, final Documento documento){
-        System.out.println("Envio correo!!! nada");
-        final Usuario usuarioAsignado = instancia.getAsignado();
-        // TODO: Usar el proceso de notificación.
-        System.out.println("Envio correo!!! "+ instancia.getEstado().getId() + " - " + instancia.getEstado().toString());
-        System.out.println("usuario !!!"+ usuarioAsignado.toString());
         
+        final Usuario usuarioAsignado = instancia.getAsignado();
         List<Notificacion> notificaciones = notificacionService.fingByTypoNotificacionValor(instancia.getEstado().getId());
         
         if (notificaciones != null && !notificaciones.isEmpty()) {
-            System.out.println("Busco notificacion"+ notificaciones.get(0).toString());
             try {
                 Notificacion notificacion = notificaciones.get(0);
                 Map<String, Object> model = new HashMap();
                 model.put("usuario", usuarioAsignado);
-                model.put("instancia", usuarioAsignado);
+                model.put("instancia", instancia);
                 model.put("documento", documento);
                 Template t = new Template(notificacion.toString(), new StringReader(notificacion.getTemplate()));
                 String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
@@ -5542,7 +5537,7 @@ public class DocumentoController extends UtilController {
                         notificacion.getAsunto(), "", html, "", null);
                 mailQueueService.enviarCorreo(mensaje);
             } catch (IOException | TemplateException ex) {
-                LOG.debug(ex.getMessage(), ex);
+                LOG.error(ex.getMessage(), ex);
             }
         }
     }
