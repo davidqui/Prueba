@@ -539,7 +539,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
             + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
             + " )\n"
-            + " AND TO_DATE(SYSDATE) > TO_DATE(documento.doc_plazo) - :diasPlazoVencer \n"
+            + " AND TO_DATE(SYSDATE) = (TO_DATE(documento.doc_plazo) - :diasPlazoVencer) \n"
             + " ORDER BY "
             + " documento.cuando "
             + "")
