@@ -2,6 +2,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.EmailDTO;
+import com.laamware.ejercito.doc.web.entity.Notificacion;
 import java.util.Arrays;
 import java.util.List;
 import javax.mail.MessagingException;
@@ -27,6 +28,12 @@ public class CorreoNotificacionService {
     
     @Autowired
     private JavaMailSender javaMailSender;
+    
+    @Autowired
+    private NotificacionService notificacionService;
+    
+    private static final int TEMPLATE_HEADER = 60;
+    private static final int TEMPLATE_FOOTER = 70;
     
     /**
      * Envia un correo de una notificación
@@ -54,12 +61,16 @@ public class CorreoNotificacionService {
         
         //se agrega el cuerpo del mensaje
         String bodyHtml = "";
-        if (mensaje.getCabecera() != null)
-            bodyHtml += mensaje.getCabecera();
+        
+        List<Notificacion> header = notificacionService.fingByTypoNotificacionId(TEMPLATE_HEADER);
+        List<Notificacion> footer = notificacionService.fingByTypoNotificacionId(TEMPLATE_FOOTER);
+        
+        if (header != null && !header.isEmpty())
+            bodyHtml += header.get(0).getTemplate();
         if (mensaje.getCuerpo()!= null)
             bodyHtml += mensaje.getCuerpo();
-        if (mensaje.getPiePagina()!= null)
-            bodyHtml += mensaje.getPiePagina();
+        if (footer != null && !footer.isEmpty())
+            bodyHtml += footer.get(0).getTemplate();
         
         message.setText(bodyHtml, true);
         // Enviar Correo
