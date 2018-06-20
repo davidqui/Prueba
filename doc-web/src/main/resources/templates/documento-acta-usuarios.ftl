@@ -14,12 +14,17 @@
         <#if debeSeleccionarUsuarios >
         <div class="card">
             <div class="card-header">
+                <#if (seleccionUsuarioSubserieActa == "SELECCION_1_1")>
+                    <div class="alert alert-info" role="alert">La subserie TRD seleccionada solo permite seleccionar un usuario.</div>
+                <#else>
+                    <div class="alert alert-info" role="alert">La subserie TRD seleccionada permite seleccionar los usuarios que intervinieron en el acta.</div>
+                </#if>
                 <#if (seleccionUsuarioSubserieActa != "SELECCION_1_1") || (usuariosAsignados?size == 0) >
                 <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#exampleModal">
                     Agregar usuario
                 </button>
                 </#if>
-                <strong>Usuarios (*)</strong>                
+                <strong>Usuarios que intervinienen (*)</strong>
             </div>
             <div class="card-body">
                 <table class="table table-bordered">
