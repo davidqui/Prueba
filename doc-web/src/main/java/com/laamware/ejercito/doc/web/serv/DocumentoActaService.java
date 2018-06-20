@@ -322,6 +322,13 @@ public class DocumentoActaService {
         if (cargoElabora == null || cargoElabora.trim().isEmpty()) {
             validation.addError(documentoActaDTO, campo, "Debe ingresar el cargo con el cual elabora el acta.");
         }
+        
+        // descripcion
+        campo = "actaDescripcion";
+        final String actaDescripcion = documentoActaDTO.getActaDescripcion();
+        if (actaDescripcion == null || actaDescripcion.trim().isEmpty()) {
+            validation.addError(documentoActaDTO, campo, "Debe ingresar una descripción del acta.");
+        }
 
         return validation;
     }
@@ -343,6 +350,7 @@ public class DocumentoActaService {
         documento.setActaLugar(documentoActaDTO.getActaLugar());
         documento.setActaFechaElaboracion(buildFechaElaboracion(documentoActaDTO.getActaFechaElaboracion()));
         documento.setEstadoTemporal(null);
+        documento.setActaDescripcion(documentoActaDTO.getActaDescripcion());
 
         documento = documentoService.actualizar(documento);
         final Documento buscarDocumento = buscarDocumento(documento.getId());

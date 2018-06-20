@@ -111,7 +111,21 @@
                     ${logicValidation.getError("${campo}").message}
                 </#if>                
             </div>            
-        </div>        
+        </div>
+        
+        <#-- Descripción -->
+        <div class="form-group">
+            <#assign campo = "actaDescripcion" />
+            <label for="${campo}">Descripción (*)</label>
+            <textarea class="form-control" id="${campo}" name="${campo}"><#if documentoActaDTO??>${documentoActaDTO.actaDescripcion}<#elseif documento.actaDescripcion?? >${documento.actaDescripcion}</#if></textarea>
+            <div class="error"></div>
+            <small class="text-muted">Descripción del acta.</small>
+            <div class="error">
+                <#if logicValidation?? && logicValidation.containsError("${campo}") >
+                    ${logicValidation.getError("${campo}").message}
+                </#if>                
+            </div>            
+        </div>
         
         <#-- Cargo -->
         <div class="form-group">

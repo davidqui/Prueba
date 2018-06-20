@@ -23,6 +23,7 @@ public class DocumentoActaDTO implements Serializable {
     private String numeroFolios;
     private String trd;
     private String cargoElabora;
+    private String actaDescripcion;
 
     public DocumentoActaDTO() {
     }
@@ -99,6 +100,14 @@ public class DocumentoActaDTO implements Serializable {
         this.cargoElabora = cargoElabora;
     }
 
+    public String getActaDescripcion() {
+        return actaDescripcion;
+    }
+
+    public void setActaDescripcion(String actaDescripcion) {
+        this.actaDescripcion = actaDescripcion;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 5;
@@ -111,6 +120,7 @@ public class DocumentoActaDTO implements Serializable {
         hash = 97 * hash + Objects.hashCode(this.numeroFolios);
         hash = 97 * hash + Objects.hashCode(this.trd);
         hash = 97 * hash + Objects.hashCode(this.cargoElabora);
+        hash = 97 * hash + Objects.hashCode(this.actaDescripcion);
         return hash;
     }
 
@@ -150,12 +160,15 @@ public class DocumentoActaDTO implements Serializable {
         if (!Objects.equals(this.trd, other.trd)) {
             return false;
         }
-        return Objects.equals(this.cargoElabora, other.cargoElabora);
+        if (!Objects.equals(this.cargoElabora, other.cargoElabora)) {
+            return false;
+        }
+        return Objects.equals(this.actaDescripcion, other.actaDescripcion);
     }
 
     @Override
     public String toString() {
-        return "DocumentoActaDTO{" + "docId=" + docId + ", pinId=" + pinId + ", asunto=" + asunto + ", actaLugar=" + actaLugar + ", actaFechaElaboracion=" + actaFechaElaboracion + ", clasificacion=" + clasificacion + ", numeroFolios=" + numeroFolios + ", trd=" + trd + ", cargoElabora=" + cargoElabora + '}';
+        return "DocumentoActaDTO{" + "docId=" + docId + ", pinId=" + pinId + ", asunto=" + asunto + ", actaLugar=" + actaLugar + ", actaFechaElaboracion=" + actaFechaElaboracion + ", clasificacion=" + clasificacion + ", numeroFolios=" + numeroFolios + ", trd=" + trd + ", cargoElabora=" + cargoElabora + ", actaDescripcion=" + actaDescripcion + '}';
     }
 
 }

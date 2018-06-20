@@ -311,6 +311,10 @@ public class Documento extends AuditModifySupport {
     @OneToMany
     @JoinColumn(name = "DOC_ID_ORIGINAL")
     private List<DependenciaCopiaMultidestino> dependenciaCopiaMultidestinos = new ArrayList<DependenciaCopiaMultidestino>();
+    
+    @Size(max = 2000)
+    @Column(name = "ACTA_DESCRIPCION")
+    private String actaDescripcion;
 
     @Transient
     private List<UsuarioVistoBuenoDTO> vistosBuenos = new ArrayList<UsuarioVistoBuenoDTO>();
@@ -1241,4 +1245,11 @@ public class Documento extends AuditModifySupport {
         this.actaFechaElaboracion = actaFechaElaboracion;
     }
 
+    public String getActaDescripcion() {
+        return actaDescripcion;
+    }
+
+    public void setActaDescripcion(String actaDescripcion) {
+        this.actaDescripcion = actaDescripcion;
+    }
 }
