@@ -21,14 +21,18 @@ import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.Global;
 import com.laamware.ejercito.doc.web.util.UsuarioXDocumentoActaComparator;
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,6 +56,10 @@ public class DocumentoActaService {
     public static final Map<String, String> ESTADO_MODE_MAP_FOR_UI;
 
     private static final Logger LOG = Logger.getLogger(DocumentoActaService.class.getName());
+
+    private String imagesRoot;
+
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy hh:mm a", new Locale("es", "CO"));
 
     static {
         final Map<DocumentoActaEstado, DocumentoActaMode> baseMap = new LinkedHashMap<>();
@@ -110,6 +118,9 @@ public class DocumentoActaService {
 
     @Autowired
     private DocumentoDependenciaService documentoDependenciaService;
+
+    @Autowired
+    JasperService jasperService;
 
     /**
      * Constructor.
@@ -322,7 +333,7 @@ public class DocumentoActaService {
         if (cargoElabora == null || cargoElabora.trim().isEmpty()) {
             validation.addError(documentoActaDTO, campo, "Debe ingresar el cargo con el cual elabora el acta.");
         }
-        
+
         // descripcion
         campo = "actaDescripcion";
         final String actaDescripcion = documentoActaDTO.getActaDescripcion();
@@ -375,11 +386,38 @@ public class DocumentoActaService {
         final Radicacion radicacion = radicadoService.findByProceso(proceso);
 
         documento.setRadicado(radicadoService.retornaNumeroRadicado(superDependencia.getId(), radicacion.getRadId()));
+        documento.setSticker(generaSticker(documento));
 
         documento.setQuienMod(usuarioSesion.getId());
         documento.setCuandoMod(new Date());
 
         return documentoService.actualizar(documento);
+    }
+
+    /**
+     * Genera el sticker en el OFS.
+     *
+     * @param doc Documento
+     * @return el identificador del ofs del sticker del acta
+     */
+    private String generaSticker(Documento doc) {
+        try {
+            System.err.println("Genera sticker");
+            Map<String, Object> params = new HashMap<String, Object>();
+            // params.put("P_DOCUMENTO", doc);
+            params.put("radicado", doc.getRadicado() == null ? "" : doc.getRadicado());
+            params.put("asunto", doc.getAsunto() == null ? "" : doc.getAsunto());
+            params.put("cuando", sdf.format(doc.getActaFechaElaboracion()));
+            params.put("elabora", doc.getElabora().getNombre());
+            params.put("imagesRoot", imagesRoot);
+            List<String> listaUnElemento = new ArrayList<>(1);
+            listaUnElemento.add("");
+            return jasperService.savePdf("sticker_acta", params, listaUnElemento, null);
+        } catch (Exception ex) {
+            Logger.getLogger(DocumentoActaService.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -647,6 +685,15 @@ public class DocumentoActaService {
         }
 
         return false;
+    }
+
+    @Value("${docweb.images.root}")
+    public void setImagesRoot(String imagesRoot) {
+        File file = new File(imagesRoot);
+        if (file.exists() == false) {
+            file.mkdir();
+        }
+        this.imagesRoot = imagesRoot;
     }
 
     /**
