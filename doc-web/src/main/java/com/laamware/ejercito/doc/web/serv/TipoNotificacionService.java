@@ -50,9 +50,19 @@ public class TipoNotificacionService {
      * Busca un Tipo de notificación por defecto por id
      *
      * @param id identificador de la observacion por defecto
-     * @return
+     * @return tipo notificación
      */
     public TipoNotificacion findOne(Integer id) {
         return tipoNotificacionRepository.findOne(id);
+    }
+    
+    /**
+     * Busca todos los tipo de notificación que no tengan una notificación 
+     * asociada
+     * 
+     * @return lista tipos de notificación 
+     */
+    public List<TipoNotificacion> findByNotNotificacion(){
+        return tipoNotificacionRepository.getByNotHaveNotificacion();
     }
 }

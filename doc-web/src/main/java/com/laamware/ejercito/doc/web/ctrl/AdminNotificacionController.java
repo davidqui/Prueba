@@ -103,7 +103,7 @@ public class AdminNotificacionController extends UtilController {
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(@RequestParam(value = "tipoNotificacion", required = false, defaultValue = "false") String idTipoNotificacion, Model model, HttpServletRequest req) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
-        List<TipoNotificacion> tiposNotificaciones = tipoNotificacionService.findActive(sort);
+        List<TipoNotificacion> tiposNotificaciones = tipoNotificacionService.findByNotNotificacion();
         List<Clasificacion> clasificaciones = clasificacionRepository.findByActivo(true);
         model.addAttribute("tiposNotificaciones", tiposNotificaciones);
         model.addAttribute("clasificaciones", clasificaciones);
@@ -135,7 +135,8 @@ public class AdminNotificacionController extends UtilController {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         Integer id = Integer.parseInt(req.getParameter("id"));
         Notificacion notificacion = notificacionService.findOne(id);
-        List<TipoNotificacion> tiposNotificaciones = tipoNotificacionService.findActive(sort);
+        List<TipoNotificacion> tiposNotificaciones = tipoNotificacionService.findByNotNotificacion();
+        tiposNotificaciones.add(notificacion.getTipoNotificacion());
         List<Clasificacion> clasificaciones = clasificacionRepository.findByActivo(true);
         model.addAttribute("notificacion", notificacion);
         model.addAttribute("tiposNotificaciones", tiposNotificaciones);
@@ -258,7 +259,7 @@ public class AdminNotificacionController extends UtilController {
 
     @ModelAttribute("tiposNotificaciones")
     public List<TipoNotificacion> findActiveTipoNotificacion() {
-        return tipoNotificacionService.findActive(new Sort(new Sort.Order(Sort.Direction.DESC, "cuando")));
+        return tipoNotificacionService.findByNotNotificacion();
     }
 
     @ModelAttribute("clasificaciones")

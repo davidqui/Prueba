@@ -4,6 +4,7 @@ import com.laamware.ejercito.doc.web.entity.TipoNotificacion;
 import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -22,4 +23,12 @@ public interface TipoNotificacionRepository extends JpaRepository<TipoNotificaci
      * @return 
      */
     List<TipoNotificacion> getByActivoTrue(Sort sort);
+    
+    @Query(nativeQuery = true, value = ""
+            + "SELECT TIPO_NOTIFICACION.* FROM TIPO_NOTIFICACION "
+            + "WHERE NOT EXISTS("
+            + "     SELECT * FROM NOTIFICACION "
+            + "     WHERE TIPO_NOTIFICACION.TNF_ID = NOTIFICACION.TNF_ID"
+            + ")")
+    List<TipoNotificacion> getByNotHaveNotificacion();
 }

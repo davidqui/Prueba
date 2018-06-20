@@ -1,5 +1,7 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.aspose.words.Bookmark;
+import com.aspose.words.BookmarkCollection;
 import com.aspose.words.BuiltInDocumentProperties;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -174,6 +176,17 @@ public class DocumentoController extends UtilController {
             + "<offline-allowed/>" + "</information>" + " <resources>" + "<j2se version=\"1.7+\"/>"
             + "<jar href='doc-web-scanner.jar' main='true'/>" + "<jar href='lib/uk.co.mmscomputing.device.twain.jar'/>"
             + " </resources>" + " <application-desc main-class='doc.web.scanner.JFrameDocWebScanner'/>" + " </jnlp> ";
+    /*
+        2018-06-20 samuel.delgado@controltechcg.com #169 : Constantes proceso 
+        estado.
+    */
+    public static final Integer ESTADO_ANULADO = 83;
+    public static final Integer ESTADO_ENVIADO = 49;
+    public static final Integer ID_TIPO_NOTIFICACION_FIRMA = 110;
+    public static final Integer ID_TIPO_NOTIFICACION_ENVIADO = 120;
+
+    
+    
     List<Plantilla> listaPlantilla;
     private String imagesRoot;
     private String ofsRoot;
@@ -996,7 +1009,7 @@ public class DocumentoController extends UtilController {
         } else {
             old = documentRepository.getOne(docId);
         }
-
+        
         if (fileSaveRequestGet) {
 
             if ((file == null || file.getOriginalFilename().isEmpty())) {
@@ -1132,7 +1145,7 @@ public class DocumentoController extends UtilController {
             model.addAttribute(AppConstants.FLASH_ERROR, "Ocurrió un error inesperado: " + e.getMessage());
             return "documento";
         }
-
+        
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Los datos han sido guardados correctamente");
 
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -1955,7 +1968,7 @@ public class DocumentoController extends UtilController {
             * 2018-06-14 samuel.delgado@controltechcg.com Issue #169
             * (SICDI-Controltech) feature-169 Envio notificación.
             */
-            enviarNotificacionesCambioProceso(i, doc);
+            enviarNotificacionesCambioProceso(i, doc, null, null);
             return redirectToInstancia(i);
         } else {
             model.addAttribute("mode", "nomode");
@@ -2810,6 +2823,7 @@ public class DocumentoController extends UtilController {
                  */
                 redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                         buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
+                enviarNotificacionesCambioProceso(instancia, documento, notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_FIRMA), documento.getElabora());
                 return redirectURL;
             }
 
@@ -2884,6 +2898,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
+            enviarNotificacionesCambioProceso(instancia, documento, notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_FIRMA), documento.getElabora());
             return redirectURL;
         }
 
@@ -5208,7 +5223,7 @@ public class DocumentoController extends UtilController {
              * a los usuarios.
              */
             try {
-                enviarNotificacionesCambioProceso(instancia, documento);
+                enviarNotificacionesCambioProceso(instancia, documento, null, null);
             } catch (Exception ex) {
                 LOG.error(instancia.getId(), ex);
             }
@@ -5222,7 +5237,7 @@ public class DocumentoController extends UtilController {
              * usuarios.
              */
             try {
-                enviarNotificacionesCambioProceso(instancia, documento);
+                enviarNotificacionesCambioProceso(instancia, documento, null, null);
             } catch (Exception ex) {
                 LOG.error(instancia.getId(), ex);
             }
@@ -5516,13 +5531,22 @@ public class DocumentoController extends UtilController {
     private void enviarNotificacionesCambioProceso(final DependenciaCopiaMultidestino copiaMultidestino) {
         final Documento documentoResultado = copiaMultidestino.getDocumentoResultado();
         final Instancia instancia = documentoResultado.getInstancia();
-        enviarNotificacionesCambioProceso(instancia, documentoResultado);
+        enviarNotificacionesCambioProceso(instancia, documentoResultado, null, null);
     }
 
-    private void enviarNotificacionesCambioProceso(final Instancia instancia, final Documento documento){
+    private void enviarNotificacionesCambioProceso(final Instancia instancia, final Documento documento, List<Notificacion> notificaciones, Usuario usuarioAsignado){
         
-        final Usuario usuarioAsignado = instancia.getAsignado();
-        List<Notificacion> notificaciones = notificacionService.fingByTypoNotificacionValor(instancia.getEstado().getId());
+        if (usuarioAsignado == null) {
+            usuarioAsignado = instancia.getAsignado();
+        }
+        
+        if (notificaciones == null) {
+            if (instancia.getEstado().getId() == ESTADO_ENVIADO) {
+                notificaciones = notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_ENVIADO);
+            }else{
+                notificaciones = notificacionService.fingByTypoNotificacionValor(instancia.getEstado().getId());
+            }
+        }
         
         if (notificaciones != null && !notificaciones.isEmpty()) {
             try {
@@ -5535,6 +5559,14 @@ public class DocumentoController extends UtilController {
                 String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
                 EmailDTO mensaje = new EmailDTO(usuarioAsignado.getEmail(), null,
                         notificacion.getAsunto(), "", html, "", null);
+                
+                if (instancia.getEstado().getId() == ESTADO_ANULADO) {
+                    mensaje.setDestino(documento.getElabora().getEmail());
+                    if (usuarioAsignado.getId() == documento.getElabora().getId()) {
+                        return;
+                    }
+                }
+                
                 mailQueueService.enviarCorreo(mensaje);
             } catch (IOException | TemplateException ex) {
                 LOG.error(ex.getMessage(), ex);
