@@ -72,7 +72,9 @@
                             <tr>
                                 <th></th>
                                 <th>Nombre</th>
-                                <th>Dependencia</th>
+                                <#if type != "ACTA">
+                                    <th>Dependencia</th>
+                                </#if>
                                 <th>Clasificación</th>
                             </tr>
                         </thead>
@@ -85,7 +87,9 @@
                                     Presentación de grado de usuario.
                                 -->
                                 <td><#if usuario.usuGrado?? >${usuario.usuGrado.id}. </#if>${usuario.nombre}</td>
-                                <td>${usuario.dependencia.nombre}</td>
+                                <#if type != "ACTA">
+                                    <td>${usuario.dependencia.nombre}</td>
+                                </#if>
                                 <td>${usuario.clasificacion.nombre}</td>
                             </tr>
                             <tr>
