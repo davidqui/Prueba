@@ -1,5 +1,8 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.aspose.words.Bookmark;
+import com.aspose.words.BookmarkCollection;
+import com.aspose.words.Document;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -22,6 +25,7 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Plantilla;
 import com.laamware.ejercito.doc.web.repo.PlantillaRepository;
 import com.laamware.ejercito.doc.web.serv.OFS;
+import org.springframework.beans.factory.annotation.Value;
 
 @Controller
 @RequestMapping(value = "/admin/plantilla")
@@ -34,7 +38,14 @@ public class PlantillaController extends UtilController {
 
 	@Autowired
 	OFS ofs;
-
+        
+        /*
+            2018-06-21 samuel.delgado@controltechcg.com feature #176 : se agrega a la tabla
+            los bookmarks para el control de versiones.
+        */
+        @Value("${com.mil.imi.sicdi.plantillas.validar}")
+        private Boolean VALIDAR_PLANTILLAS;
+        
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public String list(Model model,
 			@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all) {
@@ -87,6 +98,42 @@ public class PlantillaController extends UtilController {
 		}
 
 		try {
+                    
+                        /*
+                            2018-06-21 samuel.delgado@controltechcg.com feature #176 : se 
+                            conprueba que el archivo ingrasado contenga los bookmarks requeridos
+                        */
+                        if (VALIDAR_PLANTILLAS) {
+                            Document documentAspose = new Document(file.getInputStream());
+                            BookmarkCollection bookmarks = documentAspose.getRange().getBookmarks();
+                            String nombrePlantilla = null;
+                            String versionPlantilla = null;
+                            for (Bookmark bookmark : bookmarks) {
+                                try {
+                                    String key = bookmark.getName().split("_")[0];
+                                    String value = bookmark.getName().split("_")[1];
+                                    if (key.equals("nombre")) {
+                                        nombrePlantilla = value;
+                                    }
+                                    if (key.equals("version")) {
+                                        versionPlantilla = value;
+                                    }
+                                } catch (Exception ex) {}
+                            }
+                            if (nombrePlantilla == null || versionPlantilla == null){
+                                model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento");
+                                return "admin-plantilla-edit";
+                            }
+
+                            System.out.println("NOMBRE PLANTILLA = "+nombrePlantilla+" Version = "+versionPlantilla);
+
+                            plantilla.setBookmarkName(nombrePlantilla);
+                            plantilla.setBookmarkValue(versionPlantilla);
+                        }else{
+                            plantilla.setBookmarkName(null);
+                            plantilla.setBookmarkValue(null);
+                        }
+                        
 			// Issue #116
 			boolean defaultFileContentType = (file.getContentType() != null)
 					&& (file.getContentType().equalsIgnoreCase("application/octet-stream"));

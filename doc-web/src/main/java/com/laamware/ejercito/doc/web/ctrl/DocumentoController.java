@@ -1,5 +1,7 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.aspose.words.Bookmark;
+import com.aspose.words.BookmarkCollection;
 import com.aspose.words.BuiltInDocumentProperties;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -170,6 +172,13 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     private DataSource dataSource;
+    
+    /*
+        2018-06-21 samuel.delgado@controltechcg.com feature #129 : variable para
+        validar las plantillas.
+    */
+    @Value("${com.mil.imi.sicdi.plantillas.validar}")
+    private Boolean VALIDAR_PLANTILLAS;
 
     @Autowired
     DocumentoDependenciaAdicionalRepository documentoDependenciaAdicionalRepository;
@@ -1043,6 +1052,56 @@ public class DocumentoController extends UtilController {
         }
 
         String fileId = null;
+        
+        System.out.println("Entra a verificar documento");
+        if (file != null && VALIDAR_PLANTILLAS) {
+            try {
+                Document documentAspose = new Document(file.getInputStream());
+                BookmarkCollection bookmarks = documentAspose.getRange().getBookmarks();
+                String nombrePlantilla = null;
+                String versionPlantilla = null;
+                for (Bookmark bookmark : bookmarks) {
+                    System.out.println("Bookmark name "+bookmark.getName());
+                    try {
+                        String key = bookmark.getName().split("_")[0];
+                        String value = bookmark.getName().split("_")[1];
+                        if (key.equals("nombre")) {
+                            nombrePlantilla = value;
+                        }
+                        if (key.equals("version")) {
+                            versionPlantilla = value;
+                        }
+                    } catch (Exception ex) {  }
+                }
+
+                System.out.println("NOMBRE PLANTILLA = "+nombrePlantilla+" Version = "+versionPlantilla);
+
+                if (nombrePlantilla == null || versionPlantilla == null){
+                    doc.setMode(mode);
+                    plantillas(model);
+                    expedientes(model, principal);
+                    tipologias(doc.getTrd(), model);
+                    model.addAttribute("documento", doc);
+                    model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento");
+                    return "documento";
+                }
+
+                List<Plantilla> plantilla = plantillaRepository.findByBookmarkNameAndBookmarkValue(nombrePlantilla, versionPlantilla);
+                 
+                if (plantilla.isEmpty()){
+                    doc.setMode(mode);
+                    plantillas(model);
+                    expedientes(model, principal);
+                    tipologias(doc.getTrd(), model);
+                    model.addAttribute("documento", doc);
+                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, dercargue la mas reciente.");
+                    return "documento";
+                }
+            } catch (Exception ex) {
+                java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } 
+        
         if (fileSaveRequestGet) {
             try {
                 if (file != null) {
