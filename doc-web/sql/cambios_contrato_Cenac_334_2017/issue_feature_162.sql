@@ -260,3 +260,10 @@ REFERENCES USUARIO (USU_ID);
 
 CREATE INDEX USU_X_DOC_ACTIVO_IDX
 ON USUARIO_X_DOCUMENTO_ACTA (ACTIVO);
+
+-- -----------------------------------------------------------------------------
+-- TABLA: DEPENDENCIA
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE DEPENDENCIA ADD USU_ID_REGISTRO   NUMBER(38);
+ALTER TABLE DEPENDENCIA ADD CONSTRAINT DEP_X_USU_ID_REGISTRO_FK FOREIGN KEY (USU_ID_REGISTRO) REFERENCES USUARIO (USU_ID);
