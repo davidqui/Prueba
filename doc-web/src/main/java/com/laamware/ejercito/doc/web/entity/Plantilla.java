@@ -72,6 +72,12 @@ public class Plantilla extends AuditActivoModifySupport {
 
 	@Column(name = "PLA_DOCX_DOCUMENTO")
 	private String docx4jDocumento;
+        
+        @Column(name = "BOOK_NAME")
+        private String bookmarkName;
+
+        @Column(name = "BOOK_VALUE")
+        private String bookmarkValue;
 
 	@Transient
 	private String idPlantillaSeleccionada = null;
@@ -160,6 +166,22 @@ public class Plantilla extends AuditActivoModifySupport {
 	public void setDocx4jDocumento(String docx4jDocumento) {
 		this.docx4jDocumento = docx4jDocumento;
 	}
+        
+        public String getBookmark_name() {
+            return bookmarkName;
+        }
+
+        public void setBookmarkName(String bookmarkName) {
+            this.bookmarkName = bookmarkName;
+        }
+
+        public String getBookmarkValue() {
+            return bookmarkValue;
+        }
+
+        public void setBookmarkValue(String bookmarkValue) {
+            this.bookmarkValue = bookmarkValue;
+        }
 
 	public boolean plantillaTienePlantilla() {
 		return docx4jDocumento != null && docx4jDocumento.trim().length() > 0;
