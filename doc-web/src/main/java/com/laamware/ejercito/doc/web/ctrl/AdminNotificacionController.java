@@ -311,10 +311,9 @@ public class AdminNotificacionController extends UtilController {
             @RequestParam(value = "mail", required = false, defaultValue = "") String mailToSend, Model model, RedirectAttributes redirect){
             if (!idNotificacion.equals("-1")) {
                 if (!mailToSend.equals("")) {
-                    List<Notificacion> notificaciones = notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_ENVIADO);
-                    if (!notificaciones.isEmpty()) {
-                         Notificacion notificacion = notificaciones.get(0);
-                         EmailDTO mensaje = new EmailDTO(mailToSend, null,
+                    Notificacion notificacion = notificacionService.findOne(Integer.parseInt(idNotificacion));
+                    if (notificacion != null) {
+                        EmailDTO mensaje = new EmailDTO(mailToSend, null,
                         "TEST "+notificacion.getAsunto(), "", notificacion.getTemplate(), "", null);
                          mailQueueService.enviarCorreo(mensaje);
                          redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Correo de test enviado con éxito");
@@ -322,7 +321,7 @@ public class AdminNotificacionController extends UtilController {
                     }
                 }
             }
-        model.addAttribute(AppConstants.FLASH_SUCCESS, "Error al enviar el correo eléctronico.");
-        return LIST_TEMPLATE;
+        redirect.addFlashAttribute(AppConstants.FLASH_ERROR, "Error al enviar el correo eléctronico.");
+        return "redirect:" + PATH;
     }
 }
