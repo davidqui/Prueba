@@ -1082,7 +1082,8 @@ public class DocumentoController extends UtilController {
                     expedientes(model, principal);
                     tipologias(doc.getTrd(), model);
                     model.addAttribute("documento", doc);
-                    model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento");
+                    model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento,"
+                            + " verifique que tiene descargada la ultima versión");
                     return "documento";
                 }
 
@@ -1094,7 +1095,7 @@ public class DocumentoController extends UtilController {
                     expedientes(model, principal);
                     tipologias(doc.getTrd(), model);
                     model.addAttribute("documento", doc);
-                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, dercargue la mas reciente.");
+                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, verifique que tiene descargada la ultima versión.");
                     return "documento";
                 }
             } catch (Exception ex) {
