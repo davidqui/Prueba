@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import static com.laamware.ejercito.doc.web.ctrl.DocumentoController.ID_TIPO_NOTIFICACION_ENVIADO;
 import com.laamware.ejercito.doc.web.dto.EmailDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
@@ -12,29 +13,21 @@ import com.laamware.ejercito.doc.web.serv.MailQueueService;
 import com.laamware.ejercito.doc.web.serv.NotificacionService;
 import com.laamware.ejercito.doc.web.serv.TipoNotificacionService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import java.io.IOException;
-import java.io.StringReader;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -305,39 +298,31 @@ public class AdminNotificacionController extends UtilController {
     @Autowired
     private MailQueueService mailQueueService;
     
-     /**
-     * TEST
-     *
-     * @param all
-     * @param model
-     * @return Pagina de consulta de observaciones por defecto
+    /***
+     * Test notificación 
+     * @param idNotificacion id de la notificación a testear
+     * @param mailToSend a quien va ir el mensaje.  
+     * @param model  
+     * @param redirect  
+     * @return 
      */
-    @ResponseBody
     @RequestMapping(value = {"/testmail"}, method = RequestMethod.GET)
-    public ResponseEntity<?> TestMail(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
-            Model model, Principal principal) throws IOException {
-        
-        try {
-            Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
-            
-            
-            String cuerpo = notificacionService.findAll(sort).get(0).getTemplate();
-            final Usuario usuarioSesion = getUsuario(principal);
-            model.addAttribute("usuario", usuarioSesion);
-            Template t = new Template("mail", new StringReader(cuerpo));
-            String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
-            
-            List<String> copia = new ArrayList<>();
-            copia.add("jgarcia@controltechcg.com");
-            copia.add("samuel.delgado@controltechcg.com");
-            EmailDTO msgPrueba = new EmailDTO(usuarioSesion.getEmail(), copia, "Prueba", "Cabecera", html, "Footer", null);
-            
-            mailQueueService.enviarCorreo(msgPrueba);
-            
-            return ResponseEntity.ok("ok!");
-        } catch (TemplateException ex) {
-            Logger.getLogger(AdminNotificacionController.class.getName()).log(Level.SEVERE, null, ex);
-            return ResponseEntity.ok("No ok!!");
-        }
+    public String sendTest(@RequestParam(value = "id", required = true, defaultValue = "-1") String idNotificacion,
+            @RequestParam(value = "mail", required = false, defaultValue = "") String mailToSend, Model model, RedirectAttributes redirect){
+            if (!idNotificacion.equals("-1")) {
+                if (!mailToSend.equals("")) {
+                    List<Notificacion> notificaciones = notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_ENVIADO);
+                    if (!notificaciones.isEmpty()) {
+                         Notificacion notificacion = notificaciones.get(0);
+                         EmailDTO mensaje = new EmailDTO(mailToSend, null,
+                        "TEST "+notificacion.getAsunto(), "", notificacion.getTemplate(), "", null);
+                         mailQueueService.enviarCorreo(mensaje);
+                         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Correo de test enviado con éxito");
+                         return "redirect:" + PATH+"/edit" + "?id=" + notificacion.getId();
+                    }
+                }
+            }
+        model.addAttribute(AppConstants.FLASH_SUCCESS, "Error al enviar el correo eléctronico.");
+        return LIST_TEMPLATE;
     }
 }
