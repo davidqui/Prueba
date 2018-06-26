@@ -54,11 +54,12 @@
                 </fieldset>
             </#if>
             <div class="m-y">
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exampleModal" data-whatever="@${notificacion.id}" style="margin-right: 30px;">Enviar Test</button>
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
                 <a href="/admin/notificacion" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
-        <script>
+        <script type="text/javascript">
             function addTextArea(value) {
                 var textarea = document.getElementById("text-area-notificacion");
                 var val = textarea.value;
@@ -92,5 +93,33 @@
             }
         </script>
     </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Test email</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position:absolute;right: 10px;top: 5px;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/admin/notificacion/testmail" method="GET">
+        <div class="modal-body">
+        <div class="form-group" style="display:none">
+          <label for="recipient-name" class="col-form-label">Recipient:</label>
+          <input type="text" class="form-control" id="id" name="id" value="${notificacion.id}">
+        </div>
+        <div class="form-group">
+          <label for="recipient-name" class="col-form-label">Enviar a:</label>
+          <input type="text" class="form-control" id="mail" name="mail" placeholder="mail@mail.com">
+        </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Enviar Prueba</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 <#include "footer.ftl">

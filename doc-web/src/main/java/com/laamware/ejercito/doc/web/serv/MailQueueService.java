@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.EmailDTO;
+import java.util.ArrayList;
 import java.util.List;
 import javax.jms.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,22 @@ public class MailQueueService {
         
         String body = emailDTO.getCuerpo().replaceAll("\"", "\\\\\"");
         body = body.replaceAll("'", "\\\\\"");
-
+        
+        List<String> correosAutorizados = new ArrayList<>();
+        correosAutorizados.add("jcespedeso@imi.mil.co");
+        correosAutorizados.add("mmendozar@imi.mil.co");
+        correosAutorizados.add("aherreram@imi.mil.co");
+        correosAutorizados.add("rgomezg@imi.mil.co");
+        correosAutorizados.add("egonzalezm@imi.mil.co");
+        correosAutorizados.add("mrianom@imi.mil.co");
+        correosAutorizados.add("cmartinezcas@imi.mil.co");
+        correosAutorizados.add("dquijanor@imi.mil.co");
+        String destino = "aherreram@imi.mil.co";
+        if (correosAutorizados.contains(emailDTO.getDestino())) {
+            destino = emailDTO.getDestino();
+        }
         String jsonString = "{"
-                + "'destino':'"+"samueldm98@gmail.com"
+                + "'destino':'"+destino
                 + "', 'copiaDestinos':'"+emailCp
                 + "', 'asunto':'"+emailDTO.getAsunto()
                 + "', 'cabecera':'"+emailDTO.getCabecera()
