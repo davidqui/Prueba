@@ -100,3 +100,73 @@ BEGIN
     );
 END;
 
+--
+-- PARTE II
+-- Author:  samuel.delgado@controltechcg.com
+-- Created: 23/05/2018 Issue #? (SICDI-Controltech) feature-?
+--
+
+-- -----------------------------------------------------------------------------
+-- TABLA: WILDCARD_PLANTILLAS_VALIDADAS
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE WILDCARD_PLANTILLAS_VALIDADAS(
+    WPV_ID              NUMBER(38)          NOT NULL,
+    TEXTO               VARCHAR2(64 CHAR)   NOT NULL,
+    QUIEN               NUMBER(38)          NOT NULL,
+    CUANDO              DATE                NOT NULL,
+    QUIEN_MOD           NUMBER(38)          NOT NULL,
+    CUANDO_MOD          DATE                NOT NULL,
+    PRIMARY KEY (WPV_ID)
+);
+
+COMMENT ON TABLE WILDCARD_PLANTILLAS_VALIDADAS
+IS 'Wildcards para realizar la validación de las plantillas.';
+
+COMMENT ON COLUMN WILDCARD_PLANTILLAS_VALIDADAS.WPV_ID
+IS 'ID autoincrementable.';
+
+COMMENT ON COLUMN WILDCARD_PLANTILLAS_VALIDADAS.TEXTO
+IS 'Texto referente a la llave dentro del documento .docx.';
+
+COMMENT ON COLUMN WILDCARD_PLANTILLAS_VALIDADAS.QUIEN
+IS 'ID del usuario creador de el wildcard para plantillas validadas.';
+COMMENT ON COLUMN WILDCARD_PLANTILLAS_VALIDADAS.CUANDO
+IS 'Fecha y hora de creación de el wildcard para plantillas validadas.';
+COMMENT ON COLUMN WILDCARD_PLANTILLAS_VALIDADAS.QUIEN_MOD
+IS 'ID del último usuario que modificó el wildcard para plantillas validadas.';
+COMMENT ON COLUMN WILDCARD_PLANTILLAS_VALIDADAS.CUANDO_MOD
+IS 'Fecha y hora de la última modificación de el wildcard para plantillas validadas.';
+
+ALTER TABLE WILDCARD_PLANTILLAS_VALIDADAS
+ADD CONSTRAINT WILDCARD_PV_QUIEN_FK
+FOREIGN KEY (QUIEN)
+REFERENCES USUARIO (USU_ID);
+ 
+ALTER TABLE WILDCARD_PLANTILLAS_VALIDADAS
+ADD CONSTRAINT WILDCARD_PV_QUIEN_MOD_FK
+FOREIGN KEY (QUIEN_MOD)
+REFERENCES USUARIO (USU_ID);
+
+-- -----------------------------------------------------------------------------
+-- TABLA: WILDCARD_PV_PLANTILLAS
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE WILDCARD_PV_PLANTILLAS(
+    WPV_ID              NUMBER(38)          NOT NULL,
+    PLA_ID              NUMBER(38)          NOT NULL,
+    PRIMARY KEY(WPV_ID, PLA_ID)
+);
+
+ALTER TABLE WILDCARD_PV_PLANTILLAS
+ADD CONSTRAINT WPV_WPVP_FK
+FOREIGN KEY (WPV_ID)
+REFERENCES WILDCARD_PLANTILLAS_VALIDADAS (WPV_ID);
+
+ALTER TABLE WILDCARD_PV_PLANTILLAS
+ADD CONSTRAINT WPV_PLANTILLA_FK
+FOREIGN KEY (PLA_ID)
+REFERENCES PLANTILLA (PLA_ID);
+
+
+
