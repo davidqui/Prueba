@@ -42,9 +42,10 @@
                 <fieldset class="form-group">
                     <div style="display: flex;">
                         <div style="width: 70%;">
-                            <input type="text" class="form-control" id="asunto" name="asunto" value="${(notificacion.asunto)!""}" placeholder="Asunto"/>
-                            <textarea id="text-area-notificacion" class="form-control" name="template" rows="20" placeholder="Template">${(notificacion.template)!""}</textarea>
+                            <input type="text" class="form-control" id="asunto" name="asunto" value="${(notificacion.asunto)!""}" placeholder="Asunto" disabled/>
+                            <textarea id="text-area-notificacion" class="form-control" name="template" rows="20" placeholder="Template" disabled>${(notificacion.template)!""}</textarea>
                         </div>
+                        
                         <div class="list-group notificacion-wildcard-selector" style="width: 30%; max-height: 524px; overflow: hidden; overflow-y: auto;">
                             <#list notificacion.tipoNotificacion.wildCards as wildcard>
                                 <a class="list-group-item list-group-item-action" href="javascript:addTextArea('${wildcard.valor}');">${wildcard.nombre}</a>
@@ -54,18 +55,21 @@
                 </fieldset>
             </#if>
             <div class="m-y">
-                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exampleModal" data-whatever="@${notificacion.id}" style="margin-right: 30px;">Enviar Test</button>
-                <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
+                <button id="btnEnviar" type="button" class="btn btn-default" data-toggle="modal" data-target="#sendTestModal" data-whatever="@${notificacion.id}" style="margin-right: 30px;">Enviar Test</button>
+                <button id="btnGuardar" type="submit" class="btn btn-primary" style="display:none;">Guardar</button>
+                <button id="btnHedicion" type="button" class="btn btn-primary" data-toggle="modal" data-target="#enviarTest">Habilitar Edición</button>
                 <a href="/admin/notificacion" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
         <script type="text/javascript">
             function addTextArea(value) {
                 var textarea = document.getElementById("text-area-notificacion");
-                var val = textarea.value;
-                var part1 = val.substring(0, val.slice(0, textarea.selectionStart).length);
-                var part2 = val.substring(val.slice(0, textarea.selectionStart).length, val.length);
-                textarea.value = part1+"$"+"{("+value+")!\"\"}" + part2;
+                if(!textarea.disabled){
+                    var val = textarea.value;
+                    var part1 = val.substring(0, val.slice(0, textarea.selectionStart).length);
+                    var part2 = val.substring(val.slice(0, textarea.selectionStart).length, val.length);
+                    textarea.value = part1+"$"+"{("+value+")!\"\"}" + part2;
+                }
             }
                 
             function cambioTipoNotificacion(change) {
@@ -91,11 +95,28 @@
                     '&clasificacion='+v_clas;    
                 }
             }
+            
+            function habilitarEdicion(){
+                var textarea = document.getElementById("text-area-notificacion");
+                var input = document.getElementById("asunto");
+                var senTest = document.getElementById("btnEnviar");
+                
+                var btnGuardar = document.getElementById("btnGuardar");
+                var btnEditar = document.getElementById("btnHedicion");
+                
+                textarea.disabled = false;
+                input.disabled = false;
+                senTest.disabled = true;
+                
+                btnGuardar.style.display = "initial";
+                btnEditar.style.display = "none";
+            }
         </script>
     </div>
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- Modal Enviar test-->
+<div class="modal fade" id="sendTestModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -119,6 +140,30 @@
           <button type="submit" class="btn btn-primary">Enviar Prueba</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Aviso-->
+<div class="modal fade" id="enviarTest" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle" style="color:red;">Advertencia</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position:absolute;right: 10px;top: 5px;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Señor Usuario:
+Tenga en cuenta que para editar el contenido de esta plantilla, usted debe tener conocimientos básicos sobre HTML5 y CCS; además debe tener en cuenta que los cambios realizados afectaran las notificaciones globales del sistema que dependan de esta plantilla. 
+</br>
+Los cambios realizados serán objeto de auditoria por parte del sistema, generando con ello que se establezca claramente quien ha generado modificaciones sobre esta plantilla. 
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="habilitarEdicion()" data-dismiss="modal">Aceptar</button>
+      </div>
     </div>
   </div>
 </div>
