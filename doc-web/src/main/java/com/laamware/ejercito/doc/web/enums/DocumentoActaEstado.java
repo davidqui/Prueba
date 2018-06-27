@@ -19,7 +19,7 @@ public enum DocumentoActaEstado {
     ANULADO(151),
     /**
      * El acta cuenta con número de radicación generado y se encuentra en espera
-     * de la carga del archivo.
+     * de enviarlo al usuario registro.
      */
     NUMERO_DE_RADICACION_GENERADO(152),
     /**
@@ -29,7 +29,21 @@ public enum DocumentoActaEstado {
     /**
      * Registra los usuarios asociados al acta.
      */
-    REGISTRO_DE_USUARIOS_DEL_ACTA(154);
+    REGISTRO_DE_USUARIOS_DEL_ACTA(154),
+    /**
+     * Registra los usuarios asociados al acta.
+     */
+    ENVIO_REGISTRO(155),
+    /**
+     * El acta cuenta con número de radicación generado y se encuentra en espera
+     * de la carga del archivo
+     */
+    CARGA_ACTA(156),
+    /**
+     * El acta cuenta con el archivo cargado y se encuentra en espera
+     * de la aprobación o devolución, por parte del usuario creador.
+     */
+    VALIDAR_ACTA(157);
 
     private final Integer id;
 

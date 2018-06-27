@@ -73,6 +73,10 @@ public class DocumentoActaController extends UtilController {
 
     private static final String DOCUMENTO_ACTA_USUARIOS_TEMPLATE = "documento-acta-usuarios";
 
+    private static final String DOCUMENTO_ACTA_ENVIO_REGISTRO_TEMPLATE = "documento-acta-envioRegistro";
+    
+    private static final String DOCUMENTO_ACTA_VALIDAR_TEMPLATE = "documento-acta-validar";
+
     private static final String SECURITY_DENIED_TEMPLATE = "security-denied";
 
     private static final String REDIRECT_ACCESO_DENEGADO_URL = "redirect:/documento/acceso-denegado";
@@ -328,9 +332,10 @@ public class DocumentoActaController extends UtilController {
             uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado el número de radicación \"" + documento.getRadicado() + "\" al acta \"" + documento.getAsunto() + "\".");
         }
 
+        cargarInformacionSeleccionUsuariosUIModel(uiModel, documento);
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
-        return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
+        return DOCUMENTO_ACTA_ENVIO_REGISTRO_TEMPLATE;
     }
 
     /**
@@ -346,6 +351,7 @@ public class DocumentoActaController extends UtilController {
      */
     @RequestMapping(value = "/cargar-acta-digital", method = RequestMethod.POST)
     public String cargarActaDigital(@RequestParam("pin") String procesoInstanciaID, @RequestParam("archivo") MultipartFile multipartFile, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        System.err.println("/cargar-acta-digital");
         final Usuario usuarioSesion = getUsuario(principal);
         final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
         if (!tieneAccesoPorAsignacion) {
@@ -733,6 +739,7 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("usuariosAsignados", actaService.listarRegistrosUsuariosAsignados(documento));
         uiModel.addAttribute("observacionesDefecto", observacionDefectoService.listarActivas());
         uiModel.addAttribute("usuariosAsignadosConsulta", actaService.listarRegistrosUsuariosAsignadosConsulta(documento));
+        uiModel.addAttribute("usuarioRegistro",actaService.retornaUltimoUsuarioRegistroAsignado(documento));
     }
 
     /**
@@ -756,5 +763,232 @@ public class DocumentoActaController extends UtilController {
     private void cargarInformacionSeleccionUsuariosUIModel(final Model uiModel, final Documento documento) {
         uiModel.addAttribute("debeSeleccionarUsuarios", actaService.debeSeleccionarUsuarios(documento));
         uiModel.addAttribute("seleccionUsuarioSubserieActa", actaService.obtenerSeleccionUsuarioSubserieActa(documento).name());
+    }
+
+    /**
+     * Envia al usuario de registro el acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
+    @RequestMapping(value = "/usuario-registro", method = RequestMethod.GET)
+    public String usuarioRegistro(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        cargarInformacionSeleccionUsuariosUIModel(uiModel, documento);
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        return DOCUMENTO_ACTA_ENVIO_REGISTRO_TEMPLATE;
+    }
+
+    /**
+     * Envia al usuario de registro el acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
+    @RequestMapping(value = "/enviar-registro", method = RequestMethod.GET)
+    public String enviarUsuarioRegistro(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        //Colocar el metodo que llama a la seleccion del usuario.
+        Usuario usuarioRegistro = usuarioService.retornaUsuarioRegistro(usuarioSesion);
+        if (usuarioRegistro == null) {
+            uiModel.addAttribute(AppConstants.FLASH_ERROR, "No se encontro el usuario de registro. Por favor comuniquese con el administrador del sistema.");
+
+            cargarInformacionSeleccionUsuariosUIModel(uiModel, documento);
+            cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+            return DOCUMENTO_ACTA_ENVIO_REGISTRO_TEMPLATE;
+        }
+
+        procesoInstancia.setQuienMod(usuarioSesion.getId());
+        procesoInstancia.setCuandoMod(new Date());
+        procesoInstancia.asignar(usuarioRegistro);
+
+        uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado al usuario \"" + usuarioRegistro.toString() + "\" al acta \"" + documento.getAsunto() + "\".");
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
+    }
+    
+    /**
+     * Envia al usuario de registro el acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
+    @RequestMapping(value = "/cargar-acta-digital", method = RequestMethod.GET)
+    public String cargarActaDigital(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
+    }
+    
+    /**
+     * Envia al usuario quie creo el acta, para que valide el usuario quien creo 
+     * el acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
+    @RequestMapping(value = "/validar-acta", method = RequestMethod.GET)
+    public String validarActa(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        //Colocar el metodo que llama a la seleccion del usuario.
+        Usuario usuarioRegistro = usuarioService.retornaUsuarioRegistro(usuarioSesion);
+        if (usuarioRegistro == null) {
+            uiModel.addAttribute(AppConstants.FLASH_ERROR, "No se encontro el usuario de registro. Por favor comuniquese con el administrador del sistema.");
+
+            cargarInformacionSeleccionUsuariosUIModel(uiModel, documento);
+            cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+            return DOCUMENTO_ACTA_ENVIO_REGISTRO_TEMPLATE;
+        }
+        
+        procesoInstancia.setQuienMod(usuarioSesion.getId());
+        procesoInstancia.setCuandoMod(new Date());
+        procesoInstancia.asignar(documento.getElabora());
+
+        uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado al usuario \"" + documento.getElabora().toString() + "\" al acta \"" + documento.getAsunto() + "\".");
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
+    }
+    
+    /**
+     * Envia al usuario quie creo el acta, para que valide el usuario quien creo 
+     * el acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
+    @RequestMapping(value = "/validar-acta-usuario-sesion", method = RequestMethod.GET)
+    public String validarActaUsuarioSesion(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        return DOCUMENTO_ACTA_VALIDAR_TEMPLATE;
     }
 }

@@ -92,6 +92,16 @@ VALUES
         null)
 ;
 
+INSERT INTO PROCESO_ESTADO 
+    (PES_ID, PES_NOMBRE, PES_DESCRIPCION, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD,
+        ACTIVO, PRO_ID, PES_INICIAL, PES_FINAL, PES_LOCATION, PES_REASIGNACION,
+        PES_TRUNCATED) 
+VALUES
+    (155, 'Generación del número radicado', 'El acta cuenta con la información registrada y en espera de la generacion del numero de radicado', SYSDATE, 3390, SYSDATE, 3390,
+        1, 100, 0, 0, '/documento-acta/generar-numero-radicado?pin={instancia.id}', null,
+        null)
+;
+
 -- UPDATE PROCESO_ESTADO SET ACTIVO = 0 WHERE PRO_ID = 100;
 
 -- -----------------------------------------------------------------------------
@@ -153,6 +163,13 @@ VALUES
     (153, 1, '/documento-acta/anular?pin={instancia.id}&tid={transicion.id}', 'Anular', 150, 151,
         SYSDATE, 3390, SYSDATE, 3390, 1) 
 ;
+
+INSERT INTO PROCESO_TRANSICION 
+    (PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL, PES_ID_FINAL, 
+        CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO) 
+VALUES 
+    (154, 1, '/documento-acta/enviar-registro?pin={instancia.id}&tid={transicion.id}', 'Enviar a Registro', 155, 
+        152, SYSDATE, 3390, SYSDATE, 3390, 1);
 
 -- UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (150, 151, 152);
 

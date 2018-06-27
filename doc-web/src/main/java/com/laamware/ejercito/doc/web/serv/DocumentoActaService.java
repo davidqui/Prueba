@@ -6,6 +6,7 @@ import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
+import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Radicacion;
@@ -15,6 +16,7 @@ import com.laamware.ejercito.doc.web.entity.UsuarioXDocumentoActa;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaUsuarioSeleccion;
+import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
@@ -68,6 +70,9 @@ public class DocumentoActaService {
         baseMap.put(DocumentoActaEstado.NUMERO_DE_RADICACION_GENERADO, DocumentoActaMode.CARGA_ACTA_DIGITAL);
         baseMap.put(DocumentoActaEstado.REGISTRO_DE_DATOS_DEL_ACTA, DocumentoActaMode.EDICION_INFORMACION);
         baseMap.put(DocumentoActaEstado.REGISTRO_DE_USUARIOS_DEL_ACTA, DocumentoActaMode.SELECCION_USUARIOS);
+        baseMap.put(DocumentoActaEstado.ENVIO_REGISTRO, DocumentoActaMode.SOLO_CONSULTA);
+        baseMap.put(DocumentoActaEstado.CARGA_ACTA, DocumentoActaMode.CARGA_ACTA_DIGITAL);
+        baseMap.put(DocumentoActaEstado.VALIDAR_ACTA, DocumentoActaMode.SOLO_CONSULTA);
 
         ESTADO_MODE_MAP = Collections.unmodifiableMap(baseMap);
 
@@ -118,6 +123,12 @@ public class DocumentoActaService {
 
     @Autowired
     private DocumentoDependenciaService documentoDependenciaService;
+
+    @Autowired
+    private InstanciaRepository instanciaRepository;
+
+    @Autowired
+    private ProcesoService procesoService;
 
     @Autowired
     JasperService jasperService;
@@ -733,6 +744,30 @@ public class DocumentoActaService {
      */
     public DocumentoDependencia buscarRegistroArchivoActivo(Documento documento, Usuario usuario) {
         return documentoDependenciaService.buscarRegistroActivo(documento, usuario);
+    }
+
+    /**
+     * Retorna el ultimo usuario registrado
+     *
+     * @param documento Utiliza el documento
+     * @return usuario de registro
+     */
+    public Usuario retornaUltimoUsuarioRegistroAsignado(Documento documento) {
+        Usuario usuario = null;
+        System.err.println(documento.getInstancia().getId() + "----" + DocumentoActaEstado.CARGA_ACTA.getId());
+        Instancia instancia = instanciaRepository.findOneByIdAndEstadoId(documento.getInstancia().getId(), DocumentoActaEstado.CARGA_ACTA.getId());
+        System.err.println("Primer usuario= " + usuario);
+        if (instancia == null) {
+            List<HProcesoInstancia> hProcesoInstancias = procesoService.getHistoria(documento.getInstancia().getId());
+            for (HProcesoInstancia hProcesoInstancia : hProcesoInstancias) {
+                if (hProcesoInstancia.getEstado().getId().equals(DocumentoActaEstado.CARGA_ACTA.getId())) {
+                    System.err.println("Segundo usuario= " + usuario);
+                    return hProcesoInstancia.getAsignado();
+                }
+            }
+        }
+        System.err.println("retorna null");
+        return usuario;
     }
 
 }

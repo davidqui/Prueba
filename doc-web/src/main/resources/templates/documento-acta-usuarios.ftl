@@ -4,7 +4,7 @@
 -->
 <#include "documento-acta-config.ftl">
 
-<div class="col-md-8">    
+<div class="col-md-8">   
     <#if estadoModo == "SELECCION_USUARIOS">
     <@presentarInformacionRegistrada documento estadoModo />
     
