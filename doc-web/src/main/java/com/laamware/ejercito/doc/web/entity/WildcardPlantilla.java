@@ -67,7 +67,7 @@ public class WildcardPlantilla implements Serializable {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date cuandoMod;
         
-    @ManyToMany(mappedBy = "wildCards_plantilla")
+    @ManyToMany(mappedBy = "wildCardsPlantilla")
     private List<Plantilla> plantillas;
 
 

@@ -98,7 +98,7 @@ public class Plantilla extends AuditActivoModifySupport {
             joinColumns = { @JoinColumn(name = "PLA_ID", referencedColumnName = "PLA_ID") }, 
             inverseJoinColumns = { @JoinColumn(name = "WPV_ID", referencedColumnName = "WPV_ID") }
         )
-        private List<WildcardPlantilla> wildCards_plantilla;
+        private List<WildcardPlantilla> wildCardsPlantilla;
 
 
 	public Integer getId() {
@@ -203,14 +203,13 @@ public class Plantilla extends AuditActivoModifySupport {
         }
 
         public List<WildcardPlantilla> getWildCards() {
-            return wildCards_plantilla;
+            return wildCardsPlantilla;
         }
 
-        public void setWildCards(List<WildcardPlantilla> wildCards_plantilla) {
-            this.wildCards_plantilla = wildCards_plantilla;
+        public void setWildCards(List<WildcardPlantilla> wildCardsPlantilla) {
+            this.wildCardsPlantilla = wildCardsPlantilla;
         }
         
-
 	public boolean plantillaTienePlantilla() {
 		return docx4jDocumento != null && docx4jDocumento.trim().length() > 0;
 	}

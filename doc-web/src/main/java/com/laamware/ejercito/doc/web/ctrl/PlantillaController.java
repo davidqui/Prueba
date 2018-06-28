@@ -85,6 +85,7 @@ public class PlantillaController extends UtilController {
 	public String edit(Model model, @RequestParam(value = "id") Integer id) {
 		Plantilla plantilla = rep.getOne(id);
 		model.addAttribute("plantilla", plantilla);
+                model.addAttribute("wildCardsPlantilla", plantilla.getWildCards());
 		return "admin-plantilla-edit";
 	}
 
@@ -243,32 +244,4 @@ public class PlantillaController extends UtilController {
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Wildcards agregados a plantilla.");
             return "redirect:/admin/plantilla";
         }
-        
-        /*
-            2018-06-27 samuel.delgado@controltechcg.com feature #176 : se agrega método para validar
-            los wildcards que posee la plantilla.
-        */
-        public boolean has(String wildcardText, List<WildcardPlantilla> wildcardsPlantilla) {
-            for (WildcardPlantilla wildcard : wildcardsPlantilla) {
-                if (wildcard.getTexto().equals(wildcardText)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        
-    public boolean hasAllSelectedFun(final Plantilla plantilla, final List<String> wildcardsTotal) {
-        final List<WildcardPlantilla> wildcards = plantilla.getWildCards();
-        if (wildcardsTotal.size() != wildcards.size()) {
-            return false;
-        }
-
-        for (String wildcard : wildcardsTotal) {
-            if (!has(wildcard, wildcards)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 }

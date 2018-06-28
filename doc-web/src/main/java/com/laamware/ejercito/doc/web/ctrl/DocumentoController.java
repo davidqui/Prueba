@@ -5526,7 +5526,7 @@ public class DocumentoController extends UtilController {
                 counter++;
             }
         }
-        return counter == wildcards.length;
+        return counter == wildcardsPlantilla.size();
     }
 
 }

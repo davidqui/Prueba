@@ -44,19 +44,15 @@
 	 	<table class="table">
 	<thead class="thead-inverse">
 		<tr>
-			<th>Clave</th>
-    		<th>Valor</th>
+			<th>Wildcards Requeridos</th>
 		</tr>
 	</thead>
 	<tbody>
+            <#list wildCardsPlantilla as wildcard >
 		<tr>
-    			<td>sigdi_param_documento_asunto</td>
-    			<td>Asunto del documento</td>
+                    <td>${wildcard.texto}</td>
     		</tr>
-    		<tr>
-    			<td>sigdi_param_documento_trd</td>
-    			<td>TRD del documento</td>
-    		</tr>
+            </#list>
 	</tbody>
 </table>
     </#if>
