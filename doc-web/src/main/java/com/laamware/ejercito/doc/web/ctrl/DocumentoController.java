@@ -90,6 +90,7 @@ import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.Variable;
+import com.laamware.ejercito.doc.web.entity.WildcardPlantilla;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepository;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepositoryCustom;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
@@ -136,6 +137,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -1117,7 +1119,8 @@ public class DocumentoController extends UtilController {
                     expedientes(model, principal);
                     tipologias(doc.getTrd(), model);
                     model.addAttribute("documento", doc);
-                    model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento");
+                    model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento,"
+                            + " verifique que tiene descargada la ultima versión");
                     return "documento";
                 }
 
@@ -1129,7 +1132,20 @@ public class DocumentoController extends UtilController {
                     expedientes(model, principal);
                     tipologias(doc.getTrd(), model);
                     model.addAttribute("documento", doc);
-                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, dercargue la mas reciente.");
+                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, verifique que tiene descargada la ultima versión.");
+                    return "documento";
+                }
+                
+                String[] fieldNames = documentAspose.getMailMerge().getFieldNames();
+                List<WildcardPlantilla> wildcardsPlantilla = plantilla.get(0).getWildCards();
+                
+                if (!verificarWildcardsPLantilla(fieldNames, wildcardsPlantilla)) {
+                    doc.setMode(mode);
+                    plantillas(model);
+                    expedientes(model, principal);
+                    tipologias(doc.getTrd(), model);
+                    model.addAttribute("documento", doc);
+                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla no cumple con los wildcards minimos, verifique que tiene descargada la ultima versión.");
                     return "documento";
                 }
             } catch (Exception ex) {
@@ -5583,6 +5599,18 @@ public class DocumentoController extends UtilController {
     @ModelAttribute("observacionesDefecto")
     public List<DocumentoObservacionDefecto> listarObservacionDefectoActivas() {
         return observacionDefectoService.listarActivas();
+    }
+    
+    
+    public boolean verificarWildcardsPLantilla(String[] wildcards, List<WildcardPlantilla> wildcardsPlantilla){
+        List<String> strs = Arrays.asList(wildcards);
+        int counter = 0;
+        for (WildcardPlantilla wildcardPlantilla : wildcardsPlantilla) {
+            if (strs.contains(wildcardPlantilla.getTexto())) {
+                counter++;
+            }
+        }
+        return counter == wildcardsPlantilla.size();
     }
 
     private void enviarNotificacionesCambioProceso(final DependenciaCopiaMultidestino copiaMultidestino) {

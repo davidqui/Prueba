@@ -1,10 +1,15 @@
 package com.laamware.ejercito.doc.web.entity;
 
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Size;
@@ -81,6 +86,20 @@ public class Plantilla extends AuditActivoModifySupport {
 
 	@Transient
 	private String idPlantillaSeleccionada = null;
+        
+        
+        /*
+            2018-06-27 samuel.delgado@controltechcg.com feature #176 : se agrega método para validar
+            los wildcards que posee la plantilla.
+        */
+        @ManyToMany(cascade = { CascadeType.PERSIST })
+        @JoinTable(
+            name = "WILDCARD_PV_PLANTILLAS", 
+            joinColumns = { @JoinColumn(name = "PLA_ID", referencedColumnName = "PLA_ID") }, 
+            inverseJoinColumns = { @JoinColumn(name = "WPV_ID", referencedColumnName = "WPV_ID") }
+        )
+        private List<WildcardPlantilla> wildCardsPlantilla;
+
 
 	public Integer getId() {
 		return id;
@@ -183,6 +202,14 @@ public class Plantilla extends AuditActivoModifySupport {
             this.bookmarkValue = bookmarkValue;
         }
 
+        public List<WildcardPlantilla> getWildCards() {
+            return wildCardsPlantilla;
+        }
+
+        public void setWildCards(List<WildcardPlantilla> wildCardsPlantilla) {
+            this.wildCardsPlantilla = wildCardsPlantilla;
+        }
+        
 	public boolean plantillaTienePlantilla() {
 		return docx4jDocumento != null && docx4jDocumento.trim().length() > 0;
 	}

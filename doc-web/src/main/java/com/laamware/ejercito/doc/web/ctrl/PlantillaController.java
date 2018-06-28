@@ -23,9 +23,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Plantilla;
+import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.entity.WildcardPlantilla;
 import com.laamware.ejercito.doc.web.repo.PlantillaRepository;
 import com.laamware.ejercito.doc.web.serv.OFS;
+import com.laamware.ejercito.doc.web.serv.WildcardPlantillaService;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
 @RequestMapping(value = "/admin/plantilla")
@@ -33,15 +40,22 @@ public class PlantillaController extends UtilController {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlantillaController.class);
 
+        private static final String PLANTILLA_SELECCIONAR = "plantilla-seleccionar";
+        
 	@Autowired
 	PlantillaRepository rep;
 
 	@Autowired
 	OFS ofs;
-        
         /*
-            2018-06-21 samuel.delgado@controltechcg.com feature #176 : se agrega a la tabla
-            los bookmarks para el control de versiones.
+            2018-06-27 samuel.delgado@controltechcg.com feature #176 : servicio para los wildcards 
+            de plantillas validadas
+        */
+        @Autowired
+        private WildcardPlantillaService wildcardPlantillaService;
+        /*
+            2018-06-21 samuel.delgado@controltechcg.com feature #176 : valida si se verifica
+            los bookmarks y los wildcars para el control de versiones.
         */
         @Value("${com.mil.imi.sicdi.plantillas.validar}")
         private Boolean VALIDAR_PLANTILLAS;
@@ -71,6 +85,7 @@ public class PlantillaController extends UtilController {
 	public String edit(Model model, @RequestParam(value = "id") Integer id) {
 		Plantilla plantilla = rep.getOne(id);
 		model.addAttribute("plantilla", plantilla);
+                model.addAttribute("wildCardsPlantilla", plantilla.getWildCards());
 		return "admin-plantilla-edit";
 	}
 
@@ -97,8 +112,8 @@ public class PlantillaController extends UtilController {
 			return "admin-plantilla-edit";
 		}
 
+                String[] fieldNames = null;
 		try {
-                    
                         /*
                             2018-06-21 samuel.delgado@controltechcg.com feature #176 : se 
                             conprueba que el archivo ingrasado contenga los bookmarks requeridos
@@ -129,6 +144,9 @@ public class PlantillaController extends UtilController {
 
                             plantilla.setBookmarkName(nombrePlantilla);
                             plantilla.setBookmarkValue(versionPlantilla);
+                            
+                            fieldNames = documentAspose.getMailMerge().getFieldNames();
+                            
                         }else{
                             plantilla.setBookmarkName(null);
                             plantilla.setBookmarkValue(null);
@@ -173,9 +191,17 @@ public class PlantillaController extends UtilController {
 			logger.error("Guardando una plantilla: " + e.getMessage(), e);
 			return "admin-plantilla-edit";
 		}
-
-		redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "La plantilla se ha guardado correctamente");
-		return "redirect:/admin/plantilla";
+                
+                if (!VALIDAR_PLANTILLAS || (VALIDAR_PLANTILLAS && fieldNames != null && fieldNames.length < 1)) {
+                    redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "La plantilla se ha guardado correctamente");
+                    return "redirect:/admin/plantilla";
+                }else{
+                    model.addAttribute(AppConstants.FLASH_SUCCESS, "La plantilla se ha guardado correctamente");
+                    model.addAttribute("fieldNames", fieldNames);
+                    model.addAttribute("plantilla", plantilla);
+                    model.addAttribute("controller", this);
+                    return PLANTILLA_SELECCIONAR;
+                }
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
@@ -191,5 +217,31 @@ public class PlantillaController extends UtilController {
 		}
 		return "redirect:/admin/plantilla";
 	}
-
+        
+        @RequestMapping(value = "/seleccionar", method = RequestMethod.POST)
+        public String seleccionarWildcards(@RequestParam(value="wildcards", required = false) String[] wildcards, @RequestParam("id") String idPlantilla,
+                Principal principal, RedirectAttributes redirect){
+            List<WildcardPlantilla> wildcardsPlantilla = new ArrayList<>();
+            Usuario logueado = getUsuario(principal);
+            for (String fieldName : wildcards) {
+                List<WildcardPlantilla> wildcardAsociado = wildcardPlantillaService.findByText(fieldName);
+                if (wildcardAsociado.isEmpty()) {
+                    WildcardPlantilla w = new WildcardPlantilla();
+                    w.setTexto(fieldName);
+                    w.setQuien(logueado);
+                    w.setCuando(new Date());
+                    w.setQuienMod(logueado);
+                    w.setCuandoMod(new Date());
+                    w = wildcardPlantillaService.crearWildcardPlantilla(w);
+                    wildcardsPlantilla.add(w);
+                }else{
+                    wildcardsPlantilla.add(wildcardAsociado.get(0));
+                }
+            }
+            Plantilla plantilla = rep.findOne(Integer.parseInt(idPlantilla));
+            plantilla.setWildCards(wildcardsPlantilla);
+            rep.saveAndFlush(plantilla);
+            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Wildcards agregados a plantilla.");
+            return "redirect:/admin/plantilla";
+        }
 }
