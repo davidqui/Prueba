@@ -223,19 +223,21 @@ public class PlantillaController extends UtilController {
                 Principal principal, RedirectAttributes redirect){
             List<WildcardPlantilla> wildcardsPlantilla = new ArrayList<>();
             Usuario logueado = getUsuario(principal);
-            for (String fieldName : wildcards) {
-                List<WildcardPlantilla> wildcardAsociado = wildcardPlantillaService.findByText(fieldName);
-                if (wildcardAsociado.isEmpty()) {
-                    WildcardPlantilla w = new WildcardPlantilla();
-                    w.setTexto(fieldName);
-                    w.setQuien(logueado);
-                    w.setCuando(new Date());
-                    w.setQuienMod(logueado);
-                    w.setCuandoMod(new Date());
-                    w = wildcardPlantillaService.crearWildcardPlantilla(w);
-                    wildcardsPlantilla.add(w);
-                }else{
-                    wildcardsPlantilla.add(wildcardAsociado.get(0));
+            if (wildcards != null) {
+                for (String fieldName : wildcards) {
+                    List<WildcardPlantilla> wildcardAsociado = wildcardPlantillaService.findByText(fieldName);
+                    if (wildcardAsociado.isEmpty()) {
+                        WildcardPlantilla w = new WildcardPlantilla();
+                        w.setTexto(fieldName);
+                        w.setQuien(logueado);
+                        w.setCuando(new Date());
+                        w.setQuienMod(logueado);
+                        w.setCuandoMod(new Date());
+                        w = wildcardPlantillaService.crearWildcardPlantilla(w);
+                        wildcardsPlantilla.add(w);
+                    }else{
+                        wildcardsPlantilla.add(wildcardAsociado.get(0));
+                    }
                 }
             }
             Plantilla plantilla = rep.findOne(Integer.parseInt(idPlantilla));
