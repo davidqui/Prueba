@@ -36,10 +36,9 @@
 
 <div class="col-md-4">
     <@presentarInformacionProcesoInstancia procesoInstancia documento />
-    <@presentarSticker documento/>
 
     <#-- Adjuntos -->    
-    <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "CARGA_ACTA_DIGITAL" tipologias "archivo" />
+    <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "SOLO_CONSULTA" tipologias "archivo" />
     <br />
 </div>
 

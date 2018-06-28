@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,8 @@ public class DocumentoActaController extends UtilController {
     private static final String REDIRECT_ACCESO_DENEGADO_URL = "redirect:/documento/acceso-denegado";
 
     private static final String REDIRECT_PROCESO_INSTANCIA_URL_FORMAT = "redirect:" + ProcesoController.PATH + "/instancia?pin=%s";
+    
+    public static final String VARIABLE_STICKER = "doc.sticker";
 
     @Autowired
     private DocumentoActaService actaService;
@@ -740,6 +743,7 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("observacionesDefecto", observacionDefectoService.listarActivas());
         uiModel.addAttribute("usuariosAsignadosConsulta", actaService.listarRegistrosUsuariosAsignadosConsulta(documento));
         uiModel.addAttribute("usuarioRegistro",actaService.retornaUltimoUsuarioRegistroAsignado(documento));
+        uiModel.addAttribute("sticker",procesoInstancia.findVariable(DocumentoActaController.VARIABLE_STICKER));
     }
 
     /**
@@ -951,8 +955,11 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado al usuario \"" + documento.getElabora().toString() + "\" al acta \"" + documento.getAsunto() + "\".");
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
-
-        return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
+        if(Objects.equals(usuarioSesion.getId(), documento.getElabora().getId())){
+            return DOCUMENTO_ACTA_VALIDAR_TEMPLATE;
+        }else{
+            return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
+        }
     }
     
     /**
@@ -992,5 +999,46 @@ public class DocumentoActaController extends UtilController {
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
         return DOCUMENTO_ACTA_VALIDAR_TEMPLATE;
+    }
+    
+    /**
+     * Envia al usuario quie creo el acta, para que valide el usuario quien creo 
+     * el acta.
+     *
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @param procesoTransicionID ID de la transición del proceso a aplicar.
+     * @param uiModel Modelo de UI.
+     * @param principal Información de sesión.
+     * @param redirectAttributes Atributos de redirección.
+     * @return Nombre del template a presentar en caso de éxito o, URL de
+     * redirección en caso de error.
+     */
+    @RequestMapping(value = "/generar-sticker", method = RequestMethod.GET)
+    public String generarSticker(@RequestParam("pin") String procesoInstanciaID, @RequestParam(value = "tid", required = false) Integer procesoTransicionID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
+        if (!tieneAccesoPorAsignacion) {
+            return SECURITY_DENIED_TEMPLATE;
+        }
+
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
+            redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
+            return REDIRECT_MAIN_URL;
+        }
+
+        final boolean tieneAccesoPorClasificacion = actaService.tieneAccesoPorClasificacion(usuarioSesion, procesoInstancia);
+        if (!tieneAccesoPorClasificacion) {
+            return REDIRECT_ACCESO_DENEGADO_URL;
+        }
+
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+        Documento documento = actaService.buscarDocumento(documentoID);
+        
+        actaService.generaVariableSticker(procesoInstancia);
+
+        cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+
+        return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
     }
 }

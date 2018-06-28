@@ -35,9 +35,11 @@
                     <button id="guardar-doc-btn" type="submit" class="btn btn-success btn-sm">Cargar Archivo</button>
                     <#if documento.pdf?? >
                         <#list procesoInstancia.transiciones() as transicion >
-                        <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
-                            ${transicion.nombre}
-                        </button>
+                        <#if sticker?? && transicion.id == 155 || !sticker?? && transicion.id == 157>
+                            <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
+                                ${transicion.nombre}
+                            </button>
+                        </#if>
                         </#list>
                     </#if>
                 </nav>
@@ -52,12 +54,13 @@
 
 <div class="col-md-4">
     <@presentarInformacionProcesoInstancia procesoInstancia documento />
-    <@presentarSticker documento/>
-
-    <#-- Adjuntos --> 
-    <#if usuarioRegistro?? && usuarioRegistro.id == usuarioSesion.id>
-        <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "CARGA_ACTA_DIGITAL" tipologias "archivo" />
+    
+    <#if sticker??>
+        <@presentarSticker documento/>
     </#if>
+    
+    <#-- Adjuntos --> 
+    <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "CARGA_ACTA_DIGITAL" tipologias "archivo" />
     <br />
 </div>
 

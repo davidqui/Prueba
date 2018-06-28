@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.ctrl.DocumentoActaController;
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
@@ -13,11 +14,13 @@ import com.laamware.ejercito.doc.web.entity.Radicacion;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.UsuarioXDocumentoActa;
+import com.laamware.ejercito.doc.web.entity.Variable;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaUsuarioSeleccion;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
+import com.laamware.ejercito.doc.web.repo.VariableRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
@@ -132,6 +135,9 @@ public class DocumentoActaService {
 
     @Autowired
     JasperService jasperService;
+    
+    @Autowired
+    VariableRepository variableRepository;
 
     /**
      * Constructor.
@@ -765,6 +771,15 @@ public class DocumentoActaService {
             return instancia.getAsignado();
         }
         return null;
+    }
+    
+    public void generaVariableSticker(Instancia procesoInstancia){
+        Variable variable = procesoInstancia.findVariable(DocumentoActaController.VARIABLE_STICKER);
+        if (variable == null) {
+            variable = new Variable(DocumentoActaController.VARIABLE_STICKER, "true", procesoInstancia);
+            procesoInstancia.getVariables().add(variable);
+            variableRepository.save(variable);
+        }
     }
 
 }
