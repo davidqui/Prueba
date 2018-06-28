@@ -15,7 +15,7 @@
             <h5>${documento.radicado}</h5>
         </div>
 
-        <#if !usuarioRegistro?? && usuarioRegistro.id != usuarioSesion.id>
+        <#if usuarioRegistro?? && usuarioRegistro.id == usuarioSesion.id>
             <form action="/documento-acta/cargar-acta-digital" method="POST" id="formdoc" enctype='multipart/form-data'>
                 <input type="hidden" id="pin" name="pin" value="${procesoInstancia.id}" />
 
@@ -55,7 +55,7 @@
     <@presentarSticker documento/>
 
     <#-- Adjuntos --> 
-    <#if documento.elabora.id != usuarioSesion.id>
+    <#if usuarioRegistro?? && usuarioRegistro.id == usuarioSesion.id>
         <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "CARGA_ACTA_DIGITAL" tipologias "archivo" />
     </#if>
     <br />

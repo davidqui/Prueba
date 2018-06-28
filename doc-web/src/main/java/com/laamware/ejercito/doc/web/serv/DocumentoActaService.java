@@ -753,21 +753,18 @@ public class DocumentoActaService {
      * @return usuario de registro
      */
     public Usuario retornaUltimoUsuarioRegistroAsignado(Documento documento) {
-        Usuario usuario = null;
-        System.err.println(documento.getInstancia().getId() + "----" + DocumentoActaEstado.CARGA_ACTA.getId());
         Instancia instancia = instanciaRepository.findOneByIdAndEstadoId(documento.getInstancia().getId(), DocumentoActaEstado.CARGA_ACTA.getId());
-        System.err.println("Primer usuario= " + usuario);
         if (instancia == null) {
             List<HProcesoInstancia> hProcesoInstancias = procesoService.getHistoria(documento.getInstancia().getId());
             for (HProcesoInstancia hProcesoInstancia : hProcesoInstancias) {
                 if (hProcesoInstancia.getEstado().getId().equals(DocumentoActaEstado.CARGA_ACTA.getId())) {
-                    System.err.println("Segundo usuario= " + usuario);
                     return hProcesoInstancia.getAsignado();
                 }
             }
+        } else {
+            return instancia.getAsignado();
         }
-        System.err.println("retorna null");
-        return usuario;
+        return null;
     }
 
 }

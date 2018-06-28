@@ -850,8 +850,9 @@ public class DocumentoActaController extends UtilController {
 
         procesoInstancia.setQuienMod(usuarioSesion.getId());
         procesoInstancia.setCuandoMod(new Date());
+        procesoInstancia.forward(procesoTransicionID);
         procesoInstancia.asignar(usuarioRegistro);
-
+        
         uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado al usuario \"" + usuarioRegistro.toString() + "\" al acta \"" + documento.getAsunto() + "\".");
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
@@ -944,6 +945,7 @@ public class DocumentoActaController extends UtilController {
         
         procesoInstancia.setQuienMod(usuarioSesion.getId());
         procesoInstancia.setCuandoMod(new Date());
+        procesoInstancia.forward(procesoTransicionID);
         procesoInstancia.asignar(documento.getElabora());
 
         uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado al usuario \"" + documento.getElabora().toString() + "\" al acta \"" + documento.getAsunto() + "\".");

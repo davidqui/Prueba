@@ -11,11 +11,7 @@
     <form action="/documento-acta/guardar" method="POST" id="formdoc" enctype='multipart/form-data'>
         <input type="hidden" name="docId" id="docId" value="${(documento.id)!""}" />
         <input type="hidden" name="pinId" id="pinId" value="${(procesoInstancia.id)!""}" />
-        <#if !usuarioRegistro??>
-        pasa
-        <#else>
-        no pasa
-        </#if>
+        
         <#-- Asunto -->
         <div class="form-group">
             <#assign campo = "asunto" />
