@@ -5,8 +5,8 @@
 <#include "documento-acta-config.ftl">
 
 <div class="col-md-8">
-    <#assign transicion_validar = "155">
-    <#assign transicion_generar_sticker = "157">
+    <#assign transicion_validar = 155>
+    <#assign transicion_generar_sticker = 157>
     <#if estadoModo == "CARGA_ACTA_DIGITAL">
         <@presentarInformacionRegistrada documento estadoModo />
 

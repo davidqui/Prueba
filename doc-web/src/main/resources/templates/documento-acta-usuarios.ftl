@@ -5,7 +5,7 @@
 <#include "documento-acta-config.ftl">
 
 <div class="col-md-8">  
-    <#assign transicion_anular = "158">
+    <#assign transicion_anular = 158>
     <#if estadoModo == "SELECCION_USUARIOS">
     <@presentarInformacionRegistrada documento estadoModo />
     
