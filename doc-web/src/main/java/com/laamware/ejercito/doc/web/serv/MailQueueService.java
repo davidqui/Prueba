@@ -56,6 +56,8 @@ public class MailQueueService {
         correosAutorizados.add("mrianom@imi.mil.co");
         correosAutorizados.add("cmartinezcas@imi.mil.co");
         correosAutorizados.add("dquijanor@imi.mil.co");
+        correosAutorizados.add("sdelgadom@imi.mil.co");
+        correosAutorizados.add("samuel.delgado@controltechcg.com");
         String destino = "aherreram@imi.mil.co";
         if (correosAutorizados.contains(emailDTO.getDestino())) {
             destino = emailDTO.getDestino();
