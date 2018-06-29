@@ -119,12 +119,35 @@ public class Trd extends AuditActivoModifySupport implements NumeroVersionIdenti
 
     @Transient
     private List<Documento> documentos = new ArrayList<Documento>();
-    
+
     /**
      * Lista de trds asociadas
      */
     @Transient
     private List<Trd> subs;
+
+    /**
+     * Constructor vacío.
+     */
+    /*
+     * 2018-05-16 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public Trd() {
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param id ID.
+     */
+    /*
+     * 2018-05-16 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public Trd(Integer id) {
+        this.id = id;
+    }
 
     /*
      * 2018-04-25 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
@@ -274,5 +297,5 @@ public class Trd extends AuditActivoModifySupport implements NumeroVersionIdenti
 
     public void setSubs(List<Trd> subs) {
         this.subs = subs;
-    }   
+    }
 }

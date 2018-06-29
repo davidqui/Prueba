@@ -1,7 +1,10 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.ProcesoReinicioContDetalle;
+import com.laamware.ejercito.doc.web.entity.Radicacion;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
+import com.laamware.ejercito.doc.web.repo.RadicacionRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.util.Date;
 import javax.sql.DataSource;
@@ -45,6 +48,13 @@ public class RadicadoService {
      */
     @Autowired
     private DataSource dataSource;
+
+    /*
+     * 2018-05-18 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    @Autowired
+    private RadicacionRepository radicacionRepository;
 
     /**
      * Obtiene el numero de radicado segun la dependencia y el proceso.
@@ -90,13 +100,33 @@ public class RadicadoService {
     }
 
     /**
+     * Busca el proceso de radicación correspondiente al proceso documental.
+     *
+     * @param proceso Proceso.
+     * @return Instancia del proceso de radicación, o {@code null} si no hay
+     * correspondencia.
+     */
+    /*
+     * 2018-05-18 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public Radicacion findByProceso(Proceso proceso) {
+        return radicacionRepository.findByProceso(proceso);
+    }
+
+    /**
      * Enum de los tipos de radicación del sistema.
      */
     public enum EnumRadicacion {
         REGISTRO_DOCUMENTO(1),
         REGISTRO_DOCUMENTO_INTERNO(2),
         REGISTRO_DOCUMENTO_EXTERNO(3),
-        TRANSFERENCIA_ARCHIVO(4);
+        TRANSFERENCIA_ARCHIVO(4),
+        /*
+         * 2018-05-18 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+         * feature-162: Nueva secuencia de registro de actas.
+         */
+        REGISTRO_ACTAS(5);
 
         private final Integer radicacion;
 

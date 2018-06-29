@@ -1463,6 +1463,11 @@
         validarArbol("#arbol_list_trd",false);
     </script>
     <script src="/js/app/documento.js"></script>
+    <#--
+        2018-05-31 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+        feature-162: Separación del selector de observaciones por defecto.
+    -->
+    <script src="/js/app/documento-observaciones.js"></script>
 </#assign>
 <#assign deferredJS = deferredJS + " " + deferredJSDependencias>
 <#include "bandeja-footer.ftl" />

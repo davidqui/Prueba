@@ -13,6 +13,7 @@ import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificable;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificableComparator;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -247,6 +248,26 @@ public class TRDService {
      */
     public List<Trd> findAllSubseriesActivasOrdenPorNombre() {
         return trdRepository.findByActivoAndSerieNotNull(Boolean.TRUE, (new Sort(Direction.ASC, "nombre")));
+    }
+
+    /**
+     * Valida si el usuario tiene asignada la subserie TRD dentro de una serie
+     * TRD específica.
+     *
+     * @param subserieTrd Subserie TRD.
+     * @param serieTrd Serie TRD.
+     * @param usuario Usuario.
+     * @return {@code true} en caso que el usuario tenga asignada la subserie
+     * dentro de la serie especificada de forma activa; de lo contrario,
+     * {@code false}.
+     */
+    /*
+     * 2018-05-16 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public boolean validateSubserieTrdForUser(Trd subserieTrd, Trd serieTrd, Usuario usuario) {
+        final BigInteger result = trdRepository.validateSubserieTrdForUser(subserieTrd.getId(), serieTrd.getId(), usuario.getId());
+        return result.equals(BigInteger.ONE);
     }
 
 }

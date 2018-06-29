@@ -55,7 +55,7 @@ function openFinderWindow() {
     var left = ((width / 2) - (w / 2)) + dualScreenLeft;
     var top = ((height / 2) - (h / 2)) + dualScreenTop;
 
-    window.open("/transferencia-archivo/formulario-buscar-usuario", "_blank",
+    window.open("/finder/usuario/finder-buscar-usuario", "_blank",
             "width=" + w + ", height=" + h + ", top=" + top + ", left=" + left
             + ",location=no,menubar=no,resizable=no,status=no,titlebar=no,toolbar=no");
 }

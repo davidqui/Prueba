@@ -112,6 +112,7 @@ import com.laamware.ejercito.doc.web.repo.TipologiaRepository;
 import com.laamware.ejercito.doc.web.repo.TransicionRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
+import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.ArchivoAutomaticoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
@@ -141,7 +142,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -149,7 +149,6 @@ import java.util.logging.Level;
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
 import org.springframework.jdbc.UncategorizedSQLException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 @Controller(value = "documentoController")
@@ -318,6 +317,13 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private DependenciaService dependenciaService;
+    
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Servicio de archivos adjuntos.
+     */
+    @Autowired
+    private AdjuntoService adjuntoService;
 
     /*
      * 2018-05-24 jgarcia@controltechcg.com Issue #172 (SICDI-Controltech)
@@ -613,6 +619,19 @@ public class DocumentoController extends UtilController {
             @RequestParam(value = "archivoHeader", required = false) String archivoHeader, Model model,
             Principal principal, final RedirectAttributes redirect) {
 
+        // Obtiene la instancia de proceso
+        Instancia i = procesoService.instancia(pin);
+
+        /*
+         * 2018-05-23 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+         * feature-162: Redirección para instancias de proceso de documentos
+         * correspondientes al proceso de registro de actas, para que lo procese
+         * el controlador correspondiente.
+         */
+        if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS)) {
+            return "redirect:" + DocumentoActaController.PATH + "?pin=" + pin;
+        }
+        
         // Si el request trae información en headerView, se envía a la vista
         // para que se muestre otro header al que está por defecto
         model.addAttribute("archivoHeader", archivoHeader);
@@ -637,9 +656,6 @@ public class DocumentoController extends UtilController {
         if (!acceso) {
             return "security-denied";
         }
-
-        // Obtiene la instancia de proceso
-        Instancia i = procesoService.instancia(pin);
 
         // Obtiene el identificador de documento
         String docId = i.getVariable(Documento.DOC_ID);
@@ -1255,7 +1271,7 @@ public class DocumentoController extends UtilController {
              */
 
             Radicacion radicacion = radicacionRepository.findByProceso(doc.getInstancia().getProceso());
-            doc.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(doc.getDependenciaDestino()).getId(), radicacion.getRadId()));
+            doc.setRadicado(radicadoService.retornaNumeroRadicado(dependenciaService.getSuperDependencia(doc.getDependenciaDestino()).getId(), radicacion.getRadId()));
         }
 
         try {
@@ -1770,7 +1786,7 @@ public class DocumentoController extends UtilController {
                 } else {
                     String contentType = archivo.getContentType();
 
-                    boolean validAttachmentContentType = isValidAttachmentContentType(contentType);
+                    boolean validAttachmentContentType = adjuntoService.isValidAttachmentContentType(contentType);
                     if (!validAttachmentContentType) {
                         redirect.addFlashAttribute(AppConstants.FLASH_ERROR,
                                 "ERROR: Únicamente se permiten cargar archivos adjuntos tipo PDF, JPG o PNG.");
@@ -1798,27 +1814,6 @@ public class DocumentoController extends UtilController {
         }
 
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, doc.getInstancia().getId());
-    }
-
-    /**
-     * Indica si el tipo de contenido del archivo adjunto es válido para el
-     * sistema.
-     *
-     * @param contentType Tipo de contenido.
-     * @return {@code true} si el tipo de contenido es válido (PDF, JPG, JPEG,
-     * PNG); de lo contrario, {@code false}.
-     */
-    // 2017-04-11 jgarcia@controltechcg.com Issue #46 (SIGDI-Controltech)
-    private boolean isValidAttachmentContentType(String contentType) {
-        String[] validContentTypes = {"application/pdf", "image/jpeg", "image/jpg", "image/png"};
-
-        for (String validContentType : validContentTypes) {
-            if (contentType.equals(validContentType)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -2096,7 +2091,7 @@ public class DocumentoController extends UtilController {
 				 * descritas, se selecciona el Jefe de la Super Dependencia.
                  */
                 Dependencia dependenciaDestino = d.getDependenciaDestino();
-                Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
+                Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
 
                 Usuario jefeActivo = dependenciaService.getJefeActivoDependencia(superDependencia);
                 /*
@@ -2474,7 +2469,7 @@ public class DocumentoController extends UtilController {
 			 * dependencias para presentar desde la super dependencia (unidad)
 			 * correspondiente a la dependencia destino del documento.
              */
-            Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
+            Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
             depsHierarchy(superDependencia);
             listaDependencias.add(superDependencia);
 
@@ -3142,7 +3137,7 @@ public class DocumentoController extends UtilController {
          * de proceso.
          */
         Radicacion radicacion = radicacionRepository.findByProceso(documento.getInstancia().getProceso());
-        documento.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(usuarioSesion.getDependencia()).getId(), radicacion.getRadId()));
+        documento.setRadicado(radicadoService.retornaNumeroRadicado(dependenciaService.getSuperDependencia(usuarioSesion.getDependencia()).getId(), radicacion.getRadId()));
 
         /*
          * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los
@@ -3454,7 +3449,7 @@ public class DocumentoController extends UtilController {
          * de proceso.
          */
         Radicacion radicacion = radicacionRepository.findByProceso(doc.getInstancia().getProceso());
-        doc.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(yo.getDependencia()).getId(), radicacion.getRadId()));
+        doc.setRadicado(radicadoService.retornaNumeroRadicado(dependenciaService.getSuperDependencia(yo.getDependencia()).getId(), radicacion.getRadId()));
 
         /*
          * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los
@@ -3796,7 +3791,7 @@ public class DocumentoController extends UtilController {
 
             Usuario usuarioSesion = getUsuario(principal);
             Dependencia dependencia = usuarioSesion.getDependencia();
-            Dependencia unidadDependencia = getSuperDependencia(dependencia);
+            Dependencia unidadDependencia = dependenciaService.getSuperDependencia(dependencia);
             depsHierarchy(unidadDependencia);
             listaDependencias.add(unidadDependencia);
 
@@ -4061,7 +4056,7 @@ public class DocumentoController extends UtilController {
         } else {
 
             Dependencia dependenciaUsuario = usuarioSesion.getDependencia();
-            Dependencia superDependenciaUsuario = getSuperDependencia(dependenciaUsuario);
+            Dependencia superDependenciaUsuario = dependenciaService.getSuperDependencia(dependenciaUsuario);
             if (superDependenciaUsuario.getJefe().getId() == usuarioSesion.getId()) {
                 // Determina si el usuario es un jefe de superdependencia.
                 // Obtiene el listado de las dependencias que se encuentran
@@ -4329,7 +4324,7 @@ public class DocumentoController extends UtilController {
 
             List<Dependencia> listaDependencias = new ArrayList<>(1);
             Dependencia dependenciaDestino = usuarioSesion.getDependencia();
-            Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
+            Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
             depsHierarchy(superDependencia);
             listaDependencias.add(superDependencia);
             model.addAttribute("dependencias_arbol", listaDependencias);
@@ -4850,29 +4845,6 @@ public class DocumentoController extends UtilController {
         i.asignar(selector.select(i, doc));
 
         return i;
-    }
-
-    protected Dependencia getSuperDependencia(Dependencia dep) {
-        /*
-	 * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
-	 * campo Indicador de envio documentos.
-         */
-        if (dep.getPadre() == null || (dep.getDepIndEnvioDocumentos() != null && dep.getDepIndEnvioDocumentos())) {
-            return dep;
-        }
-
-        Dependencia jefatura = dep;
-        Integer jefaturaId = dep.getPadre();
-        while (jefaturaId != null) {
-            jefatura = dependenciaRepository.getOne(jefaturaId);
-
-            if (jefatura.getDepIndEnvioDocumentos() != null && jefatura.getDepIndEnvioDocumentos()) {
-                return jefatura;
-            }
-
-            jefaturaId = jefatura.getPadre();
-        }
-        return jefatura;
     }
 
     /* --------------------------- privados -------------------------- */
