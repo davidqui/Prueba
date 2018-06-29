@@ -4,7 +4,9 @@
 -->
 <#include "documento-acta-config.ftl">
 
-<div class="col-md-8">    
+<div class="col-md-8">
+    <#assign transicion_validar = "155">
+    <#assign transicion_generar_sticker = "157">
     <#if estadoModo == "CARGA_ACTA_DIGITAL">
         <@presentarInformacionRegistrada documento estadoModo />
 
@@ -35,7 +37,7 @@
                     <button id="guardar-doc-btn" type="submit" class="btn btn-success btn-sm">Cargar Archivo</button>
                     <#if documento.pdf?? >
                         <#list procesoInstancia.transiciones() as transicion >
-                        <#if sticker?? && transicion.id == 155 || !sticker?? && transicion.id == 157>
+                        <#if sticker?? && transicion.id == transicion_validar || !sticker?? && transicion.id == transicion_generar_sticker>
                             <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
                                 ${transicion.nombre}
                             </button>

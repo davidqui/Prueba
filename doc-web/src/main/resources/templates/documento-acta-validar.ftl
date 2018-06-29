@@ -52,8 +52,8 @@
     <@presentarSticker documento/>
 
     <#-- Adjuntos --> 
-    <#if documento.elabora.id != usuarioSesion.id>
-        <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "CARGA_ACTA_DIGITAL" tipologias "archivo" />
+    <#if usuarioRegistro?? && usuarioRegistro.id == usuarioSesion.id>
+        <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "SOLO_CONSULTA" tipologias "archivo" />
     </#if>
     <br />
 </div>

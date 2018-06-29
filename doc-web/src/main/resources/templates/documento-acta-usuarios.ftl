@@ -4,7 +4,8 @@
 -->
 <#include "documento-acta-config.ftl">
 
-<div class="col-md-8">   
+<div class="col-md-8">  
+    <#assign transicion_anular = "158">
     <#if estadoModo == "SELECCION_USUARIOS">
     <@presentarInformacionRegistrada documento estadoModo />
     
@@ -94,13 +95,13 @@
             <#if debeSeleccionarUsuarios >
             <button id="registrar-usuarios-btn" type="submit" class="btn btn-success btn-sm">Registrar</button>
             </#if>
-            <#if !debeSeleccionarUsuarios || (usuariosAsignados?? && (usuariosAsignados?size > 0)) >
-                <#list procesoInstancia.transiciones() as transicion >
-                <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
-                    ${transicion.nombre}
-                </button>
-                </#list>
-            </#if>
+            <#list procesoInstancia.transiciones() as transicion >
+                <#if !debeSeleccionarUsuarios || (usuariosAsignados?? && (usuariosAsignados?size > 0)) || transicion.id == transicion_anular>
+                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
+                        ${transicion.nombre}
+                    </button>
+                </#if>
+            </#list>
         </nav>
 
     </form> <#-- Cierra formulario principal -->
