@@ -3,14 +3,32 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.EmailDTO;
 import com.laamware.ejercito.doc.web.entity.Notificacion;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.mail.BodyPart;
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +52,9 @@ public class CorreoNotificacionService {
     
     private static final int TEMPLATE_HEADER = 60;
     private static final int TEMPLATE_FOOTER = 70;
+    
+    @Value("${docweb.images.root}")
+    private String pathImages;
     
     /**
      * Envia un correo de una notificación
@@ -71,9 +92,52 @@ public class CorreoNotificacionService {
             bodyHtml += mensaje.getCuerpo();
         if (footer != null && !footer.isEmpty())
             bodyHtml += footer.get(0).getTemplate();
-        
-        message.setText(bodyHtml, true);
+
         // Enviar Correo
-        this.javaMailSender.send(mimeMessage);
+        eviarNotificacionImagen(mensaje.getDestino(), bodyHtml, mensaje.getAsunto());
     }
+    
+    
+     public void eviarNotificacionImagen(String destinatario, String template, String asunto){
+        Message message = this.javaMailSender.createMimeMessage();
+        try {
+        message.setFrom(new InternetAddress(senderMail));
+        message.setSubject(asunto);
+        message.setRecipient(Message.RecipientType.TO, new InternetAddress(destinatario));
+        message.setText("SICDI");
+
+        MimeMultipart multipart = new MimeMultipart("related");
+        BodyPart messageBodyPart = new MimeBodyPart();
+        String htmlText = template;
+        messageBodyPart.setContent(htmlText, "text/html");
+        multipart.addBodyPart(messageBodyPart);
+        File folder = new File(pathImages);
+        File[] listOfFiles = folder.listFiles();
+
+        Pattern pattern = Pattern.compile( "\"cid:(.*?)\"" );
+        Matcher machs = pattern.matcher(template);
+        while (machs.find()) {
+            String img = machs.group(1);
+            for (File listOfFile : listOfFiles) {
+                String nameFile = listOfFile.getName().split("\\.")[0];
+                if (nameFile.equals(img)) {
+                    String absolutePath = listOfFile.getAbsolutePath();
+                    InputStream imageStream = new FileInputStream(absolutePath);
+                    DataSource fds = new ByteArrayDataSource(IOUtils.toByteArray(imageStream), "image/jpg");
+                    messageBodyPart = new MimeBodyPart();
+                    messageBodyPart.setDataHandler(new DataHandler(fds));
+                    messageBodyPart.setHeader("Content-ID","<"+img+">");
+                    multipart.addBodyPart(messageBodyPart);
+                }
+            }
+        }
+
+        message.setContent(multipart);
+        Transport.send(message);
+        System.out.println("Done");
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+     }
 }
