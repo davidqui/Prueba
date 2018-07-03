@@ -292,7 +292,7 @@ INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('20','Teléfono 
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('21','Grado usuario','usuario.usuGrado.nombre');
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('30','Clasificación usuario','usuario.clasificacion.nombre');
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('31','Email usuario','usuario.email');
-INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('40','Cargo principal usuario','usuario.usuCargoPrincipalId');
+INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('40','Cargo principal usuario','usuario.usuCargoPrincipalId.carNombre');
 
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('41','Asunto documento','documento.asunto');
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('50','Trd principal documento','documento.trd.nombre');
