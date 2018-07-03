@@ -28,7 +28,8 @@ public interface TipoNotificacionRepository extends JpaRepository<TipoNotificaci
             + "SELECT TIPO_NOTIFICACION.* FROM TIPO_NOTIFICACION "
             + "WHERE NOT EXISTS("
             + "     SELECT * FROM NOTIFICACION "
-            + "     WHERE TIPO_NOTIFICACION.TNF_ID = NOTIFICACION.TNF_ID"
+            + "     WHERE TIPO_NOTIFICACION.TNF_ID = NOTIFICACION.TNF_ID "
+            + "     AND NOTIFICACION.ACTIVO = 1"
             + ")")
     List<TipoNotificacion> getByNotHaveNotificacion();
 }
