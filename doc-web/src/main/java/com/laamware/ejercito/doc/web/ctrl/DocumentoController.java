@@ -2996,6 +2996,7 @@ public class DocumentoController extends UtilController {
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                 buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
+        enviarNotificacionesCambioProceso(instancia, documento, notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_FIRMA), documento.getElabora());
         return redirectURL;
     }
 
@@ -5600,6 +5601,8 @@ public class DocumentoController extends UtilController {
         if (notificaciones == null) {
             if (instancia.getEstado().getId() == ESTADO_ENVIADO) {
                 notificaciones = notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_ENVIADO);
+                if (usuarioAsignado.getId() == documento.getElabora().getId())
+                    return;
             }else{
                 notificaciones = notificacionService.fingByTypoNotificacionValor(instancia.getEstado().getId());
             }
@@ -5619,9 +5622,8 @@ public class DocumentoController extends UtilController {
                 
                 if (instancia.getEstado().getId() == ESTADO_ANULADO) {
                     mensaje.setDestino(documento.getElabora().getEmail());
-                    if (usuarioAsignado.getId() == documento.getElabora().getId()) {
+                    if (usuarioAsignado.getId() == documento.getElabora().getId())
                         return;
-                    }
                 }
                 
                 mailQueueService.enviarCorreo(mensaje);
