@@ -118,40 +118,34 @@ public class PlantillaController extends UtilController {
                             2018-06-21 samuel.delgado@controltechcg.com feature #176 : se 
                             conprueba que el archivo ingrasado contenga los bookmarks requeridos
                         */
-                        if (VALIDAR_PLANTILLAS) {
-                            Document documentAspose = new Document(file.getInputStream());
-                            BookmarkCollection bookmarks = documentAspose.getRange().getBookmarks();
-                            String nombrePlantilla = null;
-                            String versionPlantilla = null;
-                            for (Bookmark bookmark : bookmarks) {
-                                try {
-                                    String key = bookmark.getName().split("_")[0];
-                                    String value = bookmark.getName().split("_")[1];
-                                    if (key.equals("nombre")) {
-                                        nombrePlantilla = value;
-                                    }
-                                    if (key.equals("version")) {
-                                        versionPlantilla = value;
-                                    }
-                                } catch (Exception ex) {}
-                            }
-                            if (nombrePlantilla == null || versionPlantilla == null){
-                                model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento");
-                                return "admin-plantilla-edit";
-                            }
-
-                            System.out.println("NOMBRE PLANTILLA = "+nombrePlantilla+" Version = "+versionPlantilla);
-
-                            plantilla.setBookmarkName(nombrePlantilla);
-                            plantilla.setBookmarkValue(versionPlantilla);
-                            
-                            fieldNames = documentAspose.getMailMerge().getFieldNames();
-                            
-                        }else{
-                            plantilla.setBookmarkName(null);
-                            plantilla.setBookmarkValue(null);
+                        Document documentAspose = new Document(file.getInputStream());
+                        BookmarkCollection bookmarks = documentAspose.getRange().getBookmarks();
+                        String nombrePlantilla = null;
+                        String versionPlantilla = null;
+                        for (Bookmark bookmark : bookmarks) {
+                            try {
+                                String key = bookmark.getName().split("_")[0];
+                                String value = bookmark.getName().split("_")[1];
+                                if (key.equals("nombre")) {
+                                    nombrePlantilla = value;
+                                }
+                                if (key.equals("version")) {
+                                    versionPlantilla = value;
+                                }
+                            } catch (Exception ex) {}
                         }
-                        
+                        if (nombrePlantilla == null || versionPlantilla == null){
+                            model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento");
+                            return "admin-plantilla-edit";
+                        }
+
+                        System.out.println("NOMBRE PLANTILLA = "+nombrePlantilla+" Version = "+versionPlantilla);
+
+                        plantilla.setBookmarkName(nombrePlantilla);
+                        plantilla.setBookmarkValue(versionPlantilla);
+
+                        fieldNames = documentAspose.getMailMerge().getFieldNames();
+                            
 			// Issue #116
 			boolean defaultFileContentType = (file.getContentType() != null)
 					&& (file.getContentType().equalsIgnoreCase("application/octet-stream"));
@@ -223,19 +217,21 @@ public class PlantillaController extends UtilController {
                 Principal principal, RedirectAttributes redirect){
             List<WildcardPlantilla> wildcardsPlantilla = new ArrayList<>();
             Usuario logueado = getUsuario(principal);
-            for (String fieldName : wildcards) {
-                List<WildcardPlantilla> wildcardAsociado = wildcardPlantillaService.findByText(fieldName);
-                if (wildcardAsociado.isEmpty()) {
-                    WildcardPlantilla w = new WildcardPlantilla();
-                    w.setTexto(fieldName);
-                    w.setQuien(logueado);
-                    w.setCuando(new Date());
-                    w.setQuienMod(logueado);
-                    w.setCuandoMod(new Date());
-                    w = wildcardPlantillaService.crearWildcardPlantilla(w);
-                    wildcardsPlantilla.add(w);
-                }else{
-                    wildcardsPlantilla.add(wildcardAsociado.get(0));
+            if (wildcards != null) {
+                for (String fieldName : wildcards) {
+                    List<WildcardPlantilla> wildcardAsociado = wildcardPlantillaService.findByText(fieldName);
+                    if (wildcardAsociado.isEmpty()) {
+                        WildcardPlantilla w = new WildcardPlantilla();
+                        w.setTexto(fieldName);
+                        w.setQuien(logueado);
+                        w.setCuando(new Date());
+                        w.setQuienMod(logueado);
+                        w.setCuandoMod(new Date());
+                        w = wildcardPlantillaService.crearWildcardPlantilla(w);
+                        wildcardsPlantilla.add(w);
+                    }else{
+                        wildcardsPlantilla.add(wildcardAsociado.get(0));
+                    }
                 }
             }
             Plantilla plantilla = rep.findOne(Integer.parseInt(idPlantilla));
