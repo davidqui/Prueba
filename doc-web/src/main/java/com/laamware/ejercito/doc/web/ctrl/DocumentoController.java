@@ -5555,7 +5555,7 @@ public class DocumentoController extends UtilController {
         if (notificaciones != null && !notificaciones.isEmpty()) {
             try {
                 Notificacion notificacion = notificaciones.get(0);
-                List<HProcesoInstancia> hProcesoInstancias = hprocesoInstanciaRepository.findById(instancia.getId(), new Sort(Direction.DESC, "cuandoMod"));
+                List<HProcesoInstancia> hProcesoInstancias = hprocesoInstanciaRepository.findById(instancia.getId(), new Sort(Direction.ASC, "cuandoMod"));
                 Map<String, Object> model = new HashMap();
                 model.put("usuario", usuarioAsignado);
                 model.put("instancia", instancia);

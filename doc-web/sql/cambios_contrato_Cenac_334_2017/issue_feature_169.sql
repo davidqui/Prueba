@@ -317,7 +317,7 @@ INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('106','Dependeci
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('107','Dependecia usuario aprueba','documento.aprueba.dependencia.nombre');
 
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('110','Instancia Anterior Usuario','instanciaAnterior.asignado.nombre');
-INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('111','Instancia Anterior Usuario Cargo','instanciaAnterior.asignado.usuGrado.nombre');
+INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('111','Instancia Anterior Usuario Grado','instanciaAnterior.asignado.usuGrado.nombre');
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('112','Instancia Anterior Usuario Dependencia','instanciaAnterior.asignado.dependencia.nombre');
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('113','Dependecia usuario aprueba','documento.aprueba.dependencia.nombre');
 INSERT INTO WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('114','Dependecia usuario aprueba','documento.aprueba.dependencia.nombre');
