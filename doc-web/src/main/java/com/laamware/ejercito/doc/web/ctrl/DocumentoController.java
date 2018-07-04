@@ -182,6 +182,7 @@ public class DocumentoController extends UtilController {
     */
     public static final Integer ESTADO_ANULADO = 83;
     public static final Integer ESTADO_ENVIADO = 49;
+    public static final Integer ESTADO_NUEVO_EXTERNO = 46;
     public static final Integer ID_TIPO_NOTIFICACION_FIRMA = 110;
     public static final Integer ID_TIPO_NOTIFICACION_ENVIADO = 120;
 
@@ -5554,10 +5555,16 @@ public class DocumentoController extends UtilController {
         if (notificaciones != null && !notificaciones.isEmpty()) {
             try {
                 Notificacion notificacion = notificaciones.get(0);
+                List<HProcesoInstancia> hProcesoInstancias = hprocesoInstanciaRepository.findById(instancia.getId(), new Sort(Direction.DESC, "cuandoMod"));
                 Map<String, Object> model = new HashMap();
                 model.put("usuario", usuarioAsignado);
                 model.put("instancia", instancia);
                 model.put("documento", documento);
+                
+                if (!hProcesoInstancias.isEmpty() && hProcesoInstancias.size() >= 2) {
+                    model.put("instanciaAnterior", hProcesoInstancias.get(hProcesoInstancias.size()-2));
+                }
+                
                 Template t = new Template(notificacion.toString(), new StringReader(notificacion.getTemplate()));
                 String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
                 EmailDTO mensaje = new EmailDTO(usuarioAsignado.getEmail(), null,
@@ -5568,6 +5575,10 @@ public class DocumentoController extends UtilController {
                     if (usuarioAsignado.getId() == documento.getElabora().getId())
                         return;
                 }
+                
+                if (instancia.getEstado().getId() == ESTADO_NUEVO_EXTERNO && 
+                        usuarioAsignado.getId() == documento.getElabora().getId())
+                    return;
                 
                 mailQueueService.enviarCorreo(mensaje);
             } catch (IOException | TemplateException ex) {

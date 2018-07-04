@@ -65,7 +65,7 @@ public class NotificacionJobTask {
     /**
      * Ejecuta la tarea de notificación de documentos vencidos.
      */
-//    @Scheduled(cron = "${com.mil.imi.sicdi.job.notificacion.plazo-vencido.cron}")
+    @Scheduled(cron = "${com.mil.imi.sicdi.job.notificacion.plazo-vencido.cron}")
     public void notificarDocumentosVencidos() {
         LOG.info("com.laamware.ejercito.doc.web.jobs.NotificacionJobTask.notificarDocumentosVencidos()");
         if (!jobNotificacionPlazoVencidoActivo) {
