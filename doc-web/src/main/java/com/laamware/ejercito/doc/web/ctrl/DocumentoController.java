@@ -5555,14 +5555,14 @@ public class DocumentoController extends UtilController {
         if (notificaciones != null && !notificaciones.isEmpty()) {
             try {
                 Notificacion notificacion = notificaciones.get(0);
-                List<HProcesoInstancia> hProcesoInstancias = hprocesoInstanciaRepository.findById(instancia.getId(), new Sort(Direction.ASC, "cuandoMod"));
+                List<HProcesoInstancia> hProcesoInstancias = hprocesoInstanciaRepository.findById(instancia.getId(), new Sort(Direction.DESC, "cuandoMod"));
                 Map<String, Object> model = new HashMap();
                 model.put("usuario", usuarioAsignado);
                 model.put("instancia", instancia);
                 model.put("documento", documento);
                 
                 if (!hProcesoInstancias.isEmpty() && hProcesoInstancias.size() >= 2) {
-                    model.put("instanciaAnterior", hProcesoInstancias.get(hProcesoInstancias.size()-2));
+                    model.put("instanciaAnterior", getInstanciaNoUsuario(hProcesoInstancias, usuarioAsignado));
                 }
                 
                 Template t = new Template(notificacion.toString(), new StringReader(notificacion.getTemplate()));
@@ -5585,5 +5585,16 @@ public class DocumentoController extends UtilController {
                 LOG.error(ex.getMessage(), ex);
             }
         }
+    }
+    
+    
+    private HProcesoInstancia getInstanciaNoUsuario(List<HProcesoInstancia> hProcesoInstancias, Usuario usuario){
+        for (int i = 0; i < hProcesoInstancias.size(); i++) {
+            HProcesoInstancia instancia = hProcesoInstancias.get(i);
+            if (instancia.getAsignado().getId() != usuario.getId()) {
+                return instancia;
+            }
+        }
+        return null;
     }
 }
