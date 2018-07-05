@@ -3,6 +3,8 @@ package com.laamware.ejercito.doc.web.serv;
 import com.laamware.ejercito.doc.web.dto.DocumentoDTO;
 import com.laamware.ejercito.doc.web.entity.Estado;
 import com.laamware.ejercito.doc.web.entity.Proceso;
+import com.laamware.ejercito.doc.web.entity.Rol;
+import com.laamware.ejercito.doc.web.repo.RolRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,6 +42,15 @@ public class ConsultaService {
 
     @Autowired
     private DataSource dataSource;
+    
+     /*
+     * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
+     * Repository para roles
+     */
+    @Autowired
+    private RolRepository rolRepository;
+    
+    private static final String ROL_ADMINISTRADOR_ARCHIVO = "ADMIN_ARCHIVO";
 
     /*
      * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160.
@@ -158,7 +169,7 @@ public class ConsultaService {
                 DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), rs.getDate("cuandoMod"), rs.getString("nombreProceso"),
                         rs.getString("nombreEstado"), rs.getString("nombreUsuarioAsignado"), rs.getString("nombreUsuarioEnviado"), rs.getString("nombreUsuarioElabora"),
                         rs.getString("nombreUsuarioReviso"), rs.getString("nombreUsuarioVbueno"), rs.getString("nombreUsuarioFirma"), rs.getString("nombreClasificacion"),
-                        rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"));
+                        rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"), rs.getBoolean("indPertenece"));
                 return c;
             }
         });
@@ -197,6 +208,14 @@ public class ConsultaService {
         LinkedList<Object> parameters = new LinkedList<>();
 
         /*
+        * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
+        * La nueva consulta requiere de estos tres parametros.
+        */
+        parameters.add(usuarioID);
+        parameters.add(usuarioID);
+        parameters.add(usuarioID);
+        
+        /*
          * 2017-05-23 jgarcia@controltechcg.com Issue #91 (SICDI-Controltech)
          * hotfix-91: Lista de estados para no tener en cuenta en la consulta de
          * documentos a través de Búsqueda Avanzada.
@@ -209,15 +228,23 @@ public class ConsultaService {
             parameters.add(estadoID);
         }
         sql.append(")\n");
-
+        
         /*
-         * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Ajuste para
-         * filtrar si el usuario dio vistos bueno.
-         */
-        sql.append("AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?) \n");
-        parameters.add(usuarioID);
-        parameters.add(usuarioID);
-        parameters.add(usuarioID);
+        * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
+        * se agrega validación de rol del usuario si posee el rol de administrador de archivo no 
+        * entra a verificar si estuvo involucrado en el documento.
+        */
+        List<Rol> usuarioRoles = rolRepository.allByUserID(usuarioID);
+        if (!hasPermision(usuarioRoles, ROL_ADMINISTRADOR_ARCHIVO)) {
+            /*
+             * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Ajuste para
+             * filtrar si el usuario dio vistos bueno.
+             */
+            sql.append("AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?) \n");
+            parameters.add(usuarioID);
+            parameters.add(usuarioID);
+            parameters.add(usuarioID);
+        }
 
         // Issue #128
         sql.append("AND ( \n");
@@ -419,6 +446,10 @@ public class ConsultaService {
          *
          * 2017-02-15 jgarcia@controltechcg.com Issue #142: Nuevas asociaciones
          * para obtener los campos de fechas solicitados.
+         *
+         * 2018-07-05 samuel.delgado@controltechcg.com Issue #177: se realiza una anotación
+         * en una nueva columna validando si el usuario elaboro o firmo o modifico si es así
+         * la columna toma el valor de 1 de lo contrario valdra 0. 
          */
         return new StringBuilder(""
                 + "SELECT DISTINCT INSTANCIA.PIN_ID    \"idInstancia\", \n"
@@ -436,7 +467,10 @@ public class ConsultaService {
                 + "       CLASIFICACION.CLA_NOMBRE     \"nombreClasificacion\", \n"
                 + "       DOC.DOC_RADICADO             \"numeroRadicado\", \n"
                 + "       DEP_ORIGEN.DEP_ORI_NOMBRE    \"unidadOrigen\", \n"
-                + "       DEP_DESTINO.DEP_DES_NOMBRE   \"unidadDestino\" \n"
+                + "       DEP_DESTINO.DEP_DES_NOMBRE   \"unidadDestino\", \n"
+                + "       nvl((select 1\n" 
+                + "            from dual\n" 
+                + "            where DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?),0) \"indPertenece\""
                 + "FROM DOCUMENTO DOC \n"
                 + "LEFT JOIN USUARIO USU_ULT_ACCION		ON (DOC.USU_ID_ULTIMA_ACCION	= USU_ULT_ACCION.USU_ID) \n"
                 + "LEFT JOIN DEPENDENCIA DEP 		ON (DOC.DEP_ID_DES 		= DEP.DEP_ID) \n"
@@ -456,5 +490,20 @@ public class ConsultaService {
                 + "LEFT JOIN (SELECT DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_ORI_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_ORI_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID) DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ELABORA.DEP_ID)\n"
                 + "LEFT JOIN (SELECT DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_DES_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_DES_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_DES_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID) DEP_DESTINO ON (DEP_DESTINO.DEP_ID = DOC.DEP_ID_DES)\n"
                 + "WHERE 1 = 1 \n");
+    }
+    
+    /***
+     * Método que retorna si un usuario posee un rol
+     * @param roles roles del usuario.
+     * @param rol rol a consultar
+     * @return true si posee el permiso flase si no lo posee
+     */
+    private boolean hasPermision(List<Rol> roles, String rolPermiso){
+        for (Rol rol : roles) {
+            if (rol.getId().equals(rolPermiso)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
