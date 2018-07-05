@@ -28,13 +28,12 @@ public class DocumentoDTO implements Serializable{
     private String numeroRadicado;
     private String unidadOrigen;
     private String unidadDestino;
-    private Boolean perteneceDocumento;
 
     public DocumentoDTO() {
         // TODO Auto-generated constructor stub
     }
 
-    public DocumentoDTO(String id, String idInstancia, String asunto, Date cuandoMod, String nombreProceso, String nombreEstado, String nombreUsuarioAsignado, String nombreUsuarioEnviado, String nombreUsuarioElabora, String nombreUsuarioReviso, String nombreUsuarioVbueno, String nombreUsuarioFirma, String nombreClasificacion, String numeroRadicado, String unidadOrigen, String unidadDestino, Boolean perteneceDocumento) {
+    public DocumentoDTO(String id, String idInstancia, String asunto, Date cuandoMod, String nombreProceso, String nombreEstado, String nombreUsuarioAsignado, String nombreUsuarioEnviado, String nombreUsuarioElabora, String nombreUsuarioReviso, String nombreUsuarioVbueno, String nombreUsuarioFirma, String nombreClasificacion, String numeroRadicado, String unidadOrigen, String unidadDestino) {
         this.id = id;
         this.idInstancia = idInstancia;
         this.asunto = asunto;
@@ -51,7 +50,6 @@ public class DocumentoDTO implements Serializable{
         this.numeroRadicado = numeroRadicado;
         this.unidadOrigen = unidadOrigen;
         this.unidadDestino = unidadDestino;
-        this.perteneceDocumento = perteneceDocumento;
     }
     
     public String getId() {
@@ -181,15 +179,7 @@ public class DocumentoDTO implements Serializable{
     public void setUnidadDestino(String unidadDestino) {
         this.unidadDestino = unidadDestino;
     }
-
-    public Boolean getPerteneceDocumento() {
-        return perteneceDocumento;
-    }
-
-    public void setPerteneceDocumento(Boolean perteneceDocumento) {
-        this.perteneceDocumento = perteneceDocumento;
-    }
-    
+   
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
