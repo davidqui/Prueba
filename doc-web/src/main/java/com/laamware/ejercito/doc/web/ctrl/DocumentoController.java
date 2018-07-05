@@ -1137,7 +1137,7 @@ public class DocumentoController extends UtilController {
                     tipologias(doc.getTrd(), model);
                     model.addAttribute("documento", doc);
                     model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento,"
-                            + " verifique que tiene descargada la ultima versión");
+                            + " Asegúrese de descargar la ultima versión de la plantilla.");
                     return "documento";
                 }
 
@@ -1162,7 +1162,7 @@ public class DocumentoController extends UtilController {
                     expedientes(model, principal);
                     tipologias(doc.getTrd(), model);
                     model.addAttribute("documento", doc);
-                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla no cumple con los wildcards minimos, verifique que tiene descargada la ultima versión.");
+                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla no cumple con los wildcards minimos, Asegúrese de descargar la ultima versión de la plantilla.");
                     return "documento";
                 }
             } catch (Exception ex) {
