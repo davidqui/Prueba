@@ -234,11 +234,22 @@ public class ConsultaService {
 
         /*
         * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
-        * La nueva consulta requiere de estos tres parametros.
+        * La nueva consulta requiere de estos parametros.
         */
+        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
+        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
+        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
         parameters.add(usuarioID);
         parameters.add(usuarioID);
         parameters.add(usuarioID);
+        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
+        parameters.add(usuarioID);
+        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+        parameters.add(usuarioID);
+        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+        parameters.add(usuarioID);
+        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+
         
         /*
          * 2017-05-23 jgarcia@controltechcg.com Issue #91 (SICDI-Controltech)
@@ -259,23 +270,6 @@ public class ConsultaService {
         sql.append(")\n");
         
         /*
-         * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Ajuste para
-         * filtrar si el usuario dio vistos bueno.
-         *
-         * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
-         * feature-162: Filtro de usuario asociado a una acta y validación del
-         * cargo. En caso que el usuario sea un asociado, este únicamente podrá
-         * consultar el acta cuando esta haya sido digitalizada. Modificación
-         * para visualización de actas tras transferencia de archivo.
-         */
-        sql.append(" AND ((PROCESO.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)) \n");
-        sql.append(" OR ((PROCESO.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?) OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ? \n");
-        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
-        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
-        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
-        parameters.add(usuarioID);
-        parameters.add(usuarioID);
-        parameters.add(usuarioID);
         * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
         * se agrega validación de rol del usuario si posee el rol de administrador de archivo no 
         * entra a verificar si estuvo involucrado en el documento.
@@ -285,32 +279,40 @@ public class ConsultaService {
             /*
              * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Ajuste para
              * filtrar si el usuario dio vistos bueno.
+             *
+             * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+             * feature-162: Filtro de usuario asociado a una acta y validación del
+             * cargo. En caso que el usuario sea un asociado, este únicamente podrá
+             * consultar el acta cuando esta haya sido digitalizada. Modificación
+             * para visualización de actas tras transferencia de archivo.
              */
-            sql.append("AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?) \n");
+            sql.append(" AND ((PROCESO.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)) \n");
+            sql.append(" OR ((PROCESO.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?) OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ? \n");
+            parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
+            parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
+            parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
             parameters.add(usuarioID);
             parameters.add(usuarioID);
             parameters.add(usuarioID);
-        }
+            parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
+            parameters.add(usuarioID);
+            parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+            parameters.add(usuarioID);
+            parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+            parameters.add(usuarioID);
+            parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
 
-        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
-        parameters.add(usuarioID);
-        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
-        parameters.add(usuarioID);
-        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
-        parameters.add(usuarioID);
-        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
-
-        if (cargosIDs != null && cargosIDs.length > 0) {
-            sql.append(" AND USUARIO_X_DOCUMENTO_ACTA.CAR_ID IN (");
-            for (int index = 0; index < cargosIDs.length; index++) {
-                final Integer cargoID = cargosIDs[index];
-                sql.append("?").append((index < cargosIDs.length - 1) ? ", " : "");
-                parameters.add(cargoID);
+            if (cargosIDs != null && cargosIDs.length > 0) {
+                sql.append(" AND USUARIO_X_DOCUMENTO_ACTA.CAR_ID IN (");
+                for (int index = 0; index < cargosIDs.length; index++) {
+                    final Integer cargoID = cargosIDs[index];
+                    sql.append("?").append((index < cargosIDs.length - 1) ? ", " : "");
+                    parameters.add(cargoID);
+                }
+                sql.append(")");
             }
-            sql.append(")");
+            sql.append("))))) \n");
         }
-        sql.append("))))) \n");
-
         // Issue #128
         sql.append("AND ( \n");
 
@@ -539,7 +541,12 @@ public class ConsultaService {
                 + "      CLASIFICACION.CLA_NOMBRE                                                                                \"nombreClasificacion\", \n"
                 + "      DOC.DOC_RADICADO                                                                                        \"numeroRadicado\", \n"
                 + "      DEP_ORIGEN.DEP_ORI_NOMBRE                                                                               \"unidadOrigen\", \n"
-                + "      DEP_DESTINO.DEP_DES_NOMBRE                                                                              \"unidadDestino\" \n"
+                + "      DEP_DESTINO.DEP_DES_NOMBRE                                                                              \"unidadDestino\", \n"
+                + "       nvl((select 1\n" 
+                + "            from dual\n" 
+                + "            where (PROCESO.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)"
+                + "                    OR ((PROCESO.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?)"
+                + "                    OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ?)))))),0)                 \"indPertenece\""
                 + " FROM DOCUMENTO DOC \n"
                 + " LEFT JOIN USUARIO USU_ULT_ACCION         ON (DOC.USU_ID_ULTIMA_ACCION	= USU_ULT_ACCION.USU_ID) \n"
                 + " LEFT JOIN DEPENDENCIA DEP                ON (DOC.DEP_ID_DES 		= DEP.DEP_ID) \n"
@@ -562,45 +569,6 @@ public class ConsultaService {
                 + " LEFT JOIN DOCUMENTO_DEPENDENCIA          ON (DOCUMENTO_DEPENDENCIA.DOC_ID  = DOC.DOC_ID AND DOCUMENTO_DEPENDENCIA.ACTIVO = 1)\n"
                 + " WHERE 1 = 1 \n"
                 + "");
-        return new StringBuilder(""
-                + "SELECT DISTINCT INSTANCIA.PIN_ID    \"idInstancia\", \n"
-                + "       DOC.DOC_ID                   \"id\", \n"
-                + "       DOC.DOC_ASUNTO               \"asunto\", \n"
-                + "       DOC.CUANDO_MOD               \"cuandoMod\", \n"
-                + "       PROCESO.PRO_NOMBRE           \"nombreProceso\", \n"
-                + "       EST.PES_NOMBRE               \"nombreEstado\", \n"
-                + "       DECODE(USU_ASIGNADO.USU_NOMBRE, NULL, NULL,USU_ASIGNADO.USU_GRADO||'. '||USU_ASIGNADO.USU_NOMBRE)         \"nombreUsuarioAsignado\", \n"
-                + "       DECODE(USU_ULT_ACCION.USU_NOMBRE, NULL, NULL,USU_ULT_ACCION.USU_GRADO||'. '||USU_ULT_ACCION.USU_NOMBRE)   \"nombreUsuarioEnviado\", \n"
-                + "       DECODE(USU_ELABORA.USU_NOMBRE, NULL, NULL,USU_ELABORA.USU_GRADO||'. '||USU_ELABORA.USU_NOMBRE)            \"nombreUsuarioElabora\", \n"
-                + "       DECODE(USU_REVISO.USU_NOMBRE, NULL, NULL,USU_REVISO.USU_GRADO||'. '||USU_REVISO.USU_NOMBRE)               \"nombreUsuarioReviso\", \n"
-                + "       DECODE(USU_VBUENO.USU_NOMBRE, NULL, NULL,USU_VBUENO.USU_GRADO||'. '||USU_VBUENO.USU_NOMBRE)               \"nombreUsuarioVbueno\", \n"
-                + "       DECODE(USU_FIRMA.USU_NOMBRE, NULL, NULL,USU_FIRMA.USU_GRADO||'. '||USU_FIRMA.USU_NOMBRE)                  \"nombreUsuarioFirma\", \n"
-                + "       CLASIFICACION.CLA_NOMBRE     \"nombreClasificacion\", \n"
-                + "       DOC.DOC_RADICADO             \"numeroRadicado\", \n"
-                + "       DEP_ORIGEN.DEP_ORI_NOMBRE    \"unidadOrigen\", \n"
-                + "       DEP_DESTINO.DEP_DES_NOMBRE   \"unidadDestino\", \n"
-                + "       nvl((select 1\n" 
-                + "            from dual\n" 
-                + "            where DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?),0) \"indPertenece\""
-                + "FROM DOCUMENTO DOC \n"
-                + "LEFT JOIN USUARIO USU_ULT_ACCION		ON (DOC.USU_ID_ULTIMA_ACCION	= USU_ULT_ACCION.USU_ID) \n"
-                + "LEFT JOIN DEPENDENCIA DEP 		ON (DOC.DEP_ID_DES 		= DEP.DEP_ID) \n"
-                + "LEFT JOIN USUARIO USU_DEP_JEFE 		ON (DEP.USU_ID_JEFE 		= USU_DEP_JEFE.USU_ID) \n"
-                + "LEFT JOIN PROCESO_INSTANCIA INSTANCIA	ON (DOC.PIN_ID 			= INSTANCIA.PIN_ID) \n"
-                + "LEFT JOIN DOCUMENTO_USU_FIRMA DOCFIRMA 	ON (DOC.DOC_ID 			= DOCFIRMA.DOC_ID ) \n"
-                + "LEFT JOIN S_INSTANCIA_USUARIO HPIN       ON (DOC.PIN_ID                  = HPIN.PIN_ID) \n"
-                + "LEFT JOIN USUARIO USU                    ON (HPIN.USU_ID                 = USU.USU_ID) \n"
-                + "LEFT JOIN PROCESO_ESTADO EST             ON (EST.PES_ID                  = INSTANCIA.PES_ID) \n"
-                + "LEFT JOIN PROCESO PROCESO                ON (INSTANCIA.PRO_ID            = PROCESO.PRO_ID) \n"
-                + "LEFT JOIN USUARIO USU_ASIGNADO           ON (INSTANCIA.USU_ID_ASIGNADO   = USU_ASIGNADO.USU_ID) \n"
-                + "LEFT JOIN USUARIO USU_ELABORA            ON (DOC.USU_ID_ELABORA          = USU_ELABORA.USU_ID) \n"
-                + "LEFT JOIN USUARIO USU_REVISO             ON (DOC.USU_ID_APRUEBA          = USU_REVISO.USU_ID) \n"
-                + "LEFT JOIN USUARIO USU_VBUENO             ON (DOC.USU_ID_VISTO_BUENO      = USU_VBUENO.USU_ID) \n"
-                + "LEFT JOIN USUARIO USU_FIRMA              ON (DOC.USU_ID_FIRMA            = USU_FIRMA.USU_ID) \n"
-                + "LEFT JOIN CLASIFICACION                  ON (DOC.CLA_ID                  = CLASIFICACION.CLA_ID) \n"
-                + "LEFT JOIN (SELECT DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_ORI_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_ORI_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID) DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ELABORA.DEP_ID)\n"
-                + "LEFT JOIN (SELECT DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_DES_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_DES_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_DES_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID) DEP_DESTINO ON (DEP_DESTINO.DEP_ID = DOC.DEP_ID_DES)\n"
-                + "WHERE 1 = 1 \n");
     }
     
     /***
