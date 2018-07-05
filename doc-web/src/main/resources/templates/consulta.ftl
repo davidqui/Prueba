@@ -65,7 +65,11 @@
                             ${x.cuandoMod?string('hh:mm a')} 
                     </td>
                 <td style="text-align: center; vertical-align: middle;word-wrap:break-word;">
-                    <strong><a href="/proceso/instancia?pin=${x.idInstancia}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
+                    <#if x.perteneceDocumento>
+                        <strong><a href="/proceso/instancia?pin=${x.idInstancia}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
+                    <#else> 
+                        <span>${(x.asunto)!"&lt;Sin asunto&gt;"}</option>
+                    </#if>
                     </td>
                 <td style="text-align: center; vertical-align: middle;">
                             ${x.unidadOrigen}
