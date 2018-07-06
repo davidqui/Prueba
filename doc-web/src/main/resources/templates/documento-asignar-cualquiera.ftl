@@ -25,9 +25,9 @@
 <div class="container-fluid">
 	<div class="card">
 		<div class="card-header">
-			<h3><b><#if documento?? >${documento.asunto}</#if></b></h3>
-			<h5><#if documento?? >Nivel de clasifición del documento: ${documento.clasificacion.nombre} </#if> </h5>
-			<h6>Selección de usuario</h6>
+			<h5><b>Asunto del Documento:</b><#if documento?? > ${documento.asunto}</#if></h5>
+			<h5 style="margin-botton:20px;"><#if documento?? ><b>Grado de clasificación: <span style="color:red;">${documento.clasificacion.nombre}</span></b></#if> </h5>
+			<h6>Selección de usuario<b></b></h6>
                         <p>Seleccione el usuario que se encuentra en su misma dependencia a quien será asignada a siguiente actividad en el proceso.</p>
 			<p>
 				<#if pid??>
