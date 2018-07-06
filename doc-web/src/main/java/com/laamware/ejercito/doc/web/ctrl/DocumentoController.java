@@ -2042,7 +2042,15 @@ public class DocumentoController extends UtilController {
         } else {
             model.addAttribute("mode", "nomode");
         }
-
+        /***
+         * 05-07-2018 se agrega información del documento (ASUNTO)
+         * para que al momento de seleccionar un usuario despiegue la información
+         * release-20180628
+         */
+        Instancia i = instanciaRepository.findOne(pin);
+        String docId = i.getVariable(Documento.DOC_ID);
+        Documento doc = documentRepository.getOne(docId);
+        model.addAttribute("documento", doc);
         return "documento-asignar";
     }
 

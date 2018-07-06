@@ -25,8 +25,10 @@
 <div class="container-fluid">
 	<div class="card">
 		<div class="card-header">
-			<h4>Selección de usuario</h4>
-			<p>Seleccione el usuario que se encuentra en su misma dependencia a quien será asignada a siguiente actividad en el proceso.</p>
+			<h3><b><#if documento?? >${documento.asunto}</#if></b></h3>
+			<h5><#if documento?? >Nivel de clasifición del documento: ${documento.clasificacion.nombre} </#if> </h5>
+			<h6>Selección de usuario</h6>
+                        <p>Seleccione el usuario que se encuentra en su misma dependencia a quien será asignada a siguiente actividad en el proceso.</p>
 			<p>
 				<#if pid??>
 					<a href="?pin=${pin}&tid=${tid}&did=${pid}" class="btn btn-secondary btn-sm">Regresar</a>
