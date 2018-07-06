@@ -95,6 +95,10 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * hotfix-155: Corrección en la sentencia SQL de la bandeja de enviados,
      * para que presente los documentos de procesos externos a pesar de que sea 
      * usuario asignado y sea el usuario en sesión.
+     *
+     * 2018-03-22 edison.gonzalez@controltechcg.com Issue #162 (SICDI-Controltech)
+     * issue-162: Se realiza el ajuste para que no visualice en la bandeja de enviados
+     * los procesos de actas.
      */
     String CONSULTABANDEJAENVIADOS = ""
             + "SELECT doc.*\n"
@@ -109,6 +113,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "AND doc.doc_radicado IS NOT NULL\n"
             + "AND est.pes_final = 1\n"
             + "AND est.pes_id NOT IN (83,101)\n"
+            + "AND pin.pro_id != 100\n"
             + "AND doc.cuando_mod BETWEEN :fechaInicial AND :fechaFinal\n";
 
     /*
