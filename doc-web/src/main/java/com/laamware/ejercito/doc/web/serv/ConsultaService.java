@@ -58,6 +58,10 @@ public class ConsultaService {
      */
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
+    public int retornaCountConsultaMotorBusqueda(String asignado, String asunto, String fechaInicio, String fechaFin, String radicado, String destinatario, Integer clasificacion, Integer dependenciaDestino, Integer dependenciaOrigen, boolean sameValue, Integer usuarioID, String firmaUUID, boolean puedeBuscarXDocFirmaEnvioUUID, String tipoProceso) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     /**
      * Operador lógico a utilizar en la sentencia SQL de la consulta general.
      *
@@ -87,6 +91,7 @@ public class ConsultaService {
      * @param firmaUUID
      * @param puedeBuscarXDocFirmaEnvioUUID
      * @param cargosIDs
+     * @param tipoProceso
      * @return
      */
     /*
@@ -98,10 +103,10 @@ public class ConsultaService {
      */
     public int retornaCountConsultaMotorBusqueda(final String asignado, final String asunto, final String fechaInicio, final String fechaFin,
             final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino, final Integer dependenciaOrigen,
-            final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer[] cargosIDs) {
+            final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer[] cargosIDs, final Integer tipoProceso) {
         StringBuilder sql = retornaConsultaPrincipal();
         LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
-                dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs);
+                dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso);
 
 //        LOG.info("**************************************************");
 //        LOG.info("sql = " + sql);
@@ -155,15 +160,20 @@ public class ConsultaService {
      * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
      * feature-162: Arreglo de IDs de cargos del usuario en sesión (cargosIDs).
      */
+    /*
+     * 2018-07-09 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech)
+     * feature-160: Parámetro tipoProceso
+     */
     public List<DocumentoDTO> retornaConsultaMotorBusqueda(final String asignado, final String asunto, final String fechaInicio, final String fechaFin,
             final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino, final Integer dependenciaOrigen,
             final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer[] cargosIDs,
-            final int inicio, final int fin) {
+            final int inicio, final int fin, final Integer tipoProceso) {
+            final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final int inicio, final int fin, ) {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         StringBuilder sql = retornaConsultaPrincipal();
         LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen,
-                sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs);
+                sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso);
 
 //        LOG.info("##################################################");
 //        LOG.info("sql = " + sql);
@@ -214,6 +224,7 @@ public class ConsultaService {
      * @param firmaUUID
      * @param puedeBuscarXDocFirmaEnvioUUID
      * @param cargosIDs
+     * @param tipoProceso
      * @return
      */
     /*
@@ -227,6 +238,7 @@ public class ConsultaService {
             final String fechaFin, final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino,
             final Integer dependenciaOrigen, final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID,
             final Integer[] cargosIDs) {
+            final Integer dependenciaOrigen, final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer tipoProceso) {
 
         // Issue #128
         SentenceOperator operator = (sameValue) ? SentenceOperator.OR : SentenceOperator.AND;
@@ -434,6 +446,13 @@ public class ConsultaService {
             // Issue #128
             sql.append(hasConditions ? operator.name() : "").append(" DOC.CLA_ID = ? \n");
             parameters.add(clasificacion);
+            hasConditions = true;
+        }
+        
+        // Issue #177
+        if (tipoProceso != null) {
+            sql.append(hasConditions ? operator.name() : "").append(" INSTANCIA.PRO_ID = ? \n");
+            parameters.add(tipoProceso);
             hasConditions = true;
         }
 

@@ -69,6 +69,22 @@
                         </#if>
                                 </select>
                             </div>
+                        
+                        <label for="tipoProceso" class="col-sm-1 col-form-label text-xs-right">Tipo de proceso</label>
+                        <div class="col-sm-2">
+                            <select class="form-control" id="tipoProceso" name="tipoProceso">
+                                <#if tiposProcesos??>
+                                        <option value=""></option>
+                                    <#list tiposProcesos as tipoPros>
+                                        <#if tipoProceso?has_content && tipoProceso == tipoPros.id>
+                                        <option value="${tipoPros.id}" selected="selected">${tipoPros.nombre}</option>
+                                        <#else>
+                                        <option value="${tipoPros.id}">${tipoPros.nombre}</option>
+                                        </#if>
+                                    </#list>
+                                </#if>
+                            </select>
+                        </div>
                         <#--
                             2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
                             Campo para búsqueda por Firma UUID.

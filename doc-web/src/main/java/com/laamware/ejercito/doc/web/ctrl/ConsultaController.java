@@ -36,6 +36,8 @@ import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Controller
@@ -97,7 +99,7 @@ public class ConsultaController extends UtilController {
          * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
          * feature-160: Filtro para firma UUID.
          */
-        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null, term);
+        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null, term, null);
     }
 
     /**
@@ -121,6 +123,7 @@ public class ConsultaController extends UtilController {
      * @param dependenciaDestinoDescripcion
      * @param dependenciaOrigenDescripcion
      * @param firmaUUID
+     * @param tipoProceso
      * @return
      */
     /*
@@ -137,6 +140,8 @@ public class ConsultaController extends UtilController {
      * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
      * feature-160: Filtro para firma UUID.
      *
+     * 2018-07-09 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech)
+     * feature-160: Filtro para tipo de proceso.
      */
     @RequestMapping(value = "/parametros", method = {RequestMethod.GET, RequestMethod.POST})
     public String buscar(Model model, @RequestParam(value = "asignado", required = false) String asignado,
@@ -155,7 +160,8 @@ public class ConsultaController extends UtilController {
             @RequestParam(value = "clasificacionNombre", required = false) String clasificacionNombre,
             @RequestParam(value = "dependenciaDestinoDescripcion", required = false) String dependenciaDestinoDescripcion,
             @RequestParam(value = "dependenciaOrigenDescripcion", required = false) String dependenciaOrigenDescripcion,
-            @RequestParam(value = "firmaUUID", required = false) String firmaUUID) {
+            @RequestParam(value = "firmaUUID", required = false) String firmaUUID,
+            @RequestParam(value = "tipoProceso", required = false) Integer tipoProceso) {
 
         boolean sameValue = term != null && term.trim().length() > 0;
 
@@ -179,8 +185,8 @@ public class ConsultaController extends UtilController {
             firmaUUID = term; // Issue #160
         }
 
-        // Issue #105, Issue #128, Issue #160
-        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID};
+        // Issue #105, Issue #128, Issue #160, Issue #177 
+        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID, tipoProceso};
 
         boolean parametrosVacios = true;
         for (Object arg : args) {
@@ -218,6 +224,9 @@ public class ConsultaController extends UtilController {
         List<DocumentoDTO> documentos = null;
         int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
                 dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs);
+        // Issue #177 se agrega parametro tipoProceso
+        int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, tipoProceso);
+        LOG.log(Level.INFO, "verificando count ]= {0}", count);
         int totalPages = 0;
         String labelInformacion = "";
 
@@ -226,6 +235,9 @@ public class ConsultaController extends UtilController {
             totalPages = paginacionDTO.getTotalPages();
             documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
                     dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            LOG.log(Level.INFO, "consulta completa");
+            // Issue #177 se agrega parametro tipoProceso
+            documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(), tipoProceso);
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 
@@ -250,6 +262,7 @@ public class ConsultaController extends UtilController {
             model.addAttribute("dependenciaDestinoDescripcion", dependenciaDestinoDescripcion);
             model.addAttribute("dependenciaOrigenDescripcion", dependenciaOrigenDescripcion);
             model.addAttribute("firmaUUID", firmaUUID);
+            model.addAttribute("tipoProceso", tipoProceso);
         }
 
         model.addAttribute("term", term);
@@ -371,4 +384,14 @@ public class ConsultaController extends UtilController {
 
         return set.toArray(new Integer[set.size()]);
     }
+    
+    /*
+    * 2018-07-09 samuel.delgado@controltechcg.com Issue #177: se agrega el atributo
+    * de tipos de proceso para el select de busqueda por parametro
+    */
+    @ModelAttribute("tiposProcesos")
+    public List<Map<String, Object>> tiposProcesos() {
+        return procesoService.procesos();
+    }
+
 }
