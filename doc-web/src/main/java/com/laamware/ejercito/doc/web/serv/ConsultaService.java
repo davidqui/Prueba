@@ -151,6 +151,7 @@ public class ConsultaService {
      * @param cargosIDs
      * @param inicio
      * @param fin
+     * @param tipoProceso
      * @return
      */
     /*
@@ -168,7 +169,6 @@ public class ConsultaService {
             final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino, final Integer dependenciaOrigen,
             final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer[] cargosIDs,
             final int inicio, final int fin, final Integer tipoProceso) {
-            final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final int inicio, final int fin, ) {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         StringBuilder sql = retornaConsultaPrincipal();
@@ -237,8 +237,7 @@ public class ConsultaService {
     public LinkedList<Object> armaConsulta(final StringBuilder sql, final String asignado, final String asunto, final String fechaInicio,
             final String fechaFin, final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino,
             final Integer dependenciaOrigen, final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID,
-            final Integer[] cargosIDs) {
-            final Integer dependenciaOrigen, final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer tipoProceso) {
+            final Integer[] cargosIDs, final Integer tipoProceso) {
 
         // Issue #128
         SentenceOperator operator = (sameValue) ? SentenceOperator.OR : SentenceOperator.AND;
