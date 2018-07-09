@@ -85,6 +85,8 @@
                                 </#if>
                             </select>
                         </div>
+                    </div>
+                    <div class="form-group row">
                         <#--
                             2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
                             Campo para búsqueda por Firma UUID.
@@ -100,7 +102,7 @@
                             </div>
                         </#if>
 
-                        </div>
+                    </div>
                     <div class="form-group row">
                         <label for="origen" class="col-sm-1 col-form-label text-xs-right">Dependencia origen</label>
                         <input type="hidden" name="dependenciaOrigen" id="dependenciaOrigen" value="${dependenciaOrigen}"/>
