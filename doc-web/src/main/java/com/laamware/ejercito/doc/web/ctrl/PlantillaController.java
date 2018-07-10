@@ -30,7 +30,9 @@ import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.WildcardPlantillaService;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -144,7 +146,7 @@ public class PlantillaController extends UtilController {
                         plantilla.setBookmarkName(nombrePlantilla);
                         plantilla.setBookmarkValue(versionPlantilla);
 
-                        fieldNames = documentAspose.getMailMerge().getFieldNames();
+                        fieldNames = new HashSet<String>(Arrays.asList(documentAspose.getMailMerge().getFieldNames())).toArray(new String[0]);
                             
 			// Issue #116
 			boolean defaultFileContentType = (file.getContentType() != null)
