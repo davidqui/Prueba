@@ -25,7 +25,7 @@
                             <td>
                                 <div class="checkbox">
                                     <label class="checkbox-inline">
-                                        <input name="wildcards" type="checkbox" value="${name}">${name}</input>                    
+                                        <input name="wildcards" type="checkbox" value="${name}" checked="checked">${name}</input>                    
                                     </label>
                                 </div>
                             </td>
