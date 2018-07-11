@@ -114,6 +114,7 @@ import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
 import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.ArchivoAutomaticoService;
+import com.laamware.ejercito.doc.web.serv.CacheService;
 import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
@@ -163,6 +164,9 @@ public class DocumentoController extends UtilController {
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
 
     static final String PATH = "/documento";
+    //issue-179 constante llave del cache
+    static final String DEPENDENCIAS_CACHE_KEY = "dependencias";
+    
     private static final com.aspose.words.License LICENSE = new com.aspose.words.License();
     /*
     2017-10-02 edison.gonzalez@controltechcg.com feature #129 : Organizacion
@@ -304,6 +308,13 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     TRDService tRDService;
+    
+    /*
+     * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+     * feature-179: Servicio de cache.
+     */
+    @Autowired
+    CacheService cacheService;
 
     /*
      * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
@@ -641,7 +652,19 @@ public class DocumentoController extends UtilController {
         model.addAttribute("usuariologueado", usuarioLogueado);
 
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Dependencia> listaDependencias = (List<Dependencia>) cacheService.getKeyCache(DEPENDENCIAS_CACHE_KEY);
+        System.out.println("CACHE -- PID "+ listaDependencias);
+        LOG.error("CACHE -- PID ");
+        if (listaDependencias == null) {
+            listaDependencias = depsHierarchy();
+            cacheService.setKeyCache(DEPENDENCIAS_CACHE_KEY, listaDependencias);
+            System.out.println("NOCACHE -- PID "+ listaDependencias.toString());
+            LOG.error("NOCACHE -- PID ");
+        }
         model.addAttribute("dependencias", listaDependencias);
 
         // 2018-05-04 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
@@ -966,7 +989,16 @@ public class DocumentoController extends UtilController {
             BindingResult docBind, final RedirectAttributes redirect, Model model, Principal principal) {
 
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+        List<Dependencia> listaDependencias = (List<Dependencia>) cacheService.getKeyCache(DEPENDENCIAS_CACHE_KEY);
+        System.out.println("CACHE -- PID "+ listaDependencias);
+        LOG.error("CACHE -- PID ");
+        if (listaDependencias == null) {
+            listaDependencias = depsHierarchy();
+            cacheService.setKeyCache(DEPENDENCIAS_CACHE_KEY, listaDependencias);
+            System.out.println("NOCACHE -- PID "+ listaDependencias.toString());
+            LOG.error("NOCACHE -- PID ");
+
+        }
         model.addAttribute("dependencias", listaDependencias);
 
         // Obtiene la instancia de proceso
@@ -1996,7 +2028,16 @@ public class DocumentoController extends UtilController {
 
                     model.addAttribute("usuarios", usuarios);
                 }
-                model.addAttribute("dependencias", depsHierarchy());
+                List<Dependencia> listaDependencias = (List<Dependencia>) cacheService.getKeyCache(DEPENDENCIAS_CACHE_KEY);
+                System.out.println("CACHE -- PID "+ listaDependencias);
+                LOG.error("CACHE -- PID ");
+                if (listaDependencias == null) {
+                    listaDependencias = depsHierarchy();
+                    cacheService.setKeyCache(DEPENDENCIAS_CACHE_KEY, listaDependencias);
+                    System.out.println("NOCACHE -- PID "+ listaDependencias.toString());
+                    LOG.error("NOCACHE -- PID ");
+                }
+                model.addAttribute("dependencias", listaDependencias);
             }
         } else if ("dependencia".equals(mode)) {
 

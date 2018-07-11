@@ -21,6 +21,15 @@ public class ClasificacionService {
 
     @Autowired
     private ClasificacionRepository clasificacionRepository;
+    
+    /*
+     * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+     * feature-179: Servicio de cache.
+     */
+    @Autowired
+    private CacheService cacheService;
+    //issue-179 constante llave del cache
+    public final static String CLAS_CACHE_KEY = "clasificacion";
 
     /**
      * Obtiene toda la lista de clasificaciones activas ordenadas por el código
@@ -29,7 +38,14 @@ public class ClasificacionService {
      * @return Lista de clasificaciones activas y ordenadas.
      */
     public List<Clasificacion> findAllActivoOrderByOrden() {
-        return clasificacionRepository.findByActivo(true, new Sort(Sort.Direction.ASC, "orden"));
+        List<Clasificacion> listaClas = (List<Clasificacion>) cacheService.getKeyCache(CLAS_CACHE_KEY);
+        System.out.println("CLAS CACHE -- PID "+ listaClas);
+        if (listaClas == null) {
+            listaClas = clasificacionRepository.findByActivo(true, new Sort(Sort.Direction.ASC, "orden"));
+            cacheService.setKeyCache(CLAS_CACHE_KEY, listaClas);
+            System.out.println("CLAS NOCACHE -- PID "+ listaClas.toString());
+        }
+        return listaClas;
     }
 
     /**

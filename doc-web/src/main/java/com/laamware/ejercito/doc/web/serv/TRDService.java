@@ -39,6 +39,15 @@ public class TRDService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    /*
+     * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+     * feature-179: Servicio de cache.
+     */
+    @Autowired
+    private CacheService cacheService;
+    //issue-179 constante llave del cache
+    public final static String TRD_CACHE_KEY = "trd";
+    
     /**
      * Busca una TRD por su ID.
      *
@@ -213,11 +222,33 @@ public class TRDService {
     }
 
     public List<Trd> findSeriesByUsuario(Usuario usuario) {
-        return trdRepository.findSeriesByDependencia(usuario.getDependencia().getId());
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Trd> listaTrds = (List<Trd>) cacheService.getKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId());
+        System.out.println("TRD CACHE -- PID "+ listaTrds);
+        if (listaTrds == null) {
+            listaTrds = trdRepository.findSeriesByDependencia(usuario.getDependencia().getId());
+            cacheService.setKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId(), listaTrds);
+            System.out.println("TRD NOCACHE -- PID "+ listaTrds.toString());
+        }
+        return listaTrds;
     }
 
     public List<Trd> findSubseriesbySerieAndUsuario(Trd serie, Usuario usuario) {
-        return trdRepository.findSubseries(serie.getId(), usuario.getDependencia().getId());
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Trd> listaTrds = (List<Trd>) cacheService.getKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId()+"_sid-"+serie.getId());
+        System.out.println("TRD CACHE -- PID "+ listaTrds);
+        if (listaTrds == null) {
+            listaTrds = trdRepository.findSubseries(serie.getId(), usuario.getDependencia().getId());
+            cacheService.setKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId()+"_sid-"+serie.getId(), listaTrds);
+            System.out.println("TRD NOCACHE -- PID "+ listaTrds.toString());
+        }
+        return listaTrds;
     }
 
     /**
@@ -231,7 +262,17 @@ public class TRDService {
      * feature-170.
      */
     public List<Trd> findAllSubseriesActivas() {
-        final List<Trd> subseries = trdRepository.findAllByActivoTrueAndSerieNotNull();
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Trd> subseries = (List<Trd>) cacheService.getKeyCache(TRD_CACHE_KEY);       
+        System.out.println("TRD CACHE -- PID "+ subseries);
+        if (subseries == null) {
+            subseries = trdRepository.findAllByActivoTrueAndSerieNotNull();
+            cacheService.setKeyCache(TRD_CACHE_KEY, subseries);
+            System.out.println("TRD NOCACHE -- PID "+ subseries.toString());
+        }
         ordenarPorCodigo(subseries);
         return subseries;
     }
