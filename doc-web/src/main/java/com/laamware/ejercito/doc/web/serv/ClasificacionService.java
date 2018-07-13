@@ -5,6 +5,8 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class ClasificacionService {
     @Autowired
     private ClasificacionRepository clasificacionRepository;
     
+    private static final Logger LOG = Logger.getLogger(DependenciaService.class.getName());
+
+    
     /*
      * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
      * feature-179: Servicio de cache.
@@ -37,13 +42,13 @@ public class ClasificacionService {
      *
      * @return Lista de clasificaciones activas y ordenadas.
      */
-    public List<Clasificacion> findAllActivoOrderByOrden() {
+    public synchronized List<Clasificacion> findAllActivoOrderByOrden() {
         List<Clasificacion> listaClas = (List<Clasificacion>) cacheService.getKeyCache(CLAS_CACHE_KEY);
-        System.out.println("CLAS CACHE -- PID "+ listaClas);
+        LOG.log(Level.SEVERE, "CACHE -- CLASIFICACION");
         if (listaClas == null) {
             listaClas = clasificacionRepository.findByActivo(true, new Sort(Sort.Direction.ASC, "orden"));
             cacheService.setKeyCache(CLAS_CACHE_KEY, listaClas);
-            System.out.println("CLAS NOCACHE -- PID "+ listaClas.toString());
+            LOG.log(Level.SEVERE, "NOCACHE -- CLASIFICACION");
         }
         return listaClas;
     }

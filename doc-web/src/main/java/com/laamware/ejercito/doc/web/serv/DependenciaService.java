@@ -12,6 +12,7 @@ import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.data.domain.Sort;
 
 /**
  * Servicio para las operaciones de negocio de dependencias.
@@ -27,6 +28,18 @@ public class DependenciaService {
 
     @Autowired
     private DependenciaRepository dependenciaRepository;
+    
+    /*
+     * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+     * feature-179: Servicio de cache.
+     */
+    @Autowired
+    CacheService cacheService;
+    
+    //issue-179 constante llave del cache
+    private static final String DEPENDENCIAS_CACHE_KEY = "dependencias";
+    private static final String PDEPENDENCIAS_CACHE_KEY = "dependencias_padre";
+
 
     /**
      * Busca la unidad de una dependencia.
@@ -207,6 +220,72 @@ public class DependenciaService {
             jefaturaId = jefatura.getPadre();
         }
         return jefatura;
+    }
+    
+    /*
+	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
+	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
+	 * las dependencias.
+     */
+    public synchronized List<Dependencia> depsHierarchy() {
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Dependencia> root = (List<Dependencia>) cacheService.getKeyCache(DEPENDENCIAS_CACHE_KEY);
+        LOG.log(Level.SEVERE, "CACHE -- DEP");
+        if (root == null) {
+            root = dependenciaRepository.findByActivoAndPadreIsNull(true,
+                new Sort(Sort.Direction.ASC, "pesoOrden", "nombre"));
+            for (Dependencia d : root) {
+                depsHierarchy(d);
+            }
+            cacheService.setKeyCache(DEPENDENCIAS_CACHE_KEY, root);
+            LOG.log(Level.SEVERE, "NOCACHE -- DEP");
+        }
+        return root;
+    }
+
+    /*
+	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
+	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
+	 * las dependencias.
+     */
+    public void depsHierarchy(Dependencia d) {
+        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
+                new Sort(Sort.Direction.ASC, "pesoOrden", "nombre"));
+        d.setSubs(subs);
+        for (Dependencia x : subs) {
+            depsHierarchy(x);
+        }
+    }
+
+    public synchronized List<Dependencia> depsHierarchyPadre() {
+                /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Dependencia> root = (List<Dependencia>) cacheService.getKeyCache(DEPENDENCIAS_CACHE_KEY);
+        LOG.log(Level.SEVERE, "CACHE -- DEP-P");
+        if (root == null) {
+            root = this.dependenciaRepository.findByActivoAndPadreIsNull(true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
+            for (Dependencia d : root) {
+                depsHierarchyPadre(d);
+            }
+            cacheService.setKeyCache(PDEPENDENCIAS_CACHE_KEY, root);
+            LOG.log(Level.SEVERE, "NOCACHE -- DEP-P");
+        }
+
+        return root;
+    }
+
+    public void depsHierarchyPadre(Dependencia d) {
+        List<Dependencia> subs = this.dependenciaRepository.findByActivoAndPadreAndDepIndEnvioDocumentos(true, d.getId(), true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
+
+        d.setSubs(subs);
+        for (Dependencia x : subs) {
+            depsHierarchyPadre(x);
+        }
     }
 
 }
