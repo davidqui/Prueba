@@ -114,6 +114,7 @@ import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
 import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.ArchivoAutomaticoService;
+import com.laamware.ejercito.doc.web.serv.CacheService;
 import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
@@ -163,6 +164,8 @@ public class DocumentoController extends UtilController {
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
 
     static final String PATH = "/documento";
+
+    
     private static final com.aspose.words.License LICENSE = new com.aspose.words.License();
     /*
     2017-10-02 edison.gonzalez@controltechcg.com feature #129 : Organizacion
@@ -304,6 +307,7 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     TRDService tRDService;
+
 
     /*
      * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
@@ -641,11 +645,15 @@ public class DocumentoController extends UtilController {
         model.addAttribute("usuariologueado", usuarioLogueado);
 
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
 
         // 2018-05-04 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
-        List<Trd> listaTrds = buildTrdsHierarchy(usuarioLogueado);
+        List<Trd> listaTrds = tRDService.buildTrdsHierarchy(usuarioLogueado);
         model.addAttribute("trds", listaTrds);
         /*
          * 2017-11-17 edison.gonzalez@controltechcg.com Issue #139: Verifica permisos
@@ -966,7 +974,8 @@ public class DocumentoController extends UtilController {
             BindingResult docBind, final RedirectAttributes redirect, Model model, Principal principal) {
 
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+        List<Dependencia> listaDependencias =  dependenciaService.depsHierarchy();
+        
         model.addAttribute("dependencias", listaDependencias);
 
         // Obtiene la instancia de proceso
@@ -985,7 +994,7 @@ public class DocumentoController extends UtilController {
         Usuario logueado = getUsuario(principal);
 
         // 2018-05-04 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
-        List<Trd> listaTrds = buildTrdsHierarchy(logueado);
+        List<Trd> listaTrds = tRDService.buildTrdsHierarchy(logueado);
         model.addAttribute("trds", listaTrds);
 
         Integer elaboraDocumento = null;
@@ -1996,7 +2005,8 @@ public class DocumentoController extends UtilController {
 
                     model.addAttribute("usuarios", usuarios);
                 }
-                model.addAttribute("dependencias", depsHierarchy());
+                List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
+                model.addAttribute("dependencias", listaDependencias);
             }
         } else if ("dependencia".equals(mode)) {
 
@@ -2479,7 +2489,7 @@ public class DocumentoController extends UtilController {
 			 * correspondiente a la dependencia destino del documento.
              */
             Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
-            depsHierarchy(superDependencia);
+            dependenciaService.depsHierarchy(superDependencia);
             listaDependencias.add(superDependencia);
 
             if (did != null) {
@@ -3802,7 +3812,7 @@ public class DocumentoController extends UtilController {
             Usuario usuarioSesion = getUsuario(principal);
             Dependencia dependencia = usuarioSesion.getDependencia();
             Dependencia unidadDependencia = dependenciaService.getSuperDependencia(dependencia);
-            depsHierarchy(unidadDependencia);
+            dependenciaService.depsHierarchy(unidadDependencia);
             listaDependencias.add(unidadDependencia);
 
             if (did != null) {
@@ -4335,7 +4345,7 @@ public class DocumentoController extends UtilController {
             List<Dependencia> listaDependencias = new ArrayList<>(1);
             Dependencia dependenciaDestino = usuarioSesion.getDependencia();
             Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
-            depsHierarchy(superDependencia);
+            dependenciaService.depsHierarchy(superDependencia);
             listaDependencias.add(superDependencia);
             model.addAttribute("dependencias_arbol", listaDependencias);
 
@@ -4626,7 +4636,7 @@ public class DocumentoController extends UtilController {
 	 * 2018-02-02 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
 	 * campo Indicador de envio documentos.
          */
-        List<Dependencia> unidades = depsHierarchyPadre();
+        List<Dependencia> unidades = dependenciaService.depsHierarchyPadre();
 
         model.addAttribute("unidades", unidades);
 
@@ -4772,50 +4782,50 @@ public class DocumentoController extends UtilController {
         return "redirect:/";
     }
 
-    /*
-	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
-	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
-	 * las dependencias.
-     */
-    private List<Dependencia> depsHierarchy() {
-        List<Dependencia> root = dependenciaRepository.findByActivoAndPadreIsNull(true,
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        for (Dependencia d : root) {
-            depsHierarchy(d);
-        }
-        return root;
-    }
-
-    /*
-	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
-	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
-	 * las dependencias.
-     */
-    private void depsHierarchy(Dependencia d) {
-        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        d.setSubs(subs);
-        for (Dependencia x : subs) {
-            depsHierarchy(x);
-        }
-    }
-
-    private List<Dependencia> depsHierarchyPadre() {
-        List<Dependencia> root = this.dependenciaRepository.findByActivoAndPadreIsNull(true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
-        for (Dependencia d : root) {
-            depsHierarchyPadre(d);
-        }
-        return root;
-    }
-
-    private void depsHierarchyPadre(Dependencia d) {
-        List<Dependencia> subs = this.dependenciaRepository.findByActivoAndPadreAndDepIndEnvioDocumentos(true, d.getId(), true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
-
-        d.setSubs(subs);
-        for (Dependencia x : subs) {
-            depsHierarchyPadre(x);
-        }
-    }
+//    /*
+//	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
+//	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
+//	 * las dependencias.
+//     */
+//    private List<Dependencia> dependenciaService.depsHierarchy() {
+//        List<Dependencia> root = dependenciaRepository.findByActivoAndPadreIsNull(true,
+//                new Sort(Direction.ASC, "pesoOrden", "nombre"));
+//        for (Dependencia d : root) {
+//            depsHierarchy(d);
+//        }
+//        return root;
+//    }
+//
+//    /*
+//	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
+//	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
+//	 * las dependencias.
+//     */
+//    private void depsHierarchy(Dependencia d) {
+//        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
+//                new Sort(Direction.ASC, "pesoOrden", "nombre"));
+//        d.setSubs(subs);
+//        for (Dependencia x : subs) {
+//            depsHierarchy(x);
+//        }
+//    }
+//
+//    private List<Dependencia> depsHierarchyPadre() {
+//        List<Dependencia> root = this.dependenciaRepository.findByActivoAndPadreIsNull(true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
+//        for (Dependencia d : root) {
+//            depsHierarchyPadre(d);
+//        }
+//        return root;
+//    }
+//
+//    private void depsHierarchyPadre(Dependencia d) {
+//        List<Dependencia> subs = this.dependenciaRepository.findByActivoAndPadreAndDepIndEnvioDocumentos(true, d.getId(), true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
+//
+//        d.setSubs(subs);
+//        for (Dependencia x : subs) {
+//            depsHierarchyPadre(x);
+//        }
+//    }
 
     private String redirectToInstancia(Instancia i) {
         if (i.transiciones().size() > 0) {
@@ -5365,47 +5375,47 @@ public class DocumentoController extends UtilController {
         return new FlashAttributeValue(TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO, mensaje, true, radicadoJefe.size());
     }
 
-    /**
-     * Permite obtener las Series TRD de acuerdo al usuario.
-     *
-     * @param usuario Usuario.
-     * @return Lista de series TRD permitidas al usuario.
-     */
-    /*
-     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
-     * (SICDI-Controltech) feature-157
-     */
-    private List<Trd> buildTrdsHierarchy(Usuario usuario) {
-        final List<Trd> trds = tRDService.findSeriesByUsuario(usuario);
-        tRDService.ordenarPorCodigo(trds);
-
-        for (Trd trd : trds) {
-            fillTrdsHierarchy(trd, usuario);
-        }
-
-        return trds;
-    }
-
-    /**
-     * Permite obtener las Subseries TRD pertenecientes a una Serie TRD de
-     * acuerdo al usuario.
-     *
-     * @param serie Serie TRD.
-     * @param usuario Usuario.
-     */
-    /*
-     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
-     * (SICDI-Controltech) feature-157
-     */
-    private void fillTrdsHierarchy(Trd serie, Usuario usuario) {
-        final List<Trd> subseries = tRDService.findSubseriesbySerieAndUsuario(serie, usuario);
-        tRDService.ordenarPorCodigo(subseries);
-        serie.setSubs(subseries);
-
-        for (Trd subserie : subseries) {
-            fillTrdsHierarchy(subserie, usuario);
-        }
-    }
+//    /**
+//     * Permite obtener las Series TRD de acuerdo al usuario.
+//     *
+//     * @param usuario Usuario.
+//     * @return Lista de series TRD permitidas al usuario.
+//     */
+//    /*
+//     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
+//     * (SICDI-Controltech) feature-157
+//     */
+//    private List<Trd> buildTrdsHierarchy(Usuario usuario) {
+//        final List<Trd> trds = tRDService.findSeriesByUsuario(usuario);
+//        tRDService.ordenarPorCodigo(trds);
+//
+//        for (Trd trd : trds) {
+//            fillTrdsHierarchy(trd, usuario);
+//        }
+//
+//        return trds;
+//    }
+//
+//    /**
+//     * Permite obtener las Subseries TRD pertenecientes a una Serie TRD de
+//     * acuerdo al usuario.
+//     *
+//     * @param serie Serie TRD.
+//     * @param usuario Usuario.
+//     */
+//    /*
+//     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
+//     * (SICDI-Controltech) feature-157
+//     */
+//    private void fillTrdsHierarchy(Trd serie, Usuario usuario) {
+//        final List<Trd> subseries = tRDService.findSubseriesbySerieAndUsuario(serie, usuario);
+//        tRDService.ordenarPorCodigo(subseries);
+//        serie.setSubs(subseries);
+//
+//        for (Trd subserie : subseries) {
+//            fillTrdsHierarchy(subserie, usuario);
+//        }
+//    }
 
     /**
      * Construye las propiedades del documento que han de quedar consignadas
