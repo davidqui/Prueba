@@ -47,21 +47,7 @@ public class MailQueueService {
         String body = emailDTO.getCuerpo().replaceAll("\"", "\\\\\"");
         body = body.replaceAll("'", "\\\\\"");
         
-        List<String> correosAutorizados = new ArrayList<>();
-        correosAutorizados.add("jcespedeso@imi.mil.co");
-        correosAutorizados.add("mmendozar@imi.mil.co");
-        correosAutorizados.add("aherreram@imi.mil.co");
-        correosAutorizados.add("rgomezg@imi.mil.co");
-        correosAutorizados.add("egonzalezm@imi.mil.co");
-        correosAutorizados.add("mrianom@imi.mil.co");
-        correosAutorizados.add("cmartinezcas@imi.mil.co");
-        correosAutorizados.add("dquijanor@imi.mil.co");
-        correosAutorizados.add("sdelgadom@imi.mil.co");
-        correosAutorizados.add("samuel.delgado@controltechcg.com");
-        String destino = "aherreram@imi.mil.co";
-        if (correosAutorizados.contains(emailDTO.getDestino())) {
-            destino = emailDTO.getDestino();
-        }
+        String destino = emailDTO.getDestino();
         String jsonString = "{"
                 + "'destino':'"+destino
                 + "', 'copiaDestinos':'"+emailCp
