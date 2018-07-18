@@ -42,57 +42,21 @@ VALUES
 -- TABLA: PROCESO_ESTADO
 -- -----------------------------------------------------------------------------
 
-INSERT INTO PROCESO_ESTADO 
-    (PES_ID, PES_NOMBRE, PES_DESCRIPCION, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD,
-        ACTIVO, PRO_ID, PES_INICIAL, PES_FINAL, PES_LOCATION, PES_REASIGNACION,
-        PES_TRUNCATED) 
-VALUES
-    (150, 'Registro de datos del acta', 'Registra la información inicial del acta', SYSDATE, 3390, SYSDATE, 3390,
-        1, 100, 1, 0, '/documento-acta?pin={instancia.id}', null,
-        null)
-;
+Insert into PROCESO_ESTADO (PES_ID,PES_NOMBRE,PES_DESCRIPCION,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO,PRO_ID,PES_INICIAL,PES_FINAL,PES_LOCATION,PES_REASIGNACION,PES_TRUNCATED) values ('150','Registro de datos del acta','Registra la información inicial del acta',SYSDATE,'3390',SYSDATE,'3390','1','100','1','0','/documento-acta?pin={instancia.id}',null,null);
 
-INSERT INTO PROCESO_ESTADO 
-    (PES_ID, PES_NOMBRE, PES_DESCRIPCION, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD,
-        ACTIVO, PRO_ID, PES_INICIAL, PES_FINAL, PES_LOCATION, PES_REASIGNACION,
-        PES_TRUNCATED) 
-VALUES
-    (151, 'Anulado', 'Acta anulada', SYSDATE, 3390, SYSDATE, 3390,
-        1, 100, 0, 1, '/documento-acta?pin={instancia.id}', null,
-        null)
-;
+Insert into PROCESO_ESTADO (PES_ID,PES_NOMBRE,PES_DESCRIPCION,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO,PRO_ID,PES_INICIAL,PES_FINAL,PES_LOCATION,PES_REASIGNACION,PES_TRUNCATED) values ('151','Anulado','Acta anulada',SYSDATE,'3390',SYSDATE,'3390','1','100','0','1','/documento-acta?pin={instancia.id}',null,null);
 
-INSERT INTO PROCESO_ESTADO 
-    (PES_ID, PES_NOMBRE, PES_DESCRIPCION, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD,
-        ACTIVO, PRO_ID, PES_INICIAL, PES_FINAL, PES_LOCATION, PES_REASIGNACION,
-        PES_TRUNCATED) 
-VALUES
-    (152, 'Número de radicación generado', 'El acta cuenta con número de radicación generado y se encuentra en espera de la carga del archivo', SYSDATE, 3390, SYSDATE, 3390,
-        1, 100, 0, 0, '/documento-acta/generar-numero-radicado?pin={instancia.id}', null,
-        null)
-;
+Insert into PROCESO_ESTADO (PES_ID,PES_NOMBRE,PES_DESCRIPCION,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO,PRO_ID,PES_INICIAL,PES_FINAL,PES_LOCATION,PES_REASIGNACION,PES_TRUNCATED) values ('152','Envió a Usuario de Registro','El acta cuenta con número de radicación generado y se encuentra en espera de enviar al usuario de registro',SYSDATE,'3390',SYSDATE,'3390','1','100','0','0','/documento-acta/generar-numero-radicado?pin={instancia.id}',null,null);
 
-INSERT INTO PROCESO_ESTADO 
-    (PES_ID, PES_NOMBRE, PES_DESCRIPCION, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD,
-        ACTIVO, PRO_ID, PES_INICIAL, PES_FINAL, PES_LOCATION, PES_REASIGNACION,
-        PES_TRUNCATED) 
-VALUES
-    (153, 'Acta digitalizada', 'El acta se encuentra digitalizada y archivada en el sistema', SYSDATE, 3390, SYSDATE, 3390,
-        1, 100, 0, 1, '/documento-acta/cargar-acta-digitalizada?pin={instancia.id}', null,
-        null)
-;
+Insert into PROCESO_ESTADO (PES_ID,PES_NOMBRE,PES_DESCRIPCION,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO,PRO_ID,PES_INICIAL,PES_FINAL,PES_LOCATION,PES_REASIGNACION,PES_TRUNCATED) values ('153','Acta digitalizada','El acta se encuentra digitalizada y archivada en el sistema',SYSDATE,'3390',SYSDATE,'3390','1','100','0','1','/documento-acta/cargar-acta-digitalizada?pin={instancia.id}',null,null);
 
-INSERT INTO PROCESO_ESTADO 
-    (PES_ID, PES_NOMBRE, PES_DESCRIPCION, CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD,
-        ACTIVO, PRO_ID, PES_INICIAL, PES_FINAL, PES_LOCATION, PES_REASIGNACION,
-        PES_TRUNCATED) 
-VALUES
-    (154, 'Registro de usuarios del acta', 'El acta cuenta con la información registrada y en espera de la selección de usuarios', SYSDATE, 3390, SYSDATE, 3390,
-        1, 100, 0, 0, '/documento-acta/seleccionar-usuarios?pin={instancia.id}', null,
-        null)
-;
+Insert into PROCESO_ESTADO (PES_ID,PES_NOMBRE,PES_DESCRIPCION,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO,PRO_ID,PES_INICIAL,PES_FINAL,PES_LOCATION,PES_REASIGNACION,PES_TRUNCATED) values ('154','Registro de usuarios del acta','El acta cuenta con la información registrada y en espera de la selección de usuarios',SYSDATE,'3390',SYSDATE,'3390','1','100','0','0','/documento-acta/seleccionar-usuarios?pin={instancia.id}',null,null);
 
--- UPDATE PROCESO_ESTADO SET ACTIVO = 0 WHERE PRO_ID = 100;
+Insert into PROCESO_ESTADO (PES_ID,PES_NOMBRE,PES_DESCRIPCION,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO,PRO_ID,PES_INICIAL,PES_FINAL,PES_LOCATION,PES_REASIGNACION,PES_TRUNCATED) values ('155','Generación del número radicado','El acta cuenta con la información registrada y en espera de generar el número de radicado',SYSDATE,'3390',SYSDATE,'3390','1','100','0','0','/documento-acta/usuario-registro?pin={instancia.id}',null,null);
+
+Insert into PROCESO_ESTADO (PES_ID,PES_NOMBRE,PES_DESCRIPCION,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO,PRO_ID,PES_INICIAL,PES_FINAL,PES_LOCATION,PES_REASIGNACION,PES_TRUNCATED) values ('156','Enviar a Registro','El acta cuenta con la información registrada y en espera de cargar archivo',SYSDATE,'3390',SYSDATE,'3390','1','100','0','0','/documento-acta/cargar-acta-digital?pin={instancia.id}',null,null);
+
+Insert into PROCESO_ESTADO (PES_ID,PES_NOMBRE,PES_DESCRIPCION,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO,PRO_ID,PES_INICIAL,PES_FINAL,PES_LOCATION,PES_REASIGNACION,PES_TRUNCATED) values ('157','Validar acta cargada','El acta cuenta con la información registrada y el archivo cargado en espera de aprobación',SYSDATE,'3390',SYSDATE,'3390','1','100','0','0','/documento-acta/validar-acta-usuario-sesion?pin={instancia.id}',null,null);
 
 -- -----------------------------------------------------------------------------
 -- TABLA: PROCESO_VAR
@@ -122,37 +86,27 @@ VALUES
 -- TABLA: PROCESO_TRANSICION
 -- -----------------------------------------------------------------------------
 
-INSERT INTO PROCESO_TRANSICION 
-    (PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL, PES_ID_FINAL,
-        CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO) 
-VALUES 
-    (150, 1, '/documento-acta/generar-numero-radicado?pin={instancia.id}&tid={transicion.id}', 'Generar No. Radicado', 154, 152,
-        SYSDATE, 3390, SYSDATE, 3390, 1) 
-;
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('150','1','/documento-acta/generar-numero-radicado?pin={instancia.id}&tid={transicion.id}','Generar No. Radicado','154','155',SYSDATE,'3390',SYSDATE,'3390','1');
 
-INSERT INTO PROCESO_TRANSICION 
-    (PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL, PES_ID_FINAL,
-        CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO) 
-VALUES 
-    (151, 1, '/documento-acta/seleccionar-usuarios?pin={instancia.id}&tid={transicion.id}', 'Seleccionar Usuarios', 150, 154,
-        SYSDATE, 3390, SYSDATE, 3390, 1) 
-;
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('151','1','/documento-acta/seleccionar-usuarios?pin={instancia.id}&tid={transicion.id}','Seleccionar Usuarios','150','154',SYSDATE,'3390',SYSDATE,'3390','1');
 
-INSERT INTO PROCESO_TRANSICION 
-    (PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL, PES_ID_FINAL,
-        CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO) 
-VALUES 
-    (152, 1, '/documento-acta/cargar-acta-digitalizada?pin={instancia.id}&tid={transicion.id}', 'Digitalizar', 152, 153,
-        SYSDATE, 3390, SYSDATE, 3390, 1) 
-;
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('152','1','/documento-acta/cargar-acta-digitalizada?pin={instancia.id}&tid={transicion.id}','Aprobar y archivar','157','153',SYSDATE,'3390',SYSDATE,'3390','1');
 
-INSERT INTO PROCESO_TRANSICION 
-    (PTR_ID, PTT_ID, PTR_DEFINICION, PTR_NOMBRE, PES_ID_INICIAL, PES_ID_FINAL,
-        CUANDO, QUIEN, CUANDO_MOD, QUIEN_MOD, ACTIVO) 
-VALUES 
-    (153, 1, '/documento-acta/anular?pin={instancia.id}&tid={transicion.id}', 'Anular', 150, 151,
-        SYSDATE, 3390, SYSDATE, 3390, 1) 
-;
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('153','1','/documento-acta/anular?pin={instancia.id}&tid={transicion.id}','Anular','150','151',SYSDATE,'3390',SYSDATE,'3390','1');
+
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('154','1','/documento-acta/enviar-registro?pin={instancia.id}&tid={transicion.id}','Enviar a Registro','155','156',SYSDATE,'3390',SYSDATE,'3390','1');
+
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('155','1','/documento-acta/validar-acta?pin={instancia.id}&tid={transicion.id}','Validar','156','157',SYSDATE,'3390',SYSDATE,'3390','1');
+
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('156','1','/documento-acta/enviar-registro?pin={instancia.id}&tid={transicion.id}','Devolver para correcciones','157','156',SYSDATE,'3390',SYSDATE,'3390','1');
+
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('157','1','/documento-acta/generar-sticker?pin={instancia.id}&tid={transicion.id}','Generar sticker','156','156',SYSDATE,'3390',SYSDATE,'3390','1');
+
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('158','1','/documento-acta/anular?pin={instancia.id}&tid={transicion.id}','Anular','154','151',SYSDATE,'3390',SYSDATE,'3390','1');
+
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('159','1','/documento-acta/anular?pin={instancia.id}&tid={transicion.id}','Anular','155','151',SYSDATE,'3390',SYSDATE,'3390','1');
+
+Insert into PROCESO_TRANSICION (PTR_ID,PTT_ID,PTR_DEFINICION,PTR_NOMBRE,PES_ID_INICIAL,PES_ID_FINAL,CUANDO,QUIEN,CUANDO_MOD,QUIEN_MOD,ACTIVO) values ('160','1','/documento-acta/anular?pin={instancia.id}&tid={transicion.id}','Anular','157','151',SYSDATE,'3390',SYSDATE,'3390','1');
 
 -- UPDATE PROCESO_TRANSICION SET ACTIVO = 0 WHERE PTR_ID IN (150, 151, 152);
 
@@ -169,11 +123,14 @@ VALUES
 
 ALTER TABLE DOCUMENTO ADD (ACTA_LUGAR               VARCHAR2(64 CHAR));
 ALTER TABLE DOCUMENTO ADD (ACTA_FECHA_ELABORACION   DATE);
+ALTER TABLE DOCUMENTO ADD (ACTA_DESCRIPCION         VARCHAR2(2000 CHAR));
 
 COMMENT ON COLUMN DOCUMENTO.ACTA_LUGAR
 IS 'Ciudad donde se llevó a cabo la actividad que motivo la elaboración del acta.';
 COMMENT ON COLUMN DOCUMENTO.ACTA_FECHA_ELABORACION
 IS 'Determina la fecha donde se llevó a cabo la actividad que motivo la elaboración del acta.';
+COMMENT ON COLUMN DOCUMENTO.ACTA_DESCRIPCION
+IS 'Determina la descripción del acta.';
 
 CREATE INDEX DOC_ACTA_FECHA_ELABORACION_IDX ON DOCUMENTO (ACTA_FECHA_ELABORACION);
 
@@ -257,3 +214,10 @@ REFERENCES USUARIO (USU_ID);
 
 CREATE INDEX USU_X_DOC_ACTIVO_IDX
 ON USUARIO_X_DOCUMENTO_ACTA (ACTIVO);
+
+-- -----------------------------------------------------------------------------
+-- TABLA: DEPENDENCIA
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE DEPENDENCIA ADD USU_ID_REGISTRO   NUMBER(38);
+ALTER TABLE DEPENDENCIA ADD CONSTRAINT DEP_X_USU_ID_REGISTRO_FK FOREIGN KEY (USU_ID_REGISTRO) REFERENCES USUARIO (USU_ID);

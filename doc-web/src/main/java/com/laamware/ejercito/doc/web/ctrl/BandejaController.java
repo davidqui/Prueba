@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
+import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.InstanciaBandeja;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaAdicionalRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
+import com.laamware.ejercito.doc.web.repo.HProcesoInstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaBandejaRepository;
 import com.laamware.ejercito.doc.web.serv.BandejaService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
@@ -28,6 +31,9 @@ import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.DateUtil.SetTimeType;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
@@ -62,7 +68,14 @@ public class BandejaController extends UtilController {
      */
     @Autowired
     private BandejaService bandejaService;
-
+    
+    /*
+     * 2018-07-06 samuel.delgado@controltechcg.com release-20180628(SICDI-Controltech)
+     * Implementación de servicio para manejo de historial de instancia.
+     */
+    @Autowired
+    private HProcesoInstanciaRepository hProcesoInstanciaRepository;
+    
     @PreAuthorize("hasRole('BANDEJAS')")
     @RequestMapping(value = "/entrada", method = RequestMethod.GET)
     public String entrada(Model model, Principal principal,
@@ -398,5 +411,62 @@ public class BandejaController extends UtilController {
         List<Integer> list = Arrays.asList(10, 30, 50);
         model.addAttribute("pageSizes", list);
         return list;
+    }
+    
+    /**
+     * Agrega el controlador
+     *
+     * @return controlador
+     */
+    @ModelAttribute("controller")
+    public BandejaController controller() {
+        return this;
+    }
+    
+    
+    public String tranInstancia(Instancia instancia){
+        Map<Integer, String> transcripcionInstancias = transcripcionInstancias();
+        if (instancia.getEstado().getId() != 61) {
+            return transcripcionInstancias.get(instancia.getEstado().getId());
+        }else{
+            List<HProcesoInstancia> instanciasDoc = hProcesoInstanciaRepository.findById(instancia.getId(), new Sort(Sort.Direction.DESC, "cuandoMod"));
+            if (!instanciasDoc.isEmpty() && instanciasDoc.size() > 1) {
+                return transcripcionInstancias.get(instancia.getEstado().getId());
+            }else{
+                return "En progreso";
+            }
+        }
+    }
+    
+    public Map<Integer, String> transcripcionInstancias(){
+        Map<Integer, String> transcripcionInstancia = new HashMap<>();
+        //En progreso
+        transcripcionInstancia.putIfAbsent(42 , "En progreso");
+        transcripcionInstancia.putIfAbsent(43 , "En progreso");
+        transcripcionInstancia.putIfAbsent(44 , "En progreso");
+        transcripcionInstancia.putIfAbsent(150 , "En progreso");
+        transcripcionInstancia.putIfAbsent(151 , "En progreso");
+        transcripcionInstancia.putIfAbsent(152 , "En progreso");
+        transcripcionInstancia.putIfAbsent(153 , "En progreso");
+        transcripcionInstancia.putIfAbsent(154 , "En progreso");
+        transcripcionInstancia.putIfAbsent(155 , "En progreso");
+        //Por revisión
+        transcripcionInstancia.putIfAbsent(54 , "Por revisión");
+        transcripcionInstancia.putIfAbsent(46 , "Por revisión");
+        //Devuelto
+        transcripcionInstancia.putIfAbsent(61 , "Devuelto");
+        //Aprobado
+        transcripcionInstancia.putIfAbsent(55 , "Aprobado");
+        //Por visto bueno
+        transcripcionInstancia.putIfAbsent(56 , "Por visto bueno");
+        //Por firmar
+        transcripcionInstancia.putIfAbsent(58 , "Por firmar");
+        //Firmado y asignado
+        transcripcionInstancia.putIfAbsent(49 , "Firmado y asignado");
+        //Por digitalizar
+        transcripcionInstancia.putIfAbsent(156 , "Por digitalizar");
+        //Por abrobar
+        transcripcionInstancia.putIfAbsent(157 , "Por abrobar");
+        return transcripcionInstancia;
     }
 }

@@ -1,34 +1,43 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.ctrl.DocumentoActaController;
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
+import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Radicacion;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.UsuarioXDocumentoActa;
+import com.laamware.ejercito.doc.web.entity.Variable;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaUsuarioSeleccion;
+import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
+import com.laamware.ejercito.doc.web.repo.VariableRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.Global;
 import com.laamware.ejercito.doc.web.util.UsuarioXDocumentoActaComparator;
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,6 +62,10 @@ public class DocumentoActaService {
 
     private static final Logger LOG = Logger.getLogger(DocumentoActaService.class.getName());
 
+    private String imagesRoot;
+
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy hh:mm a", new Locale("es", "CO"));
+
     static {
         final Map<DocumentoActaEstado, DocumentoActaMode> baseMap = new LinkedHashMap<>();
         baseMap.put(DocumentoActaEstado.ACTA_DIGITALIZADA, DocumentoActaMode.SOLO_CONSULTA);
@@ -60,6 +73,9 @@ public class DocumentoActaService {
         baseMap.put(DocumentoActaEstado.NUMERO_DE_RADICACION_GENERADO, DocumentoActaMode.CARGA_ACTA_DIGITAL);
         baseMap.put(DocumentoActaEstado.REGISTRO_DE_DATOS_DEL_ACTA, DocumentoActaMode.EDICION_INFORMACION);
         baseMap.put(DocumentoActaEstado.REGISTRO_DE_USUARIOS_DEL_ACTA, DocumentoActaMode.SELECCION_USUARIOS);
+        baseMap.put(DocumentoActaEstado.ENVIO_REGISTRO, DocumentoActaMode.SOLO_CONSULTA);
+        baseMap.put(DocumentoActaEstado.CARGA_ACTA, DocumentoActaMode.CARGA_ACTA_DIGITAL);
+        baseMap.put(DocumentoActaEstado.VALIDAR_ACTA, DocumentoActaMode.SOLO_CONSULTA);
 
         ESTADO_MODE_MAP = Collections.unmodifiableMap(baseMap);
 
@@ -110,6 +126,18 @@ public class DocumentoActaService {
 
     @Autowired
     private DocumentoDependenciaService documentoDependenciaService;
+
+    @Autowired
+    private InstanciaRepository instanciaRepository;
+
+    @Autowired
+    private ProcesoService procesoService;
+
+    @Autowired
+    JasperService jasperService;
+    
+    @Autowired
+    VariableRepository variableRepository;
 
     /**
      * Constructor.
@@ -323,6 +351,13 @@ public class DocumentoActaService {
             validation.addError(documentoActaDTO, campo, "Debe ingresar el cargo con el cual elabora el acta.");
         }
 
+        // descripcion
+        campo = "actaDescripcion";
+        final String actaDescripcion = documentoActaDTO.getActaDescripcion();
+        if (actaDescripcion == null || actaDescripcion.trim().isEmpty()) {
+            validation.addError(documentoActaDTO, campo, "Debe ingresar una descripción del acta.");
+        }
+
         return validation;
     }
 
@@ -343,6 +378,7 @@ public class DocumentoActaService {
         documento.setActaLugar(documentoActaDTO.getActaLugar());
         documento.setActaFechaElaboracion(buildFechaElaboracion(documentoActaDTO.getActaFechaElaboracion()));
         documento.setEstadoTemporal(null);
+        documento.setActaDescripcion(documentoActaDTO.getActaDescripcion());
 
         documento = documentoService.actualizar(documento);
         final Documento buscarDocumento = buscarDocumento(documento.getId());
@@ -367,11 +403,38 @@ public class DocumentoActaService {
         final Radicacion radicacion = radicadoService.findByProceso(proceso);
 
         documento.setRadicado(radicadoService.retornaNumeroRadicado(superDependencia.getId(), radicacion.getRadId()));
+        documento.setSticker(generaSticker(documento));
 
         documento.setQuienMod(usuarioSesion.getId());
         documento.setCuandoMod(new Date());
 
         return documentoService.actualizar(documento);
+    }
+
+    /**
+     * Genera el sticker en el OFS.
+     *
+     * @param doc Documento
+     * @return el identificador del ofs del sticker del acta
+     */
+    private String generaSticker(Documento doc) {
+        try {
+            System.err.println("Genera sticker");
+            Map<String, Object> params = new HashMap<String, Object>();
+            // params.put("P_DOCUMENTO", doc);
+            params.put("radicado", doc.getRadicado() == null ? "" : doc.getRadicado());
+            params.put("asunto", doc.getAsunto() == null ? "" : doc.getAsunto());
+            params.put("cuando", sdf.format(doc.getActaFechaElaboracion()));
+            params.put("elabora", doc.getElabora().getNombre());
+            params.put("imagesRoot", imagesRoot);
+            List<String> listaUnElemento = new ArrayList<>(1);
+            listaUnElemento.add("");
+            return jasperService.savePdf("sticker_acta", params, listaUnElemento, null);
+        } catch (Exception ex) {
+            Logger.getLogger(DocumentoActaService.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -641,6 +704,15 @@ public class DocumentoActaService {
         return false;
     }
 
+    @Value("${docweb.images.root}")
+    public void setImagesRoot(String imagesRoot) {
+        File file = new File(imagesRoot);
+        if (file.exists() == false) {
+            file.mkdir();
+        }
+        this.imagesRoot = imagesRoot;
+    }
+
     /**
      * Indica si la subserie corresponde a una subserie de acta con seleccion
      * de, máx y mín, 0 usuarios.
@@ -678,6 +750,36 @@ public class DocumentoActaService {
      */
     public DocumentoDependencia buscarRegistroArchivoActivo(Documento documento, Usuario usuario) {
         return documentoDependenciaService.buscarRegistroActivo(documento, usuario);
+    }
+
+    /**
+     * Retorna el ultimo usuario registrado
+     *
+     * @param documento Utiliza el documento
+     * @return usuario de registro
+     */
+    public Usuario retornaUltimoUsuarioRegistroAsignado(Documento documento) {
+        Instancia instancia = instanciaRepository.findOneByIdAndEstadoId(documento.getInstancia().getId(), DocumentoActaEstado.CARGA_ACTA.getId());
+        if (instancia == null) {
+            List<HProcesoInstancia> hProcesoInstancias = procesoService.getHistoria(documento.getInstancia().getId());
+            for (HProcesoInstancia hProcesoInstancia : hProcesoInstancias) {
+                if (hProcesoInstancia.getEstado().getId().equals(DocumentoActaEstado.CARGA_ACTA.getId())) {
+                    return hProcesoInstancia.getAsignado();
+                }
+            }
+        } else {
+            return instancia.getAsignado();
+        }
+        return null;
+    }
+    
+    public void generaVariableSticker(Instancia procesoInstancia){
+        Variable variable = procesoInstancia.findVariable(DocumentoActaController.VARIABLE_STICKER);
+        if (variable == null) {
+            variable = new Variable(DocumentoActaController.VARIABLE_STICKER, "true", procesoInstancia);
+            procesoInstancia.getVariables().add(variable);
+            variableRepository.save(variable);
+        }
     }
 
 }

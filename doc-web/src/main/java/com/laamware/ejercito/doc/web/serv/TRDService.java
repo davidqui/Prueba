@@ -16,6 +16,8 @@ import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificableComparator;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -32,6 +34,8 @@ import org.springframework.jdbc.core.RowMapper;
 // 2017-05-15 jgarcia@controltechcg.com Issue #80 (SICDI-Controltech) feature-80
 @Service
 public class TRDService {
+    
+    private static final Logger LOG = Logger.getLogger(DependenciaService.class.getName());
 
     @Autowired
     private TrdRepository trdRepository;
@@ -39,6 +43,15 @@ public class TRDService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    /*
+     * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+     * feature-179: Servicio de cache.
+     */
+    @Autowired
+    private CacheService cacheService;
+    //issue-179 constante llave del cache
+    public final static String TRD_CACHE_KEY = "trd";
+    
     /**
      * Busca una TRD por su ID.
      *
@@ -212,12 +225,38 @@ public class TRDService {
         return jdbcTemplate.query(sql, params.toArray(), rowMapper);
     }
 
-    public List<Trd> findSeriesByUsuario(Usuario usuario) {
-        return trdRepository.findSeriesByDependencia(usuario.getDependencia().getId());
+    /*
+     * 2018-07-12 samuel.delgado@controltechcg.com Issue #179 se agrega syncronized
+     * para evitar problemas de carga.
+     */
+    public synchronized List<Trd> findSeriesByUsuario(Usuario usuario) {
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Trd> listaTrds = (List<Trd>) cacheService.getKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId());
+        if (listaTrds == null) {
+            listaTrds = trdRepository.findSeriesByDependencia(usuario.getDependencia().getId());
+            cacheService.setKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId(), listaTrds);
+        }
+        return listaTrds;
     }
-
-    public List<Trd> findSubseriesbySerieAndUsuario(Trd serie, Usuario usuario) {
-        return trdRepository.findSubseries(serie.getId(), usuario.getDependencia().getId());
+    
+    /*
+     * 2018-07-12 samuel.delgado@controltechcg.com Issue #179 se agrega syncronized
+     * para evitar problemas de carga.
+     */
+    public synchronized List<Trd> findSubseriesbySerieAndUsuario(Trd serie, Usuario usuario) {
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Trd> listaTrds = (List<Trd>) cacheService.getKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId()+"_sid-"+serie.getId());
+        if (listaTrds == null) {
+            listaTrds = trdRepository.findSubseries(serie.getId(), usuario.getDependencia().getId());
+            cacheService.setKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId()+"_sid-"+serie.getId(), listaTrds);
+        }
+        return listaTrds;
     }
 
     /**
@@ -229,9 +268,20 @@ public class TRDService {
     /*
      * 2018-05-21 jgarcia@controltechcg.com Issue #170 (SICDI-Controltech)
      * feature-170.
+     *
+     * 2018-07-12 samuel.delgado@controltechcg.com Issue #179 se agrega syncronized
+     * para evitar problemas de carga.
      */
-    public List<Trd> findAllSubseriesActivas() {
-        final List<Trd> subseries = trdRepository.findAllByActivoTrueAndSerieNotNull();
+    public synchronized List<Trd> findAllSubseriesActivas() {
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Trd> subseries = (List<Trd>) cacheService.getKeyCache(TRD_CACHE_KEY);       
+        if (subseries == null) {
+            subseries = trdRepository.findAllByActivoTrueAndSerieNotNull();
+            cacheService.setKeyCache(TRD_CACHE_KEY, subseries);
+        }
         ordenarPorCodigo(subseries);
         return subseries;
     }
@@ -268,6 +318,49 @@ public class TRDService {
     public boolean validateSubserieTrdForUser(Trd subserieTrd, Trd serieTrd, Usuario usuario) {
         final BigInteger result = trdRepository.validateSubserieTrdForUser(subserieTrd.getId(), serieTrd.getId(), usuario.getId());
         return result.equals(BigInteger.ONE);
+    }
+    
+    
+        /**
+     * Permite obtener las Series TRD de acuerdo al usuario.
+     *
+     * @param usuario Usuario.
+     * @return Lista de series TRD permitidas al usuario.
+     */
+    /*
+     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
+     * (SICDI-Controltech) feature-157
+     */
+    public synchronized List<Trd> buildTrdsHierarchy(Usuario usuario) {
+        final List<Trd> trds = findSeriesByUsuario(usuario);
+        ordenarPorCodigo(trds);
+
+        for (Trd trd : trds) {
+            fillTrdsHierarchy(trd, usuario);
+        }
+
+        return trds;
+    }
+
+    /**
+     * Permite obtener las Subseries TRD pertenecientes a una Serie TRD de
+     * acuerdo al usuario.
+     *
+     * @param serie Serie TRD.
+     * @param usuario Usuario.
+     */
+    /*
+     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
+     * (SICDI-Controltech) feature-157
+     */
+    public synchronized void fillTrdsHierarchy(Trd serie, Usuario usuario) {
+        final List<Trd> subseries = findSubseriesbySerieAndUsuario(serie, usuario);
+        ordenarPorCodigo(subseries);
+        serie.setSubs(subseries);
+
+        for (Trd subserie : subseries) {
+            fillTrdsHierarchy(subserie, usuario);
+        }
     }
 
 }

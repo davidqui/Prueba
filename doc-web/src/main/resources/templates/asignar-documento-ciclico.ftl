@@ -9,8 +9,10 @@
 <div class="container-fluid">
 	<div class="card">
 		<div class="card-header">
-			<h4>${transicion.nombre} - Selección de usuario</h4>
-			<p>Seleccione el usuario dentro de su misma unidad a quien será asignado la siguiente actividad en el proceso del documento "${documento.asunto}".</p>
+			<h5><b>Asunto del Documento:</b><#if documento?? > ${documento.asunto}</#if></h5>
+			<h5 style="margin-botton:20px;"><#if documento?? ><b>Grado de clasificación: <span style="color:red;">${documento.clasificacion.nombre}</span></b></#if> </h5>
+			<h6>${transicion.nombre} - Selección de usuario<b></b></h6>
+			<p>Seleccione el usuario dentro de su misma unidad a quien será asignado la siguiente actividad en el proceso del documento. </p>
 		</div>
 
 		<#if usuarios??>

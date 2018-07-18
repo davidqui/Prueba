@@ -15,8 +15,7 @@ import java.math.BigDecimal;
 
 public interface DocumentoRepository extends JpaRepository<Documento, String> {
 
-    /*
-     * 2017-02-14 jgarcia@controltechcg.com Issue #108: Se añade el estado
+    /* 2017-02-14 jgarcia@controltechcg.com Issue #108: Se añade el estado
      * anulado con IDs 101 (Anulado) 2017-02-15 jgarcia@controltechcg.com Issue
      * #108: Se añade el estado anulado con IDs 102 (Archivado)
      *
@@ -45,7 +44,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * feature-162: Conversión en constante. Modificación para presentación de
      * documentos del proceso de Registro de Actas.
      */
-    static final String CONSULTA_BANDEJA_ENTRADA = ""
+    String CONSULTABANDEJAENTRADA = ""
             + "SELECT documento.*\n"
             + "FROM documento\n"
             + "     LEFT JOIN documento_en_consulta ON (documento_en_consulta.doc_id = documento.doc_id)\n"
@@ -77,11 +76,9 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "                                         )"
             + "                                        AND usuario_jefe_1_dep.usu_login =:login\n"
             + "                                         )))\n"
-            + "    AND (documento_en_consulta.dec_id IS NULL OR (documento_en_consulta.activo = 0)) \n"
-            + "";
+            + "    AND (documento_en_consulta.dec_id IS NULL OR (documento_en_consulta.activo = 0)) \n";
 
-    /*
-     * 2017-03-27 jgarcia@controltechcg.com Issue #22 (SIGDI-Incidencias01):
+    /* 2017-03-27 jgarcia@controltechcg.com Issue #22 (SIGDI-Incidencias01):
      * Modificación de consulta SQL de la bandeja de enviados para que no
      * presente la información de los documentos anulados.
      *
@@ -94,15 +91,16 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * para que no presente documentos cuyo usuario asignado actual corresponda
      * al usuario en sesión.
      *
-     * 2018-03-22 edison.gonzalez@controltechcg.com Issue #155
-     * (SICDI-Controltech) hotfix-155: Corrección en la sentencia SQL de la
-     * bandeja de enviados, para que presente los documentos de procesos
-     * externos a pesar de que sea usuario asignado y sea el usuario en sesión.
+     * 2018-03-22 edison.gonzalez@controltechcg.com Issue #155 (SICDI-Controltech)
+     * hotfix-155: Corrección en la sentencia SQL de la bandeja de enviados,
+     * para que presente los documentos de procesos externos a pesar de que sea 
+     * usuario asignado y sea el usuario en sesión.
      *
-     * 2018-05-31 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
-     * feature-162: Conversión en constante.
+     * 2018-03-22 edison.gonzalez@controltechcg.com Issue #162 (SICDI-Controltech)
+     * issue-162: Se realiza el ajuste para que no visualice en la bandeja de enviados
+     * los procesos de actas.
      */
-    static final String CONSULTA_BANDEJA_ENVIADOS = ""
+    String CONSULTABANDEJAENVIADOS = ""
             + "SELECT doc.*\n"
             + "FROM documento doc\n"
             + "     JOIN s_instancia_usuario hpin ON doc.pin_id = hpin.pin_id\n"
@@ -115,22 +113,19 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "AND doc.doc_radicado IS NOT NULL\n"
             + "AND est.pes_final = 1\n"
             + "AND est.pes_id NOT IN (83,101)\n"
-            + "AND doc.cuando_mod BETWEEN :fechaInicial AND :fechaFinal\n"
-            + "";
+            + "AND pin.pro_id != 100\n"
+            + "AND doc.cuando_mod BETWEEN :fechaInicial AND :fechaFinal\n";
 
     /*
-     * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
-     * feature-115: Modificación de sentencia de bandeja enviados para filtro
-     * por rango de fechas.
-     *
-     * 2017-07-11 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
-     * feature-115: Modificación en fecha de filtro de dato de creación por dato
-     * de última modificación del documento.
-     *
-     * 2018-05-31 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
-     * feature-162: Conversión en constante.
+	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
+	 * por rango de fechas.
+	 * 
+	 * 2017-07-11 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación en fecha de filtro de dato de creación por dato
+	 * de última modificación del documento.
      */
-    static final String CONSULTA_BANDEJA_EN_TRAMITE = ""
+    String CONSULTABANDEJAENTRAMITE = ""
             + "SELECT DOC.*\n"
             + "FROM DOCUMENTO DOC\n"
             + "    JOIN S_INSTANCIA_USUARIO HPIN ON (DOC.PIN_ID = HPIN.PIN_ID)\n"
@@ -139,26 +134,22 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "    JOIN USUARIO             USU  ON (HPIN.USU_ID = USU.USU_ID)\n"
             + "WHERE USU.USU_LOGIN = :login\n"
             + "AND EST.PES_FINAL != 1\n"
-            + "AND DOC.CUANDO_MOD BETWEEN :fechaInicial AND :fechaFinal"
-            + "";
+            + "AND DOC.CUANDO_MOD BETWEEN :fechaInicial AND :fechaFinal";
 
     /*
-     * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
-     *
-     * 2017-06-29 jgarcia@controltechcg.com Issue #113 (SICDI-Controltech)
-     * feature-113: Modificación en sentencia SQL que obtiene los documentos en
-     * bandeja de apoyo y consulta del usuario en sesión, para presentar la
-     * información ordenada por la fecha de creación del documento en orden
-     * descendente.
-     *
-     * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
-     * feature-115: Modificación de sentencia de bandeja enviados para filtro
-     * por rango de fechas.
-     * 
-     * 2018-05-31 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
-     * feature-162: Conversión en constante.
+	 * 2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech)
+	 * 
+	 * 2017-06-29 jgarcia@controltechcg.com Issue #113 (SICDI-Controltech)
+	 * feature-113: Modificación en sentencia SQL que obtiene los documentos en
+	 * bandeja de apoyo y consulta del usuario en sesión, para presentar la
+	 * información ordenada por la fecha de creación del documento en orden
+	 * descendente.
+	 * 
+	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
+	 * por rango de fechas.
      */
-    static final String CONSULTA_BANDEJA_CONSULTA = ""
+    String CONSULTABANDEJACONSULTA = ""
             + "SELECT DOCUMENTO.*\n"
             + "FROM DOCUMENTO\n"
             + "    JOIN DOCUMENTO_EN_CONSULTA ON (DOCUMENTO_EN_CONSULTA.DOC_ID = DOCUMENTO.DOC_ID)\n"
@@ -166,8 +157,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "WHERE DOCUMENTO_EN_CONSULTA.ACTIVO = 1\n"
             + "AND USUARIO_QUIEN.USU_LOGIN = :login\n"
             + "AND USUARIO_QUIEN.ACTIVO = 1\n"
-            + "AND DOCUMENTO.CUANDO BETWEEN :fechaInicial AND :fechaFinal"
-            + "";
+            + "AND DOCUMENTO.CUANDO BETWEEN :fechaInicial AND :fechaFinal";
 
     Documento findOneByInstanciaId(String pin);
 
@@ -262,7 +252,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      */
     @Query(value = "select count(1)\n"
             + "from(\n"
-            + CONSULTA_BANDEJA_ENTRADA
+            + CONSULTABANDEJAENTRADA
             + ") documento\n", nativeQuery = true)
     int findBandejaEntradaCount(@Param("login") String login);
 
@@ -280,7 +270,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "from(\n"
             + "     select doc.*, rownum num_lineas\n"
             + "     from(\n"
-            + CONSULTA_BANDEJA_ENTRADA
+            + CONSULTABANDEJAENTRADA
             + "         ORDER BY documento.cuando_mod DESC\n"
             + "     )doc\n"
             + ") doc\n"
@@ -299,7 +289,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     @Query(value = ""
             + "select count(1)\n"
             + "from(\n"
-            + CONSULTA_BANDEJA_ENVIADOS
+            + CONSULTABANDEJAENVIADOS
             + ")", nativeQuery = true)
     int findBandejaEnviadosCount(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal);
 
@@ -319,7 +309,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "from(\n"
             + "     select doc.*, rownum num_lineas\n"
             + "     from(\n"
-            + CONSULTA_BANDEJA_ENVIADOS
+            + CONSULTABANDEJAENVIADOS
             + "         ORDER BY doc.cuando_mod DESC"
             + "     )doc\n"
             + ") doc\n"
@@ -338,7 +328,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     @Query(value = ""
             + "select count(1)\n"
             + "from(\n"
-            + CONSULTA_BANDEJA_EN_TRAMITE
+            + CONSULTABANDEJAENTRAMITE
             + ")", nativeQuery = true)
     int findBandejaTramiteCount(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal);
 
@@ -358,7 +348,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "from("
             + "     select doc.*, rownum num_lineas\n"
             + "     from(\n"
-            + CONSULTA_BANDEJA_EN_TRAMITE
+            + CONSULTABANDEJAENTRAMITE
             + "         ORDER BY doc.CUANDO DESC"
             + "     )doc\n"
             + ") doc\n"
@@ -377,7 +367,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     @Query(value = ""
             + "select count(1)\n"
             + "from(\n"
-            + CONSULTA_BANDEJA_CONSULTA
+            + CONSULTABANDEJACONSULTA
             + ")", nativeQuery = true)
     int findBandejaConsultaCount(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal);
 
@@ -397,7 +387,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "from("
             + "     select doc.*, rownum num_lineas\n"
             + "     from(\n"
-            + CONSULTA_BANDEJA_CONSULTA
+            + CONSULTABANDEJACONSULTA
             + "         ORDER BY DOCUMENTO.CUANDO DESC"
             + "     )doc\n"
             + ") doc\n"
@@ -405,18 +395,18 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     List<Documento> findBandejaConsultaPaginado(@Param("login") String login, @Param("fechaInicial") Date fechaInicial, @Param("fechaFinal") Date fechaFinal, @Param("inicio") int inicio, @Param("fin") int fin);
 
     /*
-     * 2017-03-27 jgarcia@controltechcg.com Issue #22 (SIGDI-Incidencias01):
-     * Modificación de consulta SQL de la bandeja de enviados para que no
-     * presente la información de los documentos anulados.
-     *
-     * 2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
-     * feature-115: Modificación de sentencia de bandeja enviados para filtro
-     * por rango de fechas.
-     *
-     * 2017-07-25 jgarcia@controltechcg.com Issue #118 (SICDI-Controltech)
-     * hotfix-118: Corrección en la sentencia SQL de la bandeja de enviados,
-     * para que no presente documentos cuyo usuario asignado actual corresponda
-     * al usuario en sesión.
+	 * 2017-03-27 jgarcia@controltechcg.com Issue #22 (SIGDI-Incidencias01):
+	 * Modificación de consulta SQL de la bandeja de enviados para que no
+	 * presente la información de los documentos anulados.
+	 * 
+	 * 2017-07-05 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
+	 * por rango de fechas.
+	 * 
+	 * 2017-07-25 jgarcia@controltechcg.com Issue #118 (SICDI-Controltech)
+	 * hotfix-118: Corrección en la sentencia SQL de la bandeja de enviados,
+	 * para que no presente documentos cuyo usuario asignado actual corresponda
+	 * al usuario en sesión.
      */
     @Query(nativeQuery = true, value = ""
             + " SELECT EST.PES_ID,                                                               "
@@ -442,13 +432,13 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     List<Documento> findBandejaEnviados(String login, String loginAsignado, Date fechaInicial, Date fechaFinal);
 
     /*
-     * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
-     * feature-115: Modificación de sentencia de bandeja enviados para filtro
-     * por rango de fechas.
-     *
-     * 2017-07-11 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
-     * feature-115: Modificación en fecha de filtro de dato de creación por dato
-     * de última modificación del documento.
+	 * 2017-07-10 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación de sentencia de bandeja enviados para filtro
+	 * por rango de fechas.
+	 * 
+	 * 2017-07-11 jgarcia@controltechcg.com Issue #115 (SICDI-Controltech)
+	 * feature-115: Modificación en fecha de filtro de dato de creación por dato
+	 * de última modificación del documento.
      */
     @Query(nativeQuery = true, value = ""
             + " SELECT                                                                           "
@@ -502,6 +492,100 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      */
     public Documento findOneByFirmaEnvioUUID(String firmaEnvioUUID);
 
+    /**
+     * Obtiene la lista de documentos a notificar por vencimiento de plazo.
+     *
+     * @return Lista de documentos a notificar.
+     */
+    /*
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT\n"
+            + "   documento.*\n"
+            + " FROM documento\n"
+            + " LEFT JOIN proceso_instancia ON (proceso_instancia.pin_id = documento.pin_id)\n"
+            + " LEFT JOIN proceso           ON (proceso.pro_id           = proceso_instancia.pro_id)\n"
+            + " LEFT JOIN proceso_estado    ON (proceso_estado.pes_id    = proceso_instancia.pes_id)\n"
+            + " WHERE "
+            + "     documento.doc_asunto     IS NOT NULL\n"
+            + " AND documento.doc_plazo      IS NOT NULL\n"
+            + " AND proceso_instancia.pes_id NOT IN (48, 52, 83, 101, 102)\n"
+            + " AND (\n"
+            + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
+            + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
+            + " )\n"
+            + " AND TO_DATE(SYSDATE) > TO_DATE(documento.doc_plazo)\n"
+            + " ORDER BY "
+            + " documento.cuando "
+            + "")
+    List<Documento> findAllDocumentosPlazoVencido();
+
+    /**
+     * Obtiene la lista de documentos a notificar por próximo vencimiento de
+     * plazo.
+     *
+     * @param diasPlazoVencer Número de días de anticipación al vencimiento del
+     * plazo.
+     * @return Lista de documentos a notificar.
+     */
+    /*
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT\n"
+            + "   documento.*\n"
+            + " FROM documento\n"
+            + " LEFT JOIN proceso_instancia ON (proceso_instancia.pin_id = documento.pin_id)\n"
+            + " LEFT JOIN proceso           ON (proceso.pro_id           = proceso_instancia.pro_id)\n"
+            + " LEFT JOIN proceso_estado    ON (proceso_estado.pes_id    = proceso_instancia.pes_id)\n"
+            + " WHERE "
+            + "     documento.doc_asunto     IS NOT NULL\n"
+            + " AND documento.doc_plazo      IS NOT NULL\n"
+            + " AND proceso_instancia.pes_id NOT IN (48, 52, 83, 101, 102)\n"
+            + " AND (\n"
+            + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
+            + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
+            + " )\n"
+            + " AND TO_DATE(SYSDATE) = (TO_DATE(documento.doc_plazo) - :diasPlazoVencer) \n"
+            + " ORDER BY "
+            + " documento.cuando "
+            + "")
+    List<Documento> findAllDocumentosPlazoAVencer(@Param("diasPlazoVencer") Integer diasPlazoVencer);
+
+    /**
+     * Obtiene la lista de documentos a notificar por vencimiento de plazo el
+     * día del sistema (hoy).
+     *
+     * @return Lista de documentos a notificar.
+     */
+    /*
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT\n"
+            + "   documento.*\n"
+            + " FROM documento\n"
+            + " LEFT JOIN proceso_instancia ON (proceso_instancia.pin_id = documento.pin_id)\n"
+            + " LEFT JOIN proceso           ON (proceso.pro_id           = proceso_instancia.pro_id)\n"
+            + " LEFT JOIN proceso_estado    ON (proceso_estado.pes_id    = proceso_instancia.pes_id)\n"
+            + " WHERE "
+            + "     documento.doc_asunto     IS NOT NULL\n"
+            + " AND documento.doc_plazo      IS NOT NULL\n"
+            + " AND proceso_instancia.pes_id NOT IN (48, 52, 83, 101, 102)\n"
+            + " AND (\n"
+            + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
+            + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
+            + " )\n"
+            + " AND TO_DATE(SYSDATE) = TO_DATE(documento.doc_plazo)\n"
+            + " ORDER BY "
+            + " documento.cuando "
+            + "")
+    List<Documento> findAllDocumentosPlazoVenceHoy();
+    
     /**
      * Verifica si el usuario tiene acceso al documento acta.
      *

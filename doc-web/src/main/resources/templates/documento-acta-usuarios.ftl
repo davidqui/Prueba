@@ -4,7 +4,8 @@
 -->
 <#include "documento-acta-config.ftl">
 
-<div class="col-md-8">    
+<div class="col-md-8">  
+    <#assign transicion_anular = 158>
     <#if estadoModo == "SELECCION_USUARIOS">
     <@presentarInformacionRegistrada documento estadoModo />
     
@@ -14,12 +15,17 @@
         <#if debeSeleccionarUsuarios >
         <div class="card">
             <div class="card-header">
+                <#if (seleccionUsuarioSubserieActa == "SELECCION_1_1")>
+                    <div class="alert alert-info" role="alert">La subserie TRD seleccionada solo permite seleccionar un usuario.</div>
+                <#else>
+                    <div class="alert alert-info" role="alert">La subserie TRD seleccionada permite seleccionar los usuarios que intervinieron en el acta.</div>
+                </#if>
                 <#if (seleccionUsuarioSubserieActa != "SELECCION_1_1") || (usuariosAsignados?size == 0) >
                 <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#exampleModal">
                     Agregar usuario
                 </button>
                 </#if>
-                <strong>Usuarios (*)</strong>                
+                <strong>Usuarios que intervinienen (*)</strong>
             </div>
             <div class="card-body">
                 <table class="table table-bordered">
@@ -89,13 +95,13 @@
             <#if debeSeleccionarUsuarios >
             <button id="registrar-usuarios-btn" type="submit" class="btn btn-success btn-sm">Registrar</button>
             </#if>
-            <#if !debeSeleccionarUsuarios || (usuariosAsignados?? && (usuariosAsignados?size > 0)) >
-                <#list procesoInstancia.transiciones() as transicion >
-                <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
-                    ${transicion.nombre}
-                </button>
-                </#list>
-            </#if>
+            <#list procesoInstancia.transiciones() as transicion >
+                <#if !debeSeleccionarUsuarios || (usuariosAsignados?? && (usuariosAsignados?size > 0)) || transicion.id == transicion_anular>
+                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(procesoInstancia)}')">
+                        ${transicion.nombre}
+                    </button>
+                </#if>
+            </#list>
         </nav>
 
     </form> <#-- Cierra formulario principal -->

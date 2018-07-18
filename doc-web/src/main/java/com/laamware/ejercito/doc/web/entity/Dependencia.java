@@ -146,6 +146,13 @@ public class Dependencia extends AuditActivoModifySupport {
     @LaamWidget(value = "checkbox")
     @Column(name = "DEP_IND_ENVIO_DOCUMENTOS")
     private Boolean depIndEnvioDocumentos;
+    
+    @LaamLabel("Usuario Registro")
+    @LaamCreate(order = 70)
+    @ManyToOne
+    @JoinColumn(name = "USU_ID_REGISTRO")
+    @LaamWidget(value = "select", list = "usuarios")
+    private Usuario usuarioRegistro;
 
     @Transient
     private List<Dependencia> subs;
@@ -413,5 +420,23 @@ public class Dependencia extends AuditActivoModifySupport {
     // Issue #147
     public void setDepIndEnvioDocumentos(Boolean depIndEnvioDocumentos) {
         this.depIndEnvioDocumentos = depIndEnvioDocumentos;
+    }
+
+    /**
+     * Retorna el usuario de registro asignado a la dependencia
+     * @return usuatio registro
+     */
+    // Issue #162
+    public Usuario getUsuarioRegistro() {
+        return usuarioRegistro;
+    }
+
+    /**
+     * Setea el usuario registro asignado a la dependencia
+     * @param usuarioRegistro 
+     */
+    // Issue #162
+    public void setUsuarioRegistro(Usuario usuarioRegistro) {
+        this.usuarioRegistro = usuarioRegistro;
     }
 }

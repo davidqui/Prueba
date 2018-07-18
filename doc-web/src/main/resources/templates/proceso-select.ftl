@@ -25,9 +25,9 @@
                     <h4 class="card-title">${proceso.nombre}</h4>
                     </div>
 
-                <div class="card-block" style="height: 350px;">
-                    <img class="card-img-top" src="/css/img/${proceso.imagen!"noimg.png"}" alt="">
-                    </div>
+                <div class="card-block" style="height: 220px;">
+                    <img class="card-img-top" src="/css/img/${proceso.imagen!"noimg.png"}" alt="" style="width: 200px; height:170px;">
+                </div>
 
                 <div class="card-block" style="vertical-align: text-bottom; text-align: justify;">
                     <p class="card-text">${proceso.descripcion!""}</p>                    

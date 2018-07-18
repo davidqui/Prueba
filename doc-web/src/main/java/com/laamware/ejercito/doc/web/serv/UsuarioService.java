@@ -12,6 +12,7 @@ import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.UsuarioFinderTipo;
+import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
@@ -72,6 +73,12 @@ public class UsuarioService {
      */
     @Autowired
     ProcesoService procesoService;
+    
+    /**
+     * Repositorio de dependencias
+     */
+    @Autowired
+    private DependenciaRepository dependenciaRepository;
 
     /**
      * Obtiene una página de usuarios correspondientes a la criteria de búsqueda
@@ -366,4 +373,30 @@ public class UsuarioService {
         }
     }
 
+    /**
+     * Metodo que permite retornar el usuario de registro, de acuerdo al usuario
+     * quien creo el acta
+     *
+     * @param usuarioSesion Usuario creador de la acta
+     * @return Usuario de registro
+     */
+    /*
+     * 2018-06-22 edison.gonzalez@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public Usuario retornaUsuarioRegistro(Usuario usuarioSesion) {
+        Usuario usuarioRegistro;
+        Dependencia unidadPadre = usuarioSesion.getDependencia();
+        do {
+            usuarioRegistro = unidadPadre.getUsuarioRegistro();
+            if(usuarioRegistro == null && unidadPadre.getPadre() == null){
+                break;
+            }else{
+                unidadPadre = dependenciaRepository.findOne(unidadPadre.getPadre());
+                unidadPadre = dependenciaService.buscarUnidad(unidadPadre);
+            }
+        } while (usuarioRegistro == null);
+
+        return usuarioRegistro;
+    }
 }

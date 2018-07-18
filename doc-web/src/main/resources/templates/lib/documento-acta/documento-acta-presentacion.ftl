@@ -51,6 +51,7 @@
         <tr class="table-danger"><th>Nivel de clasificación</th><td>${documento.clasificacion.nombre}</td></tr>
         <tr><th>TRD</th><td>${documento.trd.codigo} - ${documento.trd.nombre}</td></tr>
         <tr><th>Número de folios</th><td>${documento.numeroFolios}</td></tr>
+        <tr><th>Descripción</th><td>${documento.actaDescripcion}</td></tr>
         <#if estadoModo != "CARGA_ACTA_DIGITAL" && documento.radicado?? >
         <tr><th>Número de radicación</th><td>${documento.radicado}</td></tr>
         </#if>

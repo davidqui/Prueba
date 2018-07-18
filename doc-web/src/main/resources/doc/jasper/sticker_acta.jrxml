@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="inventarios" pageWidth="198" pageHeight="93" whenNoDataType="AllSectionsNoDetail" columnWidth="198" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="0ac05e1e-4c64-40a8-b468-147af9cf89e7">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="ireport.zoom" value="4.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="imagesRoot" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["F:/r/software/src/git/ascontroltech/jefatura/datos-doc-web/images"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="radicado" class="java.lang.String"/>
+	<parameter name="asunto" class="java.lang.String"/>
+	<parameter name="cuando" class="java.lang.String"/>
+	<parameter name="elabora" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<pageHeader>
+		<band height="93">
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement x="0" y="40" width="28" height="36" uuid="235d3b3e-077d-4980-a69a-733ea63fb311"/>
+				<imageExpression><![CDATA[$P{imagesRoot} + "/escudo-ejercito-nacional-de-colombia.png"]]></imageExpression>
+			</image>
+			<componentElement>
+				<reportElement x="10" y="7" width="180" height="19" uuid="75f37d32-eaf9-4603-bf10-1271988a2ba8"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128A" drawText="false" checksumRequired="false">
+					<jr:codeExpression><![CDATA[$P{radicado}.replaceAll( "-", "" )]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+			<textField>
+				<reportElement x="29" y="33" width="160" height="9" uuid="bf0055de-70f8-4879-9377-7a6eb0e79fd0"/>
+				<box>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Asunto:      " + $P{asunto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="29" y="42" width="160" height="9" uuid="cc3968b7-45e8-481c-a404-30ae652292fc"/>
+				<box>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fecha:       " + $P{cuando}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="29" y="51" width="160" height="9" uuid="524612dd-fc8e-410c-b75c-546aee0bc278"/>
+				<box>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Radicador: " + $P{elabora}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="9" y="25" width="180" height="11" uuid="5bd56b64-eb57-4a9f-83b5-a906471d0e42"/>
+				<textElement textAlignment="Center">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["RADICADO MDN-" + $P{radicado}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="29" y="77" width="162" height="10" uuid="0f72eff9-9b6a-42a2-a728-ac96659c689c"/>
+				<textElement verticalAlignment="Bottom" markup="none">
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[MDN - EJERCITO DE COLOMBIA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="74" width="28" height="10" uuid="670b3f3f-5987-4912-a4ac-1532d64a151d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[SICDI]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+</jasperReport>

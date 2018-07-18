@@ -31,5 +31,6 @@
 <#include "lib/documento-acta/documento-acta-info-proceso.ftl">
 <#include "lib/documento-acta/documento-acta-carga-adjuntos.ftl">
 <#include "lib/documento-acta/documento-acta-presentacion.ftl">
+<#include "lib/documento-acta/documento-acta-sticker.ftl">
 
 <#assign estadoModo = estadoModeMap[procesoInstancia.estado.id?string] />
