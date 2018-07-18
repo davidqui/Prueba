@@ -55,7 +55,7 @@
                 <@link_admin  "ADMIN_DOMINIO" "/admin/dominio" 'Dominios' 'Dominios'/>
                 
                 <#--
-                    2018-05-09 samuel.delgado@controltechcg.com Issue #172 (SICDI-Controltech) feature-172:
+                    2018-05-24 samuel.delgado@controltechcg.com Issue #172 (SICDI-Controltech) feature-172:
                     Enlace para la opción de obsevación por defecto.
                 -->
                 <@link_admin  "ADMIN_DOC_OBSERVACION_DEFECTO" "/admin/doc-observacion-defecto" 'doc-observacion-defecto' 'Observaciones por defecto'/>
@@ -74,6 +74,11 @@
                 -->
                 <@link_admin  "VALIDAR_PDF_DOCFIRMAENVIO_UUID" "/admin/file-validation" 'file-validation' 'Validación integridad documento electrónico'/>
 
+                <#--
+                    2018-05-30 samuel.delgado@controltechcg.com Issue #169 (SICDI-Controltech) feature-169:
+                    Enlace para la opción de notificaciones.
+                -->
+                <@link_admin  "ADMIN_NOTIFICACIONES" "/admin/notificacion" 'notificaciones' 'Notificaciones'/>
                 </ul>
             </div>
         </div>

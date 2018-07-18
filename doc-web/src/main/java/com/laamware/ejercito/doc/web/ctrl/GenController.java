@@ -26,9 +26,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.AuditActivoCreateSupport;
 import com.laamware.ejercito.doc.web.entity.AuditActivoModifySupport;
+import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.GenPropDescriptor;
+import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.repo.GenJpaRepository;
+import com.laamware.ejercito.doc.web.serv.CacheService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class GenController<ET, IDT extends Serializable, RT extends GenJpaRepository<ET, IDT>>
 		extends UtilController {
@@ -44,6 +48,20 @@ public abstract class GenController<ET, IDT extends Serializable, RT extends Gen
 			return map.get(k);
 		}
 	}
+        
+        //issue-179 constante llave del cache clasificacion
+        public final static String CLAS_CACHE_KEY = "clasificacion";
+
+        //issue-179 constante llave del cache trd
+        public final static String TRD_CACHE_KEY = "trd";
+    
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: Servicio de cache.
+         */
+        @Autowired
+        private CacheService cacheService;
+    
 
 	Map<String, String> queryStringMap = new HashMap<String, String>();
 
@@ -226,6 +244,17 @@ public abstract class GenController<ET, IDT extends Serializable, RT extends Gen
 
 			getRepository().save(e);
 			postSave(e);
+                        /*
+                        * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+                        * feature-179: se elimina el cache de dependencias.
+                        */
+                        if (e instanceof Clasificacion) {
+                            cacheService.deleteKeyCache(CLAS_CACHE_KEY);
+                        }
+                        if (e instanceof Trd) {
+                            System.out.println("MODI Trd");
+                            cacheService.deleteKeyCache(TRD_CACHE_KEY);
+                        }
 			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
 			return "redirect:" + getPath() + "?" + model.asMap().get("queryString");
 		} catch (Exception ex) {
@@ -262,6 +291,18 @@ public abstract class GenController<ET, IDT extends Serializable, RT extends Gen
 			} else {
 				getRepository().delete(e);
 			}
+                        /*
+                        * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+                        * feature-179: se elimina el cache de dependencias.
+                        */
+                        if (e instanceof Clasificacion) {
+                            cacheService.deleteKeyCache(CLAS_CACHE_KEY);
+                        }
+                        if (e instanceof Trd) {
+                            System.out.println("MODI Trd");
+                            cacheService.deleteKeyCache(TRD_CACHE_KEY);
+                        }
+                        
 			redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro eliminado con éxito");
 		} catch (Exception ex) {
 			ex.printStackTrace();

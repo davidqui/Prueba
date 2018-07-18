@@ -32,6 +32,7 @@ import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaTrdRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
+import com.laamware.ejercito.doc.web.serv.CacheService;
 import com.laamware.ejercito.doc.web.serv.TRDService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,7 +44,18 @@ public class DependenciaController extends UtilController {
     private static final Logger LOG = Logger.getLogger(DependenciaController.class.getName());
 
     static final String PATH = "/dependencias";
+    
+    //issue-179 constante llave del cache
+    static final String DEPENDENCIAS_CACHE_KEY = "dependencias";
 
+    
+    /*
+     * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+     * feature-179: Servicio de cache.
+     */
+    @Autowired
+    private CacheService cacheService;
+    
     @Autowired
     DependenciaRepository dependenciaRepository;
 
@@ -141,9 +153,13 @@ public class DependenciaController extends UtilController {
             }
 
             try {
-
+                
                 dependenciaRepository.save(e);
-
+                /*
+                * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+                * feature-179: se elimina el cache de dependencias.
+                */
+                cacheService.deleteKeyCache(DEPENDENCIAS_CACHE_KEY);
             } catch (Exception e2) {
 
                 if (e2 instanceof org.springframework.dao.DataIntegrityViolationException) {
@@ -181,6 +197,11 @@ public class DependenciaController extends UtilController {
             Dependencia dep = dependenciaRepository.findOne(id);
             dep.setActivo(false);
             dependenciaRepository.save(dep);
+            /*
+            * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+            * feature-179: se elimina el cache de dependencias.
+            */
+            cacheService.deleteKeyCache(DEPENDENCIAS_CACHE_KEY);
             model.addAttribute(AppConstants.FLASH_SUCCESS, "Dependencia eliminada con éxito");
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
@@ -190,9 +211,10 @@ public class DependenciaController extends UtilController {
     }
 
     protected void registerLists(Map<String, Object> map) {
-        /* 
-         *2017-10-05 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech)
-         * feature-131: Ajuste de orden segun el peso de los grados.
+        /**
+         * 2017-10-05 edison.gonzalez@controltechcg.com Issue #131
+         * (SICDI-Controltech) feature-131: Ajuste de orden segun el peso de los
+         * grados.
          */
         map.put("usuarios", usuarioRepository.findAllByActivoTrueOrderByGradoDesc());
     }
@@ -291,6 +313,11 @@ public class DependenciaController extends UtilController {
                 trd.setId(t);
                 newdtrd.setTrd(trd);
                 dependenciaTrdRepository.save(newdtrd);
+               /*
+                * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+                * feature-179: se elimina el cache de dependencias.
+                */
+                cacheService.deleteKeyCache(DEPENDENCIAS_CACHE_KEY);
             }
         }
 

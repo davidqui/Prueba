@@ -26,7 +26,10 @@
 			
 		<div class="card">
 			<div class="card-header">
-				<h4>Selección de usuario <#if documento?? > - Nivel de clasifición del documento: ${documento.clasificacion.nombre} </#if> </h4>
+			<h5><b>Asunto del Documento:</b><#if documento?? > ${documento.asunto}</#if></h5>
+			<h5 style="margin-botton:20px;"><#if documento?? ><b>Grado de clasificación: <span style="color:red;">${documento.clasificacion.nombre}</span></b></#if> </h5>
+			<h6>Selección de usuario<b></b></h6>
+                        <p>Seleccione el usuario que se encuentra en su misma dependencia a quien será asignada a siguiente actividad en el proceso.</p>
 			</div>			
 			<form action="?pin=${pin}&tid=${tid}&mode=${mode}" method="POST">
 			<div class="card-block">

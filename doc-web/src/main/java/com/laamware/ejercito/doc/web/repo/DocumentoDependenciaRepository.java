@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.repo;
 
+import com.laamware.ejercito.doc.web.entity.Documento;
 import java.util.List;
 
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
@@ -147,4 +148,19 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * sesión, TRD y cargo.
      */
     List<DocumentoDependencia> findByQuienAndTrdIdAndCargoIdOrderByCuandoDesc(Integer quien, Integer trd, Integer cargo);
+
+    /**
+     * Busca un registro de archivo activo para un documento y su usuario
+     * asignado.
+     *
+     * @param documento Documento.
+     * @param quien ID del usuario asignado.
+     * @return Instancia del registro de archivo activo para el documento y el
+     * usuario asignado, o {@code null} si no hay correspondencia en el sistema.
+     */
+    /*
+     * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    DocumentoDependencia findOneByDocumentoAndQuienAndActivoTrue(Documento documento, Integer quien);
 }

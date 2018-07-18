@@ -33,6 +33,11 @@ public final class Global {
     public static final String PDF_FILE_CONTENT_TYPE = "application/pdf";
 
     /**
+     * Formato de fecha.
+     */
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+
+    /**
      * Construcor privado.
      */
     private Global() {

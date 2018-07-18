@@ -1,5 +1,7 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.aspose.words.Bookmark;
+import com.aspose.words.BookmarkCollection;
 import com.aspose.words.BuiltInDocumentProperties;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -56,6 +58,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.aspose.words.Document;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
+import com.laamware.ejercito.doc.web.dto.EmailDTO;
 import com.laamware.ejercito.doc.web.dto.FlashAttributeValue;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.UsuarioVistoBuenoDTO;
@@ -75,6 +78,7 @@ import com.laamware.ejercito.doc.web.entity.Estado;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
+import com.laamware.ejercito.doc.web.entity.Notificacion;
 import com.laamware.ejercito.doc.web.entity.OFSStage;
 import com.laamware.ejercito.doc.web.entity.PDFDocumento;
 import com.laamware.ejercito.doc.web.entity.Plantilla;
@@ -86,6 +90,7 @@ import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.Variable;
+import com.laamware.ejercito.doc.web.entity.WildcardPlantilla;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepository;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepositoryCustom;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
@@ -107,13 +112,17 @@ import com.laamware.ejercito.doc.web.repo.TipologiaRepository;
 import com.laamware.ejercito.doc.web.repo.TransicionRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
+import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.ArchivoAutomaticoService;
+import com.laamware.ejercito.doc.web.serv.CacheService;
 import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
 import com.laamware.ejercito.doc.web.serv.DriveService;
 import com.laamware.ejercito.doc.web.serv.JasperService;
+import com.laamware.ejercito.doc.web.serv.MailQueueService;
+import com.laamware.ejercito.doc.web.serv.NotificacionService;
 import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
@@ -126,7 +135,11 @@ import com.laamware.ejercito.doc.web.util.DocumentProperties;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import com.laamware.ejercito.doc.web.util.Global;
 import com.laamware.ejercito.doc.web.util.UsuarioGradoComparator;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import java.io.StringReader;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -137,6 +150,7 @@ import java.util.logging.Level;
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
 import org.springframework.jdbc.UncategorizedSQLException;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 @Controller(value = "documentoController")
 @RequestMapping(DocumentoController.PATH)
@@ -150,6 +164,8 @@ public class DocumentoController extends UtilController {
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
 
     static final String PATH = "/documento";
+
+    
     private static final com.aspose.words.License LICENSE = new com.aspose.words.License();
     /*
     2017-10-02 edison.gonzalez@controltechcg.com feature #129 : Organizacion
@@ -164,12 +180,31 @@ public class DocumentoController extends UtilController {
             + "<offline-allowed/>" + "</information>" + " <resources>" + "<j2se version=\"1.7+\"/>"
             + "<jar href='doc-web-scanner.jar' main='true'/>" + "<jar href='lib/uk.co.mmscomputing.device.twain.jar'/>"
             + " </resources>" + " <application-desc main-class='doc.web.scanner.JFrameDocWebScanner'/>" + " </jnlp> ";
+    /*
+        2018-06-20 samuel.delgado@controltechcg.com #169 : Constantes proceso 
+        estado.
+    */
+    public static final Integer ESTADO_ANULADO = 83;
+    public static final Integer ESTADO_ENVIADO = 49;
+    public static final Integer ESTADO_NUEVO_EXTERNO = 46;
+    public static final Integer ID_TIPO_NOTIFICACION_FIRMA = 110;
+    public static final Integer ID_TIPO_NOTIFICACION_ENVIADO = 120;
+
+    
+    
     List<Plantilla> listaPlantilla;
     private String imagesRoot;
     private String ofsRoot;
 
     @Autowired
     private DataSource dataSource;
+    
+    /*
+        2018-06-21 samuel.delgado@controltechcg.com feature #129 : variable para
+        validar las plantillas.
+    */
+    @Value("${com.mil.imi.sicdi.plantillas.validar}")
+    private Boolean VALIDAR_PLANTILLAS;
 
     @Autowired
     DocumentoDependenciaAdicionalRepository documentoDependenciaAdicionalRepository;
@@ -273,6 +308,7 @@ public class DocumentoController extends UtilController {
     @Autowired
     TRDService tRDService;
 
+
     /*
      * 2018-04-11 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
      * feature-156: Servicio de multidestino.
@@ -286,6 +322,13 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private DependenciaService dependenciaService;
+    
+    /*
+     * 2018-05-21 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Servicio de archivos adjuntos.
+     */
+    @Autowired
+    private AdjuntoService adjuntoService;
 
     /*
      * 2018-05-24 jgarcia@controltechcg.com Issue #172 (SICDI-Controltech)
@@ -293,7 +336,21 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private DocumentoObservacionDefectoService observacionDefectoService;
-
+    
+    /*
+     * 2018-06-13 samuel.delgado@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169: Servicio de notificaciones de correo eléctronico.
+     */
+    @Autowired
+    private MailQueueService mailQueueService;
+    
+    /*
+     * 2018-06-13 samuel.delgado@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169: Servicio de notificaciones.
+     */
+    @Autowired
+    private NotificacionService notificacionService;
+    
     /* ---------------------- públicos ------------------------------- */
     /**
      * Muestra la página de acceso denegado
@@ -567,6 +624,19 @@ public class DocumentoController extends UtilController {
             @RequestParam(value = "archivoHeader", required = false) String archivoHeader, Model model,
             Principal principal, final RedirectAttributes redirect) {
 
+        // Obtiene la instancia de proceso
+        Instancia i = procesoService.instancia(pin);
+
+        /*
+         * 2018-05-23 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+         * feature-162: Redirección para instancias de proceso de documentos
+         * correspondientes al proceso de registro de actas, para que lo procese
+         * el controlador correspondiente.
+         */
+        if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS)) {
+            return "redirect:" + DocumentoActaController.PATH + "?pin=" + pin;
+        }
+        
         // Si el request trae información en headerView, se envía a la vista
         // para que se muestre otro header al que está por defecto
         model.addAttribute("archivoHeader", archivoHeader);
@@ -575,11 +645,15 @@ public class DocumentoController extends UtilController {
         model.addAttribute("usuariologueado", usuarioLogueado);
 
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+        /*
+         * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+         * feature-179: se agrega cache a ta respuesta.
+         */
+        List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
 
         // 2018-05-04 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
-        List<Trd> listaTrds = buildTrdsHierarchy(usuarioLogueado);
+        List<Trd> listaTrds = tRDService.buildTrdsHierarchy(usuarioLogueado);
         model.addAttribute("trds", listaTrds);
         /*
          * 2017-11-17 edison.gonzalez@controltechcg.com Issue #139: Verifica permisos
@@ -591,9 +665,6 @@ public class DocumentoController extends UtilController {
         if (!acceso) {
             return "security-denied";
         }
-
-        // Obtiene la instancia de proceso
-        Instancia i = procesoService.instancia(pin);
 
         // Obtiene el identificador de documento
         String docId = i.getVariable(Documento.DOC_ID);
@@ -903,7 +974,8 @@ public class DocumentoController extends UtilController {
             BindingResult docBind, final RedirectAttributes redirect, Model model, Principal principal) {
 
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+        List<Dependencia> listaDependencias =  dependenciaService.depsHierarchy();
+        
         model.addAttribute("dependencias", listaDependencias);
 
         // Obtiene la instancia de proceso
@@ -922,7 +994,7 @@ public class DocumentoController extends UtilController {
         Usuario logueado = getUsuario(principal);
 
         // 2018-05-04 edison.gonzalez@controltechcg.com Issue #157 (SICDI-Controltech)
-        List<Trd> listaTrds = buildTrdsHierarchy(logueado);
+        List<Trd> listaTrds = tRDService.buildTrdsHierarchy(logueado);
         model.addAttribute("trds", listaTrds);
 
         Integer elaboraDocumento = null;
@@ -972,7 +1044,7 @@ public class DocumentoController extends UtilController {
         } else {
             old = documentRepository.getOne(docId);
         }
-
+        
         if (fileSaveRequestGet) {
 
             if ((file == null || file.getOriginalFilename().isEmpty())) {
@@ -1043,6 +1115,70 @@ public class DocumentoController extends UtilController {
         }
 
         String fileId = null;
+        
+        System.out.println("Entra a verificar documento");
+        if (file != null && VALIDAR_PLANTILLAS) {
+            try {
+                Document documentAspose = new Document(file.getInputStream());
+                BookmarkCollection bookmarks = documentAspose.getRange().getBookmarks();
+                String nombrePlantilla = null;
+                String versionPlantilla = null;
+                for (Bookmark bookmark : bookmarks) {
+                    System.out.println("Bookmark name "+bookmark.getName());
+                    try {
+                        String key = bookmark.getName().split("_")[0];
+                        String value = bookmark.getName().split("_")[1];
+                        if (key.equals("nombre")) {
+                            nombrePlantilla = value;
+                        }
+                        if (key.equals("version")) {
+                            versionPlantilla = value;
+                        }
+                    } catch (Exception ex) {  }
+                }
+
+                System.out.println("NOMBRE PLANTILLA = "+nombrePlantilla+" Version = "+versionPlantilla);
+
+                if (nombrePlantilla == null || versionPlantilla == null){
+                    doc.setMode(mode);
+                    plantillas(model);
+                    expedientes(model, principal);
+                    tipologias(doc.getTrd(), model);
+                    model.addAttribute("documento", doc);
+                    model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento,"
+                            + " Asegúrese de descargar la ultima versión de la plantilla.");
+                    return "documento";
+                }
+
+                List<Plantilla> plantilla = plantillaRepository.findByBookmarkNameAndBookmarkValue(nombrePlantilla, versionPlantilla);
+                 
+                if (plantilla.isEmpty()){
+                    doc.setMode(mode);
+                    plantillas(model);
+                    expedientes(model, principal);
+                    tipologias(doc.getTrd(), model);
+                    model.addAttribute("documento", doc);
+                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, verifique que tiene descargada la ultima versión.");
+                    return "documento";
+                }
+                
+                String[] fieldNames = documentAspose.getMailMerge().getFieldNames();
+                List<WildcardPlantilla> wildcardsPlantilla = plantilla.get(0).getWildCards();
+                
+                if (!verificarWildcardsPLantilla(fieldNames, wildcardsPlantilla)) {
+                    doc.setMode(mode);
+                    plantillas(model);
+                    expedientes(model, principal);
+                    tipologias(doc.getTrd(), model);
+                    model.addAttribute("documento", doc);
+                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla no cumple con los wildcards minimos, Asegúrese de descargar la ultima versión de la plantilla.");
+                    return "documento";
+                }
+            } catch (Exception ex) {
+                java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } 
+        
         if (fileSaveRequestGet) {
             try {
                 if (file != null) {
@@ -1108,7 +1244,7 @@ public class DocumentoController extends UtilController {
             model.addAttribute(AppConstants.FLASH_ERROR, "Ocurrió un error inesperado: " + e.getMessage());
             return "documento";
         }
-
+        
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Los datos han sido guardados correctamente");
 
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -1145,7 +1281,7 @@ public class DocumentoController extends UtilController {
              */
 
             Radicacion radicacion = radicacionRepository.findByProceso(doc.getInstancia().getProceso());
-            doc.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(doc.getDependenciaDestino()).getId(), radicacion.getRadId()));
+            doc.setRadicado(radicadoService.retornaNumeroRadicado(dependenciaService.getSuperDependencia(doc.getDependenciaDestino()).getId(), radicacion.getRadId()));
         }
 
         try {
@@ -1660,7 +1796,7 @@ public class DocumentoController extends UtilController {
                 } else {
                     String contentType = archivo.getContentType();
 
-                    boolean validAttachmentContentType = isValidAttachmentContentType(contentType);
+                    boolean validAttachmentContentType = adjuntoService.isValidAttachmentContentType(contentType);
                     if (!validAttachmentContentType) {
                         redirect.addFlashAttribute(AppConstants.FLASH_ERROR,
                                 "ERROR: Únicamente se permiten cargar archivos adjuntos tipo PDF, JPG o PNG.");
@@ -1688,27 +1824,6 @@ public class DocumentoController extends UtilController {
         }
 
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, doc.getInstancia().getId());
-    }
-
-    /**
-     * Indica si el tipo de contenido del archivo adjunto es válido para el
-     * sistema.
-     *
-     * @param contentType Tipo de contenido.
-     * @return {@code true} si el tipo de contenido es válido (PDF, JPG, JPEG,
-     * PNG); de lo contrario, {@code false}.
-     */
-    // 2017-04-11 jgarcia@controltechcg.com Issue #46 (SIGDI-Controltech)
-    private boolean isValidAttachmentContentType(String contentType) {
-        String[] validContentTypes = {"application/pdf", "image/jpeg", "image/jpg", "image/png"};
-
-        for (String validContentType : validContentTypes) {
-            if (contentType.equals(validContentType)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -1858,7 +1973,7 @@ public class DocumentoController extends UtilController {
                  * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
                  */
                 redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                        buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                        buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
                 return redirectToInstancia(i);
             } else {
                 if (did != null) {
@@ -1890,7 +2005,8 @@ public class DocumentoController extends UtilController {
 
                     model.addAttribute("usuarios", usuarios);
                 }
-                model.addAttribute("dependencias", depsHierarchy());
+                List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
+                model.addAttribute("dependencias", listaDependencias);
             }
         } else if ("dependencia".equals(mode)) {
 
@@ -1926,12 +2042,25 @@ public class DocumentoController extends UtilController {
             documentRepository.saveAndFlush(doc);
 
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Documento asignado a " + i.getAsignado());
-
+            // TODO Aqui deveria venir buildAsignadosTextMultidestino??
+            /*
+            * 2018-06-14 samuel.delgado@controltechcg.com Issue #169
+            * (SICDI-Controltech) feature-169 Envio notificación.
+            */
+            enviarNotificacionesCambioProceso(i, doc, null, null);
             return redirectToInstancia(i);
         } else {
             model.addAttribute("mode", "nomode");
         }
-
+        /***
+         * 05-07-2018 se agrega información del documento (ASUNTO)
+         * para que al momento de seleccionar un usuario despiegue la información
+         * release-20180628
+         */
+        Instancia i = instanciaRepository.findOne(pin);
+        String docId = i.getVariable(Documento.DOC_ID);
+        Documento doc = documentRepository.getOne(docId);
+        model.addAttribute("documento", doc);
         return "documento-asignar";
     }
 
@@ -1981,7 +2110,7 @@ public class DocumentoController extends UtilController {
 				 * descritas, se selecciona el Jefe de la Super Dependencia.
                  */
                 Dependencia dependenciaDestino = d.getDependenciaDestino();
-                Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
+                Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
 
                 Usuario jefeActivo = dependenciaService.getJefeActivoDependencia(superDependencia);
                 /*
@@ -2033,7 +2162,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2220,7 +2349,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2285,7 +2414,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
             if (i.transiciones().size() > 0) {
                 return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2359,8 +2488,8 @@ public class DocumentoController extends UtilController {
 			 * dependencias para presentar desde la super dependencia (unidad)
 			 * correspondiente a la dependencia destino del documento.
              */
-            Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
-            depsHierarchy(superDependencia);
+            Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
+            dependenciaService.depsHierarchy(superDependencia);
             listaDependencias.add(superDependencia);
 
             if (did != null) {
@@ -2418,7 +2547,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
             if (i.transiciones().size() > 0) {
                 return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2458,7 +2587,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2560,7 +2689,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
             return "redirect:/";
         }
 
@@ -2634,7 +2763,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2691,8 +2820,8 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
-
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
+        
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
         } else {
@@ -2780,7 +2909,8 @@ public class DocumentoController extends UtilController {
                  * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
                  */
                 redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                        buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+                        buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
+                enviarNotificacionesCambioProceso(instancia, documento, notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_FIRMA), documento.getElabora());
                 return redirectURL;
             }
 
@@ -2854,7 +2984,8 @@ public class DocumentoController extends UtilController {
              * 2018-04-25 edison.gonzalez@controltechcg.com Issue #156
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
-            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
+            enviarNotificacionesCambioProceso(instancia, documento, notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_FIRMA), documento.getElabora());
             return redirectURL;
         }
 
@@ -2883,7 +3014,8 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
+        enviarNotificacionesCambioProceso(instancia, documento, notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_FIRMA), documento.getElabora());
         return redirectURL;
     }
 
@@ -3025,7 +3157,7 @@ public class DocumentoController extends UtilController {
          * de proceso.
          */
         Radicacion radicacion = radicacionRepository.findByProceso(documento.getInstancia().getProceso());
-        documento.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(usuarioSesion.getDependencia()).getId(), radicacion.getRadId()));
+        documento.setRadicado(radicadoService.retornaNumeroRadicado(dependenciaService.getSuperDependencia(usuarioSesion.getDependencia()).getId(), radicacion.getRadId()));
 
         /*
          * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los
@@ -3337,7 +3469,7 @@ public class DocumentoController extends UtilController {
          * de proceso.
          */
         Radicacion radicacion = radicacionRepository.findByProceso(doc.getInstancia().getProceso());
-        doc.setRadicado(radicadoService.retornaNumeroRadicado(getSuperDependencia(yo.getDependencia()).getId(), radicacion.getRadId()));
+        doc.setRadicado(radicadoService.retornaNumeroRadicado(dependenciaService.getSuperDependencia(yo.getDependencia()).getId(), radicacion.getRadId()));
 
         /*
          * 2017-02-08 jgarcia@controltechcg.com Issue #94: Se corrige en los
@@ -3492,7 +3624,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
     }
@@ -3554,7 +3686,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3679,8 +3811,8 @@ public class DocumentoController extends UtilController {
 
             Usuario usuarioSesion = getUsuario(principal);
             Dependencia dependencia = usuarioSesion.getDependencia();
-            Dependencia unidadDependencia = getSuperDependencia(dependencia);
-            depsHierarchy(unidadDependencia);
+            Dependencia unidadDependencia = dependenciaService.getSuperDependencia(dependencia);
+            dependenciaService.depsHierarchy(unidadDependencia);
             listaDependencias.add(unidadDependencia);
 
             if (did != null) {
@@ -3740,7 +3872,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
 
             if (i.transiciones().size() > 0) {
                 return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -3865,7 +3997,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instanciaOriginal, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instanciaOriginal, "Asignado a ", documentRepository));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -3944,7 +4076,7 @@ public class DocumentoController extends UtilController {
         } else {
 
             Dependencia dependenciaUsuario = usuarioSesion.getDependencia();
-            Dependencia superDependenciaUsuario = getSuperDependencia(dependenciaUsuario);
+            Dependencia superDependenciaUsuario = dependenciaService.getSuperDependencia(dependenciaUsuario);
             if (superDependenciaUsuario.getJefe().getId() == usuarioSesion.getId()) {
                 // Determina si el usuario es un jefe de superdependencia.
                 // Obtiene el listado de las dependencias que se encuentran
@@ -4069,7 +4201,7 @@ public class DocumentoController extends UtilController {
 
         // 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01)
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Reasignado a: " + instancia.getAsignado());
-
+        
         if (instancia.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
         } else {
@@ -4212,8 +4344,8 @@ public class DocumentoController extends UtilController {
 
             List<Dependencia> listaDependencias = new ArrayList<>(1);
             Dependencia dependenciaDestino = usuarioSesion.getDependencia();
-            Dependencia superDependencia = getSuperDependencia(dependenciaDestino);
-            depsHierarchy(superDependencia);
+            Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
+            dependenciaService.depsHierarchy(superDependencia);
             listaDependencias.add(superDependencia);
             model.addAttribute("dependencias_arbol", listaDependencias);
 
@@ -4258,7 +4390,7 @@ public class DocumentoController extends UtilController {
              * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
              */
             redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a "));
+                    buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
 
             if (instancia.transiciones().size() > 0) {
                 return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
@@ -4420,7 +4552,7 @@ public class DocumentoController extends UtilController {
              */
             redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                     buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instanciaOriginal,
-                            "Documento respuesta \"" + asuntoNuevo + "\" creado. Asignado a: "));
+                            "Documento respuesta \"" + asuntoNuevo + "\" creado. Asignado a: ", documentRepository));
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -4504,7 +4636,7 @@ public class DocumentoController extends UtilController {
 	 * 2018-02-02 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
 	 * campo Indicador de envio documentos.
          */
-        List<Dependencia> unidades = depsHierarchyPadre();
+        List<Dependencia> unidades = dependenciaService.depsHierarchyPadre();
 
         model.addAttribute("unidades", unidades);
 
@@ -4589,7 +4721,7 @@ public class DocumentoController extends UtilController {
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
         redirectAttributes.addFlashAttribute(AppConstants.FLASH_SUCCESS,
-                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Reasignado a: "));
+                buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Reasignado a: ", documentRepository));
 
         if (instancia.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, instanciaID);
@@ -4650,50 +4782,50 @@ public class DocumentoController extends UtilController {
         return "redirect:/";
     }
 
-    /*
-	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
-	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
-	 * las dependencias.
-     */
-    private List<Dependencia> depsHierarchy() {
-        List<Dependencia> root = dependenciaRepository.findByActivoAndPadreIsNull(true,
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        for (Dependencia d : root) {
-            depsHierarchy(d);
-        }
-        return root;
-    }
-
-    /*
-	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
-	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
-	 * las dependencias.
-     */
-    private void depsHierarchy(Dependencia d) {
-        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        d.setSubs(subs);
-        for (Dependencia x : subs) {
-            depsHierarchy(x);
-        }
-    }
-
-    private List<Dependencia> depsHierarchyPadre() {
-        List<Dependencia> root = this.dependenciaRepository.findByActivoAndPadreIsNull(true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
-        for (Dependencia d : root) {
-            depsHierarchyPadre(d);
-        }
-        return root;
-    }
-
-    private void depsHierarchyPadre(Dependencia d) {
-        List<Dependencia> subs = this.dependenciaRepository.findByActivoAndPadreAndDepIndEnvioDocumentos(true, d.getId(), true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
-
-        d.setSubs(subs);
-        for (Dependencia x : subs) {
-            depsHierarchyPadre(x);
-        }
-    }
+//    /*
+//	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
+//	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
+//	 * las dependencias.
+//     */
+//    private List<Dependencia> dependenciaService.depsHierarchy() {
+//        List<Dependencia> root = dependenciaRepository.findByActivoAndPadreIsNull(true,
+//                new Sort(Direction.ASC, "pesoOrden", "nombre"));
+//        for (Dependencia d : root) {
+//            depsHierarchy(d);
+//        }
+//        return root;
+//    }
+//
+//    /*
+//	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
+//	 * Ordenamiento por peso. Modificación: variable y orden en que se presentan
+//	 * las dependencias.
+//     */
+//    private void depsHierarchy(Dependencia d) {
+//        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
+//                new Sort(Direction.ASC, "pesoOrden", "nombre"));
+//        d.setSubs(subs);
+//        for (Dependencia x : subs) {
+//            depsHierarchy(x);
+//        }
+//    }
+//
+//    private List<Dependencia> depsHierarchyPadre() {
+//        List<Dependencia> root = this.dependenciaRepository.findByActivoAndPadreIsNull(true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
+//        for (Dependencia d : root) {
+//            depsHierarchyPadre(d);
+//        }
+//        return root;
+//    }
+//
+//    private void depsHierarchyPadre(Dependencia d) {
+//        List<Dependencia> subs = this.dependenciaRepository.findByActivoAndPadreAndDepIndEnvioDocumentos(true, d.getId(), true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
+//
+//        d.setSubs(subs);
+//        for (Dependencia x : subs) {
+//            depsHierarchyPadre(x);
+//        }
+//    }
 
     private String redirectToInstancia(Instancia i) {
         if (i.transiciones().size() > 0) {
@@ -4733,29 +4865,6 @@ public class DocumentoController extends UtilController {
         i.asignar(selector.select(i, doc));
 
         return i;
-    }
-
-    protected Dependencia getSuperDependencia(Dependencia dep) {
-        /*
-	 * 2018-01-30 edison.gonzalez@controltechcg.com Issue #147: Validacion para que tenga en cuenta el
-	 * campo Indicador de envio documentos.
-         */
-        if (dep.getPadre() == null || (dep.getDepIndEnvioDocumentos() != null && dep.getDepIndEnvioDocumentos())) {
-            return dep;
-        }
-
-        Dependencia jefatura = dep;
-        Integer jefaturaId = dep.getPadre();
-        while (jefaturaId != null) {
-            jefatura = dependenciaRepository.getOne(jefaturaId);
-
-            if (jefatura.getDepIndEnvioDocumentos() != null && jefatura.getDepIndEnvioDocumentos()) {
-                return jefatura;
-            }
-
-            jefaturaId = jefatura.getPadre();
-        }
-        return jefatura;
     }
 
     /* --------------------------- privados -------------------------- */
@@ -5117,6 +5226,7 @@ public class DocumentoController extends UtilController {
      * @param dependenciaService Servicio de dependencias.
      * @param instancia Instancia del proceso.
      * @param textoInicial Texto inicial del mensaje de asignación.
+     * @param documentoRepository Repositorio de documentos.
      *
      * @return Objeto que almacena el valor de texto inicial (Si se ha colocado
      * alguno) seguido del nombre del asignado primario. En caso que el
@@ -5131,12 +5241,16 @@ public class DocumentoController extends UtilController {
      *
      * 2018-04-25 jgarcia@controltechcg.com Issue #156 (SICDI-Controltech)
      * feature-156: Se crea como reemplazo del metodo buildAsignadosText() para
-     * utilizar la información de los registros multidestino.
-     * Se cambia el objeto de retorno, para implementar los mensajes cuando se
-     * realiza la firma de un documento con multidestino.
+     * utilizar la información de los registros multidestino. Se cambia el
+     * objeto de retorno, para implementar los mensajes cuando se realiza la
+     * firma de un documento con multidestino.
+     *
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169: Adición de DocumentoRepositoy como parámetro. Notificaciones
+     * de correo.
      */
-    public static FlashAttributeValue buildAsignadosTextMultidestino(final DependenciaCopiaMultidestinoService copiaMultidestinoService, final UsuarioService usuarioService,
-            final DependenciaService dependenciaService, final Instancia instancia, final String textoInicial) {
+    public FlashAttributeValue buildAsignadosTextMultidestino(final DependenciaCopiaMultidestinoService copiaMultidestinoService, final UsuarioService usuarioService,
+            final DependenciaService dependenciaService, final Instancia instancia, final String textoInicial, final DocumentoRepository documentoRepository) {
         /*
          * 2017-05-15 jgarcia@controltechcg.com Issue #78 (SICDI-Controltech)
          * feature-78: Presentar información básica de los usuarios asignadores
@@ -5156,17 +5270,43 @@ public class DocumentoController extends UtilController {
          * asignados debe manejar múltiples destinos o no.
          */
         final Estado estado = instancia.getEstado();
+        
+        final String documentoID = instancia.getVariable(Documento.DOC_ID);
+        
+        /*
+         * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+         * feature-169: Búsqueda del documento.
+         */
+        final Documento documento = documentoRepository.findOne(documentoID);
+
+        final List<DependenciaCopiaMultidestino> copiaMultidestinos = copiaMultidestinoService.listarActivos(documento);
+        
         if (!estado.getId().equals(Estado.ENVIADO)) {
+            /**
+             * 2018-05-02 samuel.delgado@controltechcg.com Issue #169
+             * (SICDI-Controltech) feature-169: Envia las notificaciones
+             * a los usuarios.
+             */
+            try {
+                enviarNotificacionesCambioProceso(instancia, documento, null, null);
+            } catch (Exception ex) {
+                LOG.error(instancia.getId(), ex);
+            }
             return flashAttributeValue;
         }
 
-        final String documentoID = instancia.getVariable(Documento.DOC_ID);
-        final Documento documento = new Documento();
-        documento.setId(documentoID);
-
-        final List<DependenciaCopiaMultidestino> copiaMultidestinos = copiaMultidestinoService.listarActivos(documento);
-
         if (copiaMultidestinos.isEmpty()) {
+            /**
+             * 2018-05-02 samuel.delgado@controltechcg.com Issue #169
+             * (SICDI-Controltech) feature-169: Envia las notificaciones a los
+             * usuarios.
+             */
+            try {
+                enviarNotificacionesCambioProceso(instancia, documento, null, null);
+            } catch (Exception ex) {
+                LOG.error(instancia.getId(), ex);
+            }
+
             return flashAttributeValue;
         }
 
@@ -5203,6 +5343,17 @@ public class DocumentoController extends UtilController {
                      */
                     jefesMap.put(jefe.getId(), jefe);
                     radicadoJefe.put(copiaMultidestino.getDocumentoResultado().getRadicado(), jefe);
+
+                    /**
+                     * 2018-05-02 samuel.delgado@controltechcg.com Issue #169
+                     * (SICDI-Controltech) feature-169: Envia las notificaciones
+                     * a los usuarios.
+                     */
+                    try {
+                        enviarNotificacionesCambioProceso(copiaMultidestino);
+                    } catch (Exception ex) {
+                        LOG.error(instancia.getId(), ex);
+                    }
                 }
             }
         }
@@ -5224,47 +5375,47 @@ public class DocumentoController extends UtilController {
         return new FlashAttributeValue(TITULO_FLASH_ASIGNADOS_COPIA_MULTIDESTINO, mensaje, true, radicadoJefe.size());
     }
 
-    /**
-     * Permite obtener las Series TRD de acuerdo al usuario.
-     *
-     * @param usuario Usuario.
-     * @return Lista de series TRD permitidas al usuario.
-     */
-    /*
-     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
-     * (SICDI-Controltech) feature-157
-     */
-    private List<Trd> buildTrdsHierarchy(Usuario usuario) {
-        final List<Trd> trds = tRDService.findSeriesByUsuario(usuario);
-        tRDService.ordenarPorCodigo(trds);
-
-        for (Trd trd : trds) {
-            fillTrdsHierarchy(trd, usuario);
-        }
-
-        return trds;
-    }
-
-    /**
-     * Permite obtener las Subseries TRD pertenecientes a una Serie TRD de
-     * acuerdo al usuario.
-     *
-     * @param serie Serie TRD.
-     * @param usuario Usuario.
-     */
-    /*
-     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
-     * (SICDI-Controltech) feature-157
-     */
-    private void fillTrdsHierarchy(Trd serie, Usuario usuario) {
-        final List<Trd> subseries = tRDService.findSubseriesbySerieAndUsuario(serie, usuario);
-        tRDService.ordenarPorCodigo(subseries);
-        serie.setSubs(subseries);
-
-        for (Trd subserie : subseries) {
-            fillTrdsHierarchy(subserie, usuario);
-        }
-    }
+//    /**
+//     * Permite obtener las Series TRD de acuerdo al usuario.
+//     *
+//     * @param usuario Usuario.
+//     * @return Lista de series TRD permitidas al usuario.
+//     */
+//    /*
+//     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
+//     * (SICDI-Controltech) feature-157
+//     */
+//    private List<Trd> buildTrdsHierarchy(Usuario usuario) {
+//        final List<Trd> trds = tRDService.findSeriesByUsuario(usuario);
+//        tRDService.ordenarPorCodigo(trds);
+//
+//        for (Trd trd : trds) {
+//            fillTrdsHierarchy(trd, usuario);
+//        }
+//
+//        return trds;
+//    }
+//
+//    /**
+//     * Permite obtener las Subseries TRD pertenecientes a una Serie TRD de
+//     * acuerdo al usuario.
+//     *
+//     * @param serie Serie TRD.
+//     * @param usuario Usuario.
+//     */
+//    /*
+//     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #157
+//     * (SICDI-Controltech) feature-157
+//     */
+//    private void fillTrdsHierarchy(Trd serie, Usuario usuario) {
+//        final List<Trd> subseries = tRDService.findSubseriesbySerieAndUsuario(serie, usuario);
+//        tRDService.ordenarPorCodigo(subseries);
+//        serie.setSubs(subseries);
+//
+//        for (Trd subserie : subseries) {
+//            fillTrdsHierarchy(subserie, usuario);
+//        }
+//    }
 
     /**
      * Construye las propiedades del documento que han de quedar consignadas
@@ -5441,5 +5592,84 @@ public class DocumentoController extends UtilController {
     public List<DocumentoObservacionDefecto> listarObservacionDefectoActivas() {
         return observacionDefectoService.listarActivas();
     }
+    
+    
+    public boolean verificarWildcardsPLantilla(String[] wildcards, List<WildcardPlantilla> wildcardsPlantilla){
+        List<String> strs = Arrays.asList(wildcards);
+        int counter = 0;
+        for (WildcardPlantilla wildcardPlantilla : wildcardsPlantilla) {
+            if (strs.contains(wildcardPlantilla.getTexto())) {
+                counter++;
+            }
+        }
+        return counter == wildcardsPlantilla.size();
+    }
 
+    private void enviarNotificacionesCambioProceso(final DependenciaCopiaMultidestino copiaMultidestino) {
+        final Documento documentoResultado = copiaMultidestino.getDocumentoResultado();
+        final Instancia instancia = documentoResultado.getInstancia();
+        enviarNotificacionesCambioProceso(instancia, documentoResultado, null, null);
+    }
+
+    private void enviarNotificacionesCambioProceso(final Instancia instancia, final Documento documento, List<Notificacion> notificaciones, Usuario usuarioAsignado){
+        
+        if (usuarioAsignado == null) {
+            usuarioAsignado = instancia.getAsignado();
+        }
+        
+        if (notificaciones == null) {
+            if (instancia.getEstado().getId() == ESTADO_ENVIADO) {
+                notificaciones = notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_ENVIADO);
+                if (usuarioAsignado.getId() == documento.getElabora().getId())
+                    return;
+            }else{
+                notificaciones = notificacionService.fingByTypoNotificacionValor(instancia.getEstado().getId());
+            }
+        }
+        
+        if (notificaciones != null && !notificaciones.isEmpty()) {
+            try {
+                Notificacion notificacion = notificaciones.get(0);
+                List<HProcesoInstancia> hProcesoInstancias = hprocesoInstanciaRepository.findById(instancia.getId(), new Sort(Direction.DESC, "cuandoMod"));
+                Map<String, Object> model = new HashMap();
+                model.put("usuario", usuarioAsignado);
+                model.put("instancia", instancia);
+                model.put("documento", documento);
+                
+                if (!hProcesoInstancias.isEmpty() && hProcesoInstancias.size() >= 2) {
+                    model.put("instanciaAnterior", getInstanciaNoUsuario(hProcesoInstancias, usuarioAsignado));
+                }
+                
+                Template t = new Template(notificacion.toString(), new StringReader(notificacion.getTemplate()));
+                String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
+                EmailDTO mensaje = new EmailDTO(usuarioAsignado.getEmail(), null,
+                        notificacion.getAsunto(), "", html, "", null);
+                
+                if (instancia.getEstado().getId() == ESTADO_ANULADO) {
+                    mensaje.setDestino(documento.getElabora().getEmail());
+                    if (usuarioAsignado.getId() == documento.getElabora().getId())
+                        return;
+                }
+                
+                if (instancia.getEstado().getId() == ESTADO_NUEVO_EXTERNO && 
+                        usuarioAsignado.getId() == documento.getElabora().getId())
+                    return;
+                
+                mailQueueService.enviarCorreo(mensaje);
+            } catch (IOException | TemplateException ex) {
+                LOG.error(ex.getMessage(), ex);
+            }
+        }
+    }
+    
+    
+    private HProcesoInstancia getInstanciaNoUsuario(List<HProcesoInstancia> hProcesoInstancias, Usuario usuario){
+        for (int i = 0; i < hProcesoInstancias.size(); i++) {
+            HProcesoInstancia instancia = hProcesoInstancias.get(i);
+            if (instancia.getAsignado().getId() != usuario.getId()) {
+                return instancia;
+            }
+        }
+        return null;
+    }
 }

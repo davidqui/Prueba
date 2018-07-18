@@ -65,7 +65,11 @@
                             ${x.cuandoMod?string('hh:mm a')} 
                     </td>
                 <td style="text-align: center; vertical-align: middle;word-wrap:break-word;">
-                    <strong><a href="/proceso/instancia?pin=${x.idInstancia}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
+                    <#if x.perteneceDocumento>
+                        <strong><a href="/proceso/instancia?pin=${x.idInstancia}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
+                    <#else> 
+                        <span>${(x.asunto)!"&lt;Sin asunto&gt;"}</option>
+                    </#if>
                     </td>
                 <td style="text-align: center; vertical-align: middle;">
                             ${x.unidadOrigen}
@@ -106,10 +110,10 @@
         </table>
         <#--
             2017-11-01 edison.gonzalez@controltechcg.com Issue #132 (SICDI-Controltech feature-132:
-            Se agrega items de visualizacion para la paginacion.
+            Se agrega items de visualizacion para la paginacion. 
         -->
         <#if totalPages gt 0>
-            <@printBar url="/consulta/parametros" params={"asignado":asignado,"asunto": asunto,"fechaInicio":fechaInicio,"fechaFin":fechaFin,"radicado":radicado,"destinatario":destinatario,"clasificacion":clasificacion, "dependenciaDestino":dependenciaDestino,"dependenciaOrigen":dependenciaOrigen,"term":term,"clasificacionNombre":clasificacionNombre,"dependenciaOrigenDescripcion":dependenciaOrigenDescripcion,"dependenciaDestinoDescripcion":dependenciaDestinoDescripcion} metodo="post"/>
+            <@printBar url="/consulta/parametros" params={"asignado":asignado,"asunto": asunto,"fechaInicio":fechaInicio,"fechaFin":fechaFin,"radicado":radicado,"destinatario":destinatario,"clasificacion":clasificacion, "dependenciaDestino":dependenciaDestino,"dependenciaOrigen":dependenciaOrigen,"term":term,"clasificacionNombre":clasificacionNombre,"dependenciaOrigenDescripcion":dependenciaOrigenDescripcion,"dependenciaDestinoDescripcion":dependenciaDestinoDescripcion, "tipoProceso":tipoProceso} metodo="post"/>
         </#if>
     </div>
 </#if>

@@ -35,6 +35,7 @@
                         <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 10%">UNIDAD ORIGEN</td>
                         <td style="font-weight:bold; text-align: center; vertical-align: middle;">ASIGNADO POR</td>
                         <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 5%">PLAZO</td>
+                        <td style="font-weight:bold; text-align: center; vertical-align: middle; width : 5%">ESTADO</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,6 +81,9 @@
                                         Sin plazo
                                     </span>
                                 </#if>
+                            </td>
+                            <td style="text-align: center; vertical-align: middle; width : 5%">
+                                ${controller.tranInstancia((x.instancia!""))!""}
                             </td>
                         </tr>
                     </#list>

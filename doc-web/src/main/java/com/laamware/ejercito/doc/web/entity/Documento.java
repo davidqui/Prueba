@@ -22,6 +22,7 @@ import com.laamware.ejercito.doc.web.ctrl.DocumentoMode;
 import com.laamware.ejercito.doc.web.dto.UsuarioVistoBuenoDTO;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import java.util.Objects;
+import javax.persistence.Temporal;
 
 @Entity
 @Table(name = "DOCUMENTO")
@@ -56,6 +57,15 @@ public class Documento extends AuditModifySupport {
     public static final String VAL_DOC_MODE_DESTINATARIO_TEXTO = "texto";
 
     public static final String VAL_DOC_MODE_DESTINATARIO_DEP = "dep";
+
+    /**
+     * Valor de los documentos con estado temporal.
+     */
+    /*
+     * 2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public static final String ESTADO_TEMPORAL = "TEMPORAL";
 
     public static Documento create() {
         Documento x = new Documento();
@@ -283,9 +293,28 @@ public class Documento extends AuditModifySupport {
     @Column(name = "DOC_FIRMA_ENVIO_UUID")
     private String firmaEnvioUUID;
 
+    /*
+     * 2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Campo para lugar del acta.
+     */
+    @Column(name = "ACTA_LUGAR")
+    private String actaLugar;
+
+    /*
+     * 2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Campo para la fecha de elaboración del acta.
+     */
+    @Column(name = "ACTA_FECHA_ELABORACION")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date actaFechaElaboracion;
+
     @OneToMany
     @JoinColumn(name = "DOC_ID_ORIGINAL")
     private List<DependenciaCopiaMultidestino> dependenciaCopiaMultidestinos = new ArrayList<DependenciaCopiaMultidestino>();
+    
+    @Size(max = 2000)
+    @Column(name = "ACTA_DESCRIPCION")
+    private String actaDescripcion;
 
     @Transient
     private List<UsuarioVistoBuenoDTO> vistosBuenos = new ArrayList<UsuarioVistoBuenoDTO>();
@@ -1200,4 +1229,27 @@ public class Documento extends AuditModifySupport {
         this.firmaEnvioUUID = firmaEnvioUUID;
     }
 
+    public String getActaLugar() {
+        return actaLugar;
+    }
+
+    public void setActaLugar(String actaLugar) {
+        this.actaLugar = actaLugar;
+    }
+
+    public Date getActaFechaElaboracion() {
+        return actaFechaElaboracion;
+    }
+
+    public void setActaFechaElaboracion(Date actaFechaElaboracion) {
+        this.actaFechaElaboracion = actaFechaElaboracion;
+    }
+
+    public String getActaDescripcion() {
+        return actaDescripcion;
+    }
+
+    public void setActaDescripcion(String actaDescripcion) {
+        this.actaDescripcion = actaDescripcion;
+    }
 }

@@ -2,9 +2,11 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoDependenciaArchivoDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
+import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,6 +32,13 @@ public class DocumentoDependenciaService {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    /*
+     * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    @Autowired
+    private DocumentoDependenciaRepository documentoDependenciaRepository;
 
     /**
      * Obtiene la lista de registros de archivo (DTOs) para la pantalla de
@@ -87,10 +96,28 @@ public class DocumentoDependenciaService {
             params.add(DateUtil.getMinDateOfMonth(Calendar.JANUARY, anyo));
             params.add(DateUtil.getMaxDateOfMonth(Calendar.DECEMBER, anyo));
         }
-        
+
         params.add(usuario.getDependencia().getId());
 
         final RowMapper<DocumentoDependenciaArchivoDTO> rowMapper = new BeanPropertyRowMapper<>(DocumentoDependenciaArchivoDTO.class);
         return jdbcTemplate.query(sql, params.toArray(), rowMapper);
     }
+
+    /**
+     * Busca un registro activo para un documento y un usuario asociado.
+     *
+     * @param documento Documento.
+     * @param usuario Usuario.
+     * @return Instancia del registro activo de archivo para el documento y el
+     * usuario. En caso de no existir correspondencia en el sistema, se retorna
+     * {@code null}.
+     */
+    /*
+     * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    public DocumentoDependencia buscarRegistroActivo(final Documento documento, final Usuario usuario) {
+        return documentoDependenciaRepository.findOneByDocumentoAndQuienAndActivoTrue(documento, usuario.getId());
+    }
+
 }

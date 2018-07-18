@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.PDFDocumento;
+import java.math.BigDecimal;
 
 public interface DocumentoRepository extends JpaRepository<Documento, String> {
 
@@ -38,6 +39,10 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * hotfix-81 -> Corrección en la consulta SQL de la bandeja de entrada para
      * que no presente los documentos del proceso externo enviados por el mismo
      * usuario en sesión.
+     *
+     * 2018-05-31 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Conversión en constante. Modificación para presentación de
+     * documentos del proceso de Registro de Actas.
      */
     String CONSULTABANDEJAENTRADA = ""
             + "SELECT documento.*\n"
@@ -49,7 +54,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "                                 JOIN usuario usuario_asignado ON (usuario_asignado.usu_id = proceso_instancia.usu_id_asignado)\n"
             + "                            WHERE 1 = 1\n"
             + "                            AND documento.doc_asunto IS NOT NULL\n"
-            + "                            AND proceso_instancia.pes_id NOT IN (48,52,83,101,102)\n"
+            + "                            AND proceso_instancia.pes_id NOT IN (48,52,83,101,102,151,153)\n"
             + "                            AND usuario_asignado.usu_login =:login\n"
             + "                            AND NOT (proceso_instancia.pro_id = 41 AND proceso_instancia.pes_id = 49)\n"
             + "                            UNION\n"
@@ -90,6 +95,10 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * hotfix-155: Corrección en la sentencia SQL de la bandeja de enviados,
      * para que presente los documentos de procesos externos a pesar de que sea 
      * usuario asignado y sea el usuario en sesión.
+     *
+     * 2018-03-22 edison.gonzalez@controltechcg.com Issue #162 (SICDI-Controltech)
+     * issue-162: Se realiza el ajuste para que no visualice en la bandeja de enviados
+     * los procesos de actas.
      */
     String CONSULTABANDEJAENVIADOS = ""
             + "SELECT doc.*\n"
@@ -104,6 +113,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "AND doc.doc_radicado IS NOT NULL\n"
             + "AND est.pes_final = 1\n"
             + "AND est.pes_id NOT IN (83,101)\n"
+            + "AND pin.pro_id != 100\n"
             + "AND doc.cuando_mod BETWEEN :fechaInicial AND :fechaFinal\n";
 
     /*
@@ -466,9 +476,9 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     Integer verificaAccesoDocumento(@Param("usuId") Integer usuId, @Param("pinId") String pinId);
 
     /*
-	 * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138 (SICDI-Controltech)
-	 * feature-138: Creacion de la nueva funcion para generar el numero de radicado,
-         * segun la dependencia y el id del proceso.
+     * 2017-11-14 edison.gonzalez@controltechcg.com Issue #138
+     * (SICDI-Controltech) feature-138: Creacion de la nueva funcion para
+     * generar el numero de radicado, segun la dependencia y el id del proceso.
      */
     @Query(nativeQuery = true, value = "select FN_GENERA_NUM_RADICADO(?,?) from dual")
     String getNumeroRadicado(Integer depId, Integer radId);
@@ -481,4 +491,122 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
      * exista correspondencia en el sistema.
      */
     public Documento findOneByFirmaEnvioUUID(String firmaEnvioUUID);
+
+    /**
+     * Obtiene la lista de documentos a notificar por vencimiento de plazo.
+     *
+     * @return Lista de documentos a notificar.
+     */
+    /*
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT\n"
+            + "   documento.*\n"
+            + " FROM documento\n"
+            + " LEFT JOIN proceso_instancia ON (proceso_instancia.pin_id = documento.pin_id)\n"
+            + " LEFT JOIN proceso           ON (proceso.pro_id           = proceso_instancia.pro_id)\n"
+            + " LEFT JOIN proceso_estado    ON (proceso_estado.pes_id    = proceso_instancia.pes_id)\n"
+            + " WHERE "
+            + "     documento.doc_asunto     IS NOT NULL\n"
+            + " AND documento.doc_plazo      IS NOT NULL\n"
+            + " AND proceso_instancia.pes_id NOT IN (48, 52, 83, 101, 102)\n"
+            + " AND (\n"
+            + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
+            + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
+            + " )\n"
+            + " AND TO_DATE(SYSDATE) > TO_DATE(documento.doc_plazo)\n"
+            + " ORDER BY "
+            + " documento.cuando "
+            + "")
+    List<Documento> findAllDocumentosPlazoVencido();
+
+    /**
+     * Obtiene la lista de documentos a notificar por próximo vencimiento de
+     * plazo.
+     *
+     * @param diasPlazoVencer Número de días de anticipación al vencimiento del
+     * plazo.
+     * @return Lista de documentos a notificar.
+     */
+    /*
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT\n"
+            + "   documento.*\n"
+            + " FROM documento\n"
+            + " LEFT JOIN proceso_instancia ON (proceso_instancia.pin_id = documento.pin_id)\n"
+            + " LEFT JOIN proceso           ON (proceso.pro_id           = proceso_instancia.pro_id)\n"
+            + " LEFT JOIN proceso_estado    ON (proceso_estado.pes_id    = proceso_instancia.pes_id)\n"
+            + " WHERE "
+            + "     documento.doc_asunto     IS NOT NULL\n"
+            + " AND documento.doc_plazo      IS NOT NULL\n"
+            + " AND proceso_instancia.pes_id NOT IN (48, 52, 83, 101, 102)\n"
+            + " AND (\n"
+            + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
+            + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
+            + " )\n"
+            + " AND TO_DATE(SYSDATE) = (TO_DATE(documento.doc_plazo) - :diasPlazoVencer) \n"
+            + " ORDER BY "
+            + " documento.cuando "
+            + "")
+    List<Documento> findAllDocumentosPlazoAVencer(@Param("diasPlazoVencer") Integer diasPlazoVencer);
+
+    /**
+     * Obtiene la lista de documentos a notificar por vencimiento de plazo el
+     * día del sistema (hoy).
+     *
+     * @return Lista de documentos a notificar.
+     */
+    /*
+     * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
+     * feature-169.
+     */
+    @Query(nativeQuery = true, value = ""
+            + " SELECT\n"
+            + "   documento.*\n"
+            + " FROM documento\n"
+            + " LEFT JOIN proceso_instancia ON (proceso_instancia.pin_id = documento.pin_id)\n"
+            + " LEFT JOIN proceso           ON (proceso.pro_id           = proceso_instancia.pro_id)\n"
+            + " LEFT JOIN proceso_estado    ON (proceso_estado.pes_id    = proceso_instancia.pes_id)\n"
+            + " WHERE "
+            + "     documento.doc_asunto     IS NOT NULL\n"
+            + " AND documento.doc_plazo      IS NOT NULL\n"
+            + " AND proceso_instancia.pes_id NOT IN (48, 52, 83, 101, 102)\n"
+            + " AND (\n"
+            + "    (proceso.pro_id = 8 AND proceso_instancia.pes_id NOT IN (49))\n"
+            + " OR (proceso.pro_id = 9 AND proceso_instancia.pes_id NOT IN (46, 82))\n"
+            + " )\n"
+            + " AND TO_DATE(SYSDATE) = TO_DATE(documento.doc_plazo)\n"
+            + " ORDER BY "
+            + " documento.cuando "
+            + "")
+    List<Documento> findAllDocumentosPlazoVenceHoy();
+    
+    /**
+     * Verifica si el usuario tiene acceso al documento acta.
+     *
+     * @param usuarioID ID del usuario.
+     * @param procesoInstanciaID ID de la instancia del proceso.
+     * @return {@code true} si el usuario tiene acceso al documento acta; de lo
+     * contrario, {@code false}.
+     */
+    /*
+     * 2018-05-15 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    @Query(nativeQuery = true, value = ""
+            + "SELECT\n"
+            + "  CASE\n"
+            + "    WHEN COUNT(1) > 0 THEN 1\n"
+            + "    ELSE 0\n"
+            + "  END\n"
+            + "FROM s_instancia_usuario\n"
+            + "WHERE s_instancia_usuario.usu_id = :usu_id \n"
+            + "AND s_instancia_usuario.pin_id   = :pin_id "
+            + "")
+    public BigDecimal verificaAccesoDocumentoActa(@Param("usu_id") Integer usuarioID, @Param("pin_id") String procesoInstanciaID);
 }

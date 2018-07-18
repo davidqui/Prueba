@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.laamware.ejercito.doc.web.dto.DocumentoDTO;
 import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Expediente;
+import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.BandejaRepository;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
@@ -33,6 +35,8 @@ import com.laamware.ejercito.doc.web.serv.ConsultaService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,7 +99,7 @@ public class ConsultaController extends UtilController {
          * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
          * feature-160: Filtro para firma UUID.
          */
-        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null, term);
+        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null, term, null);
     }
 
     /**
@@ -119,6 +123,7 @@ public class ConsultaController extends UtilController {
      * @param dependenciaDestinoDescripcion
      * @param dependenciaOrigenDescripcion
      * @param firmaUUID
+     * @param tipoProceso
      * @return
      */
     /*
@@ -135,6 +140,8 @@ public class ConsultaController extends UtilController {
      * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech)
      * feature-160: Filtro para firma UUID.
      *
+     * 2018-07-09 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech)
+     * feature-160: Filtro para tipo de proceso.
      */
     @RequestMapping(value = "/parametros", method = {RequestMethod.GET, RequestMethod.POST})
     public String buscar(Model model, @RequestParam(value = "asignado", required = false) String asignado,
@@ -153,7 +160,8 @@ public class ConsultaController extends UtilController {
             @RequestParam(value = "clasificacionNombre", required = false) String clasificacionNombre,
             @RequestParam(value = "dependenciaDestinoDescripcion", required = false) String dependenciaDestinoDescripcion,
             @RequestParam(value = "dependenciaOrigenDescripcion", required = false) String dependenciaOrigenDescripcion,
-            @RequestParam(value = "firmaUUID", required = false) String firmaUUID) {
+            @RequestParam(value = "firmaUUID", required = false) String firmaUUID,
+            @RequestParam(value = "tipoProceso", required = false) Integer tipoProceso) {
 
         boolean sameValue = term != null && term.trim().length() > 0;
 
@@ -177,10 +185,9 @@ public class ConsultaController extends UtilController {
             firmaUUID = term; // Issue #160
         }
 
-        // Issue #105, Issue #128, Issue #160
-        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID};
+        // Issue #105, Issue #128, Issue #160, Issue #177 
+        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID, tipoProceso};
 
-        LOG.log(Level.INFO, "iniciando metodo");
         boolean parametrosVacios = true;
         for (Object arg : args) {
             if (arg != null) {
@@ -193,7 +200,7 @@ public class ConsultaController extends UtilController {
                 }
             }
         }
-        LOG.log(Level.INFO, "verificando parametros vacios");
+
         if (parametrosVacios) {
             return "consulta-parametros";
         }
@@ -207,24 +214,31 @@ public class ConsultaController extends UtilController {
         final Integer usuarioID = usuarioSesion.getId();
         expedientes(model, principal);
 
-        LOG.log(Level.INFO, "verificando count");
+        /*
+         * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+         * feature-162: Arreglo de IDs de cargos del usuario en sesión para
+         * pasar como parámetro al constructor de la sentencia SQL.
+         */
+        final Integer[] cargosIDs = buildCargosIDsArray(usuarioSesion);
+
         List<DocumentoDTO> documentos = null;
-        int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID);
+        // Issue #177 se agrega parametro tipoProceso
+        int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
+                dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso);
         LOG.log(Level.INFO, "verificando count ]= {0}", count);
         int totalPages = 0;
         String labelInformacion = "";
 
         if (count > 0) {
-            LOG.log(Level.INFO, "parametros de paginacion");
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
+            // Issue #177 se agrega parametro tipoProceso
+            documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
+                    dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(), tipoProceso);
             LOG.log(Level.INFO, "consulta completa");
-            documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 
-        LOG.log(Level.INFO, "terminando");
-        // System.out.println("documentos.size()=" + documentos.size());
         model.addAttribute("totalResultados", documentos != null ? documentos.size() : 0);
         model.addAttribute("documentos", documentos);
         model.addAttribute("pageIndex", pageIndex);
@@ -232,7 +246,6 @@ public class ConsultaController extends UtilController {
         model.addAttribute("labelInformacion", labelInformacion);
         model.addAttribute("pageSize", pageSize);
 
-        System.err.println("sameValue= " + sameValue);
         if (!sameValue) {
             model.addAttribute("asignado", asignado);
             model.addAttribute("asunto", asunto);
@@ -247,6 +260,7 @@ public class ConsultaController extends UtilController {
             model.addAttribute("dependenciaDestinoDescripcion", dependenciaDestinoDescripcion);
             model.addAttribute("dependenciaOrigenDescripcion", dependenciaOrigenDescripcion);
             model.addAttribute("firmaUUID", firmaUUID);
+            model.addAttribute("tipoProceso", tipoProceso);
         }
 
         model.addAttribute("term", term);
@@ -332,4 +346,50 @@ public class ConsultaController extends UtilController {
             depsHierarchy(x);
         }
     }
+
+    /**
+     * Construye un arreglo con los IDs de los cargos asignados al usuario.
+     *
+     * @param usuario Usuario.
+     * @return Arreglo de IDs de cargos del usuario.
+     */
+    /*
+     * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162.
+     */
+    private Integer[] buildCargosIDsArray(final Usuario usuario) {
+        final Set<Integer> set = new LinkedHashSet<>();
+
+        final Cargo[] cargos = {
+            usuario.getUsuCargoPrincipalId(),
+            usuario.getUsuCargo1Id(),
+            usuario.getUsuCargo2Id(),
+            usuario.getUsuCargo3Id(),
+            usuario.getUsuCargo4Id(),
+            usuario.getUsuCargo5Id(),
+            usuario.getUsuCargo6Id(),
+            usuario.getUsuCargo7Id(),
+            usuario.getUsuCargo8Id(),
+            usuario.getUsuCargo9Id(),
+            usuario.getUsuCargo10Id()
+        };
+
+        for (final Cargo cargo : cargos) {
+            if (cargo != null && cargo.getId() != null && !cargo.getId().equals(0)) {
+                set.add(cargo.getId());
+            }
+        }
+
+        return set.toArray(new Integer[set.size()]);
+    }
+    
+    /*
+    * 2018-07-09 samuel.delgado@controltechcg.com Issue #177: se agrega el atributo
+    * de tipos de proceso para el select de busqueda por parametro
+    */
+    @ModelAttribute("tiposProcesos")
+    public List<Proceso> tiposProcesos() {
+        return procesoService.getProcesosAutorizados();
+    }
+
 }

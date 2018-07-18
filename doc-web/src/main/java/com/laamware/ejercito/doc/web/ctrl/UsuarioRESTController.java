@@ -3,13 +3,12 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.UsuarioBusquedaDTO;
 import com.laamware.ejercito.doc.web.entity.Usuario;
-import com.laamware.ejercito.doc.web.repo.CargosRepository;
-import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
+import com.laamware.ejercito.doc.web.serv.CargoService;
+import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,14 +26,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/rest/usuario")
 public class UsuarioRESTController {
 
+    /*
+     * 2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Cambio de repositorio por servicio.
+     */
     @Autowired
-    private UsuarioRepository usuarioRepository;
-    
+    private UsuarioService usuarioService;
+
     /**
      * Servicio de cargos.
      */
+    /*
+     * 2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+     * feature-162: Cambio de repositorio por servicio.
+     */
     @Autowired
-    CargosRepository cargosRepository;
+    private CargoService cargosService;
 
     /**
      * Servicio REST que busca un usuario activo por el número de documento.
@@ -46,8 +53,7 @@ public class UsuarioRESTController {
     @RequestMapping(value = "/buscar/activo/documento/{documento}", method = RequestMethod.POST)
     @ResponseBody
     public UsuarioBusquedaDTO buscarUsuarioActivoByDocumentoJSON(@PathVariable String documento) {
-        final Usuario usuario
-                = usuarioRepository.findByActivoTrueAndDocumento(documento);
+        final Usuario usuario = usuarioService.buscarActivoPorDocumento(documento);
 
         if (usuario == null) {
             final UsuarioBusquedaDTO busquedaDTO = new UsuarioBusquedaDTO();
@@ -69,8 +75,7 @@ public class UsuarioRESTController {
     @RequestMapping(value = "/buscar/activo/id/{id}", method = RequestMethod.POST)
     @ResponseBody
     public UsuarioBusquedaDTO buscarUsuarioActivoJSON(@PathVariable Integer id) {
-        final Usuario usuario
-                = usuarioRepository.findOne(id);
+        final Usuario usuario = usuarioService.findOne(id);
 
         if (usuario == null) {
             final UsuarioBusquedaDTO busquedaDTO = new UsuarioBusquedaDTO();
@@ -94,20 +99,23 @@ public class UsuarioRESTController {
         busquedaDTO.setId(usuario.getId());
         busquedaDTO.setNombre(usuario.getNombre());
         /*
-            2017-11-10 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech) 
-            feature-131: Cambio en la entidad usuario, se coloca llave foranea el grado.
-        */
+         * 2017-11-10 edison.gonzalez@controltechcg.com Issue #131
+         * (SICDI-Controltech) feature-131: Cambio en la entidad usuario, se
+         * coloca llave foranea el grado.
+         */
         busquedaDTO.setGrado(usuario.getUsuGrado().getId());
-        
+
         if (usuario.getClasificacion() != null) {
             busquedaDTO.setClasificacionId(usuario.getClasificacion().getId());
             busquedaDTO.setClasificacionNombre(usuario.getClasificacion()
                     .getNombre());
         }
-        
-        // 2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SIGDI-Controltech):
-        // Se añade la lista de cargos del usuario destino
-        List<Object[]> list = cargosRepository.findCargosXusuario(usuario.getId());
+
+        /*
+         * 2018-03-12 edison.gonzalez@controltechcg.com Issue #151
+         * (SIGDI-Controltech): Se añade la lista de cargos del usuario destino.
+         */
+        List<Object[]> list = cargosService.findCargosXusuario(usuario.getId());
         List<CargoDTO> cargoDTOs = new ArrayList<>();
         for (Object[] os : list) {
             CargoDTO cargoDTO = new CargoDTO(((BigDecimal) os[0]).intValue(), (String) os[1]);
