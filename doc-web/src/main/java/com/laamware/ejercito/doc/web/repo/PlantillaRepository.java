@@ -12,4 +12,5 @@ public interface PlantillaRepository extends GenJpaRepository<Plantilla, Integer
         
         List<Plantilla> findByBookmarkNameAndBookmarkValue(String bookmarkName, String bookmarkValue);
         
+        List<Plantilla> findByBookmarkName(String bookmarkName);
 }
