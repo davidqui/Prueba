@@ -233,7 +233,6 @@ public class DependenciaService {
          * feature-179: se agrega cache a ta respuesta.
          */
         List<Dependencia> root = (List<Dependencia>) cacheService.getKeyCache(DEPENDENCIAS_CACHE_KEY);
-        LOG.log(Level.SEVERE, "CACHE -- DEP");
         if (root == null) {
             root = dependenciaRepository.findByActivoAndPadreIsNull(true,
                 new Sort(Sort.Direction.ASC, "pesoOrden", "nombre"));
@@ -241,7 +240,6 @@ public class DependenciaService {
                 depsHierarchy(d);
             }
             cacheService.setKeyCache(DEPENDENCIAS_CACHE_KEY, root);
-            LOG.log(Level.SEVERE, "NOCACHE -- DEP");
         }
         return root;
     }
@@ -266,14 +264,12 @@ public class DependenciaService {
          * feature-179: se agrega cache a ta respuesta.
          */
         List<Dependencia> root = (List<Dependencia>) cacheService.getKeyCache(DEPENDENCIAS_CACHE_KEY);
-        LOG.log(Level.SEVERE, "CACHE -- DEP-P");
         if (root == null) {
             root = this.dependenciaRepository.findByActivoAndPadreIsNull(true, new Sort(Sort.Direction.ASC, new String[]{"pesoOrden", "nombre"}));
             for (Dependencia d : root) {
                 depsHierarchyPadre(d);
             }
             cacheService.setKeyCache(PDEPENDENCIAS_CACHE_KEY, root);
-            LOG.log(Level.SEVERE, "NOCACHE -- DEP-P");
         }
 
         return root;

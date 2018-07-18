@@ -235,11 +235,9 @@ public class TRDService {
          * feature-179: se agrega cache a ta respuesta.
          */
         List<Trd> listaTrds = (List<Trd>) cacheService.getKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId());
-        LOG.log(Level.SEVERE, "CACHE -- TRD");
         if (listaTrds == null) {
             listaTrds = trdRepository.findSeriesByDependencia(usuario.getDependencia().getId());
             cacheService.setKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId(), listaTrds);
-            LOG.log(Level.SEVERE, "NOCACHE -- TRD");
         }
         return listaTrds;
     }
@@ -254,11 +252,9 @@ public class TRDService {
          * feature-179: se agrega cache a ta respuesta.
          */
         List<Trd> listaTrds = (List<Trd>) cacheService.getKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId()+"_sid-"+serie.getId());
-        System.out.println("TRD CACHE -- PID "+ listaTrds);
         if (listaTrds == null) {
             listaTrds = trdRepository.findSubseries(serie.getId(), usuario.getDependencia().getId());
             cacheService.setKeyCache(TRD_CACHE_KEY+"_did-"+usuario.getDependencia().getId()+"_sid-"+serie.getId(), listaTrds);
-            LOG.log(Level.SEVERE, "NOCACHE -- TRD");
         }
         return listaTrds;
     }
@@ -282,11 +278,9 @@ public class TRDService {
          * feature-179: se agrega cache a ta respuesta.
          */
         List<Trd> subseries = (List<Trd>) cacheService.getKeyCache(TRD_CACHE_KEY);       
-        LOG.log(Level.SEVERE, "CACHE -- TRD");
         if (subseries == null) {
             subseries = trdRepository.findAllByActivoTrueAndSerieNotNull();
             cacheService.setKeyCache(TRD_CACHE_KEY, subseries);
-            System.out.println("TRD NOCACHE -- PID "+ subseries.toString());
         }
         ordenarPorCodigo(subseries);
         return subseries;

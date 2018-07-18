@@ -48,11 +48,13 @@
 		</tr>
 	</thead>
 	<tbody>
-            <#list wildCardsPlantilla as wildcard >
-		<tr>
-                    <td>${wildcard.texto}</td>
-    		</tr>
-            </#list>
+            <#if wildCardsPlantilla??>
+                <#list wildCardsPlantilla as wildcard >
+                    <tr>
+                        <td>${wildcard.texto}</td>
+                    </tr>
+                </#list>
+            </#if>
 	</tbody>
 </table>
     </#if>
