@@ -141,8 +141,29 @@ public class PlantillaController extends UtilController {
                             return "admin-plantilla-edit";
                         }
 
-                        System.out.println("NOMBRE PLANTILLA = "+nombrePlantilla+" Version = "+versionPlantilla);
-
+                        List<Plantilla> plantillasNombre = rep.findByBookmarkName(nombrePlantilla);
+                        
+                        if (plantilla.getId() != null) {
+                            int countPlantilla = 0;
+                            for (Plantilla plan : plantillasNombre) {
+                                if (!plan.getId().equals(plantilla.getId())) {
+                                    System.out.println(plan.getId()+"--"+plantilla.getId());
+                                    countPlantilla++;
+                                }
+                            }
+                            if (countPlantilla > 0){
+                                model.addAttribute(AppConstants.FLASH_ERROR, "Ya existe otro documento "
+                                        + "con el mismo nombre de versionamiento + '"+nombrePlantilla+"'");
+                                return "admin-plantilla-edit";
+                            }
+                        }else{
+                            if (!plantillasNombre.isEmpty()) {
+                                model.addAttribute(AppConstants.FLASH_ERROR, "Ya existe otro documento "
+                                        + "con el mismo nombre de versionamiento + '"+nombrePlantilla+"'");
+                                return "admin-plantilla-edit";
+                            }
+                        }
+                        
                         plantilla.setBookmarkName(nombrePlantilla);
                         plantilla.setBookmarkValue(versionPlantilla);
 
