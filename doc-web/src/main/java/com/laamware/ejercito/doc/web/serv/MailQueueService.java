@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.jms.Queue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,9 @@ public class MailQueueService {
     
     @Autowired
     private Queue queue;
+    
+    @Value("${com.mil.imi.sicdi.mail.prueba}")
+    private Boolean mailTest;
     
     /***
      * Envia el correo elétronico a la cola de AtiveMQ
@@ -47,7 +51,27 @@ public class MailQueueService {
         String body = emailDTO.getCuerpo().replaceAll("\"", "\\\\\"");
         body = body.replaceAll("'", "\\\\\"");
         
+        List<String> correosAutorizados = new ArrayList<>(); 
+        correosAutorizados.add("jcespedeso@imi.mil.co"); 
+        correosAutorizados.add("mmendozar@imi.mil.co"); 
+        correosAutorizados.add("aherreram@imi.mil.co"); 
+        correosAutorizados.add("rgomezg@imi.mil.co"); 
+        correosAutorizados.add("egonzalezm@imi.mil.co"); 
+        correosAutorizados.add("mrianom@imi.mil.co"); 
+        correosAutorizados.add("cmartinezcas@imi.mil.co"); 
+        correosAutorizados.add("dquijanor@imi.mil.co"); 
+        correosAutorizados.add("sdelgadom@imi.mil.co"); 
+        correosAutorizados.add("samuel.delgado@controltechcg.com"); 
         String destino = emailDTO.getDestino();
+        
+        if (mailTest) {
+            destino = "aherreram@imi.mil.co"; 
+            if (correosAutorizados.contains(emailDTO.getDestino())) { 
+                destino = emailDTO.getDestino(); 
+            } 
+        }
+
+        
         String jsonString = "{"
                 + "'destino':'"+destino
                 + "', 'copiaDestinos':'"+emailCp

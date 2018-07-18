@@ -1116,63 +1116,65 @@ public class DocumentoController extends UtilController {
 
         String fileId = null;
         
-        System.out.println("Entra a verificar documento");
         if (file != null && VALIDAR_PLANTILLAS) {
             try {
-                Document documentAspose = new Document(file.getInputStream());
-                BookmarkCollection bookmarks = documentAspose.getRange().getBookmarks();
-                String nombrePlantilla = null;
-                String versionPlantilla = null;
-                for (Bookmark bookmark : bookmarks) {
-                    System.out.println("Bookmark name "+bookmark.getName());
-                    try {
-                        String key = bookmark.getName().split("_")[0];
-                        String value = bookmark.getName().split("_")[1];
-                        if (key.equals("nombre")) {
-                            nombrePlantilla = value;
-                        }
-                        if (key.equals("version")) {
-                            versionPlantilla = value;
-                        }
-                    } catch (Exception ex) {  }
-                }
+                if (file.getContentType()
+                        .equalsIgnoreCase("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
+                    Document documentAspose = new Document(file.getInputStream());
+                    BookmarkCollection bookmarks = documentAspose.getRange().getBookmarks();
+                    String nombrePlantilla = null;
+                    String versionPlantilla = null;
+                    for (Bookmark bookmark : bookmarks) {
+                        System.out.println("Bookmark name "+bookmark.getName());
+                        try {
+                            String key = bookmark.getName().split("_")[0];
+                            String value = bookmark.getName().split("_")[1];
+                            if (key.equals("nombre")) {
+                                nombrePlantilla = value;
+                            }
+                            if (key.equals("version")) {
+                                versionPlantilla = value;
+                            }
+                        } catch (Exception ex) {  }
+                    }
 
-                System.out.println("NOMBRE PLANTILLA = "+nombrePlantilla+" Version = "+versionPlantilla);
+                    System.out.println("NOMBRE PLANTILLA = "+nombrePlantilla+" Version = "+versionPlantilla);
 
-                if (nombrePlantilla == null || versionPlantilla == null){
-                    doc.setMode(mode);
-                    plantillas(model);
-                    expedientes(model, principal);
-                    tipologias(doc.getTrd(), model);
-                    model.addAttribute("documento", doc);
-                    model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento,"
-                            + " Asegúrese de descargar la ultima versión de la plantilla.");
-                    return "documento";
-                }
+                    if (nombrePlantilla == null || versionPlantilla == null){
+                        doc.setMode(mode);
+                        plantillas(model);
+                        expedientes(model, principal);
+                        tipologias(doc.getTrd(), model);
+                        model.addAttribute("documento", doc);
+                        model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento,"
+                                + " Asegúrese de descargar la ultima versión de la plantilla.");
+                        return "documento";
+                    }
 
-                List<Plantilla> plantilla = plantillaRepository.findByBookmarkNameAndBookmarkValue(nombrePlantilla, versionPlantilla);
-                 
-                if (plantilla.isEmpty()){
-                    doc.setMode(mode);
-                    plantillas(model);
-                    expedientes(model, principal);
-                    tipologias(doc.getTrd(), model);
-                    model.addAttribute("documento", doc);
-                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, verifique que tiene descargada la ultima versión.");
-                    return "documento";
-                }
-                
-                String[] fieldNames = documentAspose.getMailMerge().getFieldNames();
-                List<WildcardPlantilla> wildcardsPlantilla = plantilla.get(0).getWildCards();
-                
-                if (!verificarWildcardsPLantilla(fieldNames, wildcardsPlantilla)) {
-                    doc.setMode(mode);
-                    plantillas(model);
-                    expedientes(model, principal);
-                    tipologias(doc.getTrd(), model);
-                    model.addAttribute("documento", doc);
-                    model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla no cumple con los wildcards minimos, Asegúrese de descargar la ultima versión de la plantilla.");
-                    return "documento";
+                    List<Plantilla> plantilla = plantillaRepository.findByBookmarkNameAndBookmarkValue(nombrePlantilla, versionPlantilla);
+
+                    if (plantilla.isEmpty()){
+                        doc.setMode(mode);
+                        plantillas(model);
+                        expedientes(model, principal);
+                        tipologias(doc.getTrd(), model);
+                        model.addAttribute("documento", doc);
+                        model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, verifique que tiene descargada la ultima versión.");
+                        return "documento";
+                    }
+
+                    String[] fieldNames = documentAspose.getMailMerge().getFieldNames();
+                    List<WildcardPlantilla> wildcardsPlantilla = plantilla.get(0).getWildCards();
+
+                    if (!verificarWildcardsPLantilla(fieldNames, wildcardsPlantilla)) {
+                        doc.setMode(mode);
+                        plantillas(model);
+                        expedientes(model, principal);
+                        tipologias(doc.getTrd(), model);
+                        model.addAttribute("documento", doc);
+                        model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla no cumple con los wildcards minimos, Asegúrese de descargar la ultima versión de la plantilla.");
+                        return "documento";
+                    }
                 }
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
