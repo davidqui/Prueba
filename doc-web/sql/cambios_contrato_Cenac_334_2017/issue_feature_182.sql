@@ -17,3 +17,8 @@ create TABLE NOTIFICACION_X_USUARIO(
     CONSTRAINT "FK_NOT_NOTIFICACION" FOREIGN KEY ("TNF_ID")
 	  REFERENCES "DOC"."TIPO_NOTIFICACION" ("TNF_ID")
 );
+
+-- -----------------------------------------------------------------------------
+-- SEQUENCE: NOTIFICACION_X_USUARIO_SEQ
+-- -----------------------------------------------------------------------------
+CREATE SEQUENCE  "DOC"."NOTIFICACION_X_USUARIO_SEQ"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1;
