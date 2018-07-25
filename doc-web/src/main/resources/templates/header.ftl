@@ -24,6 +24,7 @@
 
         <link rel="stylesheet" href="/css/jquery-ui.css">
         <script src="/jquery/jquery.min.js"></script>
+        <script src="/js/app/header.js"></script>
         <title>${pageTitle}</title>
 
         <script src="/ckeditor/ckeditor.js"></script>
@@ -79,20 +80,37 @@
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title" style="color: blue;">Cambiar Contraseña</h4>
-                                </div>
+                            </div>
                             <div class="modal-body" style="color: black;">
                                 <p>Al dar clic al botón "Continuar", acepta acceder al sistema OWA para realizar allí el proceso de cambio de contraseña.</p>
                                 <p>Debe permitir en su navegador activar popups provenientes de la URL de SICDI.</p>
                                 <p>Finalizado el procedimiento en el sistema mencionado, se recomienda cerrar la sesión en SICDI y acceder con la nueva contraseña.</p>
-                                </div>
+                            </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-success" data-dismiss="modal" onclick="goToOWA('${owa_link_url}');">Continuar</button>
                                 <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </#if>
+
+
+                <a href="#" data-toggle="modal" data-target="#modal-notificaciones" onclick="notificar()">Notificaciones</a>
+             
+                <div class="modal fade" id="modal-notificaciones" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title" style="color: blue;">Configuración Notificaciones</h4>
+                                </div>
+                            <div class="modal-body" style="color: black;">
+                                
                                 </div>
                             </div>
                         </div>
                     </div>
-    </#if>
                 
                 </div>
             </div>
