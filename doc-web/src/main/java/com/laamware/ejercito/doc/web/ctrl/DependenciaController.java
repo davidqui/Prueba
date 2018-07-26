@@ -45,8 +45,11 @@ public class DependenciaController extends UtilController {
 
     static final String PATH = "/dependencias";
     
-    //issue-179 constante llave del cache
+    //issue-179 constante llave del cache dependencias
     static final String DEPENDENCIAS_CACHE_KEY = "dependencias";
+    
+    //issue-179 constante llave del cache trd
+    public final static String TRD_CACHE_KEY = "trd";
 
     
     /*
@@ -313,13 +316,18 @@ public class DependenciaController extends UtilController {
                 trd.setId(t);
                 newdtrd.setTrd(trd);
                 dependenciaTrdRepository.save(newdtrd);
-               /*
-                * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
-                * feature-179: se elimina el cache de dependencias.
-                */
-                cacheService.deleteKeyCache(DEPENDENCIAS_CACHE_KEY);
             }
         }
+        
+        /*
+        * 2018-07-11 samuel.delgado@controltechcg.com Issue #179 (SICDI-Controltech)
+        * feature-179: se elimina el cache de dependencias.
+        */
+        /**
+         * 26/07/2018 hotfix-183 se cambia de pocisión el metodo para que se realiza fuera del for
+         */
+        cacheService.deleteKeyCache(DEPENDENCIAS_CACHE_KEY);
+        cacheService.deleteKeyCache(TRD_CACHE_KEY+"_did-"+dep.getId());
 
         return String.format("redirect:%s", PATH);
     }
