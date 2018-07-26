@@ -79,7 +79,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title" style="color: blue;">Cambiar Contraseña</h4>
+                                <h4 class="modal-title" style="color: #0275d8;">Cambiar Contraseña</h4>
                             </div>
                             <div class="modal-body" style="color: black;">
                                 <p>Al dar clic al botón "Continuar", acepta acceder al sistema OWA para realizar allí el proceso de cambio de contraseña.</p>
@@ -103,7 +103,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title" style="color: blue;">Configuración Notificaciones</h4>
+                                <h4 class="modal-title" style="color: #0275d8;">Configuración Notificaciones</h4>
                                 </div>
                             <div class="modal-body" style="color: black;">
                                 
