@@ -5,7 +5,8 @@
 	<div>
 	<span>
 		<a href="/prestamo/list-exp-prestados" class="btn btn-success btn-sm bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="right" title="Prestamos" data-content="Pulse visualizar el listado de expedientes prestados">Prestamos</a>
-	</span>
+                <a href="/expediente/crear" class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="crear" data-content="Pulse para crear un nuevo expediente" style="float:right;">Nuevo Expediente</a>
+        </span>
 	</div>
 	</br>
 	

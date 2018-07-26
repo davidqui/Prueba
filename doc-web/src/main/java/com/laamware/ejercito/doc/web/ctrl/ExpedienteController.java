@@ -52,6 +52,7 @@ import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -112,6 +113,35 @@ public class ExpedienteController extends UtilController {
 
     @Autowired
     DataSource ds;
+    
+    
+    @RequestMapping(value = "/crear", method = RequestMethod.GET)
+    @Transactional
+    public String crearExpediente(Model model, Principal principal){
+        final Usuario usuarioSesion = getUsuario(principal);
+        Expediente expediente = new Expediente();
+        model.addAttribute("expediente", expediente);
+        List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
+        System.out.println("list trds"+ trds.toString());
+        model.addAttribute("trds", trds);
+        return "expediente-crear";
+    }
+    
+    @RequestMapping(value = "/crear", method = RequestMethod.POST)
+    @Transactional
+    public String guardarExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req){
+        final Usuario usuarioSesion = getUsuario(principal);
+        String texp = req.getParameter("expTipo");
+        if (texp.equals("simple")) {
+            return "expediente-seleccionar-usuarios";
+        }else{
+            return "expediente-seleccionar-trds";
+        }
+//        model.addAttribute("expediente", expediente);
+//        List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
+//        System.out.println("list trds"+ trds.toString());
+//        model.addAttribute("trds", trds);
+    }
 
     @RequestMapping(value = "/contenido", method = RequestMethod.GET)
     @Transactional
