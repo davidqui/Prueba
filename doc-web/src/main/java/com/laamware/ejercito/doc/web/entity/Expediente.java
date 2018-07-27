@@ -1,5 +1,16 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 package com.laamware.ejercito.doc.web.entity;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -7,159 +18,296 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 /**
- * @author mcr
  *
+ * @author egonzalezm
+ * @since 1.8
+ * @version 07/27/2018
  */
 @Entity
 @Table(name = "EXPEDIENTE")
-@LaamLabel("Expedientes")
-public class Expediente extends AuditActivoModifySupport {
+@XmlRootElement
+public class Expediente implements Serializable {
 
-	@Id
-	@GenericGenerator(name = "EXPEDIENTE_SEQ", strategy = "sequence", parameters = {
-			@Parameter(name = "sequence", value = "EXPEDIENTE_SEQ"),
-			@Parameter(name = "allocationSize", value = "1") })
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "EXPEDIENTE_SEQ")
-	@Column(name = "EXP_ID")
-	private Integer id;
+    private static final long serialVersionUID = 1762015541224845961L;
 
-	@Column(name = "EXP_CODIGO")
-	@LaamLabel("Código")
-	@LaamCreate(order = 10)
-	@LaamListColumn(order = 10)
-	private String codigo;
+    @Id
+    @GenericGenerator(name = "seq_EXPEDIENTE", strategy = "sequence",
+            parameters = {@Parameter(name = "sequence", value = "seq_EXPEDIENTE"),@Parameter(name = "allocationSize", value = "1")})
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "seq_EXPEDIENTE")
+    @Basic(optional = false)
+    @Column(name = "EXP_ID")
+    private Long expId;
+    @Basic(optional = false)
+    @Column(name = "EXP_TIPO")
+    private int expTipo;
+    @Basic(optional = false)
+    @Column(name = "EXP_NOMBRE")
+    private String expNombre;
+    @Basic(optional = false)
+    @Column(name = "EXP_DESCRIPCION")
+    private String expDescripcion;
+    @Basic(optional = false)
+    @Column(name = "FEC_CREACION")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fecCreacion;
+    @Column(name = "FEC_MODIFICACION")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fecModificacion;
+    @Basic(optional = false)
+    @Column(name = "USUARIO_ASIGNADO")
+    private int usuarioAsignado;
+    @Basic(optional = false)
+    @Column(name = "ESTADO_CAMBIO")
+    private boolean estadoCambio;
+    @Basic(optional = false)
+    @Column(name = "IND_APROBADO_INICIAL")
+    private boolean indAprobadoInicial;
+    @Basic(optional = false)
+    @Column(name = "IND_CERRADO")
+    private boolean indCerrado;
+    @OneToMany(mappedBy = "expediente")
+    private List<Documento> documentoList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "expId")
+    private List<ExpedienteTransicion> expedienteTransicionList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "expId")
+    private List<ExpTrd> expTrdList;
+    @JoinColumn(name = "DEP_ID", referencedColumnName = "DEP_ID")
+    @ManyToOne(optional = false)
+    private Dependencia depId;
+    @JoinColumn(name = "TRD_ID_PRINCIPAL", referencedColumnName = "TRD_ID")
+    @ManyToOne(optional = false)
+    private Trd trdIdPrincipal;
+    @JoinColumn(name = "USU_MODIFICACION", referencedColumnName = "USU_ID")
+    @ManyToOne
+    private Usuario usuModificacion;
+    @JoinColumn(name = "USU_CREACION", referencedColumnName = "USU_ID")
+    @ManyToOne(optional = false)
+    private Usuario usuCreacion;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "expId")
+    private List<ExpObservacion> expObservacionList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "expId")
+    private List<ExpUsuario> expUsuarioList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "expId")
+    private List<ExpDocumento> expDocumentoList;
 
-	@LaamLabel("Nombre")
-	@LaamCreate(order = 20)
-	@LaamListColumn(order = 20)
-	@Column(name = "EXP_NOMBRE")
-	private String nombre;
+    public Expediente() {
+    }
 
-	@LaamLabel("Dependencia")
-	@LaamCreate(order = 30)
-	@LaamListColumn(order = 30)
-	@LaamWidget(value = "select", list = "dependencias")
-	@ManyToOne
-	@JoinColumn(name = "DEP_ID")
-	private Dependencia dependencia;
+    public Expediente(Long expId) {
+        this.expId = expId;
+    }
 
-	@LaamLabel("Tiempo de retencion")
-	@LaamListColumn(order = 40)
-	@Column(name = "EXP_TIEMPO_RETENCION")
-	private Integer tiempoRetencion;
+    public Expediente(Long expId, int expTipo, String expNombre, String expDescripcion, Date fecCreacion, int usuarioAsignado, boolean estadoCambio, boolean indAprobadoInicial, boolean indCerrado) {
+        this.expId = expId;
+        this.expTipo = expTipo;
+        this.expNombre = expNombre;
+        this.expDescripcion = expDescripcion;
+        this.fecCreacion = fecCreacion;
+        this.usuarioAsignado = usuarioAsignado;
+        this.estadoCambio = estadoCambio;
+        this.indAprobadoInicial = indAprobadoInicial;
+        this.indCerrado = indCerrado;
+    }
 
-	@Column(name = "TDF_ID")
-	private Integer tdf;
+    public Long getExpId() {
+        return expId;
+    }
 
-	//Issue #2
-	//En el módulo de Administración – Expedientes – Crear nuevo expediente: cambiar el campo donde dice: Procedimiento por Descripción.
-	@LaamLabel("Descripción")
-	@LaamCreate(order = 50)
-	@LaamWidget("textarea")
-	@Column(name = "EXP_PROCEDIMIENTO")
-	private String procedimiento;
+    public void setExpId(Long expId) {
+        this.expId = expId;
+    }
 
-	@LaamLabel("TRD")
-	@LaamCreate(order = 120)
-	@LaamWidget(value = "select", list = "tdrs")
-	@ManyToOne
-	@JoinColumn(name = "TRD_ID")
-	@LaamListColumn(order = 60)
-	private Trd trd;
+    public int getExpTipo() {
+        return expTipo;
+    }
 
-	@Column(name = "PLA_ID")
-	private Integer plaId;
+    public void setExpTipo(int expTipo) {
+        this.expTipo = expTipo;
+    }
 
-	@ManyToOne
-	@JoinColumn(name = "ESEX_ID")
-	EstadoExpediente estado;
+    public String getExpNombre() {
+        return expNombre;
+    }
 
-	public Integer getId() {
-		return id;
-	}
+    public void setExpNombre(String expNombre) {
+        this.expNombre = expNombre;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public String getExpDescripcion() {
+        return expDescripcion;
+    }
 
-	public String getCodigo() {
-		return codigo;
-	}
+    public void setExpDescripcion(String expDescripcion) {
+        this.expDescripcion = expDescripcion;
+    }
 
-	public void setCodigo(String codigo) {
-		this.codigo = codigo;
-	}
+    public Date getFecCreacion() {
+        return fecCreacion;
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    public void setFecCreacion(Date fecCreacion) {
+        this.fecCreacion = fecCreacion;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public Date getFecModificacion() {
+        return fecModificacion;
+    }
 
-	public Dependencia getDependencia() {
-		return dependencia;
-	}
+    public void setFecModificacion(Date fecModificacion) {
+        this.fecModificacion = fecModificacion;
+    }
 
-	public void setDependencia(Dependencia dependencia) {
-		this.dependencia = dependencia;
-	}
+    public int getUsuarioAsignado() {
+        return usuarioAsignado;
+    }
 
-	public Integer getTiempoRetencion() {
-		return tiempoRetencion;
-	}
+    public void setUsuarioAsignado(int usuarioAsignado) {
+        this.usuarioAsignado = usuarioAsignado;
+    }
 
-	public void setTiempoRetencion(Integer tiempoRetencion) {
+    public boolean getEstadoCambio() {
+        return estadoCambio;
+    }
 
-		this.tiempoRetencion = tiempoRetencion;
+    public void setEstadoCambio(boolean estadoCambio) {
+        this.estadoCambio = estadoCambio;
+    }
 
-	}
+    public boolean getIndAprobadoInicial() {
+        return indAprobadoInicial;
+    }
 
-	public Integer getTdf() {
-		return tdf;
-	}
+    public void setIndAprobadoInicial(boolean indAprobadoInicial) {
+        this.indAprobadoInicial = indAprobadoInicial;
+    }
 
-	public void setTdf(Integer tdf) {
-		this.tdf = tdf;
-	}
+    public boolean getIndCerrado() {
+        return indCerrado;
+    }
 
-	public String getProcedimiento() {
-		return procedimiento;
-	}
+    public void setIndCerrado(boolean indCerrado) {
+        this.indCerrado = indCerrado;
+    }
 
-	public void setProcedimiento(String procedimiento) {
-		this.procedimiento = procedimiento;
-	}
+    @XmlTransient
+    public List<Documento> getDocumentoList() {
+        return documentoList;
+    }
 
-	public Integer getPlaId() {
-		return plaId;
-	}
+    public void setDocumentoList(List<Documento> documentoList) {
+        this.documentoList = documentoList;
+    }
 
-	public void setPlaId(Integer plaId) {
-		this.plaId = plaId;
-	}
+    @XmlTransient
+    public List<ExpedienteTransicion> getExpedienteTransicionList() {
+        return expedienteTransicionList;
+    }
 
-	public Trd getTrd() {
-		return trd;
-	}
+    public void setExpedienteTransicionList(List<ExpedienteTransicion> expedienteTransicionList) {
+        this.expedienteTransicionList = expedienteTransicionList;
+    }
 
-	public void setTrd(Trd trd) {
-		this.trd = trd;
-	}
+    @XmlTransient
+    public List<ExpTrd> getExpTrdList() {
+        return expTrdList;
+    }
 
-	public EstadoExpediente getEstado() {
-		return estado;
-	}
+    public void setExpTrdList(List<ExpTrd> expTrdList) {
+        this.expTrdList = expTrdList;
+    }
 
-	public void setEstado(EstadoExpediente estado) {
-		this.estado = estado;
-	}
+    public Dependencia getDepId() {
+        return depId;
+    }
+
+    public void setDepId(Dependencia depId) {
+        this.depId = depId;
+    }
+
+    public Trd getTrdIdPrincipal() {
+        return trdIdPrincipal;
+    }
+
+    public void setTrdIdPrincipal(Trd trdIdPrincipal) {
+        this.trdIdPrincipal = trdIdPrincipal;
+    }
+
+    public Usuario getUsuModificacion() {
+        return usuModificacion;
+    }
+
+    public void setUsuModificacion(Usuario usuModificacion) {
+        this.usuModificacion = usuModificacion;
+    }
+
+    public Usuario getUsuCreacion() {
+        return usuCreacion;
+    }
+
+    public void setUsuCreacion(Usuario usuCreacion) {
+        this.usuCreacion = usuCreacion;
+    }
+
+    @XmlTransient
+    public List<ExpObservacion> getExpObservacionList() {
+        return expObservacionList;
+    }
+
+    public void setExpObservacionList(List<ExpObservacion> expObservacionList) {
+        this.expObservacionList = expObservacionList;
+    }
+
+    @XmlTransient
+    public List<ExpUsuario> getExpUsuarioList() {
+        return expUsuarioList;
+    }
+
+    public void setExpUsuarioList(List<ExpUsuario> expUsuarioList) {
+        this.expUsuarioList = expUsuarioList;
+    }
+
+    @XmlTransient
+    public List<ExpDocumento> getExpDocumentoList() {
+        return expDocumentoList;
+    }
+
+    public void setExpDocumentoList(List<ExpDocumento> expDocumentoList) {
+        this.expDocumentoList = expDocumentoList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (expId != null ? expId.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Expediente)) {
+            return false;
+        }
+        Expediente other = (Expediente) object;
+        if ((this.expId == null && other.expId != null) || (this.expId != null && !this.expId.equals(other.expId))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "com.laamware.ejercito.doc.web.entity.Expediente[ expId=" + expId + " ]";
+    }
 
 }
