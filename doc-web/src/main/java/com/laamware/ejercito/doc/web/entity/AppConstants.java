@@ -129,12 +129,6 @@ public class AppConstants {
     public static final String PATH_ADMIN_TRD = "/admin/trd";
 
     /**
-     * Rol de administración de expediente
-     */
-    public static final String ADMIN_EXPEDIENTES = "ADMIN_EXPEDIENTES";
-    public static final String PATH_ADMIN_EXPEDIENTES = "/admin/expediente";
-
-    /**
      * Rol de administración de Clasificaciones
      */
     public static final String ADMIN_CLASIFICACIONES = "ADMIN_CLASIFICACIONES";
