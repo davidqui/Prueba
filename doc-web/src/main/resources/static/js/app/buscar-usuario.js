@@ -87,14 +87,17 @@ function setFindResult(id) {
 
         descripcion = busquedaDTO.grado + " " + busquedaDTO.nombre + " ["
                 + busquedaDTO.clasificacionNombre + "]";
+
         $("#destinoUsuario_visible").val(descripcion);
         $("#destinoUsuario").val(busquedaDTO.id);
         $("#divCargoDestino").show();
         
+        $("#cargoAsignado option").remove();
         $("#cargoDestino option").remove();
         $.each(busquedaDTO.cargosDestino, function(index, item) {
             console.log(item.id);
             $("#cargoDestino").append("<option value="+item.id+">"+item.nombre+"</option>");
+            $("#cargoAsignado").append("<option value=" + item.id + ">" + item.nombre + "</option>");
         });
     });
 }

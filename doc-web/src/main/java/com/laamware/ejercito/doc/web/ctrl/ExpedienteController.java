@@ -42,19 +42,25 @@ import com.laamware.ejercito.doc.web.repo.AdjuntoRepository;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
-import com.laamware.ejercito.doc.web.repo.EstadoExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteEstadoRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
+import com.laamware.ejercito.doc.web.serv.CargoService;
 import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.TRDService;
+import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author mcr
@@ -94,10 +100,13 @@ public class ExpedienteController extends UtilController {
     ExpedienteEstadoRepository expedienteEstadoRepository;
 
     @Autowired
-    EstadoExpedienteRepository estadoExpedienteRepository;
-
-    @Autowired
     CargosRepository cargosRepository;
+    
+    @Autowired
+    UsuarioService usuarioService;
+    
+    @Autowired
+    CargoService cargoService;
 
     // 2017-05-15 jgarcia@controltechcg.com Issue #80 (SICDI-Controltech)
     // feature-80
@@ -113,6 +122,9 @@ public class ExpedienteController extends UtilController {
 
     @Autowired
     DataSource ds;
+    
+    Map<Usuario, Cargo> lectura;
+    Map<Usuario, Cargo> escritura = new HashMap<Usuario, Cargo>();
     
     
     @RequestMapping(value = "/crear", method = RequestMethod.GET)
@@ -142,21 +154,65 @@ public class ExpedienteController extends UtilController {
 //        System.out.println("list trds"+ trds.toString());
 //        model.addAttribute("trds", trds);
     }
-
-    @RequestMapping(value = "/contenido", method = RequestMethod.GET)
-    @Transactional
-    public String contenido(@RequestParam("eid") Integer eid, Model model, Principal principal) {
-
-        Expediente expediente = repo.findOne(eid);
-        model.addAttribute("eid", eid);
-        model.addAttribute("expediente", expediente);
-        List<Documento> documentos = documentoRepository.findByExpediente(expediente,
-                new Sort(Direction.ASC, "cuando"));
-        for (Documento documento : documentos) {
-            documento.getAdjuntos().size();
+    
+    
+    @RequestMapping(value = "/asignar-usuario-expediente", method = RequestMethod.GET)
+    public String listUsuarioExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req){
+       model.addAttribute("usuario1", lectura);
+       model.addAttribute("usuario2", escritura);
+       return "expediente-seleccionar-usuarios";
+    } 
+    
+    @ResponseBody
+    @RequestMapping(value = "/asignar-usuario-expediente/{exp}/{permiso}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
+    public ResponseEntity<?> asignarUsuarioExpediente(@PathVariable("exp") Integer expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Integer usuarioID,
+            @PathVariable("cargoID") Integer cargoID, Principal principal){
+        final Usuario usuario = usuarioService.findOne(usuarioID);
+        final Cargo cargoUsu = cargoService.findOne(cargoID);
+//        final Expediente expediente = ex
+        if (lectura == null)
+           lectura = new HashMap<Usuario, Cargo>();
+        if (escritura == null)
+           escritura = new HashMap<Usuario, Cargo>();
+        if (permiso.equals(1))
+            lectura.put(usuario, cargoUsu);
+        if (permiso.equals(2))
+            escritura.put(usuario, cargoUsu);
+        System.out.println("permiso "+permiso+" - "+usuario.toString()+" - "+cargoUsu.toString());
+        return ResponseEntity.ok(usuarioID);
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/eliminar-usuario-expediente/{exp}/{usuarioID}", method = RequestMethod.POST)
+    public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Integer expId, @PathVariable("usuarioID") Integer usuarioID, Principal principal){
+        Iterator<Map.Entry<Usuario, Cargo>> iter = lectura.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<Usuario, Cargo> entry = iter.next();
+            
+            if(entry.getKey().getId().equals(usuarioID)){
+                iter.remove();
+            }
         }
-        model.addAttribute("documentos", documentos);
-        return "expediente-contenido";
+        Iterator<Map.Entry<Usuario, Cargo>> iter2 = escritura.entrySet().iterator();
+        while (iter2.hasNext()) {
+            Map.Entry<Usuario, Cargo> entry = iter2.next();
+            if(entry.getKey().getId().equals(usuarioID)){
+                iter2.remove();
+            }
+        }
+        return ResponseEntity.ok(usuarioID);
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/cargos-usuario/{usuarioID}", method = RequestMethod.POST)
+    public ResponseEntity<?> cargosUsuario(@PathVariable("usuarioID") Integer usuarioID, Principal principal){
+        List<Object[]> cargos = cargoService.findCargosXusuario(usuarioID);
+        List<CargoDTO> cargoDTOs = new ArrayList<>();
+        for (Object[] os : cargos) {
+            CargoDTO cargoDTO = new CargoDTO(((BigDecimal) os[0]).intValue(), (String) os[1]);
+            cargoDTOs.add(cargoDTO);
+        }
+        return ResponseEntity.ok(cargoDTOs);
     }
 
     /**
@@ -190,30 +246,6 @@ public class ExpedienteController extends UtilController {
                     sbQuery.append("having count(doc.doc_id) = sum(PES.PES_FINAL) ");
                     sbQuery.append(" ORDER BY EXP.EXP_NOMBRE desc");
 
-                    List<Expediente> expedientes = jdbcTemplate.query(sbQuery.toString(), new RowMapper<Expediente>() {
-                        @Override
-                        public Expediente mapRow(ResultSet rs, int rowNum) throws SQLException {
-                            Expediente exp = new Expediente();
-                            exp.setId(rs.getInt("EXP_ID"));
-                            exp.setNombre(rs.getString("EXP_NOMBRE"));
-                            exp.setCuando(rs.getDate("CUANDO"));
-                            Dependencia dependencia = new Dependencia();
-                            exp.setDependencia(dependencia);
-                            dependencia.setId(rs.getInt("DEP_ID"));
-                            EstadoExpediente estado = new EstadoExpediente();
-                            exp.setEstado(estado);
-                            estado.setId(rs.getInt("ESEX_ID"));
-                            return exp;
-                        }
-                    });
-                    List<Expediente> list = new ArrayList<Expediente>();
-                    for (Expediente e : expedientes) {
-                        Expediente ex = new Expediente();
-                        ex = repo.findOne(e.getId());
-                        list.add(ex);
-                    }
-
-                    model.addAttribute("expedientes", list);
                     model.addAttribute("uid", getUsuario(principal).getId());
 
                     return "expediente-list";
@@ -242,32 +274,6 @@ public class ExpedienteController extends UtilController {
         sbQuery.append("having count(doc.doc_id) = sum(PES.PES_FINAL) ");
         sbQuery.append(" ORDER BY EXP.EXP_NOMBRE desc");
 
-        List<Expediente> expedientes = jdbcTemplate.query(sbQuery.toString(), new RowMapper<Expediente>() {
-            @Override
-            public Expediente mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Expediente exp = new Expediente();
-                exp.setId(rs.getInt("EXP_ID"));
-                exp.setNombre(rs.getString("EXP_NOMBRE"));
-                exp.setCuando(rs.getDate("CUANDO"));
-                Dependencia dependencia = new Dependencia();
-                exp.setDependencia(dependencia);
-                dependencia.setId(rs.getInt("DEP_ID"));
-                EstadoExpediente estado = new EstadoExpediente();
-                exp.setEstado(estado);
-                estado.setId(rs.getInt("ESEX_ID"));
-                return exp;
-            }
-        });
-        List<Expediente> list = new ArrayList<Expediente>();
-        for (Expediente e : expedientes) {
-            Expediente ex = new Expediente();
-            ex = repo.findOne(e.getId());
-            list.add(ex);
-            System.out.println("expediente id=" + ex.getId());
-            System.out.println("expediente trd=" + ex.getTrd().getNombre());
-        }
-
-        model.addAttribute("expedientes", list);
         model.addAttribute("uid", getUsuario(principal).getId());
 
         return "expediente-list";
@@ -415,15 +421,7 @@ public class ExpedienteController extends UtilController {
         return map;
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
-    @Transactional
-    public String updateExpediente(@RequestParam("eid") Integer eid, Model model, Principal principal) {
 
-        Expediente expediente = repo.findOne(eid);
-        repo.save(expediente);
-
-        return "redirect:/list";
-    }
 
     public Trd getTrd(String cod) {
         return trdRepository.findByCodigo(cod);
@@ -434,114 +432,9 @@ public class ExpedienteController extends UtilController {
         return super.nombre(id);
     }
 
-    @RequestMapping(value = "/expedientes-dependencia", method = RequestMethod.GET)
-    public String expedientesDependencia(@RequestParam("did") String did, @RequestParam("eid") Integer eid, Model model,
-            Principal principal) {
 
-        Dependencia dependencia = getUsuario(principal).getDependencia();
 
-        Documento doc = documentoRepository.getOne(did);
-
-        model.addAttribute("docId", doc.getId());
-        model.addAttribute("eid", eid);
-
-        model.addAttribute("expDoc", doc.getExpediente().getId());
-
-        List<Expediente> expedientes = repo.findAllOthers(dependencia.getId(), doc.getExpediente().getId());
-
-        if (expedientes.size() < 1) {
-            model.addAttribute("expMessage",
-                    "No existen más expedientes en su dependencia. Para crear un expediente, use el módulo de administración");
-        } else {
-
-            model.addAttribute("expedientes", expedientes);
-
-        }
-        return "expediente-list-dependencias";
-
-    }
-
-    // Deja el expediente en estado cerrado
-    @RequestMapping(value = "/cerrar", method = RequestMethod.POST)
-    public String closeExpediente(@RequestParam("eid") Integer eid, Model model, Principal principal) {
-
-        Expediente expediente = repo.findOne(eid);
-
-        EstadoExpediente estado = estadoExpedienteRepository.getByNombre("Cerrado");
-
-        ExpedienteEstado ee = expedienteEstadoRepository.findByExpediente(expediente);
-        // Se guarda el registro del expediente con su nuevo estado en la tabla
-        // de control
-        // ExpedienteEstado
-
-        try {
-            if (ee != null) {
-                ee.setExpediente(expediente);
-                ee.setEstado(estado);
-                ee.setUsuarioTransferencia(getUsuario(principal));
-                ee.setFechaTransferencia(new Date());
-                expedienteEstadoRepository.save(ee);
-            } else {
-                ExpedienteEstado expedienteEstado = new ExpedienteEstado();
-                expedienteEstado.setExpediente(expediente);
-                expedienteEstado.setEstado(estado);
-                expedienteEstado.setUsuarioTransferencia(getUsuario(principal));
-                expedienteEstado.setFechaTransferencia(new Date());
-                expedienteEstadoRepository.save(expedienteEstado);
-
-            }
-
-        } catch (Exception e) {
-
-            LOG.error("Cerrando el expediente", e);
-            model.addAttribute(AppConstants.FLASH_ERROR, "Ocurrió un error inesperado: " + e.getMessage());
-
-            return "expediente-list";
-
-        }
-
-        expediente.setEstado(estado);
-        repo.save(expediente);
-
-        return String.format("redirect:%s/list", ExpedienteController.PATH);
-
-    }
-
-    // Archiva el expediente en el archivo central
-    @RequestMapping(value = "/archivar", method = RequestMethod.POST)
-    public String archivarExpediente(@RequestParam("eid") Integer eid, Model model, Principal principal) {
-
-        Expediente expediente = repo.findOne(eid);
-
-        EstadoExpediente estado = estadoExpedienteRepository.getByNombre("Archivado");
-
-        ExpedienteEstado ee = expedienteEstadoRepository.findByExpediente(expediente);
-
-        try {
-            if (estado != null && ee != null) {
-
-                ee.setExpediente(expediente);
-                ee.setEstado(estado);
-                ee.setUsuarioTransferencia(getUsuario(principal));
-                ee.setFechaTransferencia(new Date());
-                expedienteEstadoRepository.save(ee);
-                expediente.setEstado(estado);
-                repo.save(expediente);
-
-            }
-
-        } catch (Exception e) {
-
-            LOG.error("Archivando el expediente", e);
-            model.addAttribute(AppConstants.FLASH_ERROR, "Ocurrió un error inesperado: " + e.getMessage());
-
-            return "expediente-list";
-
-        }
-
-        return String.format("redirect:%s/list", ExpedienteController.PATH);
-    }
-
+    
     @RequestMapping(value = "/expediente-vacio", method = RequestMethod.GET)
     public String expedienteVacio(Model model, Principal principal) {
 
