@@ -100,7 +100,6 @@ import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaAdicionalRepositor
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoObservacionRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
-import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.FormatoRepository;
 import com.laamware.ejercito.doc.web.repo.HProcesoInstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
@@ -211,9 +210,6 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     DocumentoRepository documentRepository;
-
-    @Autowired
-    ExpedienteRepository expedienteRepository;
 
     @Autowired
     ProcesoService procesoService;
@@ -778,7 +774,6 @@ public class DocumentoController extends UtilController {
             model.addAttribute("relacionado", documentRepository.getOne(doc.getRelacionado()));
         }
 
-        expedientes(model, principal);
         tipologias(doc.getTrd(), model);
         plantillas(model);
 
@@ -1106,7 +1101,6 @@ public class DocumentoController extends UtilController {
             }
 
             plantillas(model);
-            expedientes(model, principal);
             tipologias(doc.getTrd(), model);
 
             model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el formulario");
@@ -1143,7 +1137,6 @@ public class DocumentoController extends UtilController {
                     if (nombrePlantilla == null || versionPlantilla == null){
                         doc.setMode(mode);
                         plantillas(model);
-                        expedientes(model, principal);
                         tipologias(doc.getTrd(), model);
                         model.addAttribute("documento", doc);
                         model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento,"
@@ -1156,7 +1149,6 @@ public class DocumentoController extends UtilController {
                     if (plantilla.isEmpty()){
                         doc.setMode(mode);
                         plantillas(model);
-                        expedientes(model, principal);
                         tipologias(doc.getTrd(), model);
                         model.addAttribute("documento", doc);
                         model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, verifique que tiene descargada la ultima versión.");
@@ -1169,7 +1161,6 @@ public class DocumentoController extends UtilController {
                     if (!verificarWildcardsPLantilla(fieldNames, wildcardsPlantilla)) {
                         doc.setMode(mode);
                         plantillas(model);
-                        expedientes(model, principal);
                         tipologias(doc.getTrd(), model);
                         model.addAttribute("documento", doc);
                         model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla no cumple con los wildcards minimos, Asegúrese de descargar la ultima versión de la plantilla.");
@@ -1241,7 +1232,6 @@ public class DocumentoController extends UtilController {
             }
 
             plantillas(model);
-            expedientes(model, principal);
             tipologias(doc.getTrd(), model);
             model.addAttribute(AppConstants.FLASH_ERROR, "Ocurrió un error inesperado: " + e.getMessage());
             return "documento";
@@ -2835,7 +2825,6 @@ public class DocumentoController extends UtilController {
     public String seleccionarExpediente(@RequestParam("returnUrl") String returnUrl,
             @RequestParam("cancelUrl") String cancelUrl, Model model, Principal principal,
             RedirectAttributes redirect) {
-        expedientes(model, principal);
         try {
             model.addAttribute("returnUrl", URLDecoder.decode(returnUrl, "UTF-8"));
             model.addAttribute("cancelUrl", URLDecoder.decode(cancelUrl, "UTF-8"));
@@ -2875,7 +2864,7 @@ public class DocumentoController extends UtilController {
      */
     // TODO: La URL es temporal mientras se realiza el desarrollo.
     @RequestMapping(value = "/firmar", method = RequestMethod.GET)
-    public String firmarDocumento(@RequestParam("pin") String pinID, @RequestParam("tid") Integer transicionID, @RequestParam(value = "expId", required = false) Integer expedienteID,
+    public String firmarDocumento(@RequestParam("pin") String pinID, @RequestParam("tid") Integer transicionID, @RequestParam(value = "expId", required = false) Long expedienteID,
             @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma, Model model, Principal principal, RedirectAttributes redirect) {
 
         final String redirectURL = String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pinID);
@@ -3027,7 +3016,7 @@ public class DocumentoController extends UtilController {
      * @param documento Documento.
      */
     // TODO: Cambiar el nombre y firma (parámetros) del método.
-    private void firmarYEnviarDocumento_NEW(Documento documento, final String pinID, final Integer transicionID, final Integer expedienteID,
+    private void firmarYEnviarDocumento_NEW(Documento documento, final String pinID, final Integer transicionID, final Long expedienteID,
             final Integer cargoIdFirma, final Usuario usuarioSesion) throws BusinessLogicException {
         // TODO: Aplicar el proceso de firma y envío.
         System.out.println("Firmar y enviar: " + documento.getId() + "-----pinID= " + pinID);
@@ -3141,7 +3130,7 @@ public class DocumentoController extends UtilController {
          */
         if (expedienteID != null && expedienteID > 0) {
             Expediente expediente = new Expediente();
-            expediente.setId(expedienteID);
+            expediente.setExpId(expedienteID);
             documento.setExpediente(expediente);
         }
 
@@ -3336,7 +3325,7 @@ public class DocumentoController extends UtilController {
     @Deprecated
     @RequestMapping(value = "/firmar-depreciado", method = RequestMethod.PATCH)
     public String firmar(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid,
-            @RequestParam(value = "expId", required = false) Integer expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma,
+            @RequestParam(value = "expId", required = false) Long expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma,
             Model model, Principal principal, RedirectAttributes redirect) {
 
         /*
@@ -3453,7 +3442,7 @@ public class DocumentoController extends UtilController {
          */
         if (expId != null && expId > 0) {
             Expediente exp = new Expediente();
-            exp.setId(expId);
+            exp.setExpId(expId);
             doc.setExpediente(exp);
         }
 
@@ -4232,50 +4221,6 @@ public class DocumentoController extends UtilController {
     }
 
     /**
-     * Actualiza el nombre y la descripción del documento
-     *
-     * @param docId Es el identificador del documento
-     * @param asunto Es el asunto del documento
-     * @param desc Es la descripción del documento
-     *
-     *
-     * @return
-     */
-    @RequestMapping(value = "/update-info", method = RequestMethod.POST)
-    public String updateInfoDoc(@RequestParam("docId") String docId, @RequestParam("asunto") String asunto,
-            @RequestParam("desc") String desc) {
-
-        Documento doc = documentRepository.getOne(docId);
-        doc.setAsunto(asunto);
-        doc.setDescripcion(desc);
-        documentRepository.save(doc);
-
-        return String.format("redirect:%s/contenido?eid=%s", ExpedienteController.PATH, doc.getExpediente().getId());
-
-    }
-
-    /**
-     * Mueve el documento a otro expediente
-     *
-     * @param docid Es el identificador del documento
-     * @param expid El id del expediente al que se va a mover el documento
-     *
-     *
-     * @return
-     */
-    @RequestMapping(value = "/mover", method = RequestMethod.GET)
-    public String moveDoc(@RequestParam("docid") String docid, @RequestParam("expid") Integer expid) {
-
-        Documento doc = documentRepository.getOne(docid);
-        Expediente exp = expedienteRepository.getOne(expid);
-        doc.setExpediente(exp);
-        documentRepository.save(doc);
-
-        return String.format("redirect:%s/contenido?eid=%s", ExpedienteController.PATH, doc.getExpediente().getId());
-
-    }
-
-    /**
      * ************ DEFINITIVO ***********************
      */
     /**
@@ -4898,28 +4843,6 @@ public class DocumentoController extends UtilController {
         List<Dependencia> list = dependenciaRepository.findByActivo(true,
                 new Sort(Direction.ASC, "pesoOrden", "nombre"));
         model.addAttribute("dependencias", list);
-        return list;
-    }
-
-    /**
-     * Carga el listado de expedientes al modelo
-     *
-     * @param model
-     * @param principal
-     * @return
-     */
-    public List<Expediente> expedientes(Model model, Principal principal) {
-
-        Dependencia dependencia = getUsuario(principal).getDependencia();
-
-        if (dependencia == null) {
-            return new ArrayList<Expediente>();
-        }
-
-        Integer dependenciaId = dependencia.getId();
-        List<Expediente> list = expedienteRepository.findByActivoAndDependenciaId(true, dependenciaId,
-                new Sort(Direction.ASC, "nombre"));
-        model.addAttribute("expedientes", list);
         return list;
     }
 
