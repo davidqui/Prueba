@@ -129,7 +129,7 @@ CREATE TABLE EXPEDIENTE_TRANSICION (
   EXP_EST_ID   number(10) NOT NULL, 
   FEC_CREACION timestamp(0) NOT NULL, 
   EXP_ID       number(10) NOT NULL, 
-  DOC_ID       number(10), 
+  DOC_ID       varchar2(32), 
   PRIMARY KEY (EXP_TRA_ID));
 COMMENT ON COLUMN EXPEDIENTE_TRANSICION.EXP_TRA_ID IS 'Identificador unico de la tabla';
 COMMENT ON COLUMN EXPEDIENTE_TRANSICION.USU_CREACION IS 'Identificador del usuario quien crea la transición';
@@ -252,7 +252,7 @@ CREATE SEQUENCE seq_EXP_DOCUMENTO;
 CREATE TABLE EXP_DOCUMENTO (
   EXP_DOC_ID       number(10) NOT NULL, 
   EXP_ID           number(10) NOT NULL, 
-  DOC_ID           number(10) NOT NULL, 
+  DOC_ID           varchar2(32) NOT NULL, 
   FEC_CREACION     timestamp(0) NOT NULL, 
   USU_CREACION     number(10) NOT NULL, 
   FEC_MODIFICACION timestamp(0), 
