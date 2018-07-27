@@ -30,7 +30,6 @@ import com.laamware.ejercito.doc.web.repo.BandejaRepository;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
-import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.serv.ConsultaService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
@@ -59,9 +58,6 @@ public class ConsultaController extends UtilController {
 
     @Autowired
     DocumentoRepository documentoRepository;
-
-    @Autowired
-    ExpedienteRepository expedienteRepository;
 
     @Autowired
     ClasificacionRepository clasificacionRepository;
@@ -212,7 +208,6 @@ public class ConsultaController extends UtilController {
          */
         final Usuario usuarioSesion = getUsuario(principal);
         final Integer usuarioID = usuarioSesion.getId();
-        expedientes(model, principal);
 
         /*
          * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
@@ -266,48 +261,6 @@ public class ConsultaController extends UtilController {
         model.addAttribute("term", term);
 
         return "consulta-parametros";
-    }
-
-    /**
-     * Carga el listado de expedientes al modelo
-     *
-     * @param model
-     * @param principal
-     * @return
-     */
-    public List<Expediente> expedientesAdicional(Model model, Principal principal) {
-
-        Dependencia dependencia = getUsuario(principal).getDependencia();
-
-        if (dependencia == null) {
-            return new ArrayList<>();
-        }
-
-        Integer dependenciaId = dependencia.getId();
-        List<Expediente> list = expedienteRepository.findByActivoAndDependenciaId(true, dependenciaId,
-                new Sort(Direction.ASC, "dato"));
-        model.addAttribute("id", list);
-        return list;
-    }
-
-    /**
-     * Carga el listado de expedientes al modelo
-     *
-     * @param model
-     * @param principal
-     * @return
-     */
-    public List<Expediente> expedientes(Model model, Principal principal) {
-        final Dependencia dependencia = getUsuario(principal).getDependencia();
-
-        if (dependencia == null) {
-            return new ArrayList<>();
-        }
-
-        final Integer dependenciaId = dependencia.getId();
-        final List<Expediente> expedientes = expedienteRepository.findByActivoAndDependenciaId(true, dependenciaId, new Sort(Direction.ASC, "nombre"));
-        model.addAttribute("expedientes", expedientes);
-        return expedientes;
     }
 
     /**
