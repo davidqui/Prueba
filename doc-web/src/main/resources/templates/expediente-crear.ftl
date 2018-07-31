@@ -2,26 +2,28 @@
 <#include "bandeja-header.ftl">
 <#include "gen-arbol-trd.ftl">
 <#import "spring.ftl" as spring />
+<#include "util-macros.ftl" />
 
+<script src="/js/tinymce.min.js"></script>
 
 <div class="container-fluid" style="max-width: 800px; margin-left: inherit;">
     <form action="/expediente/crear" method="POST" enctype="multipart/form-data" >
     <fieldset class="form-group">
-        <label for="textoObservacion">Texto</label>
-        <input type="text" class="form-control" id="nombre" name="nombre" value="${(expediente.nombre)!""}"/>
+        <label for="expNombre">Nombre</label>
+        <input type="text" class="form-control" id="expNombre" name="expNombre" value="${(expediente.expNombre)!""}"/>
     </fieldset>
         
-    <div class="btn-group" data-toggle="buttons" id="topButtonDiv" style="width: 800px;">
+    <div class="btn-group" data-toggle="buttons" id="topButtonDiv" style="width: 100%;">
         <button type="button" class="btn btn-primary" id="btn-simple" style="width: 50%;" onclick="selectExpediente(1)">SIMPLE
-        <input type="radio" id="radio1" name="expTipo" value="simple" checked></button>
+        <input type="radio" id="radio1" name="expTipo" value="1" checked></button>
         <button type="button" class="btn btn-default" id="btn-complejo" style="width: 50%;" onclick="selectExpediente(2)">COMPLEJO
-        <input type="radio" id="radio2" name="expTipo" value="complejo"> </button>              
+        <input type="radio" id="radio2" name="expTipo" value="2"> </button>              
     </div>
         
     <div class="tab-content" id="myTabContent">
             <fieldset class="form-group">
-            <label for="trd">Tabla de retención documental</label>
-            <input type="hidden" id="trd" value="${(expediente.trd.id)!""}" />
+            <label for="trdIdPrincipal">Tabla de retención documental</label>
+            <input type="hidden" id="trdIdPrincipal" name="trdIdPrincipal" value="${(expediente.trd.id)!""}" />
             <div class="row">
                 <div class="col-lg-12">
                     <div class="input-group">
@@ -36,6 +38,11 @@
                 </div>
             </fieldset>
     </div>
+        
+    <fieldset class="form-group">
+        <label for="expNombre">Descripción</label>
+        <textarea class="form-control" rows="5" id="expDescripcion" name="expDescripcion">${(expediente.expDescripcion)!""}</textarea>
+    </fieldset>
 
     <!-- trdModal -->
     <div class="modal fade" id="trdModal" tabindex="-1" role="dialog" aria-labelledby="trdModalLabel" aria-hidden="true">
@@ -107,11 +114,20 @@
     }
 </script>
 
-<script src="/js/app/gen-arbol.js"></script>
 <script src="/js/jstree.min.js"></script>
+<script src="/js/app/gen-arbol.js"></script>
 
 <script type="text/javascript">
     validarArbol("#arbol_list_trd",false);
+    $('#arbol_list_trd').on("select_node.jstree", function (e, data) {
+        if (data.node.parents.length === 1) {
+            $(this).jstree("open_node", data.node.id);
+        } else {
+            $("#trdIdPrincipal").val(data.node.data.jstree.id);
+            $("#trdNombre").text(data.node.text);
+            $("#trdModalArbol").modal('hide');
+        }
+    }).jstree();
 </script>
 
 <#include "bandeja-footer.ftl">

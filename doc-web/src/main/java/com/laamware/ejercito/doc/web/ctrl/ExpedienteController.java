@@ -3,11 +3,9 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.DocumentoDependenciaArchivoDTO;
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
+import com.laamware.ejercito.doc.web.entity.AppConstants;
 import java.security.Principal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,24 +16,20 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
-import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.DependenciaTrd;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
-import com.laamware.ejercito.doc.web.entity.EstadoExpediente;
+import com.laamware.ejercito.doc.web.entity.ExpTrd;
+import com.laamware.ejercito.doc.web.entity.ExpUsuario;
 import com.laamware.ejercito.doc.web.entity.Expediente;
-import com.laamware.ejercito.doc.web.entity.ExpedienteEstado;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepository;
@@ -47,20 +41,27 @@ import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.serv.CargoService;
 import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
+import com.laamware.ejercito.doc.web.serv.ExpedienteService;
+import com.laamware.ejercito.doc.web.serv.ExpTrdService;
+import com.laamware.ejercito.doc.web.serv.ExpUsuarioService;
 import com.laamware.ejercito.doc.web.serv.TRDService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
+import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * @author mcr
@@ -73,7 +74,7 @@ public class ExpedienteController extends UtilController {
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
 
     public static final String PATH = "/expediente";
-
+    
     /*
      * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
      * feature-157: Año mínimo para los selectores de filtro por año.
@@ -112,6 +113,18 @@ public class ExpedienteController extends UtilController {
     // feature-80
     @Autowired
     TRDService trdService;
+    
+    
+    @Autowired
+    ExpedienteService expedienteService;
+    
+    @Autowired
+    ExpTrdService expTrdService;
+    
+    @Autowired
+    ExpUsuarioService expUsuarioService;
+    
+    
 
     /*
      * 2018-04-26 jgarcia@controltechcg.com Issue #151 (SICDI-Controltech)
@@ -134,72 +147,119 @@ public class ExpedienteController extends UtilController {
         Expediente expediente = new Expediente();
         model.addAttribute("expediente", expediente);
         List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
-        System.out.println("list trds"+ trds.toString());
         model.addAttribute("trds", trds);
         return "expediente-crear";
     }
     
+    
+    @RequestMapping(value = "/enviarAprobar/{exp}", method = RequestMethod.GET)
+    @Transactional
+    public String enviarAprobar(@PathVariable("exp") Long expId, Model model, Principal principal){
+        final Expediente expediente = expedienteService.finById(expId);
+        final Usuario usuarioSesion = getUsuario(principal);
+        
+        if (!hasPermitions(usuarioSesion, expediente))
+            return "security-denied";
+        
+        expedienteService.enviarAprobar(expediente, usuarioSesion);
+        model.addAttribute(AppConstants.FLASH_SUCCESS, "Se a enviado una notificación al jefe de la dependencia para que apruebe el expediente.");
+        return "redirect:"+PATH;
+    }
+    
     @RequestMapping(value = "/crear", method = RequestMethod.POST)
     @Transactional
-    public String guardarExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req){
+    public String guardarExpediente(Expediente expediente, Model model, Principal principal,
+            HttpServletRequest req, RedirectAttributes redirect){
         final Usuario usuarioSesion = getUsuario(principal);
-        String texp = req.getParameter("expTipo");
-        if (texp.equals("simple")) {
-            return "expediente-seleccionar-usuarios";
-        }else{
-            return "expediente-seleccionar-trds";
+        
+        try {
+            expediente = expedienteService.CrearExpediente(expediente, usuarioSesion);
+        } catch (BusinessLogicException ex) {
+            model.addAttribute("expediente", expediente);
+            List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
+            model.addAttribute("trds", trds);
+            model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            return "expediente-crear";
         }
-//        model.addAttribute("expediente", expediente);
-//        List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
-//        System.out.println("list trds"+ trds.toString());
-//        model.addAttribute("trds", trds);
+
+        if (expediente.getExpTipo() == 1)    
+            return "redirect:"+PATH+"/asignar-usuario-expediente/"+expediente.getExpId();
+            
+        return "redirect:"+PATH+"/trds-expediente/"+expediente.getExpId();
     }
     
     
-    @RequestMapping(value = "/asignar-usuario-expediente", method = RequestMethod.GET)
-    public String listUsuarioExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req){
-       model.addAttribute("usuario1", lectura);
-       model.addAttribute("usuario2", escritura);
+    @RequestMapping(value = "/asignar-usuario-expediente/{exp}", method = RequestMethod.GET)
+    public String listUsuarioExpediente(@PathVariable("exp") Long expId, Model model, Principal principal, HttpServletRequest req){
+        
+        final Expediente expediente = expedienteService.finById(expId);
+        final Usuario usuarioSesion = getUsuario(principal);
+        
+        if (!hasPermitions(usuarioSesion, expediente))
+            return "security-denied";
+        
+       Usuario usuCreador = expediente.getUsuCreacion();
+       Usuario jefeDependencia = usuCreador.getDependencia().getJefe();
+       List<ExpUsuario> usuarios = expUsuarioService.findByExpediente(expediente);
+       model.addAttribute("usuCreador", usuCreador);
+       model.addAttribute("jefeDependencia", jefeDependencia);
+       model.addAttribute("usuarios", usuarios);
+       model.addAttribute("expediente", expediente);
+       model.addAttribute("esJefeDependencia", usuarioSesion.getId().equals(jefeDependencia.getId()));
+
        return "expediente-seleccionar-usuarios";
     } 
     
     @ResponseBody
     @RequestMapping(value = "/asignar-usuario-expediente/{exp}/{permiso}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
-    public ResponseEntity<?> asignarUsuarioExpediente(@PathVariable("exp") Integer expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Integer usuarioID,
+    public ResponseEntity<?> asignarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Integer usuarioID,
             @PathVariable("cargoID") Integer cargoID, Principal principal){
+        final Usuario usuarioSesion = getUsuario(principal);
         final Usuario usuario = usuarioService.findOne(usuarioID);
         final Cargo cargoUsu = cargoService.findOne(cargoID);
-//        final Expediente expediente = ex
-        if (lectura == null)
-           lectura = new HashMap<Usuario, Cargo>();
-        if (escritura == null)
-           escritura = new HashMap<Usuario, Cargo>();
-        if (permiso.equals(1))
-            lectura.put(usuario, cargoUsu);
-        if (permiso.equals(2))
-            escritura.put(usuario, cargoUsu);
-        System.out.println("permiso "+permiso+" - "+usuario.toString()+" - "+cargoUsu.toString());
+        final Expediente expediente = expedienteService.finById(expId);
+        
+        if (!hasPermitions(usuarioSesion, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        List<ExpUsuario> usuarioEnEspediente = expUsuarioService.findByExpedienteAndUsuario(expediente, usuario);
+        if (!usuarioEnEspediente.isEmpty() || expediente.getUsuCreacion().getId().equals(usuarioID) || expediente.getDepId().getJefe().getId().equals(usuarioID))
+            return new ResponseEntity<>("Ya existe este usuario en el expediente.", HttpStatus.BAD_REQUEST);
+        
+        expUsuarioService.agregarUsuarioExpediente(expediente, usuarioSesion, usuario, cargoUsu, permiso);
+            
+        return ResponseEntity.ok(usuarioID);
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/editar-usuario-expediente/{exp}/{permiso}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
+    public ResponseEntity<?> editarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Long usuarioID,
+            @PathVariable("cargoID") Integer cargoID, Principal principal){
+        
+        final Usuario usuarioSesion = getUsuario(principal);
+        final Cargo cargoUsu = cargoService.findOne(cargoID);
+        final Expediente expediente = expedienteService.finById(expId);
+        
+        if (!hasPermitions(usuarioSesion, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        expUsuarioService.editarUsuarioExpediente(expediente, usuarioSesion, usuarioID, cargoUsu, permiso);
+        
+        
         return ResponseEntity.ok(usuarioID);
     }
     
     @ResponseBody
     @RequestMapping(value = "/eliminar-usuario-expediente/{exp}/{usuarioID}", method = RequestMethod.POST)
-    public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Integer expId, @PathVariable("usuarioID") Integer usuarioID, Principal principal){
-        Iterator<Map.Entry<Usuario, Cargo>> iter = lectura.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<Usuario, Cargo> entry = iter.next();
-            
-            if(entry.getKey().getId().equals(usuarioID)){
-                iter.remove();
-            }
-        }
-        Iterator<Map.Entry<Usuario, Cargo>> iter2 = escritura.entrySet().iterator();
-        while (iter2.hasNext()) {
-            Map.Entry<Usuario, Cargo> entry = iter2.next();
-            if(entry.getKey().getId().equals(usuarioID)){
-                iter2.remove();
-            }
-        }
+    public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Long usuarioID, Principal principal){
+        final Usuario usuarioSesion = getUsuario(principal);
+        final Expediente expediente = expedienteService.finById(expId);
+        
+        if (!hasPermitions(usuarioSesion, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        expUsuarioService.eliminarUsuarioExpediente(usuarioID, usuarioSesion, expediente);
+        
         return ResponseEntity.ok(usuarioID);
     }
     
@@ -214,6 +274,72 @@ public class ExpedienteController extends UtilController {
         }
         return ResponseEntity.ok(cargoDTOs);
     }
+    
+    @RequestMapping(value = "/trds-expediente/{expId}", method = RequestMethod.GET)
+    public String seleccionarTrdExpediente(@PathVariable("expId") Long expId, Model model, Principal principal, HttpServletRequest req){
+        final Usuario usuarioSesion = getUsuario(principal);
+        final Expediente expediente = expedienteService.finById(expId);
+
+        if (!hasPermitions(usuarioSesion, expediente))
+            return "security-denied";
+        
+        List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
+        List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpediente(expediente);
+        model.addAttribute("trds", trds);
+        model.addAttribute("trdsPreseleccionadas", trdsPreseleccionadas);
+        model.addAttribute("expediente", expediente);
+
+       return "expediente-seleccionar-trds";
+    }
+    
+    @RequestMapping(value = "/trds-expediente/{expId}", method = RequestMethod.POST)
+    public String asignarTrdsExpediente(@PathVariable("expId") Long expId,  @RequestParam(value="trd", required=false) Integer[] trds, Principal principal,
+            HttpServletRequest req, RedirectAttributes redirect){
+        final Usuario usuarioSesion = getUsuario(principal);
+        final Expediente expediente = expedienteService.finById(expId);
+
+        if (!hasPermitions(usuarioSesion, expediente))
+            return "security-denied";
+        
+        List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpedienteAll(expediente);
+        
+        if (trds != null) {
+            for (Integer trd : trds) {
+                boolean hasElement = false;
+                for (ExpTrd trdsPreseleccionada : trdsPreseleccionadas) {
+                    if (trdsPreseleccionada.getTrdId().getId().equals(trd)) {
+                        hasElement = true;
+                        expTrdService.guardarTrdExpediente(trdsPreseleccionada, usuarioSesion, true);
+                    }
+                }
+                if (!hasElement) {
+                    Trd pTrd = trdService.findOne(trd);
+                    expTrdService.guardarTrdExpediente(expediente, pTrd, usuarioSesion);
+                }
+            }
+        }
+        
+        desvincularTrds(trdsPreseleccionadas, trds, usuarioSesion);
+        
+        return "redirect:"+PATH+"/asignar-usuario-expediente/"+expediente.getExpId();
+    }
+    
+    public void desvincularTrds(List<ExpTrd> trdExpediente, Integer[] trds, Usuario usuarioSesion){
+        for (ExpTrd trd : trdExpediente) {
+            boolean hasElment = false;
+            if (trds != null) {
+                for (int i = 0; i < trds.length; i++) {
+                    if (trd.getTrdId().getId().equals(trds[i])) {
+                        hasElment = true;
+                    }
+                }
+            }
+            if (!hasElment) {
+                expTrdService.guardarTrdExpediente(trd, usuarioSesion, false);
+            }
+        }
+    }
+    
 
     /**
      * @param model
@@ -458,5 +584,64 @@ public class ExpedienteController extends UtilController {
             cargoDTOs.add(cargoDTO);
         }
         return cargoDTOs;
+    }
+    
+    public boolean hasPermitions(Usuario usuario, Expediente expediente){
+        System.out.println("Tiene perimisos.. "+expediente.getUsuCreacion().getId()+" -->"+usuario.getId()+" **** "+!expediente.getUsuCreacion().getId().equals(usuario.getId()));
+        if (usuario == null || expediente == null)
+            return false;
+        final Usuario jefeDep = expediente.getDepId().getJefe();
+        if (!(jefeDep != null && jefeDep.getId().equals(usuario.getId())) &&
+            !expediente.getUsuCreacion().getId().equals(usuario.getId()))
+            return false;
+        return true;
+    }
+    
+    
+    public boolean has(Integer trdId, List<ExpTrd> PreSeleccionadas) {
+        for (ExpTrd trd : PreSeleccionadas) {
+            if (trd.getTrdId().getId().equals(trdId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean hasAllSubseriesSelected(final List<ExpTrd> PreSeleccionadas, final List<Trd> subseries) {
+        if (subseries.size() != PreSeleccionadas.size()) {
+            return false;
+        }
+
+        for (Trd subserie : subseries) {
+            if (!has(subserie.getId(), PreSeleccionadas)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    public boolean hasAllSubseriesSelectedByPadre(final List<ExpTrd> PreSeleccionadas, final List<Trd> subseries, Integer id){
+        for (Trd subserie : subseries) {
+            if (subserie.getId().equals(id)) {
+                for (Trd sub : subserie.getSubs()) {
+                    if (!has(sub.getId(), PreSeleccionadas)) {
+                        return false;
+                    }
+                }
+                break;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Agrega el controlador
+     *
+     * @return controlador
+     */
+    @ModelAttribute("controller")
+    public ExpedienteController controller() {
+        return this;
     }
 }

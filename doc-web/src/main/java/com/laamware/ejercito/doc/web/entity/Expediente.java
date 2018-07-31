@@ -39,6 +39,14 @@ import org.hibernate.annotations.Parameter;
 public class Expediente implements Serializable {
 
     private static final long serialVersionUID = 1762015541224845961L;
+    
+    /**
+     * 2018-07-30 samuel.delgado@controltechcg.com #181 (SICDI-Controltech) 
+     * feature-181: se agregan constantes para el usuario.
+     */
+    public static final Integer ASIGNADO_JEFE_DEP = 1;
+    public static final Integer ASIGNADO_USUARIO = 0;
+    
 
     @Id
     @GenericGenerator(name = "seq_EXPEDIENTE", strategy = "sequence",
@@ -47,6 +55,7 @@ public class Expediente implements Serializable {
     @Basic(optional = false)
     @Column(name = "EXP_ID")
     private Long expId;
+    
     @Basic(optional = false)
     @Column(name = "EXP_TIPO")
     private int expTipo;

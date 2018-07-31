@@ -61,6 +61,9 @@ public class ExpedienteTransicion implements Serializable {
     @JoinColumn(name = "USU_CREACION", referencedColumnName = "USU_ID")
     @ManyToOne(optional = false)
     private Usuario usuCreacion;
+    @JoinColumn(name = "USU_MODIFICADO", referencedColumnName = "USU_ID")
+    @ManyToOne(optional = false)
+    private Usuario usuModificado;
 
     public ExpedienteTransicion() {
     }
@@ -122,6 +125,14 @@ public class ExpedienteTransicion implements Serializable {
         this.usuCreacion = usuCreacion;
     }
 
+    public Usuario getUsuModificado() {
+        return usuModificado;
+    }
+
+    public void setUsuModificado(Usuario usuModificado) {
+        this.usuModificado = usuModificado;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 0;

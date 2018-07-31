@@ -1,42 +1,120 @@
 
-<#assign pageTitle = "Crear Expediente"/>
-<#setting number_format="computer">
+<#assign pageTitle = "Asignar Usuarios"/>
+<#setting number_format="computer" />
 <#include "bandeja-header.ftl">
 <#include "gen-arbol-trd.ftl">
 <#import "spring.ftl" as spring />
 
-<h4>${(expediente.nombre)!""}</h4>
+<h4 style="text-align: center;">Expediente "${(expediente.expNombre)!""}"</h4>
 
-<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal" style="float: right;">
+<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal" style="float: left;">
     Agregar usuario
 </button>
-
+<#if esJefeDependencia??>
+    <a href="/expediente/${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;">
+        Regresar a Expediente
+    </a>
+<#else>
+    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#enviarJefeModal" style="float: right;">
+        Enviar para aprobar
+    </button>
+</#if>
 <div class="container-fluid">
 
     <div style="display: grid; grid-gap: 5px; grid-template-columns: repeat(auto-fit, 450px); grid-template-rows: repeat(2, 180px); width: 100%;">
-        <#if usuario1??>
-            <#list usuario1?keys as key>
+        <#if usuCreador??>
+            <div class="card" style="margin: 10px;">
+                <#if esJefeDependencia??>
+                    <button type="button" 
+                            class="btn btn-primary bmd-btn-fab" style="position: absolute;
+                            right: 0px;height: 43px;" title="Modificar" data-toggle="modal" 
+                            data-target="#cambiarUsuarioCreador" onclick="editarUsuarioCreador(${(usuCreador.id)}, '${(usuCreador.usuGrado.id)!""} ${(usuCreador.nombre)!""}')">
+                        M
+                    </button>
+                </#if>
+                <div class="card-header">
+                  ADMINISTRADOR
+                </div>
+                <div class="card-body">
+                  <blockquote class="blockquote mb-0">
+                    <h5 class="card-title">${(usuCreador.usuGrado.id)!""} ${(usuCreador.nombre)!""}</h5>
+                    <p style="font-size:12px;">ADMINISTRADOR EXPEDIENTE</p>
+                  </blockquote>
+                </div>
+                <span style="
+                      position: absolute;
+                      right: 5px;
+                      bottom: 3px;
+                      font-size: 18px;
+                      color: #d8d8d8;">
+                ${(usuCreador.clasificacion.nombre)!""}</span>
+            </div>
+        </#if>
+        <#if jefeDependencia??>
+            <div class="card" style="margin: 10px;">
+                <div class="card-header">
+                  JEFE DEPENDENCIA
+                </div>
+                <div class="card-body">
+                  <blockquote class="blockquote mb-0">
+                    <h5 class="card-title">${(jefeDependencia.usuGrado.id)!""} ${(jefeDependencia.nombre)!""}</h5>
+                    <p style="font-size:12px;">ADMINISTRADOR EXPEDIENTE</p>
+                  </blockquote>
+                </div>
+                <span style="
+                      position: absolute;
+                      right: 5px;
+                      bottom: 3px;
+                      font-size: 18px;
+                      color: #d8d8d8;">
+                ${(jefeDependencia.clasificacion.nombre)!""}</span>
+            </div>
+        </#if>
+        <#if usuarios??>
+            <#list usuarios as usuario> 
                 <div class="card" style="margin: 10px;">
+                    <#if !usuario.indAprobado>
+                        <div style="
+                            position:  absolute;
+                            width:  100%;
+                            height:  100%;
+                            background-color: rgba(37, 39, 27, 0.39);
+                        ">
+                            <p style="
+                            color:  white;
+                            font-size:  20px;
+                            text-align:  center;
+                            font-weight:  bold;
+                        ">POR APROBAR</p>
+
+                        </div>
+                    </#if>
                     <button type="button" 
                             class="btn btn-primary bmd-btn-fab" style="position: absolute;
                             right: 45px;height: 43px;" title="Modificar" data-toggle="modal" 
-                            data-target="#usuarioEditModal" onclick="editarUsuario(${(key.id)}, '${(key.usuGrado.id)!""} ${(key.nombre)!""}')">
+                            data-target="#usuarioEditModal" 
+                            onclick="editarUsuario(${(usuario.usuId.id)}, '${(usuario.usuId.usuGrado.id)!""} ${(usuario.usuId.nombre)!""}', ${(usuario.expUsuId)!""}, ${(usuario.permiso)!""})">
                         M
                     </button>
                     <button type="button" class="btn btn-danger bmd-btn-fab eliminar" 
                             style="position: absolute;right: 0px;height: 43px;" 
-                            onclick="eliminarUsuario(${(key.id)!""})"
+                            onclick="eliminarUsuario(${(usuario.expUsuId)!""}, ${(expediente.expId)!""})"
                             data-toggle="tooltip" data-placement="top" title="Eliminar">
                         X
                     </button>
                     <div class="card-header">
-                      Lectura
+                      <#if usuario.permiso == 1>
+                        Letura
+                      </#if>
+                      <#if usuario.permiso == 2>
+                        Indexación
+                      </#if>
                     </div>
                     <div class="card-body">
                       <blockquote class="blockquote mb-0">
-                        <h5 class="card-title">${(key.usuGrado.id)!""} ${(key.nombre)!""}</h5>
-                        <p>${(usuario1[key].carNombre)!""}</p>
-                        <footer class="blockquote-footer">Agregado <cite title="Source Title">27/07/2018</cite></footer>
+                        <h5 class="card-title">${(usuario.usuId.usuGrado.id)!""} ${(usuario.usuId.nombre)!""}</h5>
+                        <p style="font-size:12px;">${(usuario.carId.carNombre)!""}</p>
+                        <footer class="blockquote-footer" style="font-size:12px;">Agregado <cite title="Source Title">${(usuario.fecCreacion)!""}</cite></footer>
                       </blockquote>
                     </div>
                     <span style="
@@ -44,30 +122,8 @@
                           right: 5px;
                           bottom: 3px;
                           font-size: 18px;
-                          color: #d8d8d8;;">
-                    ${(key.clasificacion.nombre)!""}</span>
-                </div>
-            </#list>
-        </#if>
-        <#if usuario2??>
-            <#list usuario2?keys as key> 
-                <div class="card" style="width: 450px; margin: 10px;">
-                    <button type="button" class="btn btn-primary bmd-btn-fab eliminar" style="position: absolute;right: 45px;height: 43px;" onclick="eliminarUsuario(${(key.id)!""})">
-                        M
-                    </button>
-                    <button type="button" class="btn btn-danger bmd-btn-fab eliminar" style="position: absolute;right: 0px;height: 43px;" onclick="eliminarUsuario(${(key.id)!""})">
-                        X
-                    </button>
-                    <div class="card-header">
-                      Escritura
-                    </div>
-                    <div class="card-body">
-                      <blockquote class="blockquote mb-0">
-                        <h5 class="card-title">${(key.usuGrado.nombre)!""} ${(key.nombre)!""}</h5>
-                        <p>${(usuario2[key].carNombre)!""}</p>
-                        <footer class="blockquote-footer">Agregado <cite title="Source Title">27/07/2018</cite></footer>
-                      </blockquote>
-                    </div>
+                          color: #d8d8d8;">
+                    ${(usuario.usuId.clasificacion.nombre)!""}</span>
                 </div>
             </#list>
         </#if>
@@ -104,7 +160,7 @@
                                 <div class="btn-group" data-toggle="buttons" id="topButtonDiv" style="width: 100%;">
                                     <button type="button" class="btn btn-primary" id="btn-lectura" style="width: 50%;" onclick="selectPermiso(1)">Lectura
                                     <input class="permsiso" type="radio" id="radio1" name="permiso" value="1" checked></button>
-                                    <button type="button" class="btn btn-default" id="btn-escritura" style="width: 50%;" onclick="selectPermiso(2)">Escritura
+                                    <button type="button" class="btn btn-default" id="btn-escritura" style="width: 50%;" onclick="selectPermiso(2)">Indexación
                                     <input class="permsiso" type="radio" id="radio2" name="permiso" value="2"> </button>              
                                 </div>
                             </fieldset>
@@ -112,7 +168,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="agregarUsuario()">Agregar</button>                                
+                    <button type="button" class="btn btn-primary" onclick="agregarUsuario(${(expediente.expId)!""})">Agregar</button>                                
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>
@@ -133,8 +189,9 @@
                                 <label for="usuarioAsignado">Usuario (*)</label>
                                 <div class="input-group" style="width: 100%;">
                                     <input type="text" id="destinoUsuario_visible2" name="destinoUsuario_visible" class="form-control" value="" disabled />
-                                </div> 
+                                </div>
                                 <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
+                                <input type="hidden" id="expUsuario" name="destinoUsuario" value="" />
                             </div>
                             <div class="form-group">
                                 <label for="cargoAsignado2">Cargo (*)</label>
@@ -144,21 +201,80 @@
                             <fieldset class="form-group">
                                 <label for="trd">Permiso</label>
                                 <div class="btn-group" data-toggle="buttons" id="topButtonDiv" style="width: 100%;">
-                                    <button type="button" class="btn btn-primary" id="btn-lectura" style="width: 50%;" onclick="selectPermiso(1)">Lectura
-                                    <input class="permsiso" type="radio" id="radio1" name="permiso" value="1" checked></button>
-                                    <button type="button" class="btn btn-default" id="btn-escritura" style="width: 50%;" onclick="selectPermiso(2)">Escritura
-                                    <input class="permsiso" type="radio" id="radio2" name="permiso" value="2"> </button>              
+                                    <button type="button" class="btn btn-primary" id="btn-lectura2" style="width: 50%;" onclick="selectPermiso2(1)">Lectura
+                                    <input class="permsiso" type="radio" id="radio21" name="permiso" value="1" checked></button>
+                                    <button type="button" class="btn btn-default" id="btn-escritura2" style="width: 50%;" onclick="selectPermiso2(2)">Indexación
+                                    <input class="permsiso" type="radio" id="radio22" name="permiso" value="2"> </button>              
                                 </div>
                             </fieldset>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="agregarUsuario()">Guardar</button>                                
+                    <button type="button" class="btn btn-primary" onclick="editarUsuarioPost(${(expediente.expId)!""})">Guardar</button>                                
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
+    </div>
+    
+     <#-- Modal cambiar usuario creador. -->
+    <div class="modal fade" id="cambiarUsuarioCreador" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Cambiar Administrador</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <fieldset class="form-group">
+                                <label for="trd">Administrador Anterior</label>
+                                <input disabled type="text" class="form-control" id="actual_usuario_administrador" name="actual_usuario_administrador" value="${(observacionDefecto.textoObservacion)!""}"/>
+                            </fieldset> 
+                            <div class="form-group">
+                                <label for="usuarioAsignado">Usuario (*)</label>
+                                <div class="input-group">
+                                    <input type="text" id="destinoUsuario_visible3" name="destinoUsuario_visible3" class="form-control" value="" disabled />
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-primary" onclick="openFinderWindow()">Buscar</button>
+                                    </div>
+                                    <script src="/js/app/buscar-usuario.js"></script>
+                                </div>
+                                <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
+                            </div>  
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="cambiarUsuarioCreador(${(expediente.expId)!""})">Cambiar</button>                                
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    <!-- Modal enviar a jefe dependencia -->
+    <div class="modal fade" id="enviarJefeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Enviar para revición</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; right: 7px; top: 5px;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Al enviar para aprobación los cambios que halla realizado no tomaran efecto hasta que el jefe de su dependencia los apruebe.
+          </div>
+          <div class="modal-footer">
+            <a href="/expediente/enviarAprovar/${(expediente.expId)!""}" class="btn btn-secondary" data-dismiss="modal" >Cancelar</a>
+            <button type="button" class="btn btn-primary">Enviar</button>
+          </div>
+        </div>
+      </div>
     </div>
 
 <script src="/js/app/gen-arbol.js"></script>

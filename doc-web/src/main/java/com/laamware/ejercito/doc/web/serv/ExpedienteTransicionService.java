@@ -1,7 +1,13 @@
 package com.laamware.ejercito.doc.web.serv;
 
 
+import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.Expediente;
+import com.laamware.ejercito.doc.web.entity.ExpedienteEstado;
+import com.laamware.ejercito.doc.web.entity.ExpedienteTransicion;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.ExpedienteTransicionRepository;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,5 +25,18 @@ public class ExpedienteTransicionService {
      * Repositorio de transiciones de expedientes.
      */
     @Autowired
-    private ExpedienteTransicionRepository expedienteEstadoRepository;
+    private ExpedienteTransicionRepository expedienteTransicionRepository;
+    
+    
+    public void crearTransicion(Expediente expediente, ExpedienteEstado estadoTransicion, Usuario usuario, Documento documento, Usuario usuModificado){
+        
+        ExpedienteTransicion expedienteTransicion = new ExpedienteTransicion();
+        expedienteTransicion.setDocId(documento);
+        expedienteTransicion.setExpEstId(estadoTransicion);
+        expedienteTransicion.setExpId(expediente);
+        expedienteTransicion.setFecCreacion(new Date());
+        expedienteTransicion.setUsuCreacion(usuario);
+        expedienteTransicion.setUsuModificado(usuModificado);
+        expedienteTransicionRepository.saveAndFlush(expedienteTransicion);
+    }
 }

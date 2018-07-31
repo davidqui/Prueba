@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 
+import com.laamware.ejercito.doc.web.entity.ExpedienteEstado;
 import com.laamware.ejercito.doc.web.repo.ExpedienteEstadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,4 +21,9 @@ public class ExpedienteEstadoService {
      */
     @Autowired
     private ExpedienteEstadoRepository expedienteEstadoRepository;
+    
+    
+    public ExpedienteEstado findById(Long id){
+        return expedienteEstadoRepository.findOne(id);
+    }
 }
