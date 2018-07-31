@@ -33,9 +33,7 @@ public class ExpedienteTransicionService {
     
     public List<ExpedienteTransicion> retornarListaTransicionesXexpediente(Long expId){
         return expedienteTransicionRepository.findByExpIdExpId(expId, new Sort(Sort.Direction.DESC, "fecCreacion"));
-    } 
-    private ExpedienteTransicionRepository expedienteTransicionRepository;
-    
+    }     
     
     public void crearTransicion(Expediente expediente, ExpedienteEstado estadoTransicion, Usuario usuario, Documento documento, Usuario usuModificado){
         

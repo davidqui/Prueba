@@ -2,7 +2,9 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.entity.Expediente;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
+import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;

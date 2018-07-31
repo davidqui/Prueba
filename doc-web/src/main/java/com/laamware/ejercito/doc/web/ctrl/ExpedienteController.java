@@ -135,11 +135,7 @@ public class ExpedienteController extends UtilController {
     @Autowired
     ExpUsuarioService expUsuarioService;
     
-    
-
-    @Autowired
-    private ExpedienteService expedienteService;
-    
+        
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
     
@@ -278,15 +274,8 @@ public class ExpedienteController extends UtilController {
     @RequestMapping(value = "/crear", method = RequestMethod.POST)
     @Transactional
     public String guardarExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req) {
-    public String guardarExpediente(Expediente expediente, Model model, Principal principal,
-            HttpServletRequest req, RedirectAttributes redirect){
         final Usuario usuarioSesion = getUsuario(principal);
-        String texp = req.getParameter("expTipo");
-        if (texp.equals("simple")) {
-            return "expediente-seleccionar-usuarios";
-        } else {
-            return "expediente-seleccionar-trds";
-        
+
         try {
             expediente = expedienteService.CrearExpediente(expediente, usuarioSesion);
         } catch (BusinessLogicException ex) {
@@ -335,27 +324,12 @@ public class ExpedienteController extends UtilController {
     
     @ResponseBody
     @RequestMapping(value = "/asignar-usuario-expediente/{exp}/{permiso}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
-    public ResponseEntity<?> asignarUsuarioExpediente(@PathVariable("exp") Integer expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Integer usuarioID,
-            @PathVariable("cargoID") Integer cargoID, Principal principal) {
     public ResponseEntity<?> asignarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Integer usuarioID,
-            @PathVariable("cargoID") Integer cargoID, Principal principal){
+            @PathVariable("cargoID") Integer cargoID, Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
         final Usuario usuario = usuarioService.findOne(usuarioID);
         final Cargo cargoUsu = cargoService.findOne(cargoID);
-//        final Expediente expediente = ex
-        if (lectura == null) {
-            lectura = new HashMap<Usuario, Cargo>();
-        }
-        if (escritura == null) {
-            escritura = new HashMap<Usuario, Cargo>();
-        }
-        if (permiso.equals(1)) {
-            lectura.put(usuario, cargoUsu);
-        }
-        if (permiso.equals(2)) {
-            escritura.put(usuario, cargoUsu);
-        }
-        System.out.println("permiso " + permiso + " - " + usuario.toString() + " - " + cargoUsu.toString());
+
         final Expediente expediente = expedienteService.finById(expId);
         
         if (!hasPermitions(usuarioSesion, expediente))
@@ -390,22 +364,6 @@ public class ExpedienteController extends UtilController {
     
     @ResponseBody
     @RequestMapping(value = "/eliminar-usuario-expediente/{exp}/{usuarioID}", method = RequestMethod.POST)
-    public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Integer expId, @PathVariable("usuarioID") Integer usuarioID, Principal principal) {
-        Iterator<Map.Entry<Usuario, Cargo>> iter = lectura.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<Usuario, Cargo> entry = iter.next();
-
-            if (entry.getKey().getId().equals(usuarioID)) {
-                iter.remove();
-            }
-        }
-        Iterator<Map.Entry<Usuario, Cargo>> iter2 = escritura.entrySet().iterator();
-        while (iter2.hasNext()) {
-            Map.Entry<Usuario, Cargo> entry = iter2.next();
-            if (entry.getKey().getId().equals(usuarioID)) {
-                iter2.remove();
-            }
-        }
     public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Long usuarioID, Principal principal){
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
