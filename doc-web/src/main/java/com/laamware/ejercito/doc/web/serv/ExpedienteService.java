@@ -1,11 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.Expediente;
-import com.laamware.ejercito.doc.web.entity.Usuario;
-import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
-import com.laamware.ejercito.doc.web.util.BusinessLogicException;
-import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
