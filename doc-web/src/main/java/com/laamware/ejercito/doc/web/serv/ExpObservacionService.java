@@ -1,9 +1,12 @@
 package com.laamware.ejercito.doc.web.serv;
 
 
+import com.laamware.ejercito.doc.web.entity.ExpObservacion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.ExpObservacionRepository;
+import java.util.List;
+import org.springframework.data.domain.Sort;
 
 
 /**
@@ -20,4 +23,12 @@ public class ExpObservacionService {
      */
     @Autowired
     private ExpObservacionRepository expObservacionRepository;
+    
+    public List<ExpObservacion> retornarListaTransicionesXexpediente(Long expId){
+        return expObservacionRepository.findByExpIdExpId(expId, new Sort(Sort.Direction.DESC, "fecCreacion"));
+    } 
+    
+    public void guardarObservacion(ExpObservacion expObservacion){
+        expObservacionRepository.saveAndFlush(expObservacion);
+    }
 }

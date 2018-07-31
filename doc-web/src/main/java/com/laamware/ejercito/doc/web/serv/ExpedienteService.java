@@ -1,7 +1,11 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -86,7 +90,7 @@ public class ExpedienteService {
      * @return Número de registros
      */
     public int obtenerCountExpedientesPorUsuario(Integer usuId) {
-        return expedienteRepository.findExpedientesPorUsuarioCount(usuId);
+        return expedienteRepository.findExpedientesDTOPorUsuarioCount(usuId);
     }
 
     /**
@@ -98,7 +102,58 @@ public class ExpedienteService {
      * @param fin Numero de registro final
      * @return Lista de documentos
      */
-    public List<Expediente> obtenerExpedientesPorUsuarioPaginado(Integer usuId, int inicio, int fin) {
-        return expedienteRepository.findExpedientesPorUsuarioPaginado(usuId, inicio, fin);
+    public List<ExpedienteDTO> obtenerExpedientesDTOPorUsuarioPaginado(Integer usuId, int inicio, int fin) {
+        List<ExpedienteDTO> expedientes = new ArrayList<>();
+        List<Object[]> result = expedienteRepository.findExpedientesPorUsuarioPaginado(usuId, inicio, fin);
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                ExpedienteDTO dTO = retornaExpedienteDTO(object);
+                expedientes.add(dTO);
+            }
+        }
+        return expedientes;
+    }
+
+    public ExpedienteDTO obtieneExpedienteDTOPorUsuarioPorExpediente(Integer usuId, Long expId) {
+        ExpedienteDTO expedienteDTO = null;
+        System.err.println("Buscando expediente");
+        List<Object[]> result = expedienteRepository.findExpedienteDtoPorUsuarioPorExpId(usuId, expId);
+        
+        if (result != null) {
+            System.err.println("Retornando expediente1= "+result.size());
+            for (Object[] object : result) {
+                expedienteDTO = retornaExpedienteDTO(object);   
+            }
+        }
+        return expedienteDTO;
+    }
+    
+    public Expediente findOne(Long expId){
+        return expedienteRepository.findOne(expId);
+    }
+
+    private ExpedienteDTO retornaExpedienteDTO(Object[] object) {
+        ExpedienteDTO dTO = new ExpedienteDTO();
+        dTO.setExpId(object[0] != null ? ((BigDecimal) object[0]).longValue() : null);
+        dTO.setExpNombre(object[1] != null ? (String) object[1] : "");
+        dTO.setFecCreacion(object[2] != null ? (Date) object[2] : null);
+        dTO.setDepId(object[3] != null ? ((BigDecimal) object[3]).intValue() : null);
+        dTO.setDepNombre(object[4] != null ? (String) object[4] : "");
+        dTO.setTrdIdPrincipal(object[5] != null ? ((BigDecimal) object[5]).intValue() : null);
+        dTO.setTrdNomIdPrincipal(object[6] != null ? (String) object[6] : "");
+        dTO.setIndJefeDependencia(object[7] != null ? ((BigDecimal) object[7]).equals(BigDecimal.ONE) : false);
+        dTO.setIndUsuCreador(object[8] != null ? ((BigDecimal) object[8]).equals(BigDecimal.ONE) : false);
+        dTO.setIndAprobadoInicial(object[9] != null ? ((BigDecimal) object[9]).equals(BigDecimal.ONE) : false);
+        dTO.setJefeDependencia(object[10] != null ? (String) object[10] : "");
+        dTO.setUsuarioCreador(object[11] != null ? (String) object[11] : "");
+        dTO.setExpTipo(object[12] != null ? (String) object[12] : "");
+        dTO.setExpDescripcion(object[13] != null ? (String) object[13] : "");
+        dTO.setIndUsuarioAsignado(object[14] != null ? ((BigDecimal) object[14]).intValue() : null);
+        dTO.setIndCerrado(object[15] != null ? ((BigDecimal) object[15]).equals(BigDecimal.ONE) : false);
+        dTO.setNumTrdComplejo(object[16] != null ? ((BigDecimal) object[16]).intValue() : null);
+        dTO.setNumUsuarios(object[17] != null ? ((BigDecimal) object[17]).intValue() : null);
+        dTO.setNumDocumentos(object[18] != null ? ((BigDecimal) object[18]).intValue() : null);
+        dTO.setIndIndexacion(object[19] != null ? ((BigDecimal) object[19]).equals(BigDecimal.ONE) : false);
+        return dTO;
     }
 }

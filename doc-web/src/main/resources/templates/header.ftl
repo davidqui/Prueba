@@ -125,7 +125,7 @@
                     <a href="/proceso/list" class="btn btn-success btn-sm"><span class="hidden-md-down">Registro</span><span class="hidden-lg-up">Reg</span></a>
                     </li>
                 <li class="nav-item">
-                    <a href="/expediente/list?" class="btn btn-secondary btn-sm"><span class="hidden-md-down">Expedientes</span><span class="hidden-lg-up">Exp</span></a>
+                    <a href="/expediente/listarExpedientes?" class="btn btn-secondary btn-sm"><span class="hidden-md-down">Expedientes</span><span class="hidden-lg-up">Exp</span></a>
                     </li>
                 <li class="nav-item">
                     <a href="/expediente/carpeta" class="btn btn-secondary btn-sm"><span class="hidden-md-down">Archivos</span><span class="hidden-lg-up">Car</span></a>
