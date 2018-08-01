@@ -85,7 +85,7 @@ public class ExpedienteController extends UtilController {
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
 
     public static final String PATH = "/expediente";
-    
+
     /*
      * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
      * feature-157: Año mínimo para los selectores de filtro por año.
@@ -124,21 +124,21 @@ public class ExpedienteController extends UtilController {
     // feature-80
     @Autowired
     TRDService trdService;
-    
+
     
     @Autowired
     ExpedienteService expedienteService;
-    
+
     @Autowired
     ExpTrdService expTrdService;
-    
+
     @Autowired
     ExpUsuarioService expUsuarioService;
+
     
-        
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
-    
+
     @Autowired
     private ExpObservacionService expObservacionService;
 
@@ -148,7 +148,7 @@ public class ExpedienteController extends UtilController {
      */
     @Autowired
     private DocumentoDependenciaService documentoDependenciaService;
-    
+
     @Autowired
     private DocumentoObservacionDefectoService observacionDefectoService;
 
@@ -197,18 +197,18 @@ public class ExpedienteController extends UtilController {
         if(dTO == null){
             return "security-denied";
         }
-        
+
         List<ExpedienteTransicion> expedienteTransicions = expedienteTransicionService.retornarListaTransicionesXexpediente(expId);
         List<ExpObservacion> expObservacions = expObservacionService.retornarListaTransicionesXexpediente(expId);
-        
+
         model.addAttribute("expediente",dTO);
         model.addAttribute("expTransicion",expedienteTransicions);
         model.addAttribute("observaciones",expObservacions);
-        
+
         
         return "expediente-administrar";
     }
-    
+
     /**
      * Crea una observación al documento
      *
@@ -224,7 +224,7 @@ public class ExpedienteController extends UtilController {
         Usuario usuSesion = getUsuario(principal);
         Long expIdValue = Long.parseLong(expId);
         Expediente expediente = expedienteService.findOne(expIdValue);
-        
+
         ExpObservacion expObservacion = new ExpObservacion();
         expObservacion.setExpId(expediente);
         String escaped = observacion.replace("&", "&amp;");
@@ -234,11 +234,11 @@ public class ExpedienteController extends UtilController {
         expObservacion.setExpObservacion(escaped);
         expObservacion.setFecCreacion(new Date());
         expObservacion.setUsuId(usuSesion);
-        
+
         expObservacionService.guardarObservacion(expObservacion);
         Map<String, String> map = new HashMap<>();
         map.put("texto", expObservacion.getExpObservacion());
-        map.put("cuando", expObservacion.getFecCreacion().toString());
+        map.put("cuando", DateUtil.dateFormatObservacion.format(expObservacion.getFecCreacion()));
         map.put("quien", expObservacion.getUsuId().toString());
         return map;
     }
@@ -262,15 +262,15 @@ public class ExpedienteController extends UtilController {
     public String enviarAprobar(@PathVariable("exp") Long expId, Model model, Principal principal){
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
-        
+
         if (!hasPermitions(usuarioSesion, expediente))
             return "security-denied";
-        
+
         expedienteService.enviarAprobar(expediente, usuarioSesion);
         model.addAttribute(AppConstants.FLASH_SUCCESS, "Se a enviado una notificación al jefe de la dependencia para que apruebe el expediente.");
         return "redirect:"+PATH;
     }
-    
+
     @RequestMapping(value = "/crear", method = RequestMethod.POST)
     @Transactional
     public String guardarExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req) {
@@ -288,7 +288,7 @@ public class ExpedienteController extends UtilController {
 
         if (expediente.getExpTipo() == 1)    
             return "redirect:"+PATH+"/asignar-usuario-expediente/"+expediente.getExpId();
-            
+
         return "redirect:"+PATH+"/trds-expediente/"+expediente.getExpId();
     }
 
@@ -296,25 +296,25 @@ public class ExpedienteController extends UtilController {
     
     @RequestMapping(value = "/asignar-usuario-expediente/{exp}", method = RequestMethod.GET)
     public String listUsuarioExpediente(@PathVariable("exp") Long expId, Model model, Principal principal, HttpServletRequest req){
-        
+
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
-        
+
         if (!hasPermitions(usuarioSesion, expediente))
             return "security-denied";
-        
-       Usuario usuCreador = expediente.getUsuCreacion();
-       Usuario jefeDependencia = usuCreador.getDependencia().getJefe();
-       List<ExpUsuario> usuarios = expUsuarioService.findByExpediente(expediente);
-       model.addAttribute("usuCreador", usuCreador);
-       model.addAttribute("jefeDependencia", jefeDependencia);
-       model.addAttribute("usuarios", usuarios);
-       model.addAttribute("expediente", expediente);
-       model.addAttribute("esJefeDependencia", usuarioSesion.getId().equals(jefeDependencia.getId()));
 
-       return "expediente-seleccionar-usuarios";
-    } 
-    
+        Usuario usuCreador = expediente.getUsuCreacion();
+        Usuario jefeDependencia = usuCreador.getDependencia().getJefe();
+        List<ExpUsuario> usuarios = expUsuarioService.findByExpediente(expediente);
+        model.addAttribute("usuCreador", usuCreador);
+        model.addAttribute("jefeDependencia", jefeDependencia);
+        model.addAttribute("usuarios", usuarios);
+        model.addAttribute("expediente", expediente);
+        model.addAttribute("esJefeDependencia", usuarioSesion.getId().equals(jefeDependencia.getId()));
+
+        return "expediente-seleccionar-usuarios";
+    }
+
     @ResponseBody
     @RequestMapping(value = "/asignar-usuario-expediente/{exp}/{permiso}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
     public ResponseEntity<?> asignarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Integer usuarioID,
@@ -324,16 +324,16 @@ public class ExpedienteController extends UtilController {
         final Cargo cargoUsu = cargoService.findOne(cargoID);
 
         final Expediente expediente = expedienteService.finById(expId);
-        
+
         if (!hasPermitions(usuarioSesion, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
+
         List<ExpUsuario> usuarioEnEspediente = expUsuarioService.findByExpedienteAndUsuario(expediente, usuario);
         if (!usuarioEnEspediente.isEmpty() || expediente.getUsuCreacion().getId().equals(usuarioID) || expediente.getDepId().getJefe().getId().equals(usuarioID))
             return new ResponseEntity<>("Ya existe este usuario en el expediente.", HttpStatus.BAD_REQUEST);
-        
+
         expUsuarioService.agregarUsuarioExpediente(expediente, usuarioSesion, usuario, cargoUsu, permiso);
-            
+
         return ResponseEntity.ok(usuarioID);
     }
 
@@ -341,31 +341,31 @@ public class ExpedienteController extends UtilController {
     @RequestMapping(value = "/editar-usuario-expediente/{exp}/{permiso}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
     public ResponseEntity<?> editarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Long usuarioID,
             @PathVariable("cargoID") Integer cargoID, Principal principal){
-        
+
         final Usuario usuarioSesion = getUsuario(principal);
         final Cargo cargoUsu = cargoService.findOne(cargoID);
         final Expediente expediente = expedienteService.finById(expId);
-        
+
         if (!hasPermitions(usuarioSesion, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
+
         expUsuarioService.editarUsuarioExpediente(expediente, usuarioSesion, usuarioID, cargoUsu, permiso);
-        
+
         
         return ResponseEntity.ok(usuarioID);
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "/eliminar-usuario-expediente/{exp}/{usuarioID}", method = RequestMethod.POST)
     public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Long usuarioID, Principal principal){
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
-        
+
         if (!hasPermitions(usuarioSesion, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
+
         expUsuarioService.eliminarUsuarioExpediente(usuarioID, usuarioSesion, expediente);
-        
+
         return ResponseEntity.ok(usuarioID);
     }
 
@@ -380,7 +380,7 @@ public class ExpedienteController extends UtilController {
         }
         return ResponseEntity.ok(cargoDTOs);
     }
-    
+
     @RequestMapping(value = "/trds-expediente/{expId}", method = RequestMethod.GET)
     public String seleccionarTrdExpediente(@PathVariable("expId") Long expId, Model model, Principal principal, HttpServletRequest req){
         final Usuario usuarioSesion = getUsuario(principal);
@@ -388,16 +388,16 @@ public class ExpedienteController extends UtilController {
 
         if (!hasPermitions(usuarioSesion, expediente))
             return "security-denied";
-        
+
         List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpediente(expediente);
         model.addAttribute("trds", trds);
         model.addAttribute("trdsPreseleccionadas", trdsPreseleccionadas);
         model.addAttribute("expediente", expediente);
 
-       return "expediente-seleccionar-trds";
+        return "expediente-seleccionar-trds";
     }
-    
+
     @RequestMapping(value = "/trds-expediente/{expId}", method = RequestMethod.POST)
     public String asignarTrdsExpediente(@PathVariable("expId") Long expId,  @RequestParam(value="trd", required=false) Integer[] trds, Principal principal,
             HttpServletRequest req, RedirectAttributes redirect){
@@ -406,9 +406,9 @@ public class ExpedienteController extends UtilController {
 
         if (!hasPermitions(usuarioSesion, expediente))
             return "security-denied";
-        
+
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpedienteAll(expediente);
-        
+
         if (trds != null) {
             for (Integer trd : trds) {
                 boolean hasElement = false;
@@ -424,12 +424,12 @@ public class ExpedienteController extends UtilController {
                 }
             }
         }
-        
+
         desvincularTrds(trdsPreseleccionadas, trds, usuarioSesion);
-        
+
         return "redirect:"+PATH+"/asignar-usuario-expediente/"+expediente.getExpId();
     }
-    
+
     public void desvincularTrds(List<ExpTrd> trdExpediente, Integer[] trds, Usuario usuarioSesion){
         for (ExpTrd trd : trdExpediente) {
             boolean hasElment = false;
@@ -445,7 +445,7 @@ public class ExpedienteController extends UtilController {
             }
         }
     }
-    
+
 
     /**
      * @param model
@@ -686,12 +686,12 @@ public class ExpedienteController extends UtilController {
         }
         return cargoDTOs;
     }
-    
+
     @ModelAttribute("observacionesDefecto")
     public List<DocumentoObservacionDefecto> listarObservacionDefectoActivas() {
         return observacionDefectoService.listarActivas();
     }
-    
+
     public boolean hasPermitions(Usuario usuario, Expediente expediente){
         System.out.println("Tiene perimisos.. "+expediente.getUsuCreacion().getId()+" -->"+usuario.getId()+" **** "+!expediente.getUsuCreacion().getId().equals(usuario.getId()));
         if (usuario == null || expediente == null)
@@ -702,7 +702,7 @@ public class ExpedienteController extends UtilController {
             return false;
         return true;
     }
-    
+
     
     public boolean has(Integer trdId, List<ExpTrd> PreSeleccionadas) {
         for (ExpTrd trd : PreSeleccionadas) {
@@ -712,7 +712,7 @@ public class ExpedienteController extends UtilController {
         }
         return false;
     }
-    
+
     public boolean hasAllSubseriesSelected(final List<ExpTrd> PreSeleccionadas, final List<Trd> subseries) {
         if (subseries.size() != PreSeleccionadas.size()) {
             return false;
@@ -726,7 +726,7 @@ public class ExpedienteController extends UtilController {
 
         return true;
     }
-    
+
     public boolean hasAllSubseriesSelectedByPadre(final List<ExpTrd> PreSeleccionadas, final List<Trd> subseries, Integer id){
         for (Trd subserie : subseries) {
             if (subserie.getId().equals(id)) {
@@ -740,7 +740,7 @@ public class ExpedienteController extends UtilController {
         }
         return true;
     }
-    
+
     /**
      * Agrega el controlador
      *

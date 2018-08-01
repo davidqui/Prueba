@@ -12,17 +12,22 @@ $("#obsButton").click(function(event){
             url: "/expediente/observacion?expId="+expId,
             data: $("#obsForm").serialize(),
             success: function(data) {
+                
                 var hr = $("<hr/>");
-                hr.appendTo("#obsDiv");
-                var strong = $("<strong/>");
-                strong.text(data.quien + ", ");
-                strong.appendTo("#obsDiv");
-                var em = $("<em/>");
-                em.text(data.cuando);
-                em.appendTo("#obsDiv");
+                $("#obsDiv").prepend(hr);
+                
                 var p = $("<p/>");
                 p.html(data.texto);
-                p.appendTo("#obsDiv");
+                $("#obsDiv").prepend(p);
+                
+                var em = $("<em/>");
+                em.text(data.cuando);
+                $("#obsDiv").prepend(em);
+                
+                var strong = $("<strong/>");
+                strong.text(data.quien + ", ");
+                $("#obsDiv").prepend(strong);
+                
                 $("#observacion").val('');
             }
         });
