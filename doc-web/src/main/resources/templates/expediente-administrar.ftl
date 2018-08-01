@@ -60,10 +60,10 @@
     <div class="col-md-8 col-lg-9">
         <div class="pull-xs-right">
             <#if expediente.indUsuCreador || expediente.indJefeDependencia>
-                <a title="Administrar Usuarios" href="#">
+                <a title="Administrar Usuarios" href="/expediente/asignar-usuario-expediente/${expediente.expId}">
                     <img class="card-img-top" src="/img/users.svg" alt="">
                 </a>
-                <a title="Administrar Trds" href="#">
+                <a title="Administrar Trds" href="/expediente/trds-expediente/${expediente.expId}">
                     <img class="card-img-top" src="/img/plus.svg" alt="">
                 </a>
             </#if>

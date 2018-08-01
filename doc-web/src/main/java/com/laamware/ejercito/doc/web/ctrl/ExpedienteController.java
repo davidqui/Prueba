@@ -292,13 +292,6 @@ public class ExpedienteController extends UtilController {
         return "redirect:"+PATH+"/trds-expediente/"+expediente.getExpId();
     }
 
-    @RequestMapping(value = "/asignar-usuario-expediente", method = RequestMethod.GET)
-    public String listUsuarioExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req) {
-        model.addAttribute("usuario1", lectura);
-        model.addAttribute("usuario2", escritura);
-        return "expediente-seleccionar-usuarios";
-    }
-
     
     
     @RequestMapping(value = "/asignar-usuario-expediente/{exp}", method = RequestMethod.GET)

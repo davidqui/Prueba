@@ -11,7 +11,7 @@
     Agregar usuario
 </button>
 <#if esJefeDependencia??>
-    <a href="/expediente/${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;">
+    <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;">
         Regresar a Expediente
     </a>
 <#else>
