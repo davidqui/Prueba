@@ -1,5 +1,5 @@
 <#setting number_format="computer">
-<#assign pageTitle = "Nombre por defecto" />
+<#assign pageTitle = "Nombre del Expediente" />
 <#-- <#assign mode = nombreExpediente.mode!"" /> -->
 <#assign deferredJS = "" />
 <#import "spring.ftl" as spring />
