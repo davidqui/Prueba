@@ -196,6 +196,11 @@ public class AppConstants {
      */
     public static final String ADMIN_DOMINIO = "ADMIN_DOMINIO";
     public static final String PATH_ADMIN_DOMINIO = "/admin/dominio";
+    /**
+     * Rol de administración de nombre de expediente
+     */
+    public static final String ADMIN_PAR_NOMBRE_EXPEDIENTE = "ADMIN_PAR_NOMBRE_EXPEDIENTE";
+    public static final String PATH_ADMIN_PAR_NOMBRE_EXPEDIENTE = "/admin/parnombrexpediente";
 
     /**
      * Rol para búsqueda de documentos por firma/envío UUID.

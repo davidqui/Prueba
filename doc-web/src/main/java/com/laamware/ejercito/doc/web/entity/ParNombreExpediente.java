@@ -31,6 +31,8 @@ import org.hibernate.annotations.Parameter;
  */
 @Entity
 @Table(name = "PAR_NOMBRE_EXPEDIENTE")
+@SuppressWarnings("PersistenceUnitPresent")
+@LaamLabel("Parametro Nombre Expediente")
 @XmlRootElement
 public class ParNombreExpediente implements Serializable {
 
@@ -44,6 +46,9 @@ public class ParNombreExpediente implements Serializable {
     @Column(name = "PAR_ID")
     private Long parId;
     @Basic(optional = false)
+    @LaamLabel("Nombre")
+    @LaamListColumn(order = 10)
+    @LaamCreate(order = 10)
     @Column(name = "PAR_NOMBRE")
     private String parNombre;
     @Basic(optional = false)
