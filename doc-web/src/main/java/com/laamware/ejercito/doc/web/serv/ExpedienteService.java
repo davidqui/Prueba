@@ -2,9 +2,11 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.ExpUsuario;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.ParNombreExpediente;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.ExpUsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import java.math.BigDecimal;
@@ -13,6 +15,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 /**
@@ -41,11 +44,15 @@ public class ExpedienteService {
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
     
+    @Autowired
+    private ExpUsuarioService expUsuarioService;
+    
     
     public static final Long ESTADO_INICIAL_EXPEDIENTE = new Long(1100) ;
     public static final Long ESTADO_ENVIADO_APROBAR = new Long(1101) ;
     public static final Long ESTADO_ADMINISTRADOR_MODIFICADO = new Long(1101) ;
-    
+    public static final Long ESTADO_APROBADO = new Long(1102) ;
+    public static final Long ESTADO_RECHAZADO = new Long(1103) ;    
     
     public Expediente finById(Long id){
         return expedienteRepository.findOne(id);
@@ -155,6 +162,35 @@ public class ExpedienteService {
     public Expediente findOne(Long expId){
         return expedienteRepository.findOne(expId);
     }
+    
+    public void aprobarExpediente(Expediente expediente, Usuario usuarioSesion) {
+        expediente.setUsuarioAsignado(0);
+        expediente.setEstadoCambio(true);
+        expediente.setIndAprobadoInicial(true);
+        expediente.setUsuModificacion(usuarioSesion);
+        expediente.setFecModificacion(new Date());
+        
+        expUsuarioService.aprobarUsuariosPorExpediente(expediente, usuarioSesion);
+        
+        expedienteTransicionService.crearTransicion(expediente, 
+                expedienteEstadoService.findById(ESTADO_APROBADO), usuarioSesion, null, null);
+        
+        expedienteRepository.saveAndFlush(expediente);
+    }
+    
+    public void rechazarExpediente(Expediente expediente, Usuario usuarioSesion) {
+        expediente.setUsuarioAsignado(0);
+        expediente.setEstadoCambio(false);
+        expediente.setUsuModificacion(usuarioSesion);
+        expediente.setFecModificacion(new Date());
+        
+        expUsuarioService.rechazarUsuariosPorExpediente(expediente, usuarioSesion);
+        
+        expedienteTransicionService.crearTransicion(expediente, 
+                expedienteEstadoService.findById(ESTADO_RECHAZADO), usuarioSesion, null, null);
+        
+        expedienteRepository.saveAndFlush(expediente);
+    }
 
     private ExpedienteDTO retornaExpedienteDTO(Object[] object) {
         ExpedienteDTO dTO = new ExpedienteDTO();
@@ -170,14 +206,15 @@ public class ExpedienteService {
         dTO.setIndAprobadoInicial(object[9] != null ? ((BigDecimal) object[9]).equals(BigDecimal.ONE) : false);
         dTO.setJefeDependencia(object[10] != null ? (String) object[10] : "");
         dTO.setUsuarioCreador(object[11] != null ? (String) object[11] : "");
-        dTO.setExpTipo(object[12] != null ? (String) object[12] : "");
-        dTO.setExpDescripcion(object[13] != null ? (String) object[13] : "");
-        dTO.setIndUsuarioAsignado(object[14] != null ? ((BigDecimal) object[14]).intValue() : null);
-        dTO.setIndCerrado(object[15] != null ? ((BigDecimal) object[15]).equals(BigDecimal.ONE) : false);
-        dTO.setNumTrdComplejo(object[16] != null ? ((BigDecimal) object[16]).intValue() : null);
-        dTO.setNumUsuarios(object[17] != null ? ((BigDecimal) object[17]).intValue() : null);
-        dTO.setNumDocumentos(object[18] != null ? ((BigDecimal) object[18]).intValue() : null);
-        dTO.setIndIndexacion(object[19] != null ? ((BigDecimal) object[19]).equals(BigDecimal.ONE) : false);
+        dTO.setExpTipoId(object[12] != null ? ((BigDecimal) object[12]).intValue() : null);
+        dTO.setExpTipo(object[13] != null ? (String) object[13] : "");
+        dTO.setExpDescripcion(object[14] != null ? (String) object[14] : "");
+        dTO.setIndUsuarioAsignado(object[15] != null ? ((BigDecimal) object[15]).intValue() : null);
+        dTO.setIndCerrado(object[16] != null ? ((BigDecimal) object[16]).equals(BigDecimal.ONE) : false);
+        dTO.setNumTrdComplejo(object[17] != null ? ((BigDecimal) object[17]).intValue() : null);
+        dTO.setNumUsuarios(object[18] != null ? ((BigDecimal) object[18]).intValue() : null);
+        dTO.setNumDocumentos(object[19] != null ? ((BigDecimal) object[19]).intValue() : null);
+        dTO.setIndIndexacion(object[20] != null ? ((BigDecimal) object[20]).equals(BigDecimal.ONE) : false);
         return dTO;
     }
 }

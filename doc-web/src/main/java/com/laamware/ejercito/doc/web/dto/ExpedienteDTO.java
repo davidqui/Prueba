@@ -28,6 +28,7 @@ public class ExpedienteDTO implements Serializable{
     private boolean indAprobadoInicial;
     private String jefeDependencia;
     private String usuarioCreador;
+    private Integer expTipoId;
     private String expTipo;
     private String expDescripcion;
     private Integer indUsuarioAsignado;
@@ -213,6 +214,15 @@ public class ExpedienteDTO implements Serializable{
     public void setIndIndexacion(boolean indIndexacion) {
         this.indIndexacion = indIndexacion;
     }
+
+    public Integer getExpTipoId() {
+        return expTipoId;
+    }
+
+    public void setExpTipoId(Integer expTipoId) {
+        this.expTipoId = expTipoId;
+    }
+    
 
     @Override
     public String toString() {

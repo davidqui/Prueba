@@ -6,6 +6,7 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface ExpUsuarioRepository extends JpaRepository<ExpUsuario, Long> {
     
@@ -23,4 +24,12 @@ public interface ExpUsuarioRepository extends JpaRepository<ExpUsuario, Long> {
      * @return 
      */
     List<ExpUsuario> getByExpIdAndUsuIdAndActivoTrue(Expediente expediente, Usuario usuario);
+    
+    /***
+     * Lista los usuarios pendientes de aprobación de un expediente dado un expediente
+     * @param expediente
+     * @param sort
+     * @return 
+     */
+    List<ExpUsuario> getByExpIdAndActivoTrueAndIndAprobadoFalse(Expediente expediente, Sort sort);
 }
