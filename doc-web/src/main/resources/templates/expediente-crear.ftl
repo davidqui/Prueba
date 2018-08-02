@@ -1,4 +1,5 @@
 <#assign pageTitle = "Crear Expediente"/>
+<#setting number_format="computer" />
 <#include "bandeja-header.ftl">
 <#include "gen-arbol-trd.ftl">
 <#import "spring.ftl" as spring />
@@ -6,7 +7,7 @@
 
 <script src="/js/tinymce.min.js"></script>
 
-<div class="container-fluid" style="max-width: 800px; margin-left: inherit;">
+<div class="container-fluid" style="max-width: 900px; margin-left: inherit;">
     <form action="/expediente/crear" method="POST" enctype="multipart/form-data" >
         
     <div class="tab-content" id="myTabContent">
@@ -16,7 +17,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="input-group">
-                        <div class="form-control" id="trdNombre">${(documento.trd)!"Por favor seleccione una subserie..."}</div>
+                        <div class="form-control" id="trdNombre">${(expediente.trd)!"Por favor seleccione una subserie..."}</div>
                         <span class="input-group-btn">
                             <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#trdModalArbol">
                                 <span class="hidden-md-down">Seleccionar</span><span class="hidden-lg-up">S</span>
@@ -28,18 +29,20 @@
             </fieldset>
     </div>
         
-    <fieldset class="form-group">
-        <label for="expNombre">Nombre</label>
-        <input type="text" class="form-control" id="trdSigla" name="trdSigla" disabled/>
-        <input type="text" class="form-control" id="anoActual" name="anoActual" disabled/>
-        <select class="form-control" id="cargoAsignado2" name="cargoAsignado">
-            <#list parNombresExpedientes as nombreEx>
-                <option value="${(nombreEx.parId)!""}">${(nombreEx.parNombre)!""}</option>
+    <label for="expNombre">Nombre</label>
+    <div class="form-group" style="display:flex;">
+        <input type="text" class="form-control" id="trdSigla" name="trdSigla" disabled style="width: 10%;"/>
+        <input type="text" class="form-control" id="anoActual" name="anoActual" value="${(year)!""}" disabled style="width: 10%;"/>
+        <input type="number" class="form-control" id="numberExpediente" name="numberExpediente" style="width: 10%;" placeholder="000"/>
+        <select class="form-control" id="parNombreExpediente" name="parNombreExpediente" style="width: 50%;">
+            <#list nombreExpediente as nombreEx>
+                <option value="${(nombreEx.parId)!""}" data-text="${(nombreEx.parNombre)!""}">${(nombreEx.parNombre)!""}</option>
             </#list>
         </select>
-        <input type="text" class="form-control" id="opcionalNombre" name="opcionalNombre" disabled/>
-    </fieldset>
-        
+        <input type="text" class="form-control" id="opcionalNombre" name="opcionalNombre" style="width: 20%;" placeholder="opcional"/>
+    </div>
+    <p><b>Nombre:</b> <span id="input-nombre-1"></span>-<span id="input-nombre-2">${(year)!""}</span>-<span id="input-nombre-3"></span>-<span id="input-nombre-4"></span><span id="input-nombre-5"></span><p>    
+    <label for="tipoExp">Tipo de expediente:</label>
     <div class="btn-group" data-toggle="buttons" id="topButtonDiv" style="width: 100%;">
         <button type="button" class="btn btn-primary" id="btn-simple" style="width: 50%;" onclick="selectExpediente(1)">SIMPLE
         <input type="radio" id="radio1" name="expTipo" value="1" checked></button>
@@ -48,7 +51,7 @@
     </div>
         
         
-    <fieldset class="form-group">
+    <fieldset class="form-group" style="margin-top:10px;">
         <label for="expNombre">Descripción</label>
         <textarea class="form-control" rows="5" id="expDescripcion" name="expDescripcion">${(expediente.expDescripcion)!""}</textarea>
     </fieldset>
@@ -134,9 +137,27 @@
         } else {
             $("#trdIdPrincipal").val(data.node.data.jstree.id);
             $("#trdNombre").text(data.node.text);
+            var sigla = data.node.text.split("-")
+            $("#trdSigla").val(sigla[0]);
+            $('#input-nombre-1').text($.trim(sigla[0]));
             $("#trdModalArbol").modal('hide');
         }
     }).jstree();
+        
+    $('#numberExpediente').on('input',function(e){
+        var texIn = $('#numberExpediente').val()
+        $('#input-nombre-3').text(('000' + texIn).slice(-3));
+    });
+        
+    $('#opcionalNombre').on('input',function(e){
+        var texIn = $('#opcionalNombre').val()
+        $('#input-nombre-5').text("-"+texIn);
+    });
+    
+    $("#parNombreExpediente").change(function() {
+        $("#input-nombre-4").text($(this).children(':selected').data('text'));
+    }).change();
+        
 </script>
 
 <#include "bandeja-footer.ftl">

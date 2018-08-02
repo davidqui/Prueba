@@ -1,12 +1,15 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
+import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Expediente;
+import com.laamware.ejercito.doc.web.entity.ParNombreExpediente;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,20 +51,29 @@ public class ExpedienteService {
         return expedienteRepository.findOne(id);
     }
     
-    public Expediente CrearExpediente(Expediente expediente, Usuario usuario) throws BusinessLogicException{
+    public Expediente CrearExpediente(Expediente expediente, Usuario usuario, 
+            String numeroExpediente, ParNombreExpediente parNombreExpediente, String opcionalNombre) throws BusinessLogicException{
         
-        if (expediente.getExpNombre() == null || expediente.getExpNombre().trim().length() < 1)
-            throw new BusinessLogicException("El nombre del expediente es requerido");
         if (expediente.getTrdIdPrincipal() == null)
             throw new BusinessLogicException("Debe elegir una TRD principal");
         if (expediente.getExpDescripcion() == null || expediente.getExpDescripcion().trim().length() < 1)
             throw new BusinessLogicException("La descripción del expediente es requerida");
+        if (numeroExpediente.trim().equals("") || parNombreExpediente == null)
+            throw new BusinessLogicException("La construcción del nombre requiere todos los campos exceptuando el ultimo");
+        
+        String nombre = expediente.getTrdIdPrincipal().getCodigo()+"-"+Calendar.getInstance().get(Calendar.YEAR)
+                +"-"+String.format ("%03d", Integer.parseInt(numeroExpediente))+"-"+parNombreExpediente.getParNombre();
+        
+        if (!opcionalNombre.trim().equals(""))
+            nombre += "-"+opcionalNombre;
+        
+        expediente.setExpNombre(nombre);
         
         List<Expediente> expedientesNombre = expedienteRepository.getByExpNombreAndDepId(expediente.getExpNombre(), usuario.getDependencia());
         if (!expedientesNombre.isEmpty()) {
             throw new BusinessLogicException("Ya existe un expediente con este nombre.");
         }
-
+        
         expediente.setUsuCreacion(usuario);
         expediente.setUsuarioAsignado(Expediente.ASIGNADO_USUARIO);
         expediente.setDepId(usuario.getDependencia());

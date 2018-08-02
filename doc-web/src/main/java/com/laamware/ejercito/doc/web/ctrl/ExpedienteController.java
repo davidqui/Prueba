@@ -36,6 +36,7 @@ import com.laamware.ejercito.doc.web.entity.ExpTrd;
 import com.laamware.ejercito.doc.web.entity.ExpUsuario;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.ExpedienteTransicion;
+import com.laamware.ejercito.doc.web.entity.ParNombreExpediente;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.AdjuntoRepository;
@@ -55,6 +56,7 @@ import com.laamware.ejercito.doc.web.serv.ExpedienteTransicionService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.ExpTrdService;
 import com.laamware.ejercito.doc.web.serv.ExpUsuarioService;
+import com.laamware.ejercito.doc.web.serv.ParNombreExpedienteService;
 import com.laamware.ejercito.doc.web.serv.TRDService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
@@ -156,12 +158,12 @@ public class ExpedienteController extends UtilController {
 
     @Autowired
     private DocumentoObservacionDefectoService observacionDefectoService;
+    
+    @Autowired
+    private ParNombreExpedienteService parNombreExpedienteService;
 
     @Autowired
     DataSource ds;
-
-    Map<Usuario, Cargo> lectura;
-    Map<Usuario, Cargo> escritura = new HashMap<Usuario, Cargo>();
 
     @RequestMapping(value = "/listarExpedientes", method = RequestMethod.GET)
     public String listarExpediente(Model model, Principal principal,
@@ -250,17 +252,6 @@ public class ExpedienteController extends UtilController {
         return map;
     }
 
-    @RequestMapping(value = "/crear", method = RequestMethod.GET)
-    @Transactional
-    public String crearExpediente(Model model, Principal principal) {
-        final Usuario usuarioSesion = getUsuario(principal);
-        Expediente expediente = new Expediente();
-        model.addAttribute("expediente", expediente);
-        List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
-        System.out.println("list trds" + trds.toString());
-        model.addAttribute("trds", trds);
-        return "expediente-crear";
-    }
 
     
     
@@ -277,19 +268,44 @@ public class ExpedienteController extends UtilController {
         model.addAttribute(AppConstants.FLASH_SUCCESS, "Se a enviado una notificación al jefe de la dependencia para que apruebe el expediente.");
         return "redirect:"+PATH;
     }
+    
+    @RequestMapping(value = "/crear", method = RequestMethod.GET)
+    @Transactional
+    public String crearExpediente(Model model, Principal principal) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        List<ParNombreExpediente> nombreExpediente = parNombreExpedienteService.findAll();
+        Expediente expediente = new Expediente();
+        model.addAttribute("expediente", expediente);
+        List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
+        model.addAttribute("trds", trds);
+        model.addAttribute("nombreExpediente", nombreExpediente);
+        model.addAttribute("year", Calendar.getInstance().get(Calendar.YEAR));
+        return "expediente-crear";
+    }
 
     @RequestMapping(value = "/crear", method = RequestMethod.POST)
     @Transactional
     public String guardarExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req) {
         final Usuario usuarioSesion = getUsuario(principal);
-
+        
+        String numeroExpediente = req.getParameter("numberExpediente");
+        
+        String parNombreExpediente = req.getParameter("parNombreExpediente");
+        
+        String opcionalNombre = req.getParameter("opcionalNombre");
+        
         try {
-            expediente = expedienteService.CrearExpediente(expediente, usuarioSesion);
+            ParNombreExpediente pNombreExpediente = parNombreExpedienteService.findOne(Long.parseLong(parNombreExpediente));
+            expediente = expedienteService.CrearExpediente(expediente, usuarioSesion, numeroExpediente,
+                    pNombreExpediente, opcionalNombre);
         } catch (BusinessLogicException ex) {
             model.addAttribute("expediente", expediente);
             List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
+            List<ParNombreExpediente> nombreExpediente = parNombreExpedienteService.findAll();
             model.addAttribute("trds", trds);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            model.addAttribute("nombreExpediente", nombreExpediente);
+            model.addAttribute("year", Calendar.getInstance().get(Calendar.YEAR));
             return "expediente-crear";
         }
 
@@ -318,16 +334,7 @@ public class ExpedienteController extends UtilController {
        model.addAttribute("usuarios", usuarios);
        model.addAttribute("expediente", expediente);
        model.addAttribute("esJefeDependencia", usuarioSesion.getId().equals(jefeDependencia.getId()));
-
-        Usuario usuCreador = expediente.getUsuCreacion();
-        Usuario jefeDependencia = usuCreador.getDependencia().getJefe();
-        List<ExpUsuario> usuarios = expUsuarioService.findByExpediente(expediente);
-        model.addAttribute("usuCreador", usuCreador);
-        model.addAttribute("jefeDependencia", jefeDependencia);
-        model.addAttribute("usuarios", usuarios);
-        model.addAttribute("expediente", expediente);
-        model.addAttribute("esJefeDependencia", usuarioSesion.getId().equals(jefeDependencia.getId()));
-
+       
         return "expediente-seleccionar-usuarios";
     }
 
@@ -432,7 +439,6 @@ public class ExpedienteController extends UtilController {
         List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpediente(expediente);
         List<Trd> trdDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
-        System.out.println("TRDS DOCUMENTOS "+trdDocumentos.toString());
         model.addAttribute("trds", trds);
         model.addAttribute("trdsPreseleccionadas", trdsPreseleccionadas);
         model.addAttribute("expediente", expediente);
@@ -761,12 +767,10 @@ public class ExpedienteController extends UtilController {
                 }
             }
         }
-        System.out.println("COUNTER:: "+counter+"--"+expTrds.size()+" // "+(counter == expTrds.size()));
         return counter == expTrds.size();
     }
     
     public boolean hasPermitions(Usuario usuario, Expediente expediente){
-        System.out.println("Tiene perimisos.. "+expediente.getUsuCreacion().getId()+" -->"+usuario.getId()+" **** "+!expediente.getUsuCreacion().getId().equals(usuario.getId()));
         if (usuario == null || expediente == null)
             return false;
         final Usuario jefeDep = expediente.getDepId().getJefe();
