@@ -11,6 +11,16 @@
 <#assign numeroColumnas = 6 />
 
 <div class="container-fluid">
+    <ol class="breadcrumb">
+        <li><a href="/expediente/listarExpedientes?">Inicio</a></li>
+        <li class="active"><a href="/expediente/${expediente.expId}">${expediente.expNombre}</a></li>
+        <li class="active"><a href="/expediente/administrarExpediente?expId=${expediente.expId}">Detalle del expediente</a></li>
+        <li class="active">Asignar trds</li>
+    </ol>
+</div>
+
+<div class="container-fluid">
+
     <h1 class="cus-h1-page-title">${pageTitle}</h1>
 
     <form method="POST">
@@ -48,7 +58,9 @@
                             <td>
                                 <div class="checkbox">
                                     <label class="checkbox-inline">
-                                        <input name="trd" type="checkbox" class="trd-${trdP.id}" value="${trd.id}" <#if controller.has(trd.id, trdsPreseleccionadas)>checked="checked"</#if>>${trd.nombre}</input>                    
+                                        <input name="trd" type="checkbox" class="trd-${trdP.id}" value="${trd.id}" 
+                                            <#if controller.has(trd.id, trdsPreseleccionadas)>checked="checked"</#if> 
+                                            <#if controller.hasInDocument(trd.id, trdDocumentos)>disabled</#if>>${trd.nombre}</input>                    
                                     </label>
                                 </div>
                             </td>
@@ -79,11 +91,16 @@
                 $(button).html('${selectAllText}');
                 var buttons = $(form).find(".slAllTrd");
                 buttons.html('${selectAllText}');   
+                var values = $('[id^="selected-all-trd-"]');
+                values.val('false'); 
             } else {
                 $("#selected-all-trd").val('true');                
                 $(button).html('${removeAllText}');
                 var buttons = $(form).find(".slAllTrd");
-                buttons.html('${removeAllText}'); 
+                buttons.html('${removeAllText}');
+                var values = $('[id^="selected-all-trd-"]');
+                values.val('true'); 
+                console.log(values);
             }
                 
         }

@@ -30,6 +30,7 @@ import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.DependenciaTrd;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
+import com.laamware.ejercito.doc.web.entity.ExpDocumento;
 import com.laamware.ejercito.doc.web.entity.ExpObservacion;
 import com.laamware.ejercito.doc.web.entity.ExpTrd;
 import com.laamware.ejercito.doc.web.entity.ExpUsuario;
@@ -47,6 +48,7 @@ import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.serv.CargoService;
 import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
+import com.laamware.ejercito.doc.web.serv.ExpDocumentoService;
 import com.laamware.ejercito.doc.web.serv.ExpObservacionService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteTransicionService;
@@ -135,7 +137,9 @@ public class ExpedienteController extends UtilController {
     @Autowired
     ExpUsuarioService expUsuarioService;
     
-        
+    @Autowired
+    ExpDocumentoService expDocumentoService;
+     
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
     
@@ -208,6 +212,8 @@ public class ExpedienteController extends UtilController {
         
         return "expediente-administrar";
     }
+    
+    
     
     /**
      * Crea una observación al documento
@@ -304,7 +310,7 @@ public class ExpedienteController extends UtilController {
             return "security-denied";
         
        Usuario usuCreador = expediente.getUsuCreacion();
-       Usuario jefeDependencia = usuCreador.getDependencia().getJefe();
+       Usuario jefeDependencia = expediente.getDepId().getJefe();
        List<ExpUsuario> usuarios = expUsuarioService.findByExpediente(expediente);
        model.addAttribute("usuCreador", usuCreador);
        model.addAttribute("jefeDependencia", jefeDependencia);
@@ -368,6 +374,30 @@ public class ExpedienteController extends UtilController {
         
         return ResponseEntity.ok(usuarioID);
     }
+    
+    @ResponseBody
+    @RequestMapping(value = "/cambiar-creador/{exp}/{usuarioID}", method = RequestMethod.POST)
+    public ResponseEntity<?> cambiarUsuarioCreadorExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Integer usuarioID, Principal principal){
+        final Usuario usuarioSesion = getUsuario(principal);
+        final Usuario usuarioAsignar = usuarioService.findOne(usuarioID);
+        final Expediente expediente = expedienteService.finById(expId);
+        
+        if (!expediente.getDepId().getJefe().getId().equals(usuarioSesion.getId()))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+       if (usuarioAsignar.getDependencia().getJefe() == null)
+           return new ResponseEntity<>("No existe un jefe en esta dependencia.", HttpStatus.BAD_REQUEST);
+       
+        List<ExpTrd> expTrds = expTrdService.findTrdsByExpediente(expediente);
+       if (!esDependenciaCompatible(expTrds, usuarioAsignar)){
+           String message = "<ul>";
+           for (ExpTrd expTrd : expTrds) { message += "<li>"+expTrd.getTrdId().getNombre()+"</li>"; }
+           return new ResponseEntity<>("La dependencia no cumple con las trd minimas para realizar el traspaso."+message+"</ul>", HttpStatus.BAD_REQUEST);
+       }
+       expedienteService.cambiarUsuarioCreador(expediente, usuarioAsignar, usuarioSesion);
+       
+        return ResponseEntity.ok(usuarioID);
+    }
 
     @ResponseBody
     @RequestMapping(value = "/cargos-usuario/{usuarioID}", method = RequestMethod.POST)
@@ -386,14 +416,17 @@ public class ExpedienteController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
 
-        if (!hasPermitions(usuarioSesion, expediente))
+        if (!hasPermitions(usuarioSesion, expediente) || expediente.getExpTipo() == 1)
             return "security-denied";
         
         List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpediente(expediente);
+        List<Trd> trdDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
+        System.out.println("TRDS DOCUMENTOS "+trdDocumentos.toString());
         model.addAttribute("trds", trds);
         model.addAttribute("trdsPreseleccionadas", trdsPreseleccionadas);
         model.addAttribute("expediente", expediente);
+        model.addAttribute("trdDocumentos", trdDocumentos);
 
        return "expediente-seleccionar-trds";
     }
@@ -408,7 +441,7 @@ public class ExpedienteController extends UtilController {
             return "security-denied";
         
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpedienteAll(expediente);
-        
+        List<Trd> trdDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
         if (trds != null) {
             for (Integer trd : trds) {
                 boolean hasElement = false;
@@ -425,19 +458,27 @@ public class ExpedienteController extends UtilController {
             }
         }
         
-        desvincularTrds(trdsPreseleccionadas, trds, usuarioSesion);
-        
-        return "redirect:"+PATH+"/asignar-usuario-expediente/"+expediente.getExpId();
+        desvincularTrds(trdsPreseleccionadas, trds, usuarioSesion, trdDocumentos);
+        if (!expediente.getIndAprobadoInicial())
+            return "redirect:"+PATH+"/asignar-usuario-expediente/"+expediente.getExpId();
+        return "redirect:"+PATH+"/administrarExpediente?expId="+expediente.getExpId();
     }
     
-    public void desvincularTrds(List<ExpTrd> trdExpediente, Integer[] trds, Usuario usuarioSesion){
+    public void desvincularTrds(List<ExpTrd> trdExpediente, Integer[] trds, Usuario usuarioSesion, List<Trd> trdDocumentos){
         for (ExpTrd trd : trdExpediente) {
             boolean hasElment = false;
             if (trds != null) {
                 for (int i = 0; i < trds.length; i++) {
                     if (trd.getTrdId().getId().equals(trds[i])) {
                         hasElment = true;
+                        break;
                     }
+                }
+            }
+            for (int i = 0; i < trdDocumentos.size(); i++) {
+                if (trd.getTrdId().getId().equals(trdDocumentos.get(i).getId())) {
+                    hasElment = true;
+                    break;
                 }
             }
             if (!hasElment) {
@@ -692,6 +733,28 @@ public class ExpedienteController extends UtilController {
         return observacionDefectoService.listarActivas();
     }
     
+    public boolean esDependenciaCompatible(List<ExpTrd> expTrds, Usuario usuario){
+        List<Trd> padres = trdService.findSeriesByUsuario(usuario);
+        List<Trd> trds = new ArrayList<>();
+        for (Trd padre : padres) {
+           List<Trd> subTrds = trdService.findSubseriesbySerieAndUsuario(padre, usuario);
+            for (Trd subTrd : subTrds) {
+                trds.add(subTrd);
+            }
+        }
+        int counter = 0;
+        for (ExpTrd expTrd : expTrds) {
+            for (Trd trd : trds) {
+                if (expTrd.getTrdId().getId().equals(trd.getId())) {
+                    counter++;
+                    break;
+                }
+            }
+        }
+        System.out.println("COUNTER:: "+counter+"--"+expTrds.size()+" // "+(counter == expTrds.size()));
+        return counter == expTrds.size();
+    }
+    
     public boolean hasPermitions(Usuario usuario, Expediente expediente){
         System.out.println("Tiene perimisos.. "+expediente.getUsuCreacion().getId()+" -->"+usuario.getId()+" **** "+!expediente.getUsuCreacion().getId().equals(usuario.getId()));
         if (usuario == null || expediente == null)
@@ -707,6 +770,16 @@ public class ExpedienteController extends UtilController {
     public boolean has(Integer trdId, List<ExpTrd> PreSeleccionadas) {
         for (ExpTrd trd : PreSeleccionadas) {
             if (trd.getTrdId().getId().equals(trdId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    
+    public boolean hasInDocument(Integer trdId, List<Trd> trdsDocumento){
+        for (Trd trd : trdsDocumento) {
+            if (trd.getId().equals(trdId)) {
                 return true;
             }
         }

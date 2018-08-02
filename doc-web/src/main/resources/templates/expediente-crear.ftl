@@ -8,17 +8,6 @@
 
 <div class="container-fluid" style="max-width: 800px; margin-left: inherit;">
     <form action="/expediente/crear" method="POST" enctype="multipart/form-data" >
-    <fieldset class="form-group">
-        <label for="expNombre">Nombre</label>
-        <input type="text" class="form-control" id="expNombre" name="expNombre" value="${(expediente.expNombre)!""}"/>
-    </fieldset>
-        
-    <div class="btn-group" data-toggle="buttons" id="topButtonDiv" style="width: 100%;">
-        <button type="button" class="btn btn-primary" id="btn-simple" style="width: 50%;" onclick="selectExpediente(1)">SIMPLE
-        <input type="radio" id="radio1" name="expTipo" value="1" checked></button>
-        <button type="button" class="btn btn-default" id="btn-complejo" style="width: 50%;" onclick="selectExpediente(2)">COMPLEJO
-        <input type="radio" id="radio2" name="expTipo" value="2"> </button>              
-    </div>
         
     <div class="tab-content" id="myTabContent">
             <fieldset class="form-group">
@@ -38,6 +27,26 @@
                 </div>
             </fieldset>
     </div>
+        
+    <fieldset class="form-group">
+        <label for="expNombre">Nombre</label>
+        <input type="text" class="form-control" id="trdSigla" name="trdSigla" disabled/>
+        <input type="text" class="form-control" id="anoActual" name="anoActual" disabled/>
+        <select class="form-control" id="cargoAsignado2" name="cargoAsignado">
+            <#list parNombresExpedientes as nombreEx>
+                <option value="${(nombreEx.parId)!""}">${(nombreEx.parNombre)!""}</option>
+            </#list>
+        </select>
+        <input type="text" class="form-control" id="opcionalNombre" name="opcionalNombre" disabled/>
+    </fieldset>
+        
+    <div class="btn-group" data-toggle="buttons" id="topButtonDiv" style="width: 100%;">
+        <button type="button" class="btn btn-primary" id="btn-simple" style="width: 50%;" onclick="selectExpediente(1)">SIMPLE
+        <input type="radio" id="radio1" name="expTipo" value="1" checked></button>
+        <button type="button" class="btn btn-default" id="btn-complejo" style="width: 50%;" onclick="selectExpediente(2)">COMPLEJO
+        <input type="radio" id="radio2" name="expTipo" value="2"> </button>              
+    </div>
+        
         
     <fieldset class="form-group">
         <label for="expNombre">Descripción</label>

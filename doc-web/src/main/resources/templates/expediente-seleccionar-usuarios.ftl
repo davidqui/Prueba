@@ -1,16 +1,26 @@
 
-<#assign pageTitle = "Asignar Usuarios"/>
+<#assign pageTitle = ""/>
 <#setting number_format="computer" />
 <#include "bandeja-header.ftl">
 <#include "gen-arbol-trd.ftl">
 <#import "spring.ftl" as spring />
 
-<h4 style="text-align: center;">Expediente "${(expediente.expNombre)!""}"</h4>
+<div class="container-fluid">
+    <ol class="breadcrumb">
+        <li><a href="/expediente/listarExpedientes?">Inicio</a></li>
+        <li class="active"><a href="/expediente/${expediente.expId}">${expediente.expNombre}</a></li>
+        <li class="active"><a href="/expediente/trds-expediente/${expediente.expId}">Detalle del expediente</a></li>
+        <#if !expediente.indAprobadoInicial && expediente.expTipo == 2><li class="active"><a href="/expediente/administrarExpediente?expId=${expediente.expId}">Seleccionar trds</a></li></#if>
+        <li class="active">Asignar Usuarios</li>
+    </ol>
+</div>
 
-<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal" style="float: left;">
+<h4 style="text-align: center;">Agregar usuarios al Expediente "${(expediente.expNombre)!""}"</h4>
+
+<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal" style="float: left; margin-left: 25px;" onclick="limpiarModales()">
     Agregar usuario
 </button>
-<#if esJefeDependencia??>
+<#if esJefeDependencia==true>
     <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;">
         Regresar a Expediente
     </a>
@@ -24,11 +34,11 @@
     <div style="display: grid; grid-gap: 5px; grid-template-columns: repeat(auto-fit, 450px); grid-template-rows: repeat(2, 180px); width: 100%;">
         <#if usuCreador??>
             <div class="card" style="margin: 10px;">
-                <#if esJefeDependencia??>
+                <#if esJefeDependencia==true>
                     <button type="button" 
                             class="btn btn-primary bmd-btn-fab" style="position: absolute;
                             right: 0px;height: 43px;" title="Modificar" data-toggle="modal" 
-                            data-target="#cambiarUsuarioCreador" onclick="editarUsuarioCreador(${(usuCreador.id)}, '${(usuCreador.usuGrado.id)!""} ${(usuCreador.nombre)!""}')">
+                            data-target="#cambiarUsuarioCreador" onclick="editarUsuarioCreador('${(usuCreador.usuGrado.id)!""} ${(usuCreador.nombre)!""}')">
                         M
                     </button>
                 </#if>
@@ -241,8 +251,9 @@
                                     </div>
                                     <script src="/js/app/buscar-usuario.js"></script>
                                 </div>
-                                <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
-                            </div>  
+                                <input type="hidden" id="destinoUsuario3" name="destinoUsuario" value="" />
+                            </div>
+                            <p><span style="color: red;">Advertencia</span>, el cambio de usuario administrador de expediente a un usuario ajeno a su dependencia. Esto generará cambio de jefe de sección del expediente, lo que implica ceder el control total del expediente a la dependencia destino.</p>
                         </div>
                     </div>
                 </div>
@@ -270,12 +281,29 @@
             Al enviar para aprobación los cambios que halla realizado no tomaran efecto hasta que el jefe de su dependencia los apruebe.
           </div>
           <div class="modal-footer">
-            <a href="/expediente/enviarAprovar/${(expediente.expId)!""}" class="btn btn-secondary" data-dismiss="modal" >Cancelar</a>
-            <button type="button" class="btn btn-primary">Enviar</button>
+            <a class="btn btn-secondary" data-dismiss="modal" >Cancelar</a>
+            <a href="/expediente/enviarAprovar/${(expediente.expId)!""}" type="button" class="btn btn-primary">Enviar</a>
           </div>
         </div>
       </div>
     </div>
+    
+    <!-- Modal info -->
+    <div class="modal fade" id="info-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" style="overflow-y: auto;">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header" style="background-color: #0275d8; color: white;">
+            <h5 class="modal-title" id="title-modal"></h5>
+          </div>
+          <div class="modal-body" id="modal-body-info">
+          </div>
+          <div class="modal-footer">
+            <a class="btn btn-primary" data-dismiss="modal" >Aceptar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
 
 <script src="/js/app/gen-arbol.js"></script>
 <script src="/js/jstree.min.js"></script>

@@ -41,7 +41,7 @@ public class ExpedienteService {
     
     public static final Long ESTADO_INICIAL_EXPEDIENTE = new Long(1100) ;
     public static final Long ESTADO_ENVIADO_APROBAR = new Long(1101) ;
-
+    public static final Long ESTADO_ADMINISTRADOR_MODIFICADO = new Long(1101) ;
     
     
     public Expediente finById(Long id){
@@ -128,6 +128,16 @@ public class ExpedienteService {
             }
         }
         return expedienteDTO;
+    }
+    
+    public void cambiarUsuarioCreador(Expediente expediente, Usuario usuario, Usuario usuarioSesion){
+        expediente.setUsuCreacion(usuario);
+        expediente.setDepId(usuario.getDependencia());
+        expediente.setUsuModificacion(usuarioSesion);
+        expediente.setFecModificacion(new Date());
+        expedienteTransicionService.crearTransicion(expediente, 
+        expedienteEstadoService.findById(ESTADO_ADMINISTRADOR_MODIFICADO), usuarioSesion, null, null);
+        expedienteRepository.saveAndFlush(expediente);
     }
     
     public Expediente findOne(Long expId){

@@ -2,6 +2,8 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
+import com.laamware.ejercito.doc.web.entity.Dependencia;
+import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import java.util.Collections;
 import java.util.List;
@@ -362,5 +364,28 @@ public class TRDService {
             fillTrdsHierarchy(subserie, usuario);
         }
     }
+    
+    /***
+     * Lista de trds de un dependencia
+     * @param dependencias
+     * @return 
+     */
+    /*
+     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #181
+     * (SICDI-Controltech) feature-181
+     */
+    public List<Trd> findByDependencia(Dependencia dependencia){
+        return trdRepository.findSeriesByDependencia(dependencia.getId());
+    }
 
+    
+        
+    /***
+     * Lista las trds que posee el expediente segun sus documentos.
+     * @param expediente
+     * @return 
+     */
+    public List<Trd> getTrdExpedienteDocumentos(final Expediente expediente){
+        return trdRepository.getTrdsByExpedienteDocumentos(expediente.getExpId());
+    }
 }

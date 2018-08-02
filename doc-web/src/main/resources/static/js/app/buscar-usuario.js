@@ -89,7 +89,11 @@ function setFindResult(id) {
                 + busquedaDTO.clasificacionNombre + "]";
 
         $("#destinoUsuario_visible").val(descripcion);
+        $("#destinoUsuario_visible3").val(descripcion);
+        
         $("#destinoUsuario").val(busquedaDTO.id);
+        $("#destinoUsuario3").val(busquedaDTO.id);
+
         $("#divCargoDestino").show();
         
         $("#cargoAsignado option").remove();

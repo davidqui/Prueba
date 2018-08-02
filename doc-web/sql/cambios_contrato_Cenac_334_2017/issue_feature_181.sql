@@ -303,6 +303,7 @@ INSERT INTO EXPEDIENTE_ESTADO (EXP_EST_ID, EST_NOMBRE) VALUES (1107, 'Usuario As
 INSERT INTO EXPEDIENTE_ESTADO (EXP_EST_ID, EST_NOMBRE) VALUES (1108, 'Usuario modificado');
 INSERT INTO EXPEDIENTE_ESTADO (EXP_EST_ID, EST_NOMBRE) VALUES (1109, 'Usuario eliminado');
 INSERT INTO EXPEDIENTE_ESTADO (EXP_EST_ID, EST_NOMBRE) VALUES (1110, 'Expediente Reabierto');
+INSERT INTO EXPEDIENTE_ESTADO (EXP_EST_ID, EST_NOMBRE) VALUES (1111, 'Usuario Administrador Modificado');
 
 -- -----------------------------------------------------------------------------
 -- TABLA: ROL ANTERIOR

@@ -6,6 +6,7 @@
 <div class="container-fluid">
     <ol class="breadcrumb">
         <li><a href="/expediente/listarExpedientes?">Inicio</a></li>
+        <li class="active"><a href="/expediente/${expediente.expId}">${expediente.expNombre}</a></li>
         <li class="active">Detalle del expediente</li>
     </ol>
 </div>

@@ -20,8 +20,10 @@ function agregarUsuario(expId) {
         }).then(function() {
             location.reload();
           }, function(message) {
-            $('#exampleModal').modal('hide');
-            alert("Este usuario ya existe en el expediente!")
+            console.log("mensaje", message);
+            $('#info-modal').modal('show');
+            $('#title-modal').html("Advertencia");
+            $('#modal-body-info').html("<h5>"+message.responseText+"</h5>");
         });
 }
 
@@ -98,9 +100,8 @@ function editarUsuario(id, nombre, expId, permiso){
     });
 }
 
-function editarUsuarioCreador(id, nombre, expId){
+function editarUsuarioCreador(nombre){
     $("#actual_usuario_administrador").val(nombre);
-       
 }
 
 function editarUsuarioPost(expId) {
@@ -156,4 +157,36 @@ function setFindResult2(id) {
             $("#cargoAsignado").append("<option value=" + item.id + ">" + item.nombre + "</option>");
         });
     });
+}
+
+function limpiarModales(){
+    $("#cargoAsignado option").remove();
+    $("#cargoDestino option").remove();
+    $("#destinoUsuario").val("");
+    $("#destinoUsuario_visible").val("");
+}
+
+function cambiarUsuarioCreador(expId){
+    var usuarioID = $("#destinoUsuario3").val();
+    if (usuarioID === undefined || $.trim(usuarioID) === "") {
+        alert("Debe seleccionar un usuario.");
+        return;
+    }
+    var result = confirm("Esta seguro de cambiar el usuario Creador?")
+    if (result){
+        $.ajax({
+            method: "POST",
+            url: "/expediente/cambiar-creador/" + expId+"/" + usuarioID
+        }).then(function() {
+            location.reload();
+          }, function(message) {
+            $('#cambiarUsuarioCreador').modal('hide');
+            $('#info-modal').modal('show');
+            $('#title-modal').html("Advertencia");
+            $('#modal-body-info').html("<h5>"+message.responseText+"</h5>");
+            $('#info-modal').modal('show'); 
+        });
+    }else{
+        $('#cambiarUsuarioCreador').modal('hide');
+    }
 }

@@ -82,4 +82,13 @@ public interface TrdRepository extends GenJpaRepository<Trd, Integer> {
      * feature-170.
      */
     public List<Trd> findAllByActivoTrueAndSerieNotNull();
+    
+    
+            
+    @Query(nativeQuery = true, value = ""
+            + "SELECT DISTINCT TRD.* FROM EXP_DOCUMENTO                                                              "
+            + "JOIN DOCUMENTO ON (EXP_DOCUMENTO.DOC_ID = DOCUMENTO.DOC_ID)                                  "
+            + "JOIN TRD ON (DOCUMENTO.TRD_ID = TRD.TRD_ID)                                                  "
+            + "WHERE EXP_DOCUMENTO.EXP_ID = :expediente AND EXP_DOCUMENTO.ACTIVO = 1                        ")
+    List<Trd> getTrdsByExpedienteDocumentos(@Param("expediente") Long expediente);
 }
