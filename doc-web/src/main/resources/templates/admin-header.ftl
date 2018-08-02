@@ -79,6 +79,8 @@
                     Enlace para la opción de notificaciones.
                 -->
                 <@link_admin  "ADMIN_NOTIFICACIONES" "/admin/notificacion" 'notificaciones' 'Notificaciones'/>
+                
+                <@link_admin  "ADMIN_PAR_NOMBRE_EXPEDIENTE" "/admin/parnombrexpediente" 'parnombrexpediente' 'Parametro Nombre Expediente'/>
                 </ul>
             </div>
         </div>

@@ -320,6 +320,9 @@ public abstract class UtilController {
                 return String.format("redirect:%s", AppConstants.PATH_ADMIN_FORMATOS);
             case AppConstants.ARCHIVO_CENTRAL:
                 return String.format("redirect:%s", AppConstants.PATH_ARCHIVO_CENTRAL);
+            case AppConstants.ADMIN_PAR_NOMBRE_EXPEDIENTE:
+                return String.format("redirect:%s", AppConstants.PATH_ADMIN_PAR_NOMBRE_EXPEDIENTE);
+                
             default:
                 return null;
         }
