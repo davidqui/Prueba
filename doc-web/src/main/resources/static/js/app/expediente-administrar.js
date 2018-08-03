@@ -85,7 +85,8 @@ function aprobarOrechazarCambios(tipo){
             type: "POST",
             url: "/expediente/aprobar-rechazar/"+expId+"/"+tipo+"/"+expObs,
             success: function() {
-                console.log('exitoso');
+                $("#enviarJefeModal").modal("hide");
+                location.reload();
             }
         });
     }

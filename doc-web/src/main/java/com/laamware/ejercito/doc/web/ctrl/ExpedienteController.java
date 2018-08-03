@@ -292,7 +292,7 @@ public class ExpedienteController extends UtilController {
                 model.addAttribute(AppConstants.FLASH_SUCCESS, "El expediente ha sido rechazado.");
             }
         }
-        return "redirect:"+PATH;
+        return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
 
 

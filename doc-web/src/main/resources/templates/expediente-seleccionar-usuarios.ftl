@@ -282,7 +282,7 @@
           </div>
           <div class="modal-footer">
             <a class="btn btn-secondary" data-dismiss="modal" >Cancelar</a>
-            <a href="/expediente/enviarAprovar/${(expediente.expId)!""}" type="button" class="btn btn-primary">Enviar</a>
+            <a href="/expediente/enviarAprobar/${(expediente.expId)!""}" type="button" class="btn btn-primary">Enviar</a>
           </div>
         </div>
       </div>

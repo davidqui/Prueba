@@ -86,7 +86,7 @@
                     <img class="card-img-top" src="/img/file-plus.svg" alt=""/>
                 </a>
             </#if>
-            <#if expediente.indUsuarioAsignado == 1>
+            <#if expediente.indUsuarioAsignado == 1 && expediente.indJefeDependencia>
                 <a id="btnAprobar" title="El expediente se encuentra con cambios sin aprobar" onclick="mostrarCambiosPendientes(${expediente.expId})" data-toggle="modal" href="#enviarJefeModal">
                     <img class="card-img-top" src="/img/alert-circle.svg" alt=""/>
                 </a>
