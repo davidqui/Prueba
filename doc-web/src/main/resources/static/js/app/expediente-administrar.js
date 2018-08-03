@@ -91,3 +91,31 @@ function aprobarOrechazarCambios(tipo){
         });
     }
 }
+
+function modificarTipo(expId){
+    console.log("expId? "+expId);
+    $.ajax({
+        type: "POST",
+        url: "/expediente/modifica-tipo-expediente?expId="+expId,
+        success: function() {
+            location.reload();
+        },
+        error: function (data) {
+            var dataJSON = jQuery.parseJSON(data.responseText);
+            var arrayLength = dataJSON.length;
+            if(arrayLength > 0){
+                $('#title-modal').html("Advertencia");
+                var content = "<h5> Para realizar esta acción el expediente solo debe tener documentos con una sola TRD. </br></br>Las siguientes TRDS se encuentran asociadas a documentos: </h5></br>";
+                content = content +" <ul>";
+                for (var i = 0; i < arrayLength; i++) {
+                    var trd = dataJSON[i];
+                    content = content + "<li> "+trd.codigo+" "+ trd.nombre+"</li>"
+                }
+                content = content + "</ul>";
+                $('#modal-body-info').html(content);
+                $('#info-modal').modal('show');
+            }
+
+        }
+    });
+}

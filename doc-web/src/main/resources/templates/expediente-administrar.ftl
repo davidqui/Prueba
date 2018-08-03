@@ -72,7 +72,7 @@
                 <a title="Administrar Usuarios" href="/expediente/asignar-usuario-expediente/${expediente.expId}">
                     <img class="card-img-top" src="/img/users.svg" alt=""/>
                 </a>
-                <a title="Modificar Tipo de expediente" href="#">
+                <a title="Modificar Tipo de expediente" href="#" onclick="modificarTipo(${expediente.expId})">
                     <img class="card-img-top" src="/img/edit-2.svg" alt=""/>
                 </a>
                 <#if expediente.expTipoId == 2>
@@ -148,46 +148,64 @@
 
 <!-- Modal aprobar cambios por jefe de dependencia -->
 <div class="modal fade" id="enviarJefeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Aprobación</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; right: 7px; top: 5px;">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        Aqui se listaran los cambios pendientes para su aprobación. Recuerde diligenciar la observación:
-            <div class="card-block cus-gray-bg">
-                <form method="post" id="obsForm">
-                    <fieldset class="form-group">
-                        <input type="hidden" id="expId" value="${expediente.expId}">
-                        <textarea class="form-control" id="observacion2" name="observacion2"></textarea>
-                    </fieldset>
-                    <div class="row">
-                        <div class="col-xs-8">
-                            <select id="doc-obs-defecto-select" name="doc-obs-defecto-select" class="form-control input-sm" onchange="setObservacionDefecto(this, 'observacion2')">
-                                <option value="">Lista de observaciones por defecto:</option>
-                                <#list observacionesDefecto as observacionDefecto >
-                                    <option value="${observacionDefecto.id}">${observacionDefecto.textoObservacion}</option>
-                                </#list>
-                            </select>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-contenido">
-            </div>
-        
-        
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="aprobarOrechazarCambios(0)">Rechazar</button>
-        <button type="button" class="btn btn-primary" onclick="aprobarOrechazarCambios(1)" >Aprobar</button>
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Aprobación</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; right: 7px; top: 5px;">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Aqui se listaran los cambios pendientes para su aprobación. Recuerde diligenciar la observación:
+              <div class="card-block cus-gray-bg">
+                  <form method="post" id="obsForm">
+                      <fieldset class="form-group">
+                          <input type="hidden" id="expId" value="${expediente.expId}">
+                          <textarea class="form-control" id="observacion2" name="observacion2"></textarea>
+                      </fieldset>
+                      <div class="row">
+                          <div class="col-xs-8">
+                              <select id="doc-obs-defecto-select" name="doc-obs-defecto-select" class="form-control input-sm" onchange="setObservacionDefecto(this, 'observacion2')">
+                                  <option value="">Lista de observaciones por defecto:</option>
+                                  <#list observacionesDefecto as observacionDefecto >
+                                      <option value="${observacionDefecto.id}">${observacionDefecto.textoObservacion}</option>
+                                  </#list>
+                              </select>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+              <div class="modal-contenido" style="height: 600px; overflow-y: scroll;">
+              </div>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="aprobarOrechazarCambios(0)">Rechazar</button>
+          <button type="button" class="btn btn-primary" onclick="aprobarOrechazarCambios(1)" >Aprobar</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+    <!-- Modal info -->
+    <div class="modal fade" id="info-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" style="overflow-y: auto;">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header" style="background-color: #0275d8; color: white;">
+            <h5 class="modal-title" id="title-modal"></h5>
+          </div>
+          <div class="modal-body" id="modal-body-info" style="height: 300px; overflow-y: scroll;">
+          </div>
+          <div class="modal-footer">
+            <a class="btn btn-primary" data-dismiss="modal" >Aceptar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 <script src="/js/app/expediente-administrar.js"></script>
 <script src="/js/app/documento-observaciones.js"></script>
 <#include "bandeja-footer.ftl">

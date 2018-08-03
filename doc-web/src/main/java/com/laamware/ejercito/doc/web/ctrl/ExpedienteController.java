@@ -64,6 +64,7 @@ import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -294,10 +295,27 @@ public class ExpedienteController extends UtilController {
         }
         return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
-
-
-
     
+    @RequestMapping(value = "/modifica-tipo-expediente", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<?> modificarTipoExpediente(@RequestParam(value = "expId", required = true) Long expId, Model model, Principal principal){
+        final Expediente expediente = expedienteService.finById(expId);
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        if (!hasPermitions(usuarioSesion, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        try {
+            expedienteService.modificarTipoExpediente(expediente, usuarioSesion);
+            model.addAttribute(AppConstants.FLASH_SUCCESS, "Se ha cambiado el tipo de expediente.");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (BusinessLogicException ex) {
+            model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            List<Trd> trdExpedienteDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
+            return new ResponseEntity<>(trdExpedienteDocumentos, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     
     @RequestMapping(value = "/enviarAprobar/{exp}", method = RequestMethod.GET)
     @Transactional
@@ -870,5 +888,12 @@ public class ExpedienteController extends UtilController {
     @ModelAttribute("controller")
     public ExpedienteController controller() {
         return this;
+    }
+    
+    @ModelAttribute("pageSizes")
+    public List<Integer> pageSizes(Model model) {
+        List<Integer> list = Arrays.asList(10, 30, 50);
+        model.addAttribute("pageSizes", list);
+        return list;
     }
 }
