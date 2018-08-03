@@ -48,14 +48,15 @@ public class ExpDocumento implements Serializable {
     @Column(name = "FEC_CREACION")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fecCreacion;
-    @Basic(optional = false)
-    @Column(name = "USU_CREACION")
-    private long usuCreacion;
+    @JoinColumn(name = "USU_CREACION", referencedColumnName = "USU_ID")
+    @ManyToOne(optional = false)
+    private Usuario usuCreacion;
     @Column(name = "FEC_MODIFICACION")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fecModificacion;
-    @Column(name = "USU_MODIFICACION")
-    private Long usuModificacion;
+    @JoinColumn(name = "USU_MODIFICACION", referencedColumnName = "USU_ID")
+    @ManyToOne
+    private Usuario usuModificacion;
     @Basic(optional = false)
     @Column(name = "ACTIVO")
     private boolean activo;
@@ -73,11 +74,13 @@ public class ExpDocumento implements Serializable {
         this.expDocId = expDocId;
     }
 
-    public ExpDocumento(Long expDocId, Date fecCreacion, long usuCreacion, boolean activo) {
+    public ExpDocumento(Long expDocId, Date fecCreacion, Usuario usuCreacion, boolean activo, Documento docId, Expediente expId) {
         this.expDocId = expDocId;
         this.fecCreacion = fecCreacion;
         this.usuCreacion = usuCreacion;
         this.activo = activo;
+        this.docId = docId;
+        this.expId = expId;
     }
 
     public Long getExpDocId() {
@@ -96,11 +99,11 @@ public class ExpDocumento implements Serializable {
         this.fecCreacion = fecCreacion;
     }
 
-    public long getUsuCreacion() {
+    public Usuario getUsuCreacion() {
         return usuCreacion;
     }
 
-    public void setUsuCreacion(long usuCreacion) {
+    public void setUsuCreacion(Usuario usuCreacion) {
         this.usuCreacion = usuCreacion;
     }
 
@@ -112,11 +115,11 @@ public class ExpDocumento implements Serializable {
         this.fecModificacion = fecModificacion;
     }
 
-    public Long getUsuModificacion() {
+    public Usuario getUsuModificacion() {
         return usuModificacion;
     }
 
-    public void setUsuModificacion(Long usuModificacion) {
+    public void setUsuModificacion(Usuario usuModificacion) {
         this.usuModificacion = usuModificacion;
     }
 
