@@ -2,9 +2,11 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.ExpTrd;
 import com.laamware.ejercito.doc.web.entity.ExpUsuario;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.ParNombreExpediente;
+import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.ExpUsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
@@ -47,12 +49,20 @@ public class ExpedienteService {
     @Autowired
     private ExpUsuarioService expUsuarioService;
     
+    @Autowired
+    TRDService trdService;
+    
     
     public static final Long ESTADO_INICIAL_EXPEDIENTE = new Long(1100) ;
     public static final Long ESTADO_ENVIADO_APROBAR = new Long(1101) ;
     public static final Long ESTADO_ADMINISTRADOR_MODIFICADO = new Long(1101) ;
     public static final Long ESTADO_APROBADO = new Long(1102) ;
-    public static final Long ESTADO_RECHAZADO = new Long(1103) ;    
+    public static final Long ESTADO_RECHAZADO = new Long(1103) ;
+    public static final Long ESTADO_CAMBIO_TIPO = new Long(1112) ;
+
+
+    public static final int EXPEDIENTE_SIMPLE = 1;
+    public static final int EXPEDIENTE_COMPLEJO = 2;
     
     public Expediente finById(Long id){
         return expedienteRepository.findOne(id);
@@ -190,6 +200,29 @@ public class ExpedienteService {
                 expedienteEstadoService.findById(ESTADO_RECHAZADO), usuarioSesion, null, null);
         
         expedienteRepository.saveAndFlush(expediente);
+    }
+    
+    public void modificarTipoExpediente(Expediente expediente, Usuario usuarioSesion) throws BusinessLogicException{
+        //Modificar tipo de expediente simple
+        if(expediente.getExpTipo() == EXPEDIENTE_SIMPLE){
+            expediente.setExpTipo(EXPEDIENTE_COMPLEJO);
+            
+            expedienteTransicionService.crearTransicion(expediente, 
+                expedienteEstadoService.findById(ESTADO_CAMBIO_TIPO), usuarioSesion, null, null);
+            
+            expedienteRepository.saveAndFlush(expediente);
+        }else{
+            List<Trd> trdExpedienteDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
+            if(trdExpedienteDocumentos.isEmpty()){
+                expediente.setExpTipo(EXPEDIENTE_SIMPLE);
+                expedienteTransicionService.crearTransicion(expediente, 
+                expedienteEstadoService.findById(ESTADO_CAMBIO_TIPO), usuarioSesion, null, null);
+                
+                expedienteRepository.saveAndFlush(expediente);
+            }else{
+                throw new BusinessLogicException("Las TRDS del expediente ya se encuentran asociadas con documentos. Para realizar esta acción el expediente solo debe tener documentos de una sola TRD.");
+            }
+        }
     }
 
     private ExpedienteDTO retornaExpedienteDTO(Object[] object) {

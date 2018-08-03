@@ -294,10 +294,27 @@ public class ExpedienteController extends UtilController {
         }
         return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
-
-
-
     
+    @RequestMapping(value = "/modifica-tipo-expediente", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<?> modificarTipoExpediente(@RequestParam(value = "expId", required = true) Long expId, Model model, Principal principal){
+        final Expediente expediente = expedienteService.finById(expId);
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        if (!hasPermitions(usuarioSesion, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        try {
+            expedienteService.modificarTipoExpediente(expediente, usuarioSesion);
+            model.addAttribute(AppConstants.FLASH_SUCCESS, "Se ha cambiado el tipo de expediente.");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (BusinessLogicException ex) {
+            model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            List<Trd> trdExpedienteDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
+            return new ResponseEntity<>(trdExpedienteDocumentos, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     
     @RequestMapping(value = "/enviarAprobar/{exp}", method = RequestMethod.GET)
     @Transactional
