@@ -64,6 +64,7 @@ import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -897,5 +898,12 @@ public class ExpedienteController extends UtilController {
     @ModelAttribute("controller")
     public ExpedienteController controller() {
         return this;
+    }
+    
+    @ModelAttribute("pageSizes")
+    public List<Integer> pageSizes(Model model) {
+        List<Integer> list = Arrays.asList(10, 30, 50);
+        model.addAttribute("pageSizes", list);
+        return list;
     }
 }
