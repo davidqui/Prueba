@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.DocumentoDependenciaArchivoDTO;
+import com.laamware.ejercito.doc.web.dto.ExpUsuarioDto;
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
@@ -251,6 +252,49 @@ public class ExpedienteController extends UtilController {
         map.put("quien", expObservacion.getUsuId().toString());
         return map;
     }
+    
+    @ResponseBody
+    @RequestMapping(value = "/cambios-pendientes/{exp}", method = RequestMethod.GET)
+    public ResponseEntity<?> retornaCambiosPendientes(@PathVariable("exp") Long expId, Model model, Principal principal) {
+//        System.out.println("retornaCambiosPendientes");
+        final Expediente expediente = expedienteService.finById(expId);
+        final Usuario usuario = getUsuario(principal);
+        
+        if(!hasPermitions(usuario, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        
+        List<ExpUsuarioDto> usuariosPorAprobar = expUsuarioService.retornaUsuariosPendientesPorAprobar(expediente);
+        return ResponseEntity.ok(usuariosPorAprobar);
+    }
+    
+    @RequestMapping(value = "/aprobar-rechazar/{exp}/{tipo}/{observacion}", method = RequestMethod.POST)
+    @Transactional
+    public String aprobarOrechazar(@PathVariable("exp") Long expId, @PathVariable("tipo") int tipo, @PathVariable("observacion") String observacion, Model model, Principal principal){
+        final Expediente expediente = expedienteService.finById(expId);
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        if (!hasPermitions(usuarioSesion, expediente))
+            return "security-denied";
+
+        if(tipo == 1){
+            expedienteService.aprobarExpediente(expediente, usuarioSesion);
+            if(expediente.getIndAprobadoInicial()){
+                model.addAttribute(AppConstants.FLASH_SUCCESS, "Los cambios en el expediente han sido aprobados.");
+            }else{
+                model.addAttribute(AppConstants.FLASH_SUCCESS, "El expediente ha sido aprobado.");
+            }
+        }else{
+            expedienteService.rechazarExpediente(expediente, usuarioSesion);
+            if(expediente.getIndAprobadoInicial()){
+                model.addAttribute(AppConstants.FLASH_SUCCESS, "Los cambios en el expediente han sido rechazados.");
+            }else{
+                model.addAttribute(AppConstants.FLASH_SUCCESS, "El expediente ha sido rechazado.");
+            }
+        }
+        return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
+    }
+
 
 
     

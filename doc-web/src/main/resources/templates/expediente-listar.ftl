@@ -50,7 +50,7 @@
                                 <img class="card-img-top" src="/img/eye.svg" alt="">
                             </a>
                             <#if exp.indUsuarioAsignado == 1>
-                                <a title="Cambios pendientes por revisar" href="#">
+                                <a title="El expediente se encuentra con cambios sin aprobar" href="#">
                                     <img class="card-img-top" src="/img/alert-circle.svg" alt="">
                                 </a>
                             </#if>

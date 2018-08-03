@@ -30,6 +30,7 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "       IND_APROBADO_INICIAL IND_APROBADO_INICIAL, "
             + "       UJD.USU_GRADO||' '||UJD.USU_NOMBRE JEFEDEPENDENCIA, "
             + "       UC.USU_GRADO||' '||UC.USU_NOMBRE USUARIOCREADOR, "
+            + "       EXP.EXP_TIPO, "
             + "       DECODE(EXP.EXP_TIPO, 1, 'EXPEDIENTE SIMPLE', 'EXPEDIENTE COMPLEJO') expTipo, "
             + "       EXP.EXP_DESCRIPCION, "
             + "       EXP.USUARIO_ASIGNADO, "
