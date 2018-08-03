@@ -68,6 +68,16 @@ public class ExpUsuarioService {
         return expUsuarioRepository.getByExpIdAndUsuIdAndActivoTrue(expediente, usuario);
     }
     
+    /**
+     * Lista los usuarios expediente de un expediente por un usuario
+     * @param expediente
+     * @param usuario
+     * @return 
+     */
+    public List<ExpUsuario> findByExpedienteAndUsuarioAndPermisoTrue(Expediente expediente, Usuario usuario){
+        return expUsuarioRepository.getByExpIdAndUsuIdAndActivoTrueIndAprobadoTrue(expediente, usuario);
+    }
+    
     public void agregarUsuarioExpediente(Expediente expediente, Usuario usuCreador, Usuario usuario, Cargo cargo, Integer permiso){
         ExpUsuario expUsuario = new ExpUsuario();
         expUsuario.setUsuCreacion(usuario);

@@ -2,8 +2,10 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.ExpUsuario;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.ParNombreExpediente;
+import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
@@ -29,6 +31,7 @@ public class ExpedienteService {
      */
     @Autowired
     private ExpedienteRepository expedienteRepository;
+    
     /**
      * Repositorio de estados del expediente.
      */
@@ -40,6 +43,10 @@ public class ExpedienteService {
      */
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
+    
+    
+    @Autowired
+    private ExpUsuarioService expUsuarioService;
     
     
     public static final Long ESTADO_INICIAL_EXPEDIENTE = new Long(1100) ;
@@ -179,5 +186,15 @@ public class ExpedienteService {
         dTO.setNumDocumentos(object[18] != null ? ((BigDecimal) object[18]).intValue() : null);
         dTO.setIndIndexacion(object[19] != null ? ((BigDecimal) object[19]).equals(BigDecimal.ONE) : false);
         return dTO;
+    }
+
+    public List<Expediente> obtenerExpedientesIndexacionPorUsuarioPorTrd(Usuario usuarioSesion, Trd trd) {
+        return expedienteRepository.findExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion.getId(), trd.getId());
+    }
+    
+    
+    public boolean permisoIndexacion(Usuario usuario, Expediente expediente){
+        List<ExpUsuario> expUsuarios = expUsuarioService.findByExpedienteAndUsuarioAndPermisoTrue(expediente, usuario);
+        return !expUsuarios.isEmpty();
     }
 }

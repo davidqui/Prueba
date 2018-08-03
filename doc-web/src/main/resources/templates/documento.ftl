@@ -935,7 +935,16 @@
                     Reasignar
                     </a> 
 			                </#if>
-			            </#if>
+                
+			            </#if>     
+                                    <#-- 2018-08-02 samuel.delgado@controltechcg.com Issue #181 (SIGDI-Controltech): 
+                                        Botón para enviar a expediente un documento ya finalizado -->
+                                    <#if ((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+			            		&& (usuariologueado.id == documento.instancia.asignado.id))>
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-enviar-expediente">
+                                            Asignar Expediente
+                                        </button>
+                                    </#if>
 	                </#if>
 	            </#if>
                 </div>
@@ -1333,6 +1342,50 @@
         </div><!-- /.modal-dialog -->
       </div><!-- /.modal -->
 
+
+<!-- modal seleccionar expediente -->
+<div class="modal fade bd-example-modal-lg" id="modal-enviar-expediente" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Seleccionar Expediente</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="max-height: 650px; overflow: hidden; overflow-y: auto;">
+        <#if expedientesValidos??>
+            <div class="list-group">
+                <input type="hidden" id="expedienteDestino" name="expedienteDestino" value="" />
+                <#list expedientesValidos as pExpediente>
+                    <button id="expediente-${(pExpediente.expId)!""}" onclick="seleccionarExpediente(${(pExpediente.expId)!""})"
+                            class="list-group-item list-group-item-action flex-column align-items-start expediente-list">
+                        <div class="d-flex w-100 justify-content-between">
+                          <h5 class="mb-1">${(pExpediente.expNombre)!""}</h5>
+                          <small>${(pExpediente.fecCreacion)!""}</small>
+                        </div>
+                        <p class="mb-1">
+                            <#if pExpediente.expDescripcion?length &lt; 255>
+                            ${pExpediente.expDescripcion}
+                            <#else>
+                            ${pExpediente.expDescripcion?substring(0,249)} ...
+                            </#if>
+                        </p>
+                        <small>${(pExpediente.depId.nombre)!""}</small>
+                    </button>
+                </#list>
+            </div>
+        </#if>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script type="text/javascript">
     <!--
     function visualizar(url) {
@@ -1468,6 +1521,12 @@
         feature-162: Separación del selector de observaciones por defecto.
     -->
     <script src="/js/app/documento-observaciones.js"></script>
+    <#--
+        2018-08-03 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
+        feature-162: Separación del selector de observaciones por defecto.
+    -->
+    <script src="/js/app/enviar-expediente-documento.js"></script>
+    
 </#assign>
 <#assign deferredJS = deferredJS + " " + deferredJSDependencias>
 <#include "bandeja-footer.ftl" />

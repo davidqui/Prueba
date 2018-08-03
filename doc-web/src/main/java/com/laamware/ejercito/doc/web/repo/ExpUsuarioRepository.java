@@ -23,4 +23,12 @@ public interface ExpUsuarioRepository extends JpaRepository<ExpUsuario, Long> {
      * @return 
      */
     List<ExpUsuario> getByExpIdAndUsuIdAndActivoTrue(Expediente expediente, Usuario usuario);
+    
+     /***
+     * Lista los usuarios expediente dado un expediente y un usuario mientras el premiso este aprobado
+     * @param expediente
+     * @param usuario
+     * @return 
+     */
+    List<ExpUsuario> getByExpIdAndUsuIdAndActivoTrueIndAprobadoTrue(Expediente expediente, Usuario usuario);
 }

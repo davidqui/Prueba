@@ -75,6 +75,7 @@ import com.laamware.ejercito.doc.web.entity.DocumentoEnConsulta;
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacion;
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
 import com.laamware.ejercito.doc.web.entity.Estado;
+import com.laamware.ejercito.doc.web.entity.ExpDocumento;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
@@ -119,6 +120,8 @@ import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
 import com.laamware.ejercito.doc.web.serv.DriveService;
+import com.laamware.ejercito.doc.web.serv.ExpDocumentoService;
+import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.JasperService;
 import com.laamware.ejercito.doc.web.serv.MailQueueService;
 import com.laamware.ejercito.doc.web.serv.NotificacionService;
@@ -148,6 +151,8 @@ import java.util.logging.Level;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
@@ -346,6 +351,20 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private NotificacionService notificacionService;
+    
+    /*
+     * 2018-08-02 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+     * feature-181: Servicio de expediente.
+     */
+    @Autowired
+    private ExpedienteService expedienteService;
+    
+    /*
+     * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+     * feature-181: Servicio de los documentos del expediente.
+     */
+    @Autowired
+    private ExpDocumentoService expDocumentoService;
     
     /* ---------------------- públicos ------------------------------- */
     /**
@@ -601,7 +620,7 @@ public class DocumentoController extends UtilController {
 
         return keysValuesAsposeDocxDTO;
     }
-
+    
     /**
      * Muestra la pantalla con los datos del documento. Si la instancia no tiene
      * definido un documento asociado entonces lo crea y lo enlaza a la
@@ -779,6 +798,17 @@ public class DocumentoController extends UtilController {
 
         // 2017-04-26 jgarcia@controltechcg.com Issue #58 (SICDI-Controltech)
         addConsultaTemplateModelAttributes(model, usuarioLogueado, doc);
+        
+        /**
+         * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+         * feature-181: se agrega la lista de los expedientes al que se puede agregar un
+         * documento.
+         */
+        if ((doc.esDocumentoRevisionRadicado() || doc.esDocumentoEnviadoInterno())&& (usuarioLogueado.getId() == doc.getInstancia().getAsignado().getId())){
+            List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioLogueado, doc.getTrd());
+            model.addAttribute("expedientesValidos", expedientesValidos);
+        }
+        
         return "documento";
     }
 
@@ -1242,7 +1272,7 @@ public class DocumentoController extends UtilController {
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
 
     }
-
+    
     /**
      * Genera el sticker del documento
      *
@@ -4727,6 +4757,43 @@ public class DocumentoController extends UtilController {
                 "El documento respuesta \"" + asuntoRespuesta + "\" ha sido anulado exitosamente.");
 
         return "redirect:/";
+    }
+    
+    /**
+     * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+     * feature-181: método para enviar un documento a un expediente.
+     */
+    /**
+     * Método que agrega un documento al expediente.
+     * @param pin
+     * @param principal
+     * @param model
+     * @param redirect
+     * @return 
+     */
+    @RequestMapping(value = "/addDocExpediente/{pinId}/{expId}", method = RequestMethod.POST)
+    public ResponseEntity<?> expedienteService(@PathVariable("exp") Long expId, 
+            @PathVariable("pinId") String pinId, Principal principal){
+        
+        Usuario usuarioSesion = getUsuario(principal);
+        // Obtiene la instancia
+        Instancia i = procesoService.instancia(pinId);
+        // Obtiene el documento registrado en las variables de la instancia
+        String docId = i.getVariable(Documento.DOC_ID);
+        
+        Boolean acceso = usuarioService.verificaAccesoDocumento(usuarioSesion.getId(), pinId);
+        if (!acceso)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        Documento documento = documentRepository.getOne(docId);
+        Expediente expediente = expedienteService.findOne(expId);
+        
+        if (!expedienteService.permisoIndexacion(usuarioSesion, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
+        
+        return ResponseEntity.ok("ok");
     }
 
 //    /*
