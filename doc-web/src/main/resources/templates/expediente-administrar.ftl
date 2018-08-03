@@ -176,7 +176,7 @@
                       </div>
                   </form>
               </div>
-              <div class="modal-contenido" style="height: 600px; overflow-y: scroll;">
+              <div class="modal-contenido" style="height: 400px; overflow-y: scroll;">
               </div>
 
 

@@ -2,9 +2,12 @@ package com.laamware.ejercito.doc.web.serv;
 
 
 import com.laamware.ejercito.doc.web.entity.ExpObservacion;
+import com.laamware.ejercito.doc.web.entity.Expediente;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.ExpObservacionRepository;
+import java.util.Date;
 import java.util.List;
 import org.springframework.data.domain.Sort;
 
@@ -28,7 +31,16 @@ public class ExpObservacionService {
         return expObservacionRepository.findByExpIdExpId(expId, new Sort(Sort.Direction.DESC, "fecCreacion"));
     } 
     
-    public void guardarObservacion(ExpObservacion expObservacion){
-        expObservacionRepository.saveAndFlush(expObservacion);
+    public ExpObservacion guardarObservacion(Expediente expediente, String observacion, Usuario usuarioSesion){
+        ExpObservacion expObservacion = new ExpObservacion();
+        expObservacion.setExpId(expediente);
+        String escaped = observacion.replace("&", "&amp;");
+        escaped = escaped.replace("<", "&lt;");
+        escaped = escaped.replace(">", "&gt;");
+        escaped = escaped.replace("\n", "<br/>");
+        expObservacion.setExpObservacion(escaped);
+        expObservacion.setFecCreacion(new Date());
+        expObservacion.setUsuId(usuarioSesion);
+        return expObservacionRepository.saveAndFlush(expObservacion);
     }
 }
