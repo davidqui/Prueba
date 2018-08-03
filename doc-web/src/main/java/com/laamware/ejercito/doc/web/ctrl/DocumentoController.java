@@ -802,11 +802,14 @@ public class DocumentoController extends UtilController {
         /**
          * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
          * feature-181: se agrega la lista de los expedientes al que se puede agregar un
-         * documento.
+         * documento, todo mientras el documento no este en otro expediente.
          */
-        if ((doc.esDocumentoRevisionRadicado() || doc.esDocumentoEnviadoInterno())&& (usuarioLogueado.getId() == doc.getInstancia().getAsignado().getId())){
-            List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioLogueado, doc.getTrd());
-            model.addAttribute("expedientesValidos", expedientesValidos);
+        ExpDocumento expDocumento = expDocumentoService.findByDocumento(doc);
+        if (expDocumento == null) {
+            if ((doc.esDocumentoRevisionRadicado() || doc.esDocumentoEnviadoInterno())&& (usuarioLogueado.getId() == doc.getInstancia().getAsignado().getId())){
+                List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioLogueado, doc.getTrd());
+                model.addAttribute("expedientesValidos", expedientesValidos);
+            }
         }
         
         return "documento";
@@ -4772,7 +4775,7 @@ public class DocumentoController extends UtilController {
      * @return 
      */
     @RequestMapping(value = "/addDocExpediente/{pinId}/{expId}", method = RequestMethod.POST)
-    public ResponseEntity<?> expedienteService(@PathVariable("exp") Long expId, 
+    public ResponseEntity<?> addDocExpediente(@PathVariable("expId") Long expId, 
             @PathVariable("pinId") String pinId, Principal principal){
         
         Usuario usuarioSesion = getUsuario(principal);
@@ -4783,14 +4786,15 @@ public class DocumentoController extends UtilController {
         
         Boolean acceso = usuarioService.verificaAccesoDocumento(usuarioSesion.getId(), pinId);
         if (!acceso)
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("No tiene permisos sobre el documento", HttpStatus.UNAUTHORIZED);
         
         Documento documento = documentRepository.getOne(docId);
         Expediente expediente = expedienteService.findOne(expId);
         
-        if (!expedienteService.permisoIndexacion(usuarioSesion, expediente))
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
+        if ((!expedienteService.permisoIndexacion(usuarioSesion, expediente) 
+                && !expedienteService.permisoAdministrador(usuarioSesion, expediente)))
+            return new ResponseEntity<>("No tiene permiso sobre el expediente", HttpStatus.UNAUTHORIZED);
+
         expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
         
         return ResponseEntity.ok("ok");

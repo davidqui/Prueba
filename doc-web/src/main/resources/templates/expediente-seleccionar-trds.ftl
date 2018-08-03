@@ -57,10 +57,16 @@
                         </#if>
                             <td>
                                 <div class="checkbox">
-                                    <label class="checkbox-inline">
-                                        <input name="trd" type="checkbox" class="trd-${trdP.id}" value="${trd.id}" 
+                                    <label class="checkbox-inline" <#if controller.hasInDocument(trd.id, trdDocumentos)> style="color:red; font-weight:bold"</#if>>
+                                        <input type="checkbox" value="${trd.id}" 
                                             <#if controller.has(trd.id, trdsPreseleccionadas)>checked="checked"</#if> 
-                                            <#if controller.hasInDocument(trd.id, trdDocumentos)>disabled</#if>>${trd.nombre}</input>                    
+                                            <#if controller.hasInDocument(trd.id, trdDocumentos)>
+                                                style="outline: 2px solid #c00; margin-right:5px;" disabled
+                                            <#else>
+                                                name="trd"
+                                                class="trd-${trdP.id}"
+                                                style="margin-right:5px;" 
+                                            </#if>>${trd.nombre}</input>                    
                                     </label>
                                 </div>
                             </td>
@@ -117,6 +123,7 @@
             } else {
                 $("#selected-all-trd-"+id).val('true');                
                 $(button).html('${removeAllText}');
+                    
             }
         }
     </script>

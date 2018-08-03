@@ -29,7 +29,7 @@
                             </#if>
                             <#if h.docId??>
                                 <br/>
-                                Documento: ${h.usuModificado?string}
+                                Documento: ${h.docId.asunto?string}
                             </#if>
                             <br/>
                             <ul>

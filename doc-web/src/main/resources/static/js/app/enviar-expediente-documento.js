@@ -3,12 +3,15 @@ function seleccionarExpediente(expId){
     expedientes.removeClass("active");
     $("#expediente-"+expId).addClass("active");
     $("#expedienteDestino").val(expId);
+    $("#submit-button").css('display', 'initial');
 }
 
-function postSeleccionarExpediente(expId, pinId){
+function submitSeleccionarExpediente(pinId){
+    console.log("ENVIA");
+    var expId = $("#expedienteDestino").val();
     $.ajax({
         method: "POST",
-        url: "/documento/agregar-documento-exp/"pinId+"/"+expId
+        url: "/documento/addDocExpediente/"+pinId+"/"+expId
     }).always(function () {
         location.reload();
     });

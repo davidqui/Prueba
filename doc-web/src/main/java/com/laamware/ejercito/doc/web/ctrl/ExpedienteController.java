@@ -260,7 +260,7 @@ public class ExpedienteController extends UtilController {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuario = getUsuario(principal);
         
-        if(!hasPermitions(usuario, expediente))
+        if(!expedienteService.permisoAdministrador(usuario, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         
         
@@ -274,7 +274,7 @@ public class ExpedienteController extends UtilController {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
 
-        if (!hasPermitions(usuarioSesion, expediente))
+        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return "security-denied";
 
         if(tipo == 1){
@@ -305,7 +305,7 @@ public class ExpedienteController extends UtilController {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
 
-        if (!hasPermitions(usuarioSesion, expediente))
+        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return "security-denied";
 
         expedienteService.enviarAprobar(expediente, usuarioSesion);
@@ -367,7 +367,7 @@ public class ExpedienteController extends UtilController {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
 
-        if (!hasPermitions(usuarioSesion, expediente))
+        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return "security-denied";
         
        Usuario usuCreador = expediente.getUsuCreacion();
@@ -392,7 +392,7 @@ public class ExpedienteController extends UtilController {
 
         final Expediente expediente = expedienteService.finById(expId);
 
-        if (!hasPermitions(usuarioSesion, expediente))
+        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         List<ExpUsuario> usuarioEnEspediente = expUsuarioService.findByExpedienteAndUsuario(expediente, usuario);
@@ -413,7 +413,7 @@ public class ExpedienteController extends UtilController {
         final Cargo cargoUsu = cargoService.findOne(cargoID);
         final Expediente expediente = expedienteService.finById(expId);
 
-        if (!hasPermitions(usuarioSesion, expediente))
+        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         expUsuarioService.editarUsuarioExpediente(expediente, usuarioSesion, usuarioID, cargoUsu, permiso);
@@ -428,7 +428,7 @@ public class ExpedienteController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
 
-        if (!hasPermitions(usuarioSesion, expediente))
+        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         expUsuarioService.eliminarUsuarioExpediente(usuarioID, usuarioSesion, expediente);
@@ -477,7 +477,7 @@ public class ExpedienteController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
 
-        if (!hasPermitions(usuarioSesion, expediente) || expediente.getExpTipo() == 1)
+        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente) || expediente.getExpTipo() == 1)
             return "security-denied";
 
         List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
@@ -497,7 +497,7 @@ public class ExpedienteController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
 
-        if (!hasPermitions(usuarioSesion, expediente))
+        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return "security-denied";
 
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpedienteAll(expediente);
@@ -812,16 +812,6 @@ public class ExpedienteController extends UtilController {
             }
         }
         return counter == expTrds.size();
-    }
-    
-    public boolean hasPermitions(Usuario usuario, Expediente expediente){
-        if (usuario == null || expediente == null)
-            return false;
-        final Usuario jefeDep = expediente.getDepId().getJefe();
-        if (!(jefeDep != null && jefeDep.getId().equals(usuario.getId())) &&
-            !expediente.getUsuCreacion().getId().equals(usuario.getId()))
-            return false;
-        return true;
     }
 
     

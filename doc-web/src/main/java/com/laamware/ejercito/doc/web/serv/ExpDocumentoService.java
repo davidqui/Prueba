@@ -46,10 +46,18 @@ public class ExpDocumentoService {
         expDocumento.setExpId(expediente);
         expDocumento.setActivo(true);
         expDocumento.setFecCreacion(new Date());
-//        expDocumento.setUsuCreacion(usuarioSesion);
-        
+        expDocumento.setUsuCreacion(usuarioSesion);
         expDocumentoRepository.saveAndFlush(expDocumento);
         expedienteTransicionService.crearTransicion(expediente, 
             expedienteEstadoService.findById(ESTADO_DOCUMENTO_AGREGADO), usuarioSesion, documento, null);
+    }
+    
+    /**
+     * Busca un expediente documento por un documento.
+     * @param documento
+     * @return 
+     */
+    public ExpDocumento findByDocumento(Documento documento){
+        return expDocumentoRepository.findByActivoTrueAndDocId(documento);
     }
 }

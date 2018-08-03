@@ -93,6 +93,9 @@ public class ExpedienteService {
         expediente.setIndAprobadoInicial(false);
         expediente.setEstadoCambio(false);
         
+        if (usuario.getId().equals(usuario.getDependencia().getJefe().getId()))
+                expediente.setIndAprobadoInicial(true);
+        
         expediente = expedienteRepository.saveAndFlush(expediente);
         expedienteTransicionService.crearTransicion(expediente, 
                 expedienteEstadoService.findById(ESTADO_INICIAL_EXPEDIENTE), usuario, null, null);
@@ -230,5 +233,15 @@ public class ExpedienteService {
     public boolean permisoIndexacion(Usuario usuario, Expediente expediente){
         List<ExpUsuario> expUsuarios = expUsuarioService.findByExpedienteAndUsuarioAndPermisoTrue(expediente, usuario);
         return !expUsuarios.isEmpty();
+    }
+    
+    public boolean permisoAdministrador(Usuario usuario, Expediente expediente){
+        if (usuario == null || expediente == null)
+            return false;
+        final Usuario jefeDep = expediente.getDepId().getJefe();
+        if (!(jefeDep != null && jefeDep.getId().equals(usuario.getId())) &&
+            !expediente.getUsuCreacion().getId().equals(usuario.getId()))
+            return false;
+        return true;
     }
 }

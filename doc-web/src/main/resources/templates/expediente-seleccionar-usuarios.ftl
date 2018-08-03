@@ -9,8 +9,8 @@
     <ol class="breadcrumb">
         <li><a href="/expediente/listarExpedientes?">Inicio</a></li>
         <li class="active"><a href="/expediente/${expediente.expId}">${expediente.expNombre}</a></li>
-        <li class="active"><a href="/expediente/trds-expediente/${expediente.expId}">Detalle del expediente</a></li>
-        <#if !expediente.indAprobadoInicial && expediente.expTipo == 2><li class="active"><a href="/expediente/administrarExpediente?expId=${expediente.expId}">Seleccionar trds</a></li></#if>
+        <li class="active"><a href="/expediente/administrarExpediente?expId=${expediente.expId}">Detalle del expediente</a></li>
+        <#if !expediente.indAprobadoInicial && expediente.expTipo == 2><li class="active"><a href="/expediente/trds-expediente/${expediente.expId}">Seleccionar trds</a></li></#if>
         <li class="active">Asignar Usuarios</li>
     </ol>
 </div>

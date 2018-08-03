@@ -939,11 +939,11 @@
 			            </#if>     
                                     <#-- 2018-08-02 samuel.delgado@controltechcg.com Issue #181 (SIGDI-Controltech): 
                                         Botón para enviar a expediente un documento ya finalizado -->
-                                    <#if ((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
-			            		&& (usuariologueado.id == documento.instancia.asignado.id))>
-                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-enviar-expediente">
+                                    <#if expedientesValidos?? && (((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+			            		&& (usuariologueado.id == documento.instancia.asignado.id)))>
+                                        <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-enviar-expediente">
                                             Asignar Expediente
-                                        </button>
+                                        </a>
                                     </#if>
 	                </#if>
 	            </#if>
@@ -1349,9 +1349,6 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLongTitle">Seleccionar Expediente</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
       </div>
       <div class="modal-body" style="max-height: 650px; overflow: hidden; overflow-y: auto;">
         <#if expedientesValidos??>
@@ -1379,7 +1376,13 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" id="submit-button"
+        class="btn btn-primary" 
+        onclick="submitSeleccionarExpediente('${instancia.id}')"
+        style="display:none;"
+        >
+        Enviar a expediente
+        </button>
       </div>
     </div>
   </div>
