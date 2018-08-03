@@ -34,6 +34,7 @@ public class ExpedienteService {
      */
     @Autowired
     private ExpedienteRepository expedienteRepository;
+    
     /**
      * Repositorio de estados del expediente.
      */
@@ -46,11 +47,13 @@ public class ExpedienteService {
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
     
+    
     @Autowired
     private ExpUsuarioService expUsuarioService;
     
     @Autowired
     TRDService trdService;
+    
     
     
     public static final Long ESTADO_INICIAL_EXPEDIENTE = new Long(1100) ;
@@ -249,5 +252,15 @@ public class ExpedienteService {
         dTO.setNumDocumentos(object[19] != null ? ((BigDecimal) object[19]).intValue() : null);
         dTO.setIndIndexacion(object[20] != null ? ((BigDecimal) object[20]).equals(BigDecimal.ONE) : false);
         return dTO;
+    }
+
+    public List<Expediente> obtenerExpedientesIndexacionPorUsuarioPorTrd(Usuario usuarioSesion, Trd trd) {
+        return expedienteRepository.findExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion.getId(), trd.getId());
+    }
+    
+    
+    public boolean permisoIndexacion(Usuario usuario, Expediente expediente){
+        List<ExpUsuario> expUsuarios = expUsuarioService.findByExpedienteAndUsuarioAndPermisoTrue(expediente, usuario);
+        return !expUsuarios.isEmpty();
     }
 }

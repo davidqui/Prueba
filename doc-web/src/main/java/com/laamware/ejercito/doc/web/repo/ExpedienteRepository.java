@@ -56,6 +56,18 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "LEFT OUTER JOIN USUARIO UJD ON (UJD.USU_ID = DEP_JEFE.USU_ID_JEFE) "
             + "WHERE ((EXP.USU_CREACION = :usuId) OR (EXPUSUARIO.USU_ID = :usuId and EXPUSUARIO.IND_APROBADO = 1 AND EXPUSUARIO.ACTIVO = 1) OR (DEP_JEFE.USU_ID_JEFE = :usuId)) ";
 
+    String CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO = ""
+            + "SELECT EXP.*"
+            + "FROM EXPEDIENTE EXP "
+            + "LEFT OUTER JOIN EXP_USUARIO EXPUSUARIO ON (EXPUSUARIO.EXP_ID = EXP.EXP_ID) "
+            + "LEFT OUTER JOIN USUARIO UC ON (UC.USU_ID = EXP.USU_CREACION) "
+            + "LEFT OUTER JOIN DEPENDENCIA DEP_JEFE ON (DEP_JEFE.DEP_ID = EXP.DEP_ID) "
+            + "LEFT OUTER JOIN TRD TRDPRINCIPAL ON (TRDPRINCIPAL.TRD_ID = EXP.TRD_ID_PRINCIPAL) "
+            + "LEFT OUTER JOIN USUARIO UJD ON (UJD.USU_ID = DEP_JEFE.USU_ID_JEFE) "
+            + "lEFT OUTER JOIN EXP_TRD ETRD ON  (ETRD.EXP_ID = EXP.EXP_ID) "
+            + "WHERE ((EXP.USU_CREACION = :usuId) OR (EXPUSUARIO.USU_ID = :usuId AND EXPUSUARIO.IND_APROBADO = 1 AND EXPUSUARIO.ACTIVO = 1 AND EXPUSUARIO.PERMISO = 2) OR (DEP_JEFE.USU_ID_JEFE = :usuId))"
+            + "      AND (TRDPRINCIPAL.TRD_ID = :trdId OR (ETRD.TRD_ID = :trdId AND ETRD.ACTIVO = 1)) AND EXP.IND_APROBADO_INICIAL = 1 AND IND_CERRADO = 0";
+    
     /**
      * Obtiene el numero de registros de expedientes por usuario.
      *
@@ -93,4 +105,9 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + CONSULTALISTAEXPEDIENTESXUSUARIO
             + "AND EXP.EXP_ID = :expId", nativeQuery = true)
     List<Object[]> findExpedienteDtoPorUsuarioPorExpId(@Param("usuId") Integer usuId, @Param("expId") Long expId);
+    
+    @Query(value = ""
+        + CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO
+        + "", nativeQuery = true)
+    List<Expediente> findExpedientesIndexacionPorUsuarioPorTrd(@Param("usuId") Integer usuId, @Param("trdId") Integer trd);
 }
