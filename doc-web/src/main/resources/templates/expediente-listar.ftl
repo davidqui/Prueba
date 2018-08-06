@@ -46,11 +46,13 @@
                         <td>${exp.depNombre!""}</td>
                         <td>${exp.trdNomIdPrincipal!""}</td>
                         <td>
-                            <a title="Ver detalle" href="/expediente/administrarExpediente?expId=${exp.expId}">
-                                <img class="card-img-top" src="/img/eye.svg" alt="">
-                            </a>
+                            <#if exp.indUsuarioAsignado == 0>
+                                <a title="Ver detalle" href="/expediente/administrarExpediente?expId=${exp.expId}">
+                                    <img class="card-img-top" src="/img/eye.svg" alt="">
+                                </a>
+                            </#if>
                             <#if exp.indUsuarioAsignado == 1>
-                                <a title="El expediente se encuentra con cambios sin aprobar" href="#">
+                                <a title="El expediente se encuentra con cambios sin aprobar. Ver detalle." href="/expediente/administrarExpediente?expId=${exp.expId}">
                                     <img class="card-img-top" src="/img/alert-circle.svg" alt="">
                                 </a>
                             </#if>
