@@ -321,7 +321,7 @@ public class ExpedienteController extends UtilController {
 
         expedienteService.enviarAprobar(expediente, usuarioSesion);
         model.addAttribute(AppConstants.FLASH_SUCCESS, "Se a enviado una notificación al jefe de la dependencia para que apruebe el expediente.");
-        return "redirect:"+PATH;
+        return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
     
     @RequestMapping(value = "/crear", method = RequestMethod.GET)

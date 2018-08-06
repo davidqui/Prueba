@@ -62,7 +62,7 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "WHERE ((EXP.USU_CREACION = :usuId) OR (EXPUSUARIO.USU_ID = :usuId and EXPUSUARIO.IND_APROBADO = 1 AND EXPUSUARIO.ACTIVO = 1) OR (DEP_JEFE.USU_ID_JEFE = :usuId)) ";
 
     String CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO = ""
-            + "SELECT EXP.*"
+            + "SELECT DISTINCT EXP.*"
             + "FROM EXPEDIENTE EXP "
             + "LEFT OUTER JOIN EXP_USUARIO EXPUSUARIO ON (EXPUSUARIO.EXP_ID = EXP.EXP_ID) "
             + "LEFT OUTER JOIN USUARIO UC ON (UC.USU_ID = EXP.USU_CREACION) "
