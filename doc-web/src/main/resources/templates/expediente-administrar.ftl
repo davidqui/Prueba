@@ -82,7 +82,7 @@
                 </#if>
             </#if>
             <#if (expediente.indUsuCreador || expediente.indJefeDependencia || expediente.indIndexacion) && expediente.indAprobadoInicial && !expediente.indCerrado>
-                <a title="indexar Documento" href="#">
+                <a title="indexar Documento" data-toggle="modal" data-target="#agregarDocumento" >
                     <img class="card-img-top" src="/img/file-plus.svg" alt=""/>
                 </a>
             </#if>
@@ -191,7 +191,7 @@
 
     <!-- Modal info -->
     <div class="modal fade" id="info-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" style="overflow-y: auto;">
-      <div class="modal-dialog" role="document">
+      <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header" style="background-color: #0275d8; color: white;">
             <h5 class="modal-title" id="title-modal"></h5>
@@ -205,6 +205,35 @@
       </div>
     </div>
 
+
+    <!-- Modal agregar documento -->
+    <div class="modal fade bd-example-modal-lg" id="agregarDocumento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="div-loader"><div class="web-loader"><div></div><div></div><div></div><div></div></div></div>
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Agregar Documento</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+               <div class="input-group">
+                    <input type="text" id="destinoDocumento_visible" name="destinoDocumento_visible" class="form-control" value="" disabled />
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-primary" onclick="openFinderWindow()">Buscar</button>
+                    </div>
+                    <script src="/js/app/buscar-documento.js"></script>
+                </div>
+                <input type="hidden" id="destinoDocumento" name="destinoDocumento" value="" />
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" onclick="agregarDocumentoExpediente(${expediente.expId})">Agregar</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
 <script src="/js/app/expediente-administrar.js"></script>
 <script src="/js/app/documento-observaciones.js"></script>

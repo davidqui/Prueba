@@ -119,3 +119,23 @@ function modificarTipo(expId){
         }
     });
 }
+
+
+function agregarDocumentoExpediente(expId){
+    var docId = $("#destinoDocumento").val();
+    $(".div-loader").css({ display: "block" });
+    $.ajax({
+        method: "POST",
+        url: "/expediente/agregar-documento-expediente/" + expId+"/" + docId
+    }).then(function() {
+        $(".div-loader").css({ display: "none" });
+        location.reload();
+      }, function(message) {
+        $(".div-loader").css({ display: "none" });
+        $('#agregarDocumento').modal('hide');
+        $('#info-modal').modal('show');
+        $('#title-modal').html("Advertencia");
+        $('#modal-body-info').html("<h5>"+message.responseText+"</h5>");
+        $('#info-modal').modal('show');
+    });
+}

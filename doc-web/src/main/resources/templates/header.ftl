@@ -27,7 +27,9 @@
         <title>${pageTitle}</title>
 
         <script src="/ckeditor/ckeditor.js"></script>
-
+         <!-- loader -->
+        <link href='/css/loader.css' rel='stylesheet' type='text/css'>
+        
     <#if headScripts??>
       ${headScripts}
     </#if>

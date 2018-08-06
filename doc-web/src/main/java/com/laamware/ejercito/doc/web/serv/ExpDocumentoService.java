@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.ExpDocumentoRepository;
 import java.util.Date;
+import java.util.List;
 
 
 /**

@@ -1,4 +1,5 @@
-function agregarUsuario(expId) {
+
+        .function agregarUsuario(expId) {
 
         var usuarioID = $("#destinoUsuario").val();
         if (usuarioID === undefined || $.trim(usuarioID) === "") {

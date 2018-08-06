@@ -62,4 +62,14 @@ public class ExpTrdService {
         expTrd.setActivo(activo);
         expTrdRepository.saveAndFlush(expTrd);
     }
+    
+    public boolean validateTrdByExpediente(Expediente expediente, Trd trd){
+        List<ExpTrd> trds = expTrdRepository.findByExpIdAndActivoTrue(expediente);
+        for (ExpTrd tr : trds) {
+            if (tr.getTrdId().getId().equals(trd.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

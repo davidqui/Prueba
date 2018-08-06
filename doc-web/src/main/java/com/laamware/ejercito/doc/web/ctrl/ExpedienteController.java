@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.DependenciaTrd;
+import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
 import com.laamware.ejercito.doc.web.entity.ExpDocumento;
@@ -302,7 +303,7 @@ public class ExpedienteController extends UtilController {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
 
-        if (!hasPermitions(usuarioSesion, expediente))
+        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         
         try {
@@ -420,6 +421,33 @@ public class ExpedienteController extends UtilController {
         expUsuarioService.agregarUsuarioExpediente(expediente, usuarioSesion, usuario, cargoUsu, permiso);
 
         return ResponseEntity.ok(usuarioID);
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/agregar-documento-expediente/{exp}/{docId}", method = RequestMethod.POST)
+    public ResponseEntity<?> asignarDocumentoExpediente(@PathVariable("exp") Long expId, @PathVariable("docId") String docId,
+            Principal principal) {
+        final Usuario usuarioSesion = getUsuario(principal);
+        final Documento documento = documentoRepository.findOne(docId);
+        final Expediente expediente = expedienteService.finById(expId);
+        
+        Boolean acceso = usuarioService.verificaAccesoDocumento(usuarioSesion.getId(), documento.getInstancia().getId());
+        if((!expedienteService.permisoAdministrador(usuarioSesion, expediente) && !expedienteService.permisoIndexacion(usuarioSesion, expediente)) || !acceso)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        if (!expediente.getIndAprobadoInicial())
+            return new ResponseEntity<>("El expediente no ha sido aprobado por el jefe de la dependencia.", HttpStatus.UNAUTHORIZED);
+        if (!((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())&& (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())))
+            return new ResponseEntity<>("El documento no se encuentra en la etapa necesaria para agregarlo al expediente", HttpStatus.BAD_REQUEST);
+        if (!expTrdService.validateTrdByExpediente(expediente, documento.getTrd()))
+            return new ResponseEntity<>("El expediente no admite esta trd comuníquese con el administrador de este para que la agregue. </br></br> "+documento.getTrd().getNombre(),HttpStatus.UNAUTHORIZED);
+        ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
+        if(expDocumento != null)
+            return new ResponseEntity<>("Este documento ya esta asociado a un expediente.",HttpStatus.UNAUTHORIZED);
+        
+        
+        expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
+
+        return ResponseEntity.ok("Agregado Correctamente");
     }
 
     @ResponseBody

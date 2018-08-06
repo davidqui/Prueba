@@ -44,15 +44,6 @@ public class ConsultaService {
     @Autowired
     private DataSource dataSource;
     
-     /*
-     * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
-     * Repository para roles
-     */
-    @Autowired
-    private RolRepository rolRepository;
-    
-    private static final String ROL_ADMINISTRADOR_ARCHIVO = "ADMIN_ARCHIVO";
-
     /*
      * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160.
      */
@@ -103,10 +94,11 @@ public class ConsultaService {
      */
     public int retornaCountConsultaMotorBusqueda(final String asignado, final String asunto, final String fechaInicio, final String fechaFin,
             final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino, final Integer dependenciaOrigen,
-            final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer[] cargosIDs, final Integer tipoProceso) {
+            final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer[] cargosIDs, 
+            final Integer tipoProceso, final boolean permisoAdministradorArchivo) {
         StringBuilder sql = retornaConsultaPrincipal();
         LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
-                dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso);
+                dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso, permisoAdministradorArchivo);
 
 //        LOG.info("**************************************************");
 //        LOG.info("sql = " + sql);
@@ -168,12 +160,12 @@ public class ConsultaService {
     public List<DocumentoDTO> retornaConsultaMotorBusqueda(final String asignado, final String asunto, final String fechaInicio, final String fechaFin,
             final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino, final Integer dependenciaOrigen,
             final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer[] cargosIDs,
-            final int inicio, final int fin, final Integer tipoProceso) {
+            final int inicio, final int fin, final Integer tipoProceso, final boolean permisoAdministradorArchivo) {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         StringBuilder sql = retornaConsultaPrincipal();
         LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen,
-                sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso);
+                sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso, permisoAdministradorArchivo);
 
 //        LOG.info("##################################################");
 //        LOG.info("sql = " + sql);
@@ -237,7 +229,7 @@ public class ConsultaService {
     public LinkedList<Object> armaConsulta(final StringBuilder sql, final String asignado, final String asunto, final String fechaInicio,
             final String fechaFin, final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino,
             final Integer dependenciaOrigen, final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID,
-            final Integer[] cargosIDs, final Integer tipoProceso) {
+            final Integer[] cargosIDs, final Integer tipoProceso, final boolean permisoAdministradorArchivo) {
 
         // Issue #128
         SentenceOperator operator = (sameValue) ? SentenceOperator.OR : SentenceOperator.AND;
@@ -284,9 +276,11 @@ public class ConsultaService {
         * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
         * se agrega validación de rol del usuario si posee el rol de administrador de archivo no 
         * entra a verificar si estuvo involucrado en el documento.
+        *
+        * 2018-08-06 samuel.delgado@controtechcg.com Issue #181 (SICDI-Controltech) feature-181.
+        *   se cambia la validación del método se sube de nivel de llamado.
         */
-        List<Rol> usuarioRoles = rolRepository.allByUserID(usuarioID);
-        if (!hasPermision(usuarioRoles, ROL_ADMINISTRADOR_ARCHIVO)) {
+        if (!permisoAdministradorArchivo) {
             /*
              * 2017-10-31 edison.gonzalez@controltechcg.com Issue #136: Ajuste para
              * filtrar si el usuario dio vistos bueno.
@@ -595,7 +589,7 @@ public class ConsultaService {
      * @param rol rol a consultar
      * @return true si posee el permiso flase si no lo posee
      */
-    private boolean hasPermision(List<Rol> roles, String rolPermiso){
+    public boolean hasPermision(List<Rol> roles, String rolPermiso){
         for (Rol rol : roles) {
             if (rol.getId().equals(rolPermiso)) {
                 return true;
