@@ -61,7 +61,7 @@ public class ExpedienteService {
     
     public static final Long ESTADO_INICIAL_EXPEDIENTE = new Long(1100) ;
     public static final Long ESTADO_ENVIADO_APROBAR = new Long(1101) ;
-    public static final Long ESTADO_ADMINISTRADOR_MODIFICADO = new Long(1101) ;
+    public static final Long ESTADO_ADMINISTRADOR_MODIFICADO = new Long(1111) ;
     public static final Long ESTADO_APROBADO = new Long(1102) ;
     public static final Long ESTADO_RECHAZADO = new Long(1103) ;
     public static final Long ESTADO_CAMBIO_TIPO = new Long(1112) ;

@@ -1,31 +1,29 @@
+function agregarUsuario(expId) {
+    var usuarioID = $("#destinoUsuario").val();
+    if (usuarioID === undefined || $.trim(usuarioID) === "") {
+        alert("Debe seleccionar un usuario.");
+        return;
+    }
 
-        .function agregarUsuario(expId) {
+    var cargoID = $("#cargoAsignado").val();
+    if (cargoID === undefined || $.trim(cargoID) === "") {
+        alert("Debe seleccionar un cargo del usuario.");
+        return;
+    }
 
-        var usuarioID = $("#destinoUsuario").val();
-        if (usuarioID === undefined || $.trim(usuarioID) === "") {
-            alert("Debe seleccionar un usuario.");
-            return;
-        }
+    var permiso = $(".permsiso:checked").val();
 
-        var cargoID = $("#cargoAsignado").val();
-        if (cargoID === undefined || $.trim(cargoID) === "") {
-            alert("Debe seleccionar un cargo del usuario.");
-            return;
-        }
-
-        var permiso = $(".permsiso:checked").val();
-
-        $.ajax({
-            method: "POST",
-            url: "/expediente/asignar-usuario-expediente/" + expId + "/" + permiso + "/" + usuarioID + "/" + cargoID
-        }).then(function() {
-            location.reload();
-          }, function(message) {
-            console.log("mensaje", message);
-            $('#info-modal').modal('show');
-            $('#title-modal').html("Advertencia");
-            $('#modal-body-info').html("<h5>"+message.responseText+"</h5>");
-        });
+    $.ajax({
+        method: "POST",
+        url: "/expediente/asignar-usuario-expediente/" + expId + "/" + permiso + "/" + usuarioID + "/" + cargoID
+    }).then(function() {
+        location.reload();
+      }, function(message) {
+        console.log("mensaje", message);
+        $('#info-modal').modal('show');
+        $('#title-modal').html("Advertencia");
+        $('#modal-body-info').html("<h5>"+message.responseText+"</h5>");
+    });
 }
 
 function selectPermiso(value){
