@@ -52,6 +52,9 @@ public class ExpedienteService {
     private ExpUsuarioService expUsuarioService;
     
     @Autowired
+    private ExpTrdService expTrdService;
+    
+    @Autowired
     TRDService trdService;
     
     
@@ -220,7 +223,13 @@ public class ExpedienteService {
         }else{
             List<Trd> trdExpedienteDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
             if(trdExpedienteDocumentos.isEmpty()){
+                List<ExpTrd> expTrds = expTrdService.findTrdsByExpediente(expediente);
+                for(ExpTrd expTrd:expTrds){
+                    expTrdService.guardarTrdExpediente(expTrd, usuarioSesion, false);
+                }
+                
                 expediente.setExpTipo(EXPEDIENTE_SIMPLE);
+                
                 expedienteTransicionService.crearTransicion(expediente, 
                 expedienteEstadoService.findById(ESTADO_CAMBIO_TIPO), usuarioSesion, null, null);
                 

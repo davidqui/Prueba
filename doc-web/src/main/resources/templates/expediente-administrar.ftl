@@ -64,6 +64,17 @@
                 
             </div>
         </#if>
+        
+        <#if expediente.indUsuarioAsignado == 1 && expediente.indJefeDependencia>
+            <a id="btnAprobar" title="El expediente se encuentra con cambios sin aprobar" onclick="mostrarCambiosPendientes(${expediente.expId})" data-toggle="modal" href="#enviarJefeModal" class="btn btn-success">
+                Aprobar
+            </a>
+        </#if>
+        <#if expediente.indUsuCreador || expediente.indJefeDependencia>
+            <a href="#" onclick="modificarTipo(${expediente.expId})" class="btn btn-warning">
+                Modificar Tipo de expediente
+            </a>
+        </#if>
     </div>
         
     <div class="col-md-8 col-lg-9">
@@ -71,9 +82,6 @@
             <#if expediente.indUsuCreador || expediente.indJefeDependencia>
                 <a title="Administrar Usuarios" href="/expediente/asignar-usuario-expediente/${expediente.expId}">
                     <img class="card-img-top" src="/img/users.svg" alt=""/>
-                </a>
-                <a title="Modificar Tipo de expediente" href="#" onclick="modificarTipo(${expediente.expId})">
-                    <img class="card-img-top" src="/img/edit-2.svg" alt=""/>
                 </a>
                 <#if expediente.expTipoId == 2>
                     <a title="Administrar Trds" href="/expediente/trds-expediente/${expediente.expId}">
@@ -84,11 +92,6 @@
             <#if (expediente.indUsuCreador || expediente.indJefeDependencia || expediente.indIndexacion) && expediente.indAprobadoInicial && !expediente.indCerrado>
                 <a title="indexar Documento" data-toggle="modal" data-target="#agregarDocumento" >
                     <img class="card-img-top" src="/img/file-plus.svg" alt=""/>
-                </a>
-            </#if>
-            <#if expediente.indUsuarioAsignado == 1 && expediente.indJefeDependencia>
-                <a id="btnAprobar" title="El expediente se encuentra con cambios sin aprobar" onclick="mostrarCambiosPendientes(${expediente.expId})" data-toggle="modal" href="#enviarJefeModal">
-                    <img class="card-img-top" src="/img/alert-circle.svg" alt=""/>
                 </a>
             </#if>
         </div>
@@ -176,7 +179,7 @@
                       </div>
                   </form>
               </div>
-              <div class="modal-contenido" style="height: 600px; overflow-y: scroll;">
+              <div class="modal-contenido" style="height: 400px; overflow-y: scroll;">
               </div>
 
 

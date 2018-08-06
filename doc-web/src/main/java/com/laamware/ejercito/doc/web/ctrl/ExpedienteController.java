@@ -237,17 +237,7 @@ public class ExpedienteController extends UtilController {
         Long expIdValue = Long.parseLong(expId);
         Expediente expediente = expedienteService.findOne(expIdValue);
 
-        ExpObservacion expObservacion = new ExpObservacion();
-        expObservacion.setExpId(expediente);
-        String escaped = observacion.replace("&", "&amp;");
-        escaped = escaped.replace("<", "&lt;");
-        escaped = escaped.replace(">", "&gt;");
-        escaped = escaped.replace("\n", "<br/>");
-        expObservacion.setExpObservacion(escaped);
-        expObservacion.setFecCreacion(new Date());
-        expObservacion.setUsuId(usuSesion);
-
-        expObservacionService.guardarObservacion(expObservacion);
+        ExpObservacion expObservacion = expObservacionService.guardarObservacion(expediente,observacion, usuSesion);
         Map<String, String> map = new HashMap<>();
         map.put("texto", expObservacion.getExpObservacion());
         map.put("cuando", DateUtil.dateFormatObservacion.format(expObservacion.getFecCreacion()));
@@ -294,6 +284,9 @@ public class ExpedienteController extends UtilController {
                 model.addAttribute(AppConstants.FLASH_SUCCESS, "El expediente ha sido rechazado.");
             }
         }
+        
+        expObservacionService.guardarObservacion(expediente,observacion, usuarioSesion);
+        
         return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
     
@@ -329,7 +322,7 @@ public class ExpedienteController extends UtilController {
 
         expedienteService.enviarAprobar(expediente, usuarioSesion);
         model.addAttribute(AppConstants.FLASH_SUCCESS, "Se a enviado una notificación al jefe de la dependencia para que apruebe el expediente.");
-        return "redirect:"+PATH;
+        return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
     
     @RequestMapping(value = "/crear", method = RequestMethod.GET)
@@ -924,4 +917,15 @@ public class ExpedienteController extends UtilController {
         model.addAttribute("pageSizes", list);
         return list;
     }
+    
+     public boolean hasPermitions(Usuario usuario, Expediente expediente){
+        if (usuario == null || expediente == null)
+            return false;
+        final Usuario jefeDep = expediente.getDepId().getJefe();
+        if (!(jefeDep != null && jefeDep.getId().equals(usuario.getId())) &&
+            !expediente.getUsuCreacion().getId().equals(usuario.getId()))
+            return false;
+        return true;
+    }
+
 }
