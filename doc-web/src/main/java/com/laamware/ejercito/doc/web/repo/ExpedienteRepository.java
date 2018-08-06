@@ -8,17 +8,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
-    
+
     /**
      * Trae una lista de expedientes dado un nombre y una dependecia.
      * @param nombre
      * @param dependencia
-     * @return 
+     * @return
      */
     List<Expediente> getByExpNombreAndDepId(String nombre, Dependencia dependencia);
 
     String CONSULTALISTAEXPEDIENTESXUSUARIO = ""
-            + "SELECT EXP.EXP_ID,  "
+            + "SELECT DISTINCT EXP.EXP_ID,  "
             + "       EXP.EXP_NOMBRE, "
             + "       EXP.FEC_CREACION, "
             + "       DEP_JEFE.DEP_ID, "
@@ -47,7 +47,12 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "       (SELECT COUNT(1) "
             + "        FROM EXP_DOCUMENTO EXPDOCUMENTO "
             + "        WHERE EXPDOCUMENTO.EXP_ID = EXP.EXP_ID) numDocumentos, "
-            + "        DECODE(NVL(EXPUSUARIO.PERMISO,0),2,1,0) indIndexacion "
+            + "        NVL((SELECT 1 "
+            + "             FROM EXP_USUARIO Z "
+            + "             WHERE USU_ID  = :usuId "
+            + "             AND Z.PERMISO = 2 "
+            + "             and Z.IND_APROBADO = 1 "
+            + "             AND Z.ACTIVO = 1),0) indIndexacion  "
             + "FROM EXPEDIENTE EXP "
             + "LEFT OUTER JOIN EXP_USUARIO EXPUSUARIO ON (EXPUSUARIO.EXP_ID = EXP.EXP_ID) "
             + "LEFT OUTER JOIN USUARIO UC ON (UC.USU_ID = EXP.USU_CREACION) "
@@ -67,7 +72,7 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "lEFT OUTER JOIN EXP_TRD ETRD ON  (ETRD.EXP_ID = EXP.EXP_ID) "
             + "WHERE ((EXP.USU_CREACION = :usuId) OR (EXPUSUARIO.USU_ID = :usuId AND EXPUSUARIO.IND_APROBADO = 1 AND EXPUSUARIO.ACTIVO = 1 AND EXPUSUARIO.PERMISO = 2) OR (DEP_JEFE.USU_ID_JEFE = :usuId))"
             + "      AND (TRDPRINCIPAL.TRD_ID = :trdId OR (ETRD.TRD_ID = :trdId AND ETRD.ACTIVO = 1)) AND EXP.IND_APROBADO_INICIAL = 1 AND IND_CERRADO = 0";
-    
+
     /**
      * Obtiene el numero de registros de expedientes por usuario.
      *
@@ -95,7 +100,7 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "     select exp.*, rownum num_lineas\n"
             + "     from(\n"
             + CONSULTALISTAEXPEDIENTESXUSUARIO
-            + "         ORDER BY exp.fec_modificacion DESC\n"
+            + "         ORDER BY exp.usuario_asignado desc, exp.fec_creacion desc\n"
             + "     )exp\n"
             + ") exp\n"
             + "where exp.num_lineas >= :inicio and exp.num_lineas <= :fin\n", nativeQuery = true)
@@ -105,9 +110,9 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + CONSULTALISTAEXPEDIENTESXUSUARIO
             + "AND EXP.EXP_ID = :expId", nativeQuery = true)
     List<Object[]> findExpedienteDtoPorUsuarioPorExpId(@Param("usuId") Integer usuId, @Param("expId") Long expId);
-    
+
     @Query(value = ""
-        + CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO
-        + "", nativeQuery = true)
+            + CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO
+            + "", nativeQuery = true)
     List<Expediente> findExpedientesIndexacionPorUsuarioPorTrd(@Param("usuId") Integer usuId, @Param("trdId") Integer trd);
 }
