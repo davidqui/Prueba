@@ -5,7 +5,7 @@
 	<div>
 	<span>
 		<a href="/prestamo/list-exp-prestados" class="btn btn-success btn-sm bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="right" title="Prestamos" data-content="Pulse visualizar el listado de expedientes prestados">Prestamos</a>
-                <a href="/expediente/crear" class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="crear" data-content="Pulse para crear un nuevo expediente" style="float:right;">Nuevo Expediente</a>
+                <a href="/expediente/crear" class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="crear" data-content="Pulse para crear un nuevo expediente" style="float:right;" onclick="loading();">Nuevo Expediente</a>
         </span>
 	</div>
 	</br>
@@ -30,7 +30,7 @@
         <tbody>
             <#list expedientes as exp>
                 <tr>
-                   <td><a href="/expediente/contenido?eid=${exp.id}">${exp.nombre}</a></td>
+                   <td><a href="/expediente/contenido?eid=${exp.id}" onclick="loading();">${exp.nombre}</a></td>
                     <td nowrap>${exp.cuando?string('yyyy-MM-dd')}</td>
                     <td>${exp.dependencia.nombre}</td>
                     <#if exp.trd??>

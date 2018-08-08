@@ -1,4 +1,3 @@
-<#include "loader.ftl">
 <#assign pageTitle = "Subseries - Expediente " + expediente.expNombre />
 <#include "header.ftl">
 
@@ -126,10 +125,6 @@
                     
             }
         }
-            
-        $( window ).on( "load", function() {
-            $(".div-loader").css({ display: "none" });
-        });
     </script>
 </div>
 

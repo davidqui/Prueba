@@ -102,8 +102,8 @@
         </div>
     </div>
     <div class="m-y">
-        <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
-        <a href="/expediente/list" class="btn btn-secondary">Cancelar</a>
+        <button id="btnGuardar" type="submit" class="btn btn-primary" onclick="loading();">Guardar</button>
+        <a href="/expediente/listarExpedientes" class="btn btn-secondary" onclick="loading();">Cancelar</a>
     </div>    
     </form>
 </div>

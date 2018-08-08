@@ -9,7 +9,7 @@
     2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech) 
     feature-162: Macro que permite imprimir el enlace con la función Javascript 
     a aplicar según el tipo de finder.
-
+Administrables 
     type: Tipo de finder.
     usuario: Usuario correspondiente a la selección.
 -->
