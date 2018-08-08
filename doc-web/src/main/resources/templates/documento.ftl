@@ -33,7 +33,7 @@
     </#if>
     <table class="table table-sm">    	
         <#if mode.expediente_view && documento.expediente?? >
-        <tr><th>Expediente</th><td>${documento.expediente.nombre}</td></tr>
+        <tr><th>Expediente</th><td>${documento.expediente.expNombre}</td></tr>
         </#if> 
         <#if mode.radicado_view && documento.radicado?? >
         <tr><th>Radicado</th><td>${documento.radicado}</td></tr>
@@ -941,8 +941,8 @@
 			            </#if>     
                                     <#-- 2018-08-02 samuel.delgado@controltechcg.com Issue #181 (SIGDI-Controltech): 
                                         Botón para enviar a expediente un documento ya finalizado -->
-                                    <#if expedientesValidos?? && (((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
-			            		&& (usuariologueado.id == documento.instancia.asignado.id)))>
+                                    <#if expedientesValidos?? && ((((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+			            		&& (usuariologueado.id == documento.instancia.asignado.id))) || (documento.aprueba?? && usuariologueado.id == documento.elabora.id)) && !documento.expediente??>
                                         <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-enviar-expediente">
                                             Asignar Expediente
                                         </a>

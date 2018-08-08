@@ -806,7 +806,8 @@ public class DocumentoController extends UtilController {
          */
         ExpDocumento expDocumento = expDocumentoService.findByDocumento(doc);
         if (expDocumento == null) {
-            if ((doc.esDocumentoRevisionRadicado() || doc.esDocumentoEnviadoInterno())&& (usuarioLogueado.getId() == doc.getInstancia().getAsignado().getId())){
+            if (((doc.esDocumentoRevisionRadicado() || doc.esDocumentoEnviadoInterno())&& (usuarioLogueado.getId() == doc.getInstancia().getAsignado().getId())
+                    || (doc.getAprueba() != null && usuarioLogueado.getId().equals(doc.getElabora().getId()))) && doc.getExpediente() == null){
                 List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioLogueado, doc.getTrd());
                 model.addAttribute("expedientesValidos", expedientesValidos);
             }
@@ -2645,7 +2646,7 @@ public class DocumentoController extends UtilController {
                 if (bvb != null) {
                     d.setVistoBueno(null);
                 }
-
+                
                 Usuario yo = i.getAsignado();
 
                 List<HProcesoInstancia> hinstancias = hprocesoInstanciaRepository.findById(pin,
@@ -2670,6 +2671,12 @@ public class DocumentoController extends UtilController {
         String docId = i.getVariable(Documento.DOC_ID);
         Documento doc = documentRepository.getOne(docId);
         doc.setUsuarioUltimaAccion(getUsuario(principal));
+        /**
+        * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+        * feature-181: se cambia el revisado a null y el expediente cuando se devuelve el documento
+        */
+        doc.setAprueba(null);
+        doc.setExpediente(null);
         documentRepository.saveAndFlush(doc);
 
         i.setVariable(Documento.DOC_MODE, construccionMode);
@@ -2919,6 +2926,15 @@ public class DocumentoController extends UtilController {
                     redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
                     return redirectURL;
                 }
+                
+                /**
+                * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+                * feature-181: se agrega a expediente si existe en el documento
+                */
+                Expediente expediente = documento.getExpediente();
+                if (expediente != null)
+                    expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
+                
 
                 /*
                  * Issue #118
@@ -3037,6 +3053,15 @@ public class DocumentoController extends UtilController {
          * 2018-04-25 edison.gonzalez@controltechcg.com Issue #156
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
+        
+        /**
+        * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+        * feature-181: se agrega a expediente si existe en el documento
+        */
+        Expediente expediente = documento.getExpediente();
+        if (expediente != null)
+            expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
+
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                 buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
         enviarNotificacionesCambioProceso(instancia, documento, notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_FIRMA), documento.getElabora());
@@ -4790,11 +4815,18 @@ public class DocumentoController extends UtilController {
         
         Documento documento = documentRepository.getOne(docId);
         Expediente expediente = expedienteService.findOne(expId);
-        
+
         if ((!expedienteService.permisoIndexacion(usuarioSesion, expediente) 
                 && !expedienteService.permisoAdministrador(usuarioSesion, expediente)))
             return new ResponseEntity<>("No tiene permiso sobre el expediente", HttpStatus.UNAUTHORIZED);
-
+        
+        if (!(documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())&& 
+                (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) {
+            documento.setExpediente(expediente);
+            documentRepository.saveAndFlush(documento);
+            return ResponseEntity.ok("ok");
+        }
+        
         expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
         
         return ResponseEntity.ok("ok");
