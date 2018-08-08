@@ -33,7 +33,7 @@
     <div class="form-group" style="display:flex;">
         <input type="text" class="form-control" id="trdSigla" name="trdSigla" disabled style="width: 10%;"/>
         <input type="text" class="form-control" id="anoActual" name="anoActual" value="${(year)!""}" disabled style="width: 10%;"/>
-        <input type="number" class="form-control" id="numberExpediente" name="numberExpediente" style="width: 10%;" placeholder="000" required/>
+        <input type="number" class="form-control" id="numberExpediente" name="numberExpediente" style="width: 10%;" placeholder="000" required max="999" min="1"/>
         <select class="form-control" id="parNombreExpediente" name="parNombreExpediente" style="width: 50%;">
             <#list nombreExpediente as nombreEx>
                 <option value="${(nombreEx.parId)!""}" data-text="${(nombreEx.parNombre)!""}">${(nombreEx.parNombre)!""}</option>

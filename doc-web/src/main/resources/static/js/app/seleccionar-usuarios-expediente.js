@@ -12,14 +12,15 @@ function agregarUsuario(expId) {
     }
 
     var permiso = $(".permsiso:checked").val();
-
+    $(".div-loader").css({ display: "block" });
     $.ajax({
         method: "POST",
         url: "/expediente/asignar-usuario-expediente/" + expId + "/" + permiso + "/" + usuarioID + "/" + cargoID
     }).then(function() {
+        $(".div-loader").css({ display: "none" });
         location.reload();
       }, function(message) {
-        console.log("mensaje", message);
+        $(".div-loader").css({ display: "none" });
         $('#info-modal').modal('show');
         $('#title-modal').html("Advertencia");
         $('#modal-body-info').html("<h5>"+message.responseText+"</h5>");
@@ -78,10 +79,12 @@ function editarUsuarios() {
 
 function editarUsuario(id, nombre, expId, permiso){
     console.log(id);
+    $(".div-loader").css({ display: "block" });
     $.ajax({
         method: "POST",
         url: "/expediente/cargos-usuario/" + id 
     }).always(function (cargos) {
+        $(".div-loader").css({ display: "none" });
         console.log("nombre "+id +" + "+nombre);
         $("#destinoUsuario_visible2").val(nombre);
         $("#cargoAsignado2 option").remove();
@@ -117,11 +120,12 @@ function editarUsuarioPost(expId) {
         }
 
         var permiso = $(".permsiso:checked").val();
-
+        $(".div-loader").css({ display: "block" });
         $.ajax({
             method: "POST",
             url: "/expediente/editar-usuario-expediente/" + expId + "/" + permiso + "/" + usuarioID + "/" + cargoID
         }).always(function (id) {
+            $(".div-loader").css({ display: "none" });
             location.reload();
         });
 }
@@ -173,12 +177,15 @@ function cambiarUsuarioCreador(expId){
     }
     var result = confirm("Esta seguro de cambiar el usuario Creador?")
     if (result){
+        $(".div-loader").css({ display: "block" });
         $.ajax({
             method: "POST",
             url: "/expediente/cambiar-creador/" + expId+"/" + usuarioID
         }).then(function() {
+            $(".div-loader").css({ display: "none" });
             location.reload();
           }, function(message) {
+            $(".div-loader").css({ display: "none" });
             $('#cambiarUsuarioCreador').modal('hide');
             $('#info-modal').modal('show');
             $('#title-modal').html("Advertencia");

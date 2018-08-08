@@ -1,3 +1,4 @@
+<#include "loader.ftl">
 <#assign pageTitle = "Subseries - Expediente " + expediente.expNombre />
 <#include "header.ftl">
 
@@ -20,7 +21,6 @@
 </div>
 
 <div class="container-fluid">
-
     <h1 class="cus-h1-page-title">${pageTitle}</h1>
 
     <form method="POST">
@@ -81,7 +81,7 @@
         <br /><br />
         
         <nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="submit" class="btn btn-primary" onclick="loading()">Guardar</button>
         </div>
     </form>
     
@@ -126,6 +126,10 @@
                     
             }
         }
+            
+        $( window ).on( "load", function() {
+            $(".div-loader").css({ display: "none" });
+        });
     </script>
 </div>
 

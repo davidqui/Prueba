@@ -34,10 +34,12 @@ $("#obsButton").click(function(event){
 });
 
 function mostrarCambiosPendientes(expId){
+    $(".div-loader").css({ display: "block" });
     $.ajax({
         type: "GET",
         url: "/expediente/cambios-pendientes/"+ expId
     }).done(function (data) {
+        $(".div-loader").css({ display: "none" });
         var arrayLength = data.length;
         console.log($("#enviarJefeModal .modal-body"));
         $("#enviarJefeModal .modal-contenido").empty();
@@ -70,6 +72,7 @@ function mostrarCambiosPendientes(expId){
            $("#enviarJefeModal .modal-contenido").append(content);     
         };
     }).fail(function () {
+        $(".div-loader").css({ display: "none" });
         console.log();
     });
 };
@@ -94,13 +97,16 @@ function aprobarOrechazarCambios(tipo){
 
 function modificarTipo(expId){
     console.log("expId? "+expId);
+    $(".div-loader").css({ display: "block" });
     $.ajax({
         type: "POST",
         url: "/expediente/modifica-tipo-expediente?expId="+expId,
         success: function() {
+            $(".div-loader").css({ display: "none" });
             location.reload();
         },
         error: function (data) {
+            $(".div-loader").css({ display: "none" });
             var dataJSON = jQuery.parseJSON(data.responseText);
             var arrayLength = dataJSON.length;
             if(arrayLength > 0){
@@ -120,6 +126,11 @@ function modificarTipo(expId){
     });
 }
 
+
+function limpiarModalDocumento(){
+    $("#destinoDocumento").val("");
+    $("#destinoDocumento_visible").val("");
+}
 
 function agregarDocumentoExpediente(expId){
     var docId = $("#destinoDocumento").val();

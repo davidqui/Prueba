@@ -1,4 +1,5 @@
 <#assign pageTitle = ""/>
+<#include "loader.ftl">
 <#include "bandeja-header.ftl">
 <#include "gen-paginacion.ftl">
 
@@ -90,7 +91,7 @@
                 </#if>
             </#if>
             <#if (expediente.indUsuCreador || expediente.indJefeDependencia || expediente.indIndexacion) && expediente.indAprobadoInicial && !expediente.indCerrado>
-                <a title="indexar Documento" data-toggle="modal" data-target="#agregarDocumento" >
+                <a title="indexar Documento" data-toggle="modal" data-target="#agregarDocumento" onclick="limpiarModalDocumento()">
                     <img class="card-img-top" src="/img/file-plus.svg" alt=""/>
                 </a>
             </#if>
@@ -213,7 +214,6 @@
     <div class="modal fade bd-example-modal-lg" id="agregarDocumento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">
-            <div class="div-loader"><div class="web-loader"><div></div><div></div><div></div><div></div></div></div>
             <div class="modal-header">
               <h5 class="modal-title" id="exampleModalLongTitle">Agregar Documento</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -240,4 +240,9 @@
 
 <script src="/js/app/expediente-administrar.js"></script>
 <script src="/js/app/documento-observaciones.js"></script>
+<script>
+    $( window ).on( "load", function() {
+        $(".div-loader").css({ display: "none" });
+    });
+</script>
 <#include "bandeja-footer.ftl">

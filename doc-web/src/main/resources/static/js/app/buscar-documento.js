@@ -66,7 +66,6 @@ function openFinderWindow() {
  * @returns {undefined}
  */
 function selectFindResult(id, asunto) {
-    console.log("ENTRA A selectFindResult");
     opener.setFindResult(id, asunto);
     window.close();
 }

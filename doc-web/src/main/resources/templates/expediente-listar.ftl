@@ -1,4 +1,5 @@
 <#assign pageTitle = "Expedientes"/>
+<#include "loader.ftl">
 <#include "bandeja-header.ftl">
 <#include "gen-paginacion.ftl">
 
@@ -70,5 +71,9 @@
 
 <script type="text/javascript">
 </script>
-
+<script>
+    $( window ).on( "load", function() {
+        $(".div-loader").css({ display: "none" });
+    });
+</script>
 <#include "bandeja-footer.ftl">

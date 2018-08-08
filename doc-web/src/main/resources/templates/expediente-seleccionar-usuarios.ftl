@@ -1,5 +1,5 @@
-
 <#assign pageTitle = ""/>
+<#include "loader.ftl">
 <#setting number_format="computer" />
 <#include "bandeja-header.ftl">
 <#include "gen-arbol-trd.ftl">
@@ -308,5 +308,9 @@
 <script src="/js/app/gen-arbol.js"></script>
 <script src="/js/jstree.min.js"></script>
 <script src="/js/app/seleccionar-usuarios-expediente.js"></script>
-
+<script>
+    $( window ).on( "load", function() {
+        $(".div-loader").css({ display: "none" });
+    });
+</script>
 <#include "bandeja-footer.ftl">
