@@ -41,7 +41,7 @@
                         <td>
                             <img class="svg" src="/img/folder.svg" alt=""/>
                         </td>
-                        <td><a href="#">${exp.expNombre!""}</a></td>
+                        <td><a href="/expediente/listarDocumentos?expId=${exp.expId}">${exp.expNombre!""}</a></td>
                         <td nowrap>${exp.fecCreacion?string('yyyy-MM-dd')}</td>
                         <td>${exp.depNombre!""}</td>
                         <td>${exp.trdNomIdPrincipal!""}</td>
@@ -67,7 +67,4 @@
         </#if>
   </#if>
 </div>
-
-<script type="text/javascript">
-</script>
 <#include "bandeja-footer.ftl">

@@ -7,7 +7,7 @@
 <div class="container-fluid">
     <ol class="breadcrumb">
         <li><a href="/expediente/listarExpedientes?">Inicio</a></li>
-        <li class="active"><a href="/expediente/${expediente.expId}">${expediente.expNombre}</a></li>
+        <li class="active"><a href="/expediente/listarDocumentos?expId=${expediente.expId}">${expediente.expNombre}</a></li>
         <li class="active">Detalle del expediente</li>
     </ol>
 </div>
@@ -90,36 +90,60 @@
                     </a>
                 </#if>
             </#if>
-            <#if (expediente.indUsuCreador || expediente.indJefeDependencia || expediente.indIndexacion) && expediente.indAprobadoInicial && !expediente.indCerrado>
-                <a title="indexar Documento" data-toggle="modal" data-target="#agregarDocumento" onclick="limpiarModalDocumento()">
-                    <img class="card-img-top" src="/img/file-plus.svg" alt=""/>
-                </a>
-            </#if>
         </div>
         <h1 class="cus-h1-page-title">Detalle del expediente</h1>
-        
+        </br>
         <div>
-            <label>Nombre</label>
-            <input type="text"  value="${expediente.expNombre}" class="form-control" disabled/>
-            <label>Dependencia</label>
-            <input type="text"  value="${expediente.depNombre}" class="form-control" disabled/>
-            <label>Fecha de Creación</label>
-            <input type="text"  value="${expediente.fecCreacion?string('yyyy-MM-dd')}" class="form-control" disabled/>
-            <label>Tipo Expediente</label>
-            <input type="text"  value="${expediente.expTipo}" class="form-control" disabled/>
-            <label>Trd Principal</label>
-            <input type="text"  value="${expediente.trdNomIdPrincipal}" class="form-control" disabled/>
-            <label>Usuario administrador</label>
-            <input type="text"  value="${expediente.usuarioCreador}" class="form-control" disabled/>
-            <label>Jefe Dependencia</label>
-            <input type="text"  value="${expediente.jefeDependencia}" class="form-control" disabled/>
-            <label>Descripción</label>
-            <input type="text"  value="${expediente.expDescripcion}" class="form-control" disabled/>
-            <label>Número de usuarios</label>
-            <input type="text"  value="${expediente.numUsuarios}" class="form-control" disabled/>
-            <label>Número de Documentos</label>
-            <input type="text"  value="${expediente.numDocumentos}" class="form-control" disabled/>
-            <br/>
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Nombre:</label>
+                <label>${expediente.expNombre}</label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Dependencia</label>
+                <label>${expediente.depNombre}</label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Fecha de Creación</label>
+                <label>${expediente.fecCreacion?string('yyyy-MM-dd')}</label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Tipo Expediente</label>
+                <label>${expediente.expTipo}</label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Trd Principal</label>
+                <label>${expediente.trdNomIdPrincipal}</label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Usuario administrador</label>
+                <label>${expediente.usuarioCreador}</label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Jefe Dependencia</label>
+                <label>${expediente.jefeDependencia}</label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Descripción</label>
+                <label>${expediente.expDescripcion}</label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Número de usuarios</label>
+                <label>${expediente.numUsuarios}</label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Número de Documentos</label>
+                <label>${expediente.numDocumentos}</label>
+            </div>
+            
             <br/>
             <#if expediente.indUsuCreador || expediente.indJefeDependencia>
                 <div class="card-block cus-gray-bg">
@@ -131,15 +155,6 @@
                         <div class="row">
                             <div class="col-xs-4">
                                 <a href="#" class="btn btn-secondary btn-sm" id="obsButton">Comentar</a>
-                            </div>
-
-                            <div class="col-xs-8">
-                                <select id="doc-obs-defecto-select" name="doc-obs-defecto-select" class="form-control input-sm" onchange="setObservacionDefecto(this, 'observacion')">
-                                    <option value="">Lista de observaciones por defecto:</option>
-                                    <#list observacionesDefecto as observacionDefecto >
-                                        <option value="${observacionDefecto.id}">${observacionDefecto.textoObservacion}</option>
-                                    </#list>
-                                </select>
                             </div>
                         </div>
                     </form>
@@ -168,22 +183,10 @@
                           <input type="hidden" id="expId" value="${expediente.expId}">
                           <textarea class="form-control" id="observacion2" name="observacion2"></textarea>
                       </fieldset>
-                      <div class="row">
-                          <div class="col-xs-8">
-                              <select id="doc-obs-defecto-select" name="doc-obs-defecto-select" class="form-control input-sm" onchange="setObservacionDefecto(this, 'observacion2')">
-                                  <option value="">Lista de observaciones por defecto:</option>
-                                  <#list observacionesDefecto as observacionDefecto >
-                                      <option value="${observacionDefecto.id}">${observacionDefecto.textoObservacion}</option>
-                                  </#list>
-                              </select>
-                          </div>
-                      </div>
                   </form>
               </div>
               <div class="modal-contenido" style="height: 400px; overflow-y: scroll;">
               </div>
-
-
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="aprobarOrechazarCambios(0)">Rechazar</button>
@@ -208,36 +211,6 @@
         </div>
       </div>
     </div>
-
-
-    <!-- Modal agregar documento -->
-    <div class="modal fade bd-example-modal-lg" id="agregarDocumento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLongTitle">Agregar Documento</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-               <div class="input-group">
-                    <input type="text" id="destinoDocumento_visible" name="destinoDocumento_visible" class="form-control" value="" disabled />
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-primary" onclick="openFinderWindow()">Buscar</button>
-                    </div>
-                    <script src="/js/app/buscar-documento.js"></script>
-                </div>
-                <input type="hidden" id="destinoDocumento" name="destinoDocumento" value="" />
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" onclick="agregarDocumentoExpediente(${expediente.expId})">Agregar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
 <script src="/js/app/expediente-administrar.js"></script>
 <script src="/js/app/documento-observaciones.js"></script>
 <script>
