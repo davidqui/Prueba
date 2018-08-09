@@ -434,7 +434,7 @@ public class ExpedienteController extends UtilController {
         if (!expTrdService.validateTrdByExpediente(expediente, documento.getTrd()))
             return new ResponseEntity<>("El expediente no admite esta trd comuníquese con el administrador de este para que la agregue. </br></br> "+documento.getTrd().getNombre(),HttpStatus.UNAUTHORIZED);
         ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
-        if(expDocumento != null)
+        if(expDocumento != null || documento.getExpediente() != null)
             return new ResponseEntity<>("Este documento ya esta asociado a un expediente.",HttpStatus.UNAUTHORIZED);
         
         

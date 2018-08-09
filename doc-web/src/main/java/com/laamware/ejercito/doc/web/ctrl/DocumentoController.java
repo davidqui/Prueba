@@ -193,8 +193,10 @@ public class DocumentoController extends UtilController {
     public static final Integer ESTADO_NUEVO_EXTERNO = 46;
     public static final Integer ID_TIPO_NOTIFICACION_FIRMA = 110;
     public static final Integer ID_TIPO_NOTIFICACION_ENVIADO = 120;
-
-    
+    /**
+     * Id del proceso de acta
+     */
+    public static final Integer ID_TIPO_PROCESO_ACTA = 100;
     
     List<Plantilla> listaPlantilla;
     private String imagesRoot;
@@ -4820,12 +4822,13 @@ public class DocumentoController extends UtilController {
                 && !expedienteService.permisoAdministrador(usuarioSesion, expediente)))
             return new ResponseEntity<>("No tiene permiso sobre el expediente", HttpStatus.UNAUTHORIZED);
         
-        if (!(documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())&& 
-                (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) {
-            documento.setExpediente(expediente);
-            documentRepository.saveAndFlush(documento);
-            return ResponseEntity.ok("ok");
-        }
+        if (!i.getProceso().getId().equals(ID_TIPO_PROCESO_ACTA))
+             if (!(documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())&& 
+                    (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) {
+                documento.setExpediente(expediente);
+                documentRepository.saveAndFlush(documento);
+                return ResponseEntity.ok("ok");
+             }
         
         expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
         

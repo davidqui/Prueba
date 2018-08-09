@@ -11,11 +11,17 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.ExpUsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
+import freemarker.template.TemplateException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -57,7 +63,11 @@ public class ExpedienteService {
     @Autowired
     TRDService trdService;
     
-    
+    /*
+     * Servicio de notificaciones.
+     */
+    @Autowired
+    private NotificacionService notificacionService;
     
     public static final Long ESTADO_INICIAL_EXPEDIENTE = new Long(1100) ;
     public static final Long ESTADO_ENVIADO_APROBAR = new Long(1101) ;
@@ -69,6 +79,10 @@ public class ExpedienteService {
 
     public static final int EXPEDIENTE_SIMPLE = 1;
     public static final int EXPEDIENTE_COMPLEJO = 2;
+    
+    
+    public final static Integer NOTIFICACION_EXPEDIENTE_POR_APROBAR = 202;
+    public final static Integer NOTIFICACION_EXPEDIENTE_RESPUESTA = 203;
     
     public Expediente finById(Long id){
         return expedienteRepository.findOne(id);
@@ -117,10 +131,22 @@ public class ExpedienteService {
     public void enviarAprobar(Expediente expediente, Usuario usuarioSesion) {
         expediente.setUsuarioAsignado(1);
         
+        expedienteRepository.saveAndFlush(expediente);
+        
         expedienteTransicionService.crearTransicion(expediente, 
                 expedienteEstadoService.findById(ESTADO_ENVIADO_APROBAR), usuarioSesion, null, null);
         
-        expedienteRepository.saveAndFlush(expediente);
+        Map<String, Object> model = new HashMap();
+        model.put("usuario", usuarioSesion);
+        model.put("expediente", expediente);
+        
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_POR_APROBAR, expediente.getDepId().getJefe());
+        } catch (IOException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TemplateException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -195,6 +221,19 @@ public class ExpedienteService {
                 expedienteEstadoService.findById(ESTADO_APROBADO), usuarioSesion, null, null);
         
         expedienteRepository.saveAndFlush(expediente);
+        
+        Map<String, Object> model = new HashMap();
+        model.put("usuario", usuarioSesion);
+        model.put("expediente", expediente);
+        model.put("estado", "APROBADO");
+        
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_RESPUESTA, expediente.getUsuCreacion());
+        } catch (IOException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TemplateException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public void rechazarExpediente(Expediente expediente, Usuario usuarioSesion) {
@@ -209,6 +248,19 @@ public class ExpedienteService {
                 expedienteEstadoService.findById(ESTADO_RECHAZADO), usuarioSesion, null, null);
         
         expedienteRepository.saveAndFlush(expediente);
+        
+        Map<String, Object> model = new HashMap();
+        model.put("usuario", usuarioSesion);
+        model.put("expediente", expediente);
+        model.put("estado", "RECHAZADO");
+        
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_RESPUESTA, expediente.getUsuCreacion());
+        } catch (IOException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TemplateException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public void modificarTipoExpediente(Expediente expediente, Usuario usuarioSesion) throws BusinessLogicException{

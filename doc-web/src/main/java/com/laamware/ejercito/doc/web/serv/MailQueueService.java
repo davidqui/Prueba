@@ -65,7 +65,7 @@ public class MailQueueService {
         String destino = emailDTO.getDestino();
         
         if (mailTest) {
-            destino = "aherreram@imi.mil.co"; 
+            destino = "sdelgadom@imi.mil.co"; 
             if (correosAutorizados.contains(emailDTO.getDestino())) { 
                 destino = emailDTO.getDestino(); 
             } 

@@ -1,17 +1,24 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.dto.EmailDTO;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Notificacion;
 import com.laamware.ejercito.doc.web.entity.TipoNotificacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.NotificacionRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 /**
  * Servicio de lógica de negocio para {@link Notificacion}.
@@ -27,6 +34,13 @@ public class NotificacionService {
     
     @Autowired
     private NotificacionRepository notificacionRepository;
+    
+    /*
+     * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+     * feature-181: Servicio para enviar la notificación a la cola ActiveMQ
+     */
+    @Autowired
+    private MailQueueService mailQueueService;
     
     /**
      * *
@@ -151,5 +165,18 @@ public class NotificacionService {
         notificacion.setCuando(new Date());
         notificacion.setActivo(Boolean.FALSE);
         notificacionRepository.saveAndFlush(notificacion);
+    }
+    
+    
+    
+    public void enviarNotificacion(Map<String, Object> model, 
+            Integer IdNotificacion, Usuario usuario) throws IOException, TemplateException{
+        
+        Notificacion notificacion = notificacionRepository.getOneByIdTipoNotificacion(IdNotificacion);
+        Template t = new Template(notificacion.toString(), new StringReader(notificacion.getTemplate()));
+        String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
+        EmailDTO mensaje = new EmailDTO(usuario.getEmail(), null,
+                notificacion.getAsunto(), "", html, "", null);
+        mailQueueService.enviarCorreo(mensaje);
     }
 }

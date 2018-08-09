@@ -18,12 +18,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.ExpedienteTransicion;
 import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.DatabaseException;
+import com.laamware.ejercito.doc.web.serv.DocumentoService;
+import com.laamware.ejercito.doc.web.serv.ExpedienteTransicionService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 
 @Controller
@@ -37,6 +41,19 @@ public class ProcesoController extends UtilController {
 
     @Autowired
     UsuarioRepository usuarioRepository;
+    
+    /**
+     *  2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SIGDI-Controltech):
+     *  servicio de transiciones del expediente.
+     */
+    @Autowired
+    ExpedienteTransicionService expedienteTransicionService;
+    /**
+     *  2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SIGDI-Controltech):
+     *  servicio de documento
+     */
+    @Autowired
+    DocumentoService documentoService;
 
     /**
      * Muestra el listado de procesos para seleccionar
@@ -119,7 +136,17 @@ public class ProcesoController extends UtilController {
          */
         List<HProcesoInstancia> historiasTransiciones = buildHistoriasTransiciones(historias);
         model.addAttribute("historiasTransiciones", historiasTransiciones);
-
+        
+        /**
+         *  2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SIGDI-Controltech):
+         *  se agregan transiciones del expediente.
+         */
+        // Obtiene el documento registrado en las variables de la instancia
+        String docId = i.getVariable(Documento.DOC_ID);
+        Documento doc = documentoService.buscarDocumento(docId);
+        List<ExpedienteTransicion> expedienteTransiciones =  expedienteTransicionService.listaTrasicionesXdocumento(doc);
+        model.addAttribute("expedienteTransiciones", expedienteTransiciones);
+        
         return "proceso-instancia-detalle";
 
     }

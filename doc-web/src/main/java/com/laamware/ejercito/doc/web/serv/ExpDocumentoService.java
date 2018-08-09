@@ -8,8 +8,14 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.ExpDocumentoRepository;
+import freemarker.template.TemplateException;
+import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -39,6 +45,15 @@ public class ExpDocumentoService {
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
     
+    /*
+     * Servicio de notificaciones.
+     */
+    @Autowired
+    private NotificacionService notificacionService;
+    
+    
+    public final static Integer NOTIFICACION_EXPEDIENTE_DOCUMENTO_INDEXADO = 204;
+    
     public static final Long ESTADO_DOCUMENTO_AGREGADO = new Long(1104) ;
     
     public void agregarDocumentoExpediente(final Documento documento, final Expediente expediente, Usuario usuarioSesion){
@@ -51,6 +66,19 @@ public class ExpDocumentoService {
         expDocumentoRepository.saveAndFlush(expDocumento);
         expedienteTransicionService.crearTransicion(expediente, 
             expedienteEstadoService.findById(ESTADO_DOCUMENTO_AGREGADO), usuarioSesion, documento, null);
+        
+        Map<String, Object> model = new HashMap();
+        model.put("documento", documento);
+        model.put("usuario", usuarioSesion);
+        model.put("expediente", expediente);
+        
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_DOCUMENTO_INDEXADO, expediente.getDepId().getJefe());
+        } catch (IOException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TemplateException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**

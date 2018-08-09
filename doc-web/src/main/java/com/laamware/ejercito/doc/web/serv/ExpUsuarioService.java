@@ -4,14 +4,21 @@ import com.laamware.ejercito.doc.web.dto.ExpUsuarioDto;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.ExpUsuario;
 import com.laamware.ejercito.doc.web.entity.Expediente;
+import com.laamware.ejercito.doc.web.entity.Notificacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.ExpUsuarioRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
+import freemarker.template.TemplateException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.data.domain.Sort;
 
 /**
@@ -40,14 +47,24 @@ public class ExpUsuarioService {
      */
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
+        
+    /*
+     * Servicio de notificaciones.
+     */
+    @Autowired
+    private NotificacionService notificacionService;
 
     public static final Long ESTADO_USUARIO_ASIGNADO = new Long(1107);
     public static final Long ESTADO_USUARIO_MODIFICADO = new Long(1101);
     public static final Long ESTADO_USUARIO_ELIMINADO = new Long(1101);
 
     public final static Integer PER_LECTURA = 1;
-    public final static Integer PER_INDEXACION = 1;
+    public final static Integer PER_INDEXACION = 2;
 
+    
+    public final static Integer NOTIFICACION_EXPEDIENTE_USUARIO_AGREGADO = 200;
+    public final static Integer NOTIFICACION_EXPEDIENTE_USUARIO_ELIMINADO = 201;
+    
     /**
      * Lista los usuarios de un expediente
      *
@@ -98,17 +115,39 @@ public class ExpUsuarioService {
 
         expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_USUARIO_ASIGNADO), usuCreador, null, usuario);
-
+        
+        Map<String, Object> model = new HashMap();
+        model.put("expUsuario", expUsuario);
+        model.put("usuario", usuCreador);
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_USUARIO_AGREGADO, usuario);
+        } catch (IOException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TemplateException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    public void eliminarUsuarioExpediente(Long EpxUsuarioId, Usuario Usuario, Expediente expediente) {
+    public void eliminarUsuarioExpediente(Long EpxUsuarioId, Usuario usuarioSesion, Expediente expediente) {
         ExpUsuario expUsuario = expUsuarioRepository.getOne(EpxUsuarioId);
         expUsuario.setActivo(false);
         expUsuario.setFecModificacion(new Date());
-        expUsuario.setUsuModificacion(Usuario);
+        expUsuario.setUsuModificacion(usuarioSesion);
         expUsuarioRepository.saveAndFlush(expUsuario);
         expedienteTransicionService.crearTransicion(expediente,
-                expedienteEstadoService.findById(ESTADO_USUARIO_ELIMINADO), Usuario, null, expUsuario.getUsuId());
+                expedienteEstadoService.findById(ESTADO_USUARIO_ELIMINADO), usuarioSesion, null, expUsuario.getUsuId());
+        
+        Map<String, Object> model = new HashMap();
+        model.put("expUsuario", expUsuario);
+        model.put("usuario", usuarioSesion);
+        
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_USUARIO_ELIMINADO, expUsuario.getUsuId());
+        } catch (IOException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TemplateException ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void editarUsuarioExpediente(Expediente expediente, Usuario usuarioSesion, Long usuario, Cargo cargoUsu, Integer permiso) {

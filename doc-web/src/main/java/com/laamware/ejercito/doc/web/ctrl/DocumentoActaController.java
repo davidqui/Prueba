@@ -7,6 +7,8 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
+import com.laamware.ejercito.doc.web.entity.ExpDocumento;
+import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
@@ -19,6 +21,8 @@ import com.laamware.ejercito.doc.web.serv.ClasificacionService;
 import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionService;
+import com.laamware.ejercito.doc.web.serv.ExpDocumentoService;
+import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.TipologiaService;
 import com.laamware.ejercito.doc.web.serv.TransicionService;
@@ -30,6 +34,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -115,6 +120,21 @@ public class DocumentoActaController extends UtilController {
 
     @Autowired
     private DocumentoObservacionDefectoService observacionDefectoService;
+    
+    /*
+     * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+     * feature-181: Servicio de los documentos del expediente.
+     */
+    @Autowired
+    private ExpDocumentoService expDocumentoService;
+    
+    /*
+     * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+     * feature-181: Servicio de expediente.
+     */
+    @Autowired
+    private ExpedienteService expedienteService;
+    
 
     @Override
     public String nombre(Integer idUsuario) {
@@ -162,6 +182,15 @@ public class DocumentoActaController extends UtilController {
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
         if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ACTA_DIGITALIZADA.getId())) {
+            /**
+            * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+            * feature-181: se agrega los expedientes disponibles para el acta ser indexada
+            */
+            ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
+            if (expDocumento == null) {
+                List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion, documento.getTrd());
+                uiModel.addAttribute("expedientesValidos", expedientesValidos);
+            }
             return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
         }
 

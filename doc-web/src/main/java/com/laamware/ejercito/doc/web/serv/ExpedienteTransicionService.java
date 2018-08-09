@@ -46,4 +46,9 @@ public class ExpedienteTransicionService {
         expedienteTransicion.setUsuModificado(usuModificado);
         expedienteTransicionRepository.saveAndFlush(expedienteTransicion);
     }
+    
+    
+    public List<ExpedienteTransicion> listaTrasicionesXdocumento(Documento documento){
+        return expedienteTransicionRepository.findByDocId(documento, new Sort(Sort.Direction.DESC, "fecCreacion"));
+    }
 }
