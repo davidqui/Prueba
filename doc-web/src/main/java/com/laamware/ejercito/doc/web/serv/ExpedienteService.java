@@ -1,13 +1,16 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.dto.DocumentoExpDTO;
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.ExpTrd;
 import com.laamware.ejercito.doc.web.entity.ExpUsuario;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.ParNombreExpediente;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.ExpUsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
@@ -18,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 /**
@@ -56,6 +60,9 @@ public class ExpedienteService {
     
     @Autowired
     TRDService trdService;
+    
+    @Autowired
+    DocumentoRepository documentoRepository;
     
     
     
@@ -284,5 +291,57 @@ public class ExpedienteService {
             !expediente.getUsuCreacion().getId().equals(usuario.getId()))
             return false;
         return true;
+    }
+    
+    public boolean permisoJefeDependencia(Usuario usuario, Expediente expediente){
+        if (usuario == null || expediente == null)
+            return false;
+        final Usuario jefeDep = expediente.getDepId().getJefe();
+        return jefeDep != null && jefeDep.getId().equals(usuario.getId());
+    }
+    
+    /**
+     * Obtiene el numero de registros de los documentos por expediente y usuario.
+     *
+     * @param usuId
+     * @param expId
+     * @return Numero de registros.
+     */
+    public int findDocumentosByUsuIdAndExpIdCount(Integer usuId, Long expId) {
+        return documentoRepository.findDocumentosByUsuIdAndExpIdCount(usuId, expId);
+    }
+    
+    /**
+     * Obtiene los registros de los documentos por usuario y expediente, de acuerdo
+     * a la fila inicial y final.
+     *
+     * @param usuId
+     * @param expId
+     * @param inicio
+     * @param fin
+     * @return Lista de bandejas de entrada.
+     */
+    public List<DocumentoExpDTO> findDocumentosByUsuIdAndExpIdPaginado(Integer usuId, Long expId, int inicio, int fin){
+        List<DocumentoExpDTO> expedientes = new ArrayList<>();
+        List<Object[]> result = documentoRepository.findDocumentosByUsuIdAndExpIdPaginado(usuId, expId, inicio, fin);
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                DocumentoExpDTO dTO = retornaDocumentoExpDTO(object);
+                expedientes.add(dTO);
+            }
+        }
+        return expedientes;
+    }
+    
+    private DocumentoExpDTO retornaDocumentoExpDTO(Object[] object) {
+        DocumentoExpDTO dTO = new DocumentoExpDTO();
+        dTO.setPinId(object[0] != null ? (String) object[0] : "");
+        dTO.setAsunto(object[1] != null ? (String) object[1] : "");
+        dTO.setRadicado(object[2] != null ? (String) object[2] : "");
+        dTO.setClasificacion(object[3] != null ? (String) object[3] : "");
+        dTO.setIndVisualizacion(object[4] != null ? ((BigDecimal) object[4]).equals(BigDecimal.ONE) : false);
+        dTO.setIndJefeDependencia(object[5] != null ? ((BigDecimal) object[5]).equals(BigDecimal.ONE) : false);
+        dTO.setDocId(object[6] != null ? (String) object[6] : "");
+        return dTO;
     }
 }

@@ -13,7 +13,7 @@
 <div class="container-fluid">
     <ol class="breadcrumb">
         <li><a href="/expediente/listarExpedientes?">Inicio</a></li>
-        <li class="active"><a href="/expediente/${expediente.expId}">${expediente.expNombre}</a></li>
+        <li class="active"><a href="/expediente/listarDocumentos?expId=${expediente.expId}">${expediente.expNombre}</a></li>
         <li class="active"><a href="/expediente/administrarExpediente?expId=${expediente.expId}">Detalle del expediente</a></li>
         <li class="active">Asignar trds</li>
     </ol>

@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.DocumentoDependenciaArchivoDTO;
+import com.laamware.ejercito.doc.web.dto.DocumentoExpDTO;
 import com.laamware.ejercito.doc.web.dto.ExpUsuarioDto;
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
@@ -28,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
-import com.laamware.ejercito.doc.web.entity.DependenciaTrd;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
@@ -53,7 +53,6 @@ import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
 import com.laamware.ejercito.doc.web.serv.ExpDocumentoService;
 import com.laamware.ejercito.doc.web.serv.ExpObservacionService;
-import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteTransicionService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.ExpTrdService;
@@ -67,11 +66,8 @@ import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -198,6 +194,37 @@ public class ExpedienteController extends UtilController {
 
         return "expediente-listar";
     }
+    
+    @RequestMapping(value = "/listarDocumentos", method = RequestMethod.GET)
+    public String listarDocumentos(Model model, Principal principal,
+            @RequestParam(value = "expId", required = true) Long expId,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
+        Usuario usuSesion = getUsuario(principal);
+        Expediente expediente = expedienteService.findOne(expId);
+
+        List<DocumentoExpDTO> documentos = new ArrayList<>();
+        int count = expedienteService.findDocumentosByUsuIdAndExpIdCount(usuSesion.getId(), expId);
+        int totalPages = 0;
+        String labelInformacion = "";
+
+        if (count > 0) {
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+            totalPages = paginacionDTO.getTotalPages();
+            documentos = expedienteService.findDocumentosByUsuIdAndExpIdPaginado(usuSesion.getId(), expId, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            labelInformacion = paginacionDTO.getLabelInformacion();
+        }
+
+        model.addAttribute("documentos", documentos);
+        model.addAttribute("expediente", expediente);
+        model.addAttribute("pageIndex", pageIndex);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("labelInformacion", labelInformacion);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("expId", expId);
+
+        return "expediente-documento-listar";
+    }
 
     @RequestMapping(value = "/administrarExpediente", method = RequestMethod.GET)
     public String administrar(Model model, Principal principal, @RequestParam(value = "expId", required = true) Long expId) {
@@ -244,7 +271,7 @@ public class ExpedienteController extends UtilController {
         map.put("quien", expObservacion.getUsuId().toString());
         return map;
     }
-    
+        
     @ResponseBody
     @RequestMapping(value = "/cambios-pendientes/{exp}", method = RequestMethod.GET)
     public ResponseEntity<?> retornaCambiosPendientes(@PathVariable("exp") Long expId, Model model, Principal principal) {
@@ -307,6 +334,26 @@ public class ExpedienteController extends UtilController {
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
             List<Trd> trdExpedienteDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
             return new ResponseEntity<>(trdExpedienteDocumentos, HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @RequestMapping(value = "/desvinculaDocumento", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<?> desvincularDocumento(@RequestParam(value = "expId", required = true) Long expId,@RequestParam(value = "docId", required = true) String docId, Model model, Principal principal){
+        final Expediente expediente = expedienteService.finById(expId);
+        final Usuario usuarioSesion = getUsuario(principal);
+        final Documento documento = documentoRepository.findOne(docId);
+
+        if (!expedienteService.permisoJefeDependencia(usuarioSesion, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+                
+        try {
+            expDocumentoService.eliminaDocumentoExpediente(documento, expediente, usuarioSesion);
+            model.addAttribute(AppConstants.FLASH_SUCCESS, "Se ha cambiado el tipo de expediente.");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception ex) {
+            model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -825,11 +872,6 @@ public class ExpedienteController extends UtilController {
             cargoDTOs.add(cargoDTO);
         }
         return cargoDTOs;
-    }
-
-    @ModelAttribute("observacionesDefecto")
-    public List<DocumentoObservacionDefecto> listarObservacionDefectoActivas() {
-        return observacionDefectoService.listarActivas();
     }
     
     public boolean esDependenciaCompatible(List<ExpTrd> expTrds, Usuario usuario){

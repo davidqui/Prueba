@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.ExpDocumentoRepository;
 import java.util.Date;
-import java.util.List;
 
 
 /**
@@ -39,7 +38,11 @@ public class ExpDocumentoService {
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
     
+    @Autowired
+    private DocumentoService documentoService;
+    
     public static final Long ESTADO_DOCUMENTO_AGREGADO = new Long(1104) ;
+    public static final Long ESTADO_DOCUMENTO_DESVINCULADO = new Long(1105) ;
     
     public void agregarDocumentoExpediente(final Documento documento, final Expediente expediente, Usuario usuarioSesion){
         ExpDocumento expDocumento = new ExpDocumento();
@@ -60,5 +63,23 @@ public class ExpDocumentoService {
      */
     public ExpDocumento findByDocumento(Documento documento){
         return expDocumentoRepository.findByActivoTrueAndDocId(documento);
+    }
+    
+    public void eliminaDocumentoExpediente(final Documento documento, final Expediente expediente, Usuario usuarioSesion){
+        ExpDocumento expDocumento = expDocumentoRepository.findByActivoTrueAndDocId(documento);
+        if(expDocumento != null){
+            if(documento.getExpediente() != null){
+                documento.setExpediente(null);
+                documentoService.actualizar(documento);
+            }
+            
+            expDocumento.setActivo(false);
+            expDocumento.setFecModificacion(new Date());
+            expDocumento.setUsuModificacion(usuarioSesion);
+            expDocumentoRepository.saveAndFlush(expDocumento);
+            expedienteTransicionService.crearTransicion(expediente, 
+                expedienteEstadoService.findById(ESTADO_DOCUMENTO_DESVINCULADO), usuarioSesion, documento, null);
+            
+        }
     }
 }
