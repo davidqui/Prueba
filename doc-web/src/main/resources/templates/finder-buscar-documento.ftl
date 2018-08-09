@@ -9,7 +9,7 @@
     2018-05-29 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech) 
     feature-162: Macro que permite imprimir el enlace con la función Javascript 
     a aplicar según el tipo de finder.
-
+Administrables 
     type: Tipo de finder.
     usuario: Usuario correspondiente a la selección.
 -->
@@ -59,20 +59,20 @@
                     </div> 
                 </div>
                 <div>
-                    <table class="table table-striped table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Asunto</th>
-                                <th>Radicado</th>
-                                <th>Usuario Creador</th>
-                                <th>Dependencia Destino</th>
-                                <th>Clasificación</th>
-                                <th>Fecha Modificación</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <#if documentos??>
+                    <#if documentos??>
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Asunto</th>
+                                    <th>Radicado</th>
+                                    <th>Usuario Creador</th>
+                                    <th>Dependencia Destino</th>
+                                    <th>Clasificación</th>
+                                    <th>Fecha Modificación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 <#list documentos as documento >
                                 <tr>
                                     <td><@getSelectionJavaScript documento /></td>
@@ -89,9 +89,9 @@
                                 </tr>
                                 <tr>
                                 </#list>
-                            </#if>
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </#if>
                 </div>
             </form>
 

@@ -33,7 +33,7 @@
     </#if>
     <table class="table table-sm">    	
         <#if mode.expediente_view && documento.expediente?? >
-        <tr><th>Expediente</th><td>${documento.expediente.nombre}</td></tr>
+        <tr><th>Expediente</th><td>${documento.expediente.expNombre}</td></tr>
         </#if> 
         <#if mode.radicado_view && documento.radicado?? >
         <tr><th>Radicado</th><td>${documento.radicado}</td></tr>
@@ -787,8 +787,9 @@
         		    		Corrección para activar el botón de la acción "Guardar" únicamente cuando se encuentre
         		    		en sesión el usuario asignado al documento. 
         		    	-->
-        		    	<#if (usuariologueado.id == documento.instancia.asignado.id)>		        				        				        		
-                <button id="guardar-doc-btn" type="submit" class="btn ${btnGuardarStyle} btn-sm">Guardar</button>
+        		    	<#if (usuariologueado.id == documento.instancia.asignado.id)>
+                <!--#181 se agrega loader --> 
+                <button id="guardar-doc-btn" type="submit" class="btn ${btnGuardarStyle} btn-sm" onclick="loading();">Guardar</button>
 
                 <script type="text/javascript">
                     $(document).ready(function () {
@@ -885,12 +886,13 @@
                                                                                 Se realiza la modificación de los componentes que controlan la transición de los documentos
                                                                                 del tag <a> por el tag <button>.
                                                                                 -->
+                                                                                <!--#181 se agrega loader --> 
                                                                                 <#if (mode.cargoIdFirma_edit && cambiarIdCargoFirma!false) && isTransicionFirmar(transicion)>
-                                                                                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="loading(); processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
                                                                                         ${transicion.nombre}
                                                                                     </button>
                                                                                 <#else>
-                                                                                    <button class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                    <button class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="loading(); processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
                                                                                         ${transicion.nombre}
                                                                                     </button>
                                                                                 </#if>
@@ -939,8 +941,8 @@
 			            </#if>     
                                     <#-- 2018-08-02 samuel.delgado@controltechcg.com Issue #181 (SIGDI-Controltech): 
                                         Botón para enviar a expediente un documento ya finalizado -->
-                                    <#if expedientesValidos?? && (((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
-			            		&& (usuariologueado.id == documento.instancia.asignado.id)))>
+                                    <#if expedientesValidos?? && ((((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+			            		&& (usuariologueado.id == documento.instancia.asignado.id))) || (documento.aprueba?? && usuariologueado.id == documento.elabora.id)) && !documento.expediente??>
                                         <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-enviar-expediente">
                                             Asignar Expediente
                                         </a>
@@ -1036,7 +1038,8 @@
 <div class="col-md-4">
     <div class="card">
         <div class="card-header">
-            <a href="/proceso/instancia/detalle?pin=${instancia.id}">Proceso</a>
+            <!--#181 se agrega loader --> 
+            <a href="/proceso/instancia/detalle?pin=${instancia.id}" onclick="loading();">Proceso</a>
             </div>
         <div class="card-block">
 

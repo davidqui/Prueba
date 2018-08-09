@@ -7,7 +7,6 @@ function seleccionarExpediente(expId){
 }
 
 function submitSeleccionarExpediente(pinId){
-    console.log("ENVIA");
     var expId = $("#expedienteDestino").val();
     $.ajax({
         method: "POST",

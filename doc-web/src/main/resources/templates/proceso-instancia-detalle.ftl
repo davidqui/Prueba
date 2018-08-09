@@ -14,7 +14,8 @@
       <div class="card-block">
           <ul class="nav nav-pills nav-stacked">
               <#list transiciones as t>
-              <li class="nav-item"><a href="${t.replace(t.definicion, instancia)}" class="nav-link">${t.nombre}</a></li>
+              <!--#181 se agrega loader --> 
+              <li class="nav-item"><a href="${t.replace(t.definicion, instancia)}" class="nav-link" onclick="loading();">${t.nombre}</a></li>
               </#list>
           </ul>
       </div>

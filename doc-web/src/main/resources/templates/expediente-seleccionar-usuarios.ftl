@@ -1,4 +1,3 @@
-
 <#assign pageTitle = ""/>
 <#setting number_format="computer" />
 <#include "bandeja-header.ftl">
@@ -21,7 +20,7 @@
     Agregar usuario
 </button>
 <#if esJefeDependencia==true>
-    <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;">
+    <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;" onclick="loading();">
         Regresar a Expediente
     </a>
 <#else>
@@ -308,5 +307,4 @@
 <script src="/js/app/gen-arbol.js"></script>
 <script src="/js/jstree.min.js"></script>
 <script src="/js/app/seleccionar-usuarios-expediente.js"></script>
-
 <#include "bandeja-footer.ftl">

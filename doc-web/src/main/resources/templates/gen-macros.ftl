@@ -154,6 +154,7 @@
         <#assign epath = epath + p.name + "=" + p.prop.valueSelect(obj) />
         <#assign first = 0 />
     </#list>
-    <a href="${epath}" class="btn btn-link btn-sm">${accion.label}</a>
+    <!--#181 se agrega loader --> 
+    <a href="${epath}" class="btn btn-link btn-sm" onclick="loading();">${accion.label}</a>
 </#macro>
 

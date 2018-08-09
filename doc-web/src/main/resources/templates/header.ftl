@@ -29,7 +29,7 @@
         <script src="/ckeditor/ckeditor.js"></script>
          <!-- loader -->
         <link href='/css/loader.css' rel='stylesheet' type='text/css'>
-        
+
     <#if headScripts??>
       ${headScripts}
     </#if>
@@ -37,6 +37,7 @@
 
         </head>
     <body>
+    <#include "loader.ftl">
     <#if username?? >
         <div class="cus-top-bar">
             <div class="pull-xs-right">
@@ -54,7 +55,8 @@
             <div>
           <#if utilController??>
           	<#if utilController.hasAdminRole()>
-                <a href="/admin">Administración</a>
+                <!--#181 se agrega loader --> 
+                <a href="/admin" onclick="loading();">Administración</a>
           	</#if>
           </#if>
 
@@ -63,8 +65,8 @@
               <!-- <a href="/archivo/solicitud/list-solicitud">Archivo</a> -->
           	</#if>
           </#if>
-
-                <a href="/capacitacion-juego/intro">Capacitación</a>
+                <!--#181 se agrega loader --> 
+                <a href="/capacitacion-juego/intro" onclick="loading();">Capacitación</a>
                 <a href="/video/manual_registro1_player.html" target="_blank">Manual  </a>
 
     <#--
@@ -95,7 +97,7 @@
                         </div>
                     </div>
     </#if>
-                
+
                 </div>
             </div>
     </#if>
@@ -111,9 +113,10 @@
                             <span class="hidden-md-down">Bandejas</span><span class="hidden-lg-up">Ban</span>
                             </button>
                         <div class="dropdown-menu">
-                            <a href="/bandeja/entrada" class="dropdown-item">Bandeja de entrada</a>
-                            <a href="/bandeja/enviados" class="dropdown-item">Bandeja de enviados</a>
-                            <a href="/bandeja/entramite" class="dropdown-item">Bandeja en trámite</a>
+                            <!--#181 se agrega loader --> 
+                            <a href="/bandeja/entrada" class="dropdown-item" onclick="loading();">Bandeja de entrada</a>
+                            <a href="/bandeja/enviados" class="dropdown-item" onclick="loading();">Bandeja de enviados</a>
+                            <a href="/bandeja/entramite" class="dropdown-item" onclick="loading();">Bandeja en trámite</a>
 
 	  				  		<#--
 	  				  		    2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech):
@@ -124,21 +127,25 @@
                         </div>
                     </li>
                 <li class="nav-item">
-                    <a href="/proceso/list" class="btn btn-success btn-sm"><span class="hidden-md-down">Registro</span><span class="hidden-lg-up">Reg</span></a>
+                    <!--#181 se agrega loader --> 
+                    <a href="/proceso/list" class="btn btn-success btn-sm" onclick="loading();"><span class="hidden-md-down">Registro</span><span class="hidden-lg-up">Reg</span></a>
                     </li>
                 <li class="nav-item">
-                    <a href="/expediente/listarExpedientes?" class="btn btn-secondary btn-sm"><span class="hidden-md-down">Expedientes</span><span class="hidden-lg-up">Exp</span></a>
+                    <!--#181 se agrega loader --> 
+                    <a href="/expediente/listarExpedientes?" class="btn btn-secondary btn-sm" onclick="loading();"><span class="hidden-md-down">Expedientes</span><span class="hidden-lg-up">Exp</span></a>
                     </li>
                 <li class="nav-item">
-                    <a href="/expediente/carpeta" class="btn btn-secondary btn-sm"><span class="hidden-md-down">Archivos</span><span class="hidden-lg-up">Car</span></a>
-                    </li>
+                    <!--#181 se agrega loader --> 
+                    <a href="/expediente/carpeta" class="btn btn-secondary btn-sm" onclick="loading();"><span class="hidden-md-down">Archivos</span><span class="hidden-lg-up">Car</span></a>
+                </li>
 
                 <!--
                     2017-08-29 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech) feature-120:
                     Botón para acceder al módulo de transferencia de archivo.
                 -->
                 <li class="nav-item">
-                    <a href="/transferencia-archivo/crear" class="btn btn-warning btn-sm">
+                    <!--#181 se agrega loader --> 
+                    <a href="/transferencia-archivo/crear" class="btn btn-warning btn-sm" onclick="loading();">
                         <span class="hidden-md-down">Transferencia de Archivo</span>
                         <span class="hidden-lg-up">TAR</span>
                         </a>
@@ -148,14 +155,16 @@
                     <form action="/consulta" method="GET" class="form-inline" id="consulta-form">
                         <div class="input-group">
                             <input type="text" class="form-control form-control-sm" id="paramConsulta" name="term"/>
-                            <a href="#" class="btn btn-secondary btn-sm input-group-addon" onclick="return submitConsulta();">Buscar</a>
+                            <!--#181 se agrega loader --> 
+                            <a href="#" class="btn btn-secondary btn-sm input-group-addon" onclick="loading(); return submitConsulta();">Buscar</a>
                             </div><br/>
-                        <a href="/consulta/parametros"><small>Búsqueda avanzada</small></a>
+                        <a href="/consulta/parametros" onclick="loading();"><small>Búsqueda avanzada</small></a>
                         </form>
                     </li>
 
                 <li class="nav-item">
-                    <a href="/reporteDependencia/init" class="btn btn-warning btn-sm">
+                    <!--#181 se agrega loader --> 
+                    <a href="/reporteDependencia/init" class="btn btn-warning btn-sm" onclick="loading();">
                         <span class="hidden-md-down">Reporte</span>
                         <span class="hidden-lg-up">TAR</span>
                         </a>
@@ -180,3 +189,8 @@
 	<@flash/>   
         <div class="container-fluid">
             <div class="row cus-root-container">
+                <script>
+                    $( window ).on( "load", function() {
+                        $(".div-loader").css({ display: "none" });
+                    });
+                </script>
