@@ -7,6 +7,7 @@ import com.laamware.ejercito.doc.web.dto.ExpUsuarioDto;
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
+import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -88,7 +89,8 @@ public class ExpedienteController extends UtilController {
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
 
     public static final String PATH = "/expediente";
-
+    
+    private static final String VISUALIZACIONPAGINADA = "P";
     /*
      * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
      * feature-157: Año mínimo para los selectores de filtro por año.
@@ -160,6 +162,9 @@ public class ExpedienteController extends UtilController {
     
     @Autowired
     private ParNombreExpedienteService parNombreExpedienteService;
+    
+    @Autowired
+    private TRDService tRDService;
 
     @Autowired
     DataSource ds;
@@ -198,29 +203,55 @@ public class ExpedienteController extends UtilController {
     @RequestMapping(value = "/listarDocumentos", method = RequestMethod.GET)
     public String listarDocumentos(Model model, Principal principal,
             @RequestParam(value = "expId", required = true) Long expId,
+            @RequestParam(value = "tipoVisualizacion", required = true, defaultValue = VISUALIZACIONPAGINADA) String tipoVisualizacion,
+            @RequestParam(value = "trdId", required = false) Integer trdId,
+            @RequestParam(value = "subtrdId", required = false) Integer subtrdId,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         Usuario usuSesion = getUsuario(principal);
         Expediente expediente = expedienteService.findOne(expId);
+        
+        if(tipoVisualizacion.equals(VISUALIZACIONPAGINADA)){
+            List<DocumentoExpDTO> documentos = new ArrayList<>();
+            int count = expedienteService.findDocumentosByUsuIdAndExpIdCount(usuSesion.getId(), expId);
+            int totalPages = 0;
+            String labelInformacion = "";
 
-        List<DocumentoExpDTO> documentos = new ArrayList<>();
-        int count = expedienteService.findDocumentosByUsuIdAndExpIdCount(usuSesion.getId(), expId);
-        int totalPages = 0;
-        String labelInformacion = "";
+            if (count > 0) {
+                PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+                totalPages = paginacionDTO.getTotalPages();
+                documentos = expedienteService.findDocumentosByUsuIdAndExpIdPaginado(usuSesion.getId(), expId, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+                labelInformacion = paginacionDTO.getLabelInformacion();
+            }
 
-        if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
-            totalPages = paginacionDTO.getTotalPages();
-            documentos = expedienteService.findDocumentosByUsuIdAndExpIdPaginado(usuSesion.getId(), expId, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
-            labelInformacion = paginacionDTO.getLabelInformacion();
+            model.addAttribute("documentos", documentos);
+            model.addAttribute("pageIndex", pageIndex);
+            model.addAttribute("totalPages", totalPages);
+            model.addAttribute("labelInformacion", labelInformacion);
+            model.addAttribute("pageSize", pageSize);
+        }else{
+            List<TrdDTO> dTOs;
+            if(trdId == null && subtrdId == null){
+                dTOs = tRDService.getSeriesByExpedienteAndUsuario(usuSesion.getId(), expId);
+                model.addAttribute("trds", dTOs);
+            }
+            
+            if(trdId != null){
+                Trd trd = tRDService.findOne(trdId);
+                dTOs = tRDService.getSubSeriesByExpedienteAndUsuario(usuSesion.getId(), expId, trdId);
+                model.addAttribute("serie", trd);
+                model.addAttribute("trdId", trdId);
+                model.addAttribute("trds", dTOs);
+            }
+            if(subtrdId != null){
+                Trd trd = tRDService.findOne(subtrdId);
+                List<DocumentoExpDTO> documentos = expedienteService.findDocumentosByUsuIdAndExpIdAndTrdId(usuSesion.getId(), expId, subtrdId);
+                model.addAttribute("subserie", trd);
+                model.addAttribute("documentosSerie", documentos);
+            }
         }
-
-        model.addAttribute("documentos", documentos);
         model.addAttribute("expediente", expediente);
-        model.addAttribute("pageIndex", pageIndex);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("labelInformacion", labelInformacion);
-        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("tipoVisualizacion", tipoVisualizacion);
         model.addAttribute("expId", expId);
 
         return "expediente-documento-listar";

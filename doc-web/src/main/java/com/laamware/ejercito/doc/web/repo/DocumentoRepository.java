@@ -171,7 +171,8 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "       DOC.DOC_ID,\n"
             + "       USUEXP.USU_ID USUARIO,\n"
             + "       EXP.EXP_ID,\n"
-            + "       DOC.CUANDO_MOD\n"
+            + "       DOC.CUANDO_MOD,\n"
+            + "       DOC.TRD_ID\n"
             + "FROM DOCUMENTO DOC\n"
             + "JOIN EXP_DOCUMENTO EXPDOC ON (EXPDOC.DOC_ID = DOC.DOC_ID AND EXPDOC.ACTIVO = 1)\n"
             + "JOIN CLASIFICACION CLADOC ON (CLADOC.CLA_ID = DOC.CLA_ID)\n"
@@ -189,7 +190,8 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "       DOC.DOC_ID,\n"
             + "       UC.USU_ID USUARIO,\n"
             + "       EXP.EXP_ID,\n"
-            + "       DOC.CUANDO_MOD\n"
+            + "       DOC.CUANDO_MOD,\n"
+            + "       DOC.TRD_ID\n"
             + "FROM DOCUMENTO DOC\n"
             + "JOIN EXP_DOCUMENTO EXPDOC ON (EXPDOC.DOC_ID = DOC.DOC_ID AND EXPDOC.ACTIVO = 1)\n"
             + "JOIN CLASIFICACION CLADOC ON (CLADOC.CLA_ID = DOC.CLA_ID)\n"
@@ -206,7 +208,8 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "       DOC.DOC_ID,\n"
             + "       UJD.USU_ID USUARIO,\n"
             + "       EXP.EXP_ID,\n"
-            + "       DOC.CUANDO_MOD\n"
+            + "       DOC.CUANDO_MOD,\n"
+            + "       DOC.TRD_ID\n"
             + "FROM DOCUMENTO DOC\n"
             + "JOIN EXP_DOCUMENTO EXPDOC ON (EXPDOC.DOC_ID = DOC.DOC_ID AND EXPDOC.ACTIVO = 1)\n"
             + "JOIN CLASIFICACION CLADOC ON (CLADOC.CLA_ID = DOC.CLA_ID)\n"
@@ -702,4 +705,17 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + ") doc\n"
             + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n", nativeQuery = true)
     List<Object[]> findDocumentosByUsuIdAndExpIdPaginado(@Param("usuId") Integer usuId, @Param("expId") Long expId, @Param("inicio") int inicio, @Param("fin") int fin);
+    
+    /**
+     * Obtiene los registros de los documentos por usuario, expediente y subserie.
+     *
+     * @param usuId
+     * @param expId
+     * @param trdId
+     * @return Lista de documentos de expediente.
+     */
+    @Query(value = ""
+            + CONSULTABANDEJAEXPEDIENTE
+            + " AND DOC.TRD_ID = :trdId", nativeQuery = true)
+    List<Object[]> findDocumentosByUsuIdAndExpIdAndTrdId(@Param("usuId") Integer usuId, @Param("expId") Long expId, @Param("trdId") int trdId);
 }

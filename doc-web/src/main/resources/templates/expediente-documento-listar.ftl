@@ -15,51 +15,135 @@
         </span>
     </div>
     </br>
-	
-    <#if documentos?size = 0 >
-        </br>
-        </br>
-        <div class="jumbotron">
-            <h1 class="display-1">No hay registros</h1>
-       </div>
+    </br>
+    <div>
+        <label for="trd">Modo de visualización:</label>
+        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=P" class="<#if tipoVisualizacion == 'P'>btn btn-primary<#else>btn btn-default</#if>" id="btn-paginado" onclick="selectVisualizacion(1)">Paginado</a>
+        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S" class="<#if tipoVisualizacion == 'S'>btn btn-primary<#else>btn btn-default</#if>" id="btn-serie" onclick="selectVisualizacion(2)">Serie</a>
+    </div>
+    
+    <#if tipoVisualizacion == 'P'>
+        <#if documentos?size = 0 >
+            </br>
+            </br>
+            <div class="jumbotron">
+                <h1 class="display-1">No hay registros</h1>
+           </div>
+        <#else>
+            </br>
+            </br>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Asunto</th>
+                        <th>Número de Radicado</th>
+                        <th>Clasificación</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <#list documentos as doc>
+                        <tr>
+                            <#if doc.indVisualizacion>
+                                <td><a href="/proceso/instancia?pin=${doc.pinId}">${doc.asunto!""}</a></td>
+                            <#else>
+                                <td>${doc.asunto!""}</td>
+                            </#if>
+                            <td>${doc.radicado!""}</td>
+                            <td>${doc.clasificacion!""}</td>
+                            <td>
+                                <#if doc.indJefeDependencia>
+                                <a title="Desvincular documento." onclick="desvinculaDocumento(${expediente.expId},'${doc.docId}')" href="#">
+                                    <img class="card-img-top" src="/img/x-circle.svg" alt="">
+                                </a>
+                                </#if>
+                            </td>
+                     </tr>
+                </#list>
+            </tbody>
+        </table>
+
+            <#if totalPages gt 0>
+                <@printBar url="/expediente/listarDocumentos" params={"expId":expId} metodo="get"/>
+            </#if>
+        </#if>
     <#else>
         </br>
         </br>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Asunto</th>
-                    <th>Número de Radicado</th>
-                    <th>Clasificación</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <#list documentos as doc>
+        <#if !documentosSerie??>
+            <#if serie??>
+                <a class="btn btn-info btn-sm" href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S">Regresar</a>
+                <h5>Serie: ${serie.codigo}. ${serie.nombre}</h5>
+            </#if>
+            <#if trds?size != 0>
+                </br>
+                </br>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Núm. Documentos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <#list trds as trd>
+                            <tr>
+                                <td nowrap>${trd.trdCodigo}</td>
+                                <#if !serie??>
+                                    <td><a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S&trdId=${trd.trdId}">${trd.trdNombre}</a></td>
+                                <#else>
+                                    <td><a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S&subtrdId=${trd.trdId}">${trd.trdNombre}</a></td>
+                                </#if>
+                                <td>${trd.cantidad}</td>
+                            </tr>
+                        </#list>            
+                    </tbody>
+                </table>
+            <#else>
+                <div class="jumbotron">
+                    <h1 class="display-1">No hay registros</h1>
+                </div>
+            </#if>
+        <#else>
+            <#if subserie??>
+                <a class="btn btn-info btn-sm" href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S&trdId=${subserie.serie}">Regresar</a>
+                <h5>Subserie: ${subserie.codigo}. ${subserie.nombre}</h5>
+            </#if>
+            </br>
+            </br>
+            <table class="table">
+                <thead>
                     <tr>
-                        <#if doc.indVisualizacion>
-                            <td><a href="/proceso/instancia?pin=${doc.pinId}">${doc.asunto!""}</a></td>
-                        <#else>
-                            <td>${doc.asunto!""}</td>
-                        </#if>
-                        <td>${doc.radicado!""}</td>
-                        <td>${doc.clasificacion!""}</td>
-                        <td>
-                            <#if doc.indJefeDependencia>
-                            <a title="Desvincular documento." onclick="desvinculaDocumento(${expediente.expId},'${doc.docId}')" href="#">
-                                <img class="card-img-top" src="/img/x-circle.svg" alt="">
-                            </a>
+                        <th>Asunto</th>
+                        <th>Número de Radicado</th>
+                        <th>Clasificación</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <#list documentosSerie as doc>
+                        <tr>
+                            <#if doc.indVisualizacion>
+                                <td><a href="/proceso/instancia?pin=${doc.pinId}">${doc.asunto!""}</a></td>
+                            <#else>
+                                <td>${doc.asunto!""}</td>
                             </#if>
-                        </td>
-                 </tr>
-            </#list>
-        </tbody>
-    </table>
-        
-        <#if totalPages gt 0>
-            <@printBar url="/expediente/listarDocumentos" params={"expId":expId} metodo="get"/>
+                            <td>${doc.radicado!""}</td>
+                            <td>${doc.clasificacion!""}</td>
+                            <td>
+                                <#if doc.indJefeDependencia>
+                                <a title="Desvincular documento." onclick="desvinculaDocumento(${expediente.expId},'${doc.docId}')" href="#">
+                                    <img class="card-img-top" src="/img/x-circle.svg" alt="">
+                                </a>
+                                </#if>
+                            </td>
+                        </tr>
+                    </#list>
+                </tbody>
+            </table>
         </#if>
-  </#if>
+    </#if> 
 </div>
 
 

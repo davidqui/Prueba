@@ -186,3 +186,19 @@ function desvinculaDocumento(expId, docId){
         });
     }
 }
+
+function selectVisualizacion(value){
+    var btn1 = document.getElementById("btn-paginado");
+    var btn2 = document.getElementById("btn-serie");
+    if (value === 1){
+        btn1.classList.remove('btn-default');
+        btn1.classList.add('btn-primary');
+        btn2.classList.remove('btn-primary');
+        btn2.classList.add('btn-default');
+    }else{
+        btn1.classList.remove('btn-primary');
+        btn1.classList.add('btn-default');
+        btn2.classList.remove('btn-default');
+        btn2.classList.add('btn-primary');
+    }
+}

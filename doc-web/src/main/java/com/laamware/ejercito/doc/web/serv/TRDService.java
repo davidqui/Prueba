@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
+import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Expediente;
@@ -15,6 +16,7 @@ import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificable;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificableComparator;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -387,5 +389,53 @@ public class TRDService {
      */
     public List<Trd> getTrdExpedienteDocumentos(final Expediente expediente){
         return trdRepository.getTrdsByExpedienteDocumentos(expediente.getExpId());
+    }
+    
+    /**
+     * Obtiene los registros de las series por expediente y usuario.
+     *
+     * @param usuId
+     * @param expId
+     * @return Lista de series.
+     */
+    public List<TrdDTO> getSeriesByExpedienteAndUsuario(Integer usuId, Long expId){
+        List<TrdDTO> expedientes = new ArrayList<>();
+        List<Object[]> result = trdRepository.getSeriesByExpedienteAndUsuario(expId, usuId);
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                TrdDTO dTO = retornaTrdDTO(object);
+                expedientes.add(dTO);
+            }
+        }
+        return expedientes;
+    }
+    
+    /**
+     * Obtiene los registros de las series por expediente y usuario.
+     *
+     * @param usuId
+     * @param expId
+     * @param trdId
+     * @return Lista de series.
+     */
+    public List<TrdDTO> getSubSeriesByExpedienteAndUsuario(Integer usuId, Long expId, Integer trdId){
+        List<TrdDTO> expedientes = new ArrayList<>();
+        List<Object[]> result = trdRepository.getSubSerieByExpedienteAndUsuarioAndSerie(expId, usuId, trdId);
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                TrdDTO dTO = retornaTrdDTO(object);
+                expedientes.add(dTO);
+            }
+        }
+        return expedientes;
+    }
+    
+    private TrdDTO retornaTrdDTO(Object[] object) {
+        TrdDTO dTO = new TrdDTO();
+        dTO.setTrdId(object[0] != null ? ((BigDecimal) object[0]).intValue() : null);
+        dTO.setTrdNombre(object[1] != null ? (String) object[1] : "");
+        dTO.setTrdCodigo(object[2] != null ? (String) object[2] : "");
+        dTO.setCantidad(object[5] != null ? ((BigDecimal) object[5]).intValue() : null);
+        return dTO;
     }
 }
