@@ -65,7 +65,16 @@
                 
             </div>
         </#if>
-        
+        <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
+            <a href="/expediente/asignar-usuario-expediente/${expediente.expId}" class="btn btn-success" style="width: 49%;margin: 15px 0px;">
+                Modificar Usuarios
+            </a>
+            <#if expediente.expTipoId == 2>
+                <a href="/expediente/trds-expediente/${expediente.expId}" class="btn btn-warning" style="width: 49%;margin: 15px 0px;">
+                    Modificar Trds
+                </a>
+            </#if>
+        </#if>
         <#if (expediente.indUsuarioAsignado == 1 && expediente.indJefeDependencia) && !expediente.indCerrado>
             <a id="btnAprobar" title="El expediente se encuentra con cambios sin aprobar" onclick="mostrarCambiosPendientes(${expediente.expId})"
                data-toggle="modal" href="#enviarJefeModal" class="btn btn-success" style="width: 100%; margin: 5px 0;">
@@ -92,18 +101,6 @@
     </div>
         
     <div class="col-md-8 col-lg-9">
-        <div class="pull-xs-right">
-            <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
-                <a title="Administrar Usuarios" href="/expediente/asignar-usuario-expediente/${expediente.expId}">
-                    <img class="card-img-top" src="/img/users.svg" alt=""/>
-                </a>
-                <#if expediente.expTipoId == 2>
-                    <a title="Administrar Trds" href="/expediente/trds-expediente/${expediente.expId}">
-                        <img class="card-img-top" src="/img/plus.svg" alt=""/>
-                    </a>
-                </#if>
-            </#if>
-        </div>
         <h1 class="cus-h1-page-title">Detalle del expediente</h1>
         </br>
         <div>
@@ -176,38 +173,6 @@
         </div>
     </div>
 </div>
-
-
-<!-- Modal aprobar cambios por jefe de dependencia -->
-<div class="modal fade" id="enviarJefeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Aprobación</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; right: 7px; top: 5px;">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          Aqui se listaran los cambios pendientes para su aprobación. Recuerde diligenciar la observación:
-              <div class="card-block cus-gray-bg">
-                  <form method="post" id="obsForm">
-                      <fieldset class="form-group">
-                          <input type="hidden" id="expId" value="${expediente.expId}">
-                          <textarea class="form-control" id="observacion2" name="observacion2"></textarea>
-                      </fieldset>
-                  </form>
-              </div>
-              <div class="modal-contenido" style="height: 400px; overflow-y: scroll;">
-              </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="aprobarOrechazarCambios(0)">Rechazar</button>
-          <button type="button" class="btn btn-primary" onclick="aprobarOrechazarCambios(1)" >Aprobar</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
     <!-- Modal info -->
     <div class="modal fade" id="info-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" style="overflow-y: auto;">

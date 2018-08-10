@@ -130,11 +130,8 @@ public class ExpedienteService {
         expediente.setIndCerrado(false);
         expediente.setIndAprobadoInicial(false);
         expediente.setEstadoCambio(false);
-
-        if (usuario.getId().equals(usuario.getDependencia().getJefe().getId())) {
-            expediente.setIndAprobadoInicial(true);
-        }
-
+        expediente.setIndAprobadoInicial(true);
+        
         expediente = expedienteRepository.saveAndFlush(expediente);
         expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_INICIAL_EXPEDIENTE), usuario, null, null);
