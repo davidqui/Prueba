@@ -211,6 +211,14 @@ public class ExpedienteController extends UtilController {
         Usuario usuSesion = getUsuario(principal);
         Expediente expediente = expedienteService.findOne(expId);
         
+        if (!expedienteService.permisoUsuarioLeer(usuSesion, expediente) && !expedienteService.permisoAdministrador(usuSesion, expediente))
+            return "security-denied";
+            
+        if (expediente.getIndCerrado() && !expedienteService.permisoAdministrador(usuSesion, expediente)){
+            model.addAttribute("usuario", expediente.getDepId().getJefe());
+            return "expediente-cerrado";
+        }
+        
         if(tipoVisualizacion.equals(VISUALIZACIONPAGINADA)){
             List<DocumentoExpDTO> documentos = new ArrayList<>();
             int count = expedienteService.findDocumentosByUsuIdAndExpIdCount(usuSesion.getId(), expId);
@@ -223,19 +231,6 @@ public class ExpedienteController extends UtilController {
                 documentos = expedienteService.findDocumentosByUsuIdAndExpIdPaginado(usuSesion.getId(), expId, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
                 labelInformacion = paginacionDTO.getLabelInformacion();
             }
-        
-        if (!expedienteService.permisoUsuarioLeer(usuSesion, expediente) && !expedienteService.permisoAdministrador(usuSesion, expediente))
-            return "security-denied";
-            
-        if (expediente.getIndCerrado() && !expedienteService.permisoAdministrador(usuSesion, expediente)){
-            model.addAttribute("usuario", expediente.getDepId().getJefe());
-            return "expediente-cerrado";
-        }
-                    
-        List<DocumentoExpDTO> documentos = new ArrayList<>();
-        int count = expedienteService.findDocumentosByUsuIdAndExpIdCount(usuSesion.getId(), expId);
-        int totalPages = 0;
-        String labelInformacion = "";
 
             model.addAttribute("documentos", documentos);
             model.addAttribute("pageIndex", pageIndex);

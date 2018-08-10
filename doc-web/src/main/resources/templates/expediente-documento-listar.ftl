@@ -59,7 +59,7 @@
                             <td>${doc.radicado!""}</td>
                             <td>${doc.clasificacion!""}</td>
                             <td>
-                                <#if doc.indJefeDependencia>
+                                <#if doc.indJefeDependencia && !expediente.indCerrado>
                                 <a title="Desvincular documento." onclick="desvinculaDocumento(${expediente.expId},'${doc.docId}')" href="#">
                                     <img class="card-img-top" src="/img/x-circle.svg" alt="">
                                 </a>
@@ -139,7 +139,7 @@
                             <td>${doc.radicado!""}</td>
                             <td>${doc.clasificacion!""}</td>
                             <td>
-                                <#if doc.indJefeDependencia>
+                                <#if doc.indJefeDependencia && !expediente.indCerrado>
                                 <a title="Desvincular documento." onclick="desvinculaDocumento(${expediente.expId},'${doc.docId}')" href="#">
                                     <img class="card-img-top" src="/img/x-circle.svg" alt="">
                                 </a>
