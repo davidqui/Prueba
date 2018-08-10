@@ -50,7 +50,7 @@
                                 <img class="card-img-top" src="/img/eye.svg" alt="">
                             </a>
                             <#if exp.indUsuarioAsignado == 1 && exp.indJefeDependencia>
-                                <a class="btn btn-success btn-sm" onclick="mostrarCambiosPendientes(${exp.expId})" data-toggle="modal" href="#enviarJefeModal">
+                                <a class="btn btn-success btn-sm" onclick="mostrarCambiosPendientes(${exp.expId})" data-toggle="modal" href="#enviarJefeModal" style="float: right;">
                                     Aprobar
                                 </a>
                             </#if>

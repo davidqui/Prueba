@@ -223,6 +223,19 @@ public class ExpedienteController extends UtilController {
                 documentos = expedienteService.findDocumentosByUsuIdAndExpIdPaginado(usuSesion.getId(), expId, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
                 labelInformacion = paginacionDTO.getLabelInformacion();
             }
+        
+        if (!expedienteService.permisoUsuarioLeer(usuSesion, expediente) && !expedienteService.permisoAdministrador(usuSesion, expediente))
+            return "security-denied";
+            
+        if (expediente.getIndCerrado() && !expedienteService.permisoAdministrador(usuSesion, expediente)){
+            model.addAttribute("usuario", expediente.getDepId().getJefe());
+            return "expediente-cerrado";
+        }
+                    
+        List<DocumentoExpDTO> documentos = new ArrayList<>();
+        int count = expedienteService.findDocumentosByUsuIdAndExpIdCount(usuSesion.getId(), expId);
+        int totalPages = 0;
+        String labelInformacion = "";
 
             model.addAttribute("documentos", documentos);
             model.addAttribute("pageIndex", pageIndex);
@@ -375,7 +388,7 @@ public class ExpedienteController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         final Documento documento = documentoRepository.findOne(docId);
 
-        if (!expedienteService.permisoJefeDependencia(usuarioSesion, expediente))
+        if (!expedienteService.permisoJefeDependencia(usuarioSesion, expediente) || expediente.getIndCerrado())
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
                 
         try {
@@ -394,7 +407,12 @@ public class ExpedienteController extends UtilController {
     public String enviarAprobar(@PathVariable("exp") Long expId, Model model, Principal principal){
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
-
+        
+        if (expediente.getIndCerrado()){
+            model.addAttribute("usuario", expediente.getDepId().getJefe());
+            return "expediente-cerrado";
+        }
+        
         if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return "security-denied";
 
@@ -460,13 +478,20 @@ public class ExpedienteController extends UtilController {
         if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return "security-denied";
         
+        if (expediente.getIndCerrado()){
+            model.addAttribute("usuario", expediente.getDepId().getJefe());
+            return "expediente-cerrado";
+        }
+        
        Usuario usuCreador = expediente.getUsuCreacion();
        Usuario jefeDependencia = expediente.getDepId().getJefe();
        List<ExpUsuario> usuarios = expUsuarioService.findByExpediente(expediente);
+       boolean tieneCambios = expUsuarioService.tieneCambios(usuarios);
        model.addAttribute("usuCreador", usuCreador);
        model.addAttribute("jefeDependencia", jefeDependencia);
        model.addAttribute("usuarios", usuarios);
        model.addAttribute("expediente", expediente);
+       model.addAttribute("tieneCambios", tieneCambios);
        model.addAttribute("esJefeDependencia", usuarioSesion.getId().equals(jefeDependencia.getId()));
        
         return "expediente-seleccionar-usuarios";
@@ -482,7 +507,7 @@ public class ExpedienteController extends UtilController {
 
         final Expediente expediente = expedienteService.finById(expId);
 
-        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
+        if(expediente.getIndCerrado() || !expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         List<ExpUsuario> usuarioEnEspediente = expUsuarioService.findByExpedienteAndUsuario(expediente, usuario);
@@ -507,7 +532,7 @@ public class ExpedienteController extends UtilController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         if (!expediente.getIndAprobadoInicial())
             return new ResponseEntity<>("El expediente no ha sido aprobado por el jefe de la dependencia.", HttpStatus.UNAUTHORIZED);
-        if (!((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())&& (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())))
+        if (expediente.getIndCerrado() || !((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())&& (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) && !(documento.getInstancia().getEstado().getId().equals(153)))
             return new ResponseEntity<>("El documento no se encuentra en la etapa necesaria para agregarlo al expediente", HttpStatus.BAD_REQUEST);
         if (!expTrdService.validateTrdByExpediente(expediente, documento.getTrd()))
             return new ResponseEntity<>("El expediente no admite esta trd comuníquese con el administrador de este para que la agregue. </br></br> "+documento.getTrd().getNombre(),HttpStatus.UNAUTHORIZED);
@@ -544,8 +569,8 @@ public class ExpedienteController extends UtilController {
     public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Long usuarioID, Principal principal){
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
-
-        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
+        
+        if(expediente.getIndCerrado() || !expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         expUsuarioService.eliminarUsuarioExpediente(usuarioID, usuarioSesion, expediente);
@@ -560,7 +585,7 @@ public class ExpedienteController extends UtilController {
         final Usuario usuarioAsignar = usuarioService.findOne(usuarioID);
         final Expediente expediente = expedienteService.finById(expId);
         
-        if (!expediente.getDepId().getJefe().getId().equals(usuarioSesion.getId()))
+        if (expediente.getIndCerrado() || !expediente.getDepId().getJefe().getId().equals(usuarioSesion.getId()))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         
        if (usuarioAsignar.getDependencia().getJefe() == null)
@@ -593,10 +618,15 @@ public class ExpedienteController extends UtilController {
     public String seleccionarTrdExpediente(@PathVariable("expId") Long expId, Model model, Principal principal, HttpServletRequest req){
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
-
+        
         if (!expedienteService.permisoAdministrador(usuarioSesion, expediente) || expediente.getExpTipo() == 1)
             return "security-denied";
-
+        
+        if (expediente.getIndCerrado()){
+            model.addAttribute("usuario", expediente.getDepId().getJefe());
+            return "expediente-cerrado";
+        }
+        
         List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpediente(expediente);
         List<Trd> trdDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
@@ -614,7 +644,7 @@ public class ExpedienteController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
 
-        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
+        if(expediente.getIndCerrado() || !expedienteService.permisoAdministrador(usuarioSesion, expediente))
             return "security-denied";
 
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpedienteAll(expediente);
@@ -882,8 +912,34 @@ public class ExpedienteController extends UtilController {
 
     @RequestMapping(value = "/expediente-vacio", method = RequestMethod.GET)
     public String expedienteVacio(Model model, Principal principal) {
-
+        
         return "expediente-vacio";
+    }
+    
+    @RequestMapping(value = "/cerrar-expediente/{expId}", method = RequestMethod.POST)
+    public ResponseEntity<?> expedienteCerrar(@PathVariable("expId") Long expId, Model model, Principal principal){
+        final Expediente expediente = expedienteService.finById(expId);
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        if(!expedienteService.permisoJefeDependencia(usuarioSesion, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        expedienteService.cerrarExpediente(expediente, usuarioSesion);
+        
+        return ResponseEntity.ok("Cerrado Correctamente");
+    }
+    
+    @RequestMapping(value = "/abrir-expediente/{expId}", method = RequestMethod.POST)
+    public ResponseEntity<?> expedienteAbrir(@PathVariable("expId") Long expId, Model model, Principal principal){
+        final Expediente expediente = expedienteService.finById(expId);
+        final Usuario usuarioSesion = getUsuario(principal);
+
+        if(!expedienteService.permisoJefeDependencia(usuarioSesion, expediente))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        expedienteService.abrirExpediente(expediente, usuarioSesion);
+        
+        return ResponseEntity.ok("Cerrado Correctamente");
     }
 
     /**

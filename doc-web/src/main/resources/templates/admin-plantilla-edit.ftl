@@ -7,6 +7,23 @@
 
 <div class="container">
     <h1 class="cus-h1-page-title">${pageTitle}</h1>
+    <p style="padding: 16px;
+    border: 5px dashed red;
+    font-size: 16px;">Mensaje:
+    </br>
+    Señor Usuario recuerde tener en cuenta los siguientes aspectos ante la <u>creación</u> o <u>actualización</u> de plantillas:
+    </br>
+    1.	El marcador que contiene el nombre de identificación de la plantilla no puede tener espacios, debe ser único para el conjunto de plantillas activas en el sistema y obedecer al formato <span style="color:red;">nombre_NombreUnicoPlantilla</span>.
+    <span style="color:blue;"> Ejemplo: nombre_informeOperacional </span>
+    </br>
+    2.	El marcador que contiene la versión de la plantilla no puede tener espacios y debe obedecer al formato <span style="color:red;">version_DiaMesAño</span> en números.
+    <span style="color:blue;">Ejemplo: version_09082018</span>
+    </br>
+    </br>
+    <span style="color:red;">
+        <b>Advertencia:</b> Cuando actualice el formato de alguna de las plantillas debe cambiar obligatoriamente el marcador de versión, de lo contrario el sistema permitirá la utilización de plantillas desactualizadas. 
+    </span>
+    </p>
     <form action="/admin/plantilla/save" method="POST" enctype="multipart/form-data" >
     <#if plantilla.id??>
     	<input type="hidden" name="id" id="id" value="${plantilla.id}" />

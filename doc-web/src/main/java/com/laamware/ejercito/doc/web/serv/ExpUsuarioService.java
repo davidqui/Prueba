@@ -121,9 +121,7 @@ public class ExpUsuarioService {
         model.put("usuario", usuCreador);
         try {
             notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_USUARIO_AGREGADO, usuario);
-        } catch (IOException ex) {
-            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (TemplateException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -143,9 +141,7 @@ public class ExpUsuarioService {
         
         try {
             notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_USUARIO_ELIMINADO, expUsuario.getUsuId());
-        } catch (IOException ex) {
-            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (TemplateException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -196,5 +192,13 @@ public class ExpUsuarioService {
                 expUsuarioRepository.saveAndFlush(expUsuario);
             }
         }
+    }
+
+    public boolean tieneCambios(List<ExpUsuario> usuarios) {
+        for (ExpUsuario usuario : usuarios) {
+            if (!usuario.getIndAprobado())
+                return true;
+        }
+        return false;
     }
 }

@@ -19,7 +19,7 @@
 <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal" style="float: left; margin-left: 25px;" onclick="limpiarModales()">
     Agregar usuario
 </button>
-<#if esJefeDependencia==true>
+<#if esJefeDependencia || expediente.usuarioAsignado == 1 || !tieneCambios>
     <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;" onclick="loading();">
         Regresar a Expediente
     </a>
