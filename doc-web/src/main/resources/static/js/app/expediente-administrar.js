@@ -153,15 +153,18 @@ function agregarDocumentoExpediente(expId){
 
 function desvinculaDocumento(expId, docId){
     console.log("expId? "+expId);
-    var result = confirm("Esta seguro de cambiar el usuario Creador?")
+    var result = confirm("Esta seguro de desvincular el documento?")
     if (result){
+        $(".div-loader").css({ display: "block" });
         $.ajax({
             type: "POST",
             url: "/expediente/desvinculaDocumento?expId="+expId+"&docId="+docId,
             success: function() {
+                $(".div-loader").css({ display: "none" });
                 location.reload();
             },
             error: function (data) {
+                $(".div-loader").css({ display: "none" });
                 var dataJSON = jQuery.parseJSON(data.responseText);
                 var arrayLength = dataJSON.length;
                 if(arrayLength > 0){
@@ -181,3 +184,36 @@ function desvinculaDocumento(expId, docId){
         });
     }
 }
+
+function cerrarExpediente(expId){
+    var result = confirm("Esta seguro de cerrar el expediente?");
+    if (result) {
+        $(".div-loader").css({ display: "block" });
+        $.ajax({
+            type: "POST",
+            url: "/expediente/cerrar-expediente/"+expId,
+            success: function() {
+                $(".div-loader").css({ display: "none" });
+                location.reload();
+            },
+            error: function () { $(".div-loader").css({ display: "none" }); }
+        });
+    }
+}
+
+function abrirExpediente(expId){
+    var result = confirm("Esta seguro de re-abrir el expediente?");
+    if (result) {
+        $(".div-loader").css({ display: "block" });
+        $.ajax({
+            type: "POST",
+            url: "/expediente/abrir-expediente/"+expId,
+            success: function() {
+                $(".div-loader").css({ display: "none" });
+                location.reload();
+            },
+            error: function () { $(".div-loader").css({ display: "none" }); }
+        });
+    }
+}
+

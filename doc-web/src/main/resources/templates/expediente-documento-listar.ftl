@@ -10,8 +10,15 @@
         </ol>
     </div>
     <div>
+        <#if !expediente.indCerrado>
+            <span>
+                <a  class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="modal" data-trigger="hover" data-placement="right" title="Indexar documento" data-content="Pulse para indexar documento" style="float:left;" data-target="#agregarDocumento">Indexar Doocumento</a>
+            </span>
+        </#if>
         <span>
-            <a  class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="modal" data-trigger="hover" data-placement="right" title="Indexar documento" data-content="Pulse para indexar documento" style="float:left;" data-target="#agregarDocumento">Indexar Doocumento</a>
+            <a title="Administrar expediente" href="/expediente/administrarExpediente?expId=${expediente.expId}" style="float:right;">
+                <img class="card-img-top" src="/img/settings.svg" alt=""/>
+            </a>  
         </span>
     </div>
     </br>
@@ -45,7 +52,7 @@
                         <td>${doc.radicado!""}</td>
                         <td>${doc.clasificacion!""}</td>
                         <td>
-                            <#if doc.indJefeDependencia>
+                            <#if doc.indJefeDependencia && !expediente.indCerrado>
                             <a title="Desvincular documento." onclick="desvinculaDocumento(${expediente.expId},'${doc.docId}')" href="#">
                                 <img class="card-img-top" src="/img/x-circle.svg" alt="">
                             </a>

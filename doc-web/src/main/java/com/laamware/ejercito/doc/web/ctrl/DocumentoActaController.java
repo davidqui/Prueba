@@ -573,6 +573,16 @@ public class DocumentoActaController extends UtilController {
 
         if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ACTA_DIGITALIZADA.getId())) {
             cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
+            /**
+            * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+            * feature-181: se agrega los expedientes disponibles para el acta ser indexada
+            */
+            ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
+            System.out.println("QUE PTAS PASA "+expDocumento+" - "+documento.getId());
+            if (expDocumento == null) {
+                List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion, documento.getTrd());
+                uiModel.addAttribute("expedientesValidos", expedientesValidos);
+            }
             return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
         }
 
@@ -581,7 +591,18 @@ public class DocumentoActaController extends UtilController {
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
         uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "El acta ha sido digitalizada y archivada.");
-
+        
+        /**
+        * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+        * feature-181: se agrega los expedientes disponibles para el acta ser indexada
+        */
+        ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
+        System.out.println("QUE PTAS PASA "+expDocumento+" - "+documento.getId());
+        if (expDocumento == null) {
+            List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion, documento.getTrd());
+            uiModel.addAttribute("expedientesValidos", expedientesValidos);
+        }
+            
         return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
     }
 

@@ -102,7 +102,7 @@
         </div>
     </div>
     <div class="m-y">
-        <button id="btnGuardar" type="submit" class="btn btn-primary" onclick="loading();">Guardar</button>
+        <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
         <a href="/expediente/listarExpedientes" class="btn btn-secondary" onclick="loading();">Cancelar</a>
     </div>    
     </form>
@@ -157,7 +157,10 @@
     $("#parNombreExpediente").change(function() {
         $("#input-nombre-4").text($(this).children(':selected').data('text'));
     }).change();
-        
+    
+    $(document).on('submit','form',function(){
+        loading();
+    });
 </script>
 
 <#include "bandeja-footer.ftl">

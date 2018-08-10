@@ -44,80 +44,85 @@ public class ExpedienteService {
      */
     @Autowired
     private ExpedienteRepository expedienteRepository;
-    
+
     /**
      * Repositorio de estados del expediente.
      */
     @Autowired
     private ExpedienteEstadoService expedienteEstadoService;
-    
+
     /**
      * Repositorio de transiciones del espediente.
      */
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
-    
-    
+
     @Autowired
     private ExpUsuarioService expUsuarioService;
-    
+
     @Autowired
     private ExpTrdService expTrdService;
-    
+
     @Autowired
     TRDService trdService;
-    
+
     @Autowired
     DocumentoRepository documentoRepository;
-    
+
     /*
      * Servicio de notificaciones.
      */
     @Autowired
     private NotificacionService notificacionService;
-    
-    public static final Long ESTADO_INICIAL_EXPEDIENTE = new Long(1100) ;
-    public static final Long ESTADO_ENVIADO_APROBAR = new Long(1101) ;
-    public static final Long ESTADO_ADMINISTRADOR_MODIFICADO = new Long(1111) ;
-    public static final Long ESTADO_APROBADO = new Long(1102) ;
-    public static final Long ESTADO_RECHAZADO = new Long(1103) ;
-    public static final Long ESTADO_CAMBIO_TIPO = new Long(1112) ;
 
+    public static final Long ESTADO_INICIAL_EXPEDIENTE = new Long(1100);
+    public static final Long ESTADO_ENVIADO_APROBAR = new Long(1101);
+    public static final Long ESTADO_ADMINISTRADOR_MODIFICADO = new Long(1111);
+    public static final Long ESTADO_APROBADO = new Long(1102);
+    public static final Long ESTADO_RECHAZADO = new Long(1103);
+    public static final Long ESTADO_CAMBIO_TIPO = new Long(1112);
+    public static final Long ESTADO_EXPEDIENTE_CERRADO = new Long(1106);
+    public static final Long ESTADO_EXPEDIENTE_REABIERTO = new Long(1110);
 
     public static final int EXPEDIENTE_SIMPLE = 1;
     public static final int EXPEDIENTE_COMPLEJO = 2;
-    
-    
+
     public final static Integer NOTIFICACION_EXPEDIENTE_POR_APROBAR = 202;
     public final static Integer NOTIFICACION_EXPEDIENTE_RESPUESTA = 203;
-    
-    public Expediente finById(Long id){
+    public final static Integer NOTIFICACION_EXPEDIENTE_CERRADO = 205;
+    public final static Integer NOTIFICACION_EXPEDIENTE_REABIERTO = 206;
+
+    public Expediente finById(Long id) {
         return expedienteRepository.findOne(id);
     }
-    
-    public Expediente CrearExpediente(Expediente expediente, Usuario usuario, 
-            String numeroExpediente, ParNombreExpediente parNombreExpediente, String opcionalNombre) throws BusinessLogicException{
-        
-        if (expediente.getTrdIdPrincipal() == null)
+
+    public Expediente CrearExpediente(Expediente expediente, Usuario usuario,
+            String numeroExpediente, ParNombreExpediente parNombreExpediente, String opcionalNombre) throws BusinessLogicException {
+
+        if (expediente.getTrdIdPrincipal() == null) {
             throw new BusinessLogicException("Debe elegir una TRD principal");
-        if (expediente.getExpDescripcion() == null || expediente.getExpDescripcion().trim().length() < 1)
+        }
+        if (expediente.getExpDescripcion() == null || expediente.getExpDescripcion().trim().length() < 1) {
             throw new BusinessLogicException("La descripción del expediente es requerida");
-        if (numeroExpediente.trim().equals("") || parNombreExpediente == null)
+        }
+        if (numeroExpediente.trim().equals("") || parNombreExpediente == null) {
             throw new BusinessLogicException("La construcción del nombre requiere todos los campos exceptuando el ultimo");
-        
-        String nombre = expediente.getTrdIdPrincipal().getCodigo()+"-"+Calendar.getInstance().get(Calendar.YEAR)
-                +"-"+String.format ("%03d", Integer.parseInt(numeroExpediente))+"-"+parNombreExpediente.getParNombre();
-        
-        if (!opcionalNombre.trim().equals(""))
-            nombre += "-"+opcionalNombre;
-        
+        }
+
+        String nombre = expediente.getTrdIdPrincipal().getCodigo() + "-" + Calendar.getInstance().get(Calendar.YEAR)
+                + "-" + String.format("%03d", Integer.parseInt(numeroExpediente)) + "-" + parNombreExpediente.getParNombre();
+
+        if (!opcionalNombre.trim().equals("")) {
+            nombre += "-" + opcionalNombre;
+        }
+
         expediente.setExpNombre(nombre);
-        
+
         List<Expediente> expedientesNombre = expedienteRepository.getByExpNombreAndDepId(expediente.getExpNombre(), usuario.getDependencia());
         if (!expedientesNombre.isEmpty()) {
             throw new BusinessLogicException("Ya existe un expediente con este nombre.");
         }
-        
+
         expediente.setUsuCreacion(usuario);
         expediente.setUsuarioAsignado(Expediente.ASIGNADO_USUARIO);
         expediente.setDepId(usuario.getDependencia());
@@ -125,33 +130,32 @@ public class ExpedienteService {
         expediente.setIndCerrado(false);
         expediente.setIndAprobadoInicial(false);
         expediente.setEstadoCambio(false);
-        
-        if (usuario.getId().equals(usuario.getDependencia().getJefe().getId()))
-                expediente.setIndAprobadoInicial(true);
-        
+
+        if (usuario.getId().equals(usuario.getDependencia().getJefe().getId())) {
+            expediente.setIndAprobadoInicial(true);
+        }
+
         expediente = expedienteRepository.saveAndFlush(expediente);
-        expedienteTransicionService.crearTransicion(expediente, 
+        expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_INICIAL_EXPEDIENTE), usuario, null, null);
         return expediente;
     }
 
     public void enviarAprobar(Expediente expediente, Usuario usuarioSesion) {
         expediente.setUsuarioAsignado(1);
-        
+
         expedienteRepository.saveAndFlush(expediente);
-        
-        expedienteTransicionService.crearTransicion(expediente, 
+
+        expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_ENVIADO_APROBAR), usuarioSesion, null, null);
-        
+
         Map<String, Object> model = new HashMap();
         model.put("usuario", usuarioSesion);
         model.put("expediente", expediente);
-        
+
         try {
             notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_POR_APROBAR, expediente.getDepId().getJefe());
-        } catch (IOException ex) {
-            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (TemplateException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -191,109 +195,105 @@ public class ExpedienteService {
         ExpedienteDTO expedienteDTO = null;
         System.err.println("Buscando expediente");
         List<Object[]> result = expedienteRepository.findExpedienteDtoPorUsuarioPorExpId(usuId, expId);
-        
+
         if (result != null) {
-            System.err.println("Retornando expediente1= "+result.size());
+            System.err.println("Retornando expediente1= " + result.size());
             for (Object[] object : result) {
-                expedienteDTO = retornaExpedienteDTO(object);   
+                expedienteDTO = retornaExpedienteDTO(object);
             }
         }
         return expedienteDTO;
     }
-    
-    public void cambiarUsuarioCreador(Expediente expediente, Usuario usuario, Usuario usuarioSesion){
+
+    public void cambiarUsuarioCreador(Expediente expediente, Usuario usuario, Usuario usuarioSesion) {
         expediente.setUsuCreacion(usuario);
         expediente.setDepId(usuario.getDependencia());
         expediente.setUsuModificacion(usuarioSesion);
         expediente.setFecModificacion(new Date());
-        expedienteTransicionService.crearTransicion(expediente, 
-        expedienteEstadoService.findById(ESTADO_ADMINISTRADOR_MODIFICADO), usuarioSesion, null, null);
+        expedienteTransicionService.crearTransicion(expediente,
+                expedienteEstadoService.findById(ESTADO_ADMINISTRADOR_MODIFICADO), usuarioSesion, null, null);
         expedienteRepository.saveAndFlush(expediente);
     }
-    
-    public Expediente findOne(Long expId){
+
+    public Expediente findOne(Long expId) {
         return expedienteRepository.findOne(expId);
     }
-    
+
     public void aprobarExpediente(Expediente expediente, Usuario usuarioSesion) {
         expediente.setUsuarioAsignado(0);
         expediente.setEstadoCambio(true);
         expediente.setIndAprobadoInicial(true);
         expediente.setUsuModificacion(usuarioSesion);
         expediente.setFecModificacion(new Date());
-        
+
         expUsuarioService.aprobarUsuariosPorExpediente(expediente, usuarioSesion);
-        
-        expedienteTransicionService.crearTransicion(expediente, 
+
+        expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_APROBADO), usuarioSesion, null, null);
-        
+
         expedienteRepository.saveAndFlush(expediente);
-        
+
         Map<String, Object> model = new HashMap();
         model.put("usuario", usuarioSesion);
         model.put("expediente", expediente);
         model.put("estado", "APROBADO");
-        
+
         try {
             notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_RESPUESTA, expediente.getUsuCreacion());
-        } catch (IOException ex) {
-            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (TemplateException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void rechazarExpediente(Expediente expediente, Usuario usuarioSesion) {
         expediente.setUsuarioAsignado(0);
         expediente.setEstadoCambio(false);
         expediente.setUsuModificacion(usuarioSesion);
         expediente.setFecModificacion(new Date());
-        
+
         expUsuarioService.rechazarUsuariosPorExpediente(expediente, usuarioSesion);
-        
-        expedienteTransicionService.crearTransicion(expediente, 
+
+        expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_RECHAZADO), usuarioSesion, null, null);
-        
+
         expedienteRepository.saveAndFlush(expediente);
-        
+
         Map<String, Object> model = new HashMap();
         model.put("usuario", usuarioSesion);
         model.put("expediente", expediente);
         model.put("estado", "RECHAZADO");
-        
+
         try {
             notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_RESPUESTA, expediente.getUsuCreacion());
-        } catch (IOException ex) {
-            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (TemplateException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void modificarTipoExpediente(Expediente expediente, Usuario usuarioSesion) throws BusinessLogicException{
+
+    public void modificarTipoExpediente(Expediente expediente, Usuario usuarioSesion) throws BusinessLogicException {
         //Modificar tipo de expediente simple
-        if(expediente.getExpTipo() == EXPEDIENTE_SIMPLE){
+        if (expediente.getExpTipo() == EXPEDIENTE_SIMPLE) {
             expediente.setExpTipo(EXPEDIENTE_COMPLEJO);
-            
-            expedienteTransicionService.crearTransicion(expediente, 
-                expedienteEstadoService.findById(ESTADO_CAMBIO_TIPO), usuarioSesion, null, null);
-            
+
+            expedienteTransicionService.crearTransicion(expediente,
+                    expedienteEstadoService.findById(ESTADO_CAMBIO_TIPO), usuarioSesion, null, null);
+
             expedienteRepository.saveAndFlush(expediente);
-        }else{
+        } else {
             List<Trd> trdExpedienteDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
-            if(trdExpedienteDocumentos.isEmpty()){
+            if (trdExpedienteDocumentos.isEmpty()) {
                 List<ExpTrd> expTrds = expTrdService.findTrdsByExpediente(expediente);
-                for(ExpTrd expTrd:expTrds){
+                for (ExpTrd expTrd : expTrds) {
                     expTrdService.guardarTrdExpediente(expTrd, usuarioSesion, false);
                 }
-                
+
                 expediente.setExpTipo(EXPEDIENTE_SIMPLE);
-                
-                expedienteTransicionService.crearTransicion(expediente, 
-                expedienteEstadoService.findById(ESTADO_CAMBIO_TIPO), usuarioSesion, null, null);
-                
+
+                expedienteTransicionService.crearTransicion(expediente,
+                        expedienteEstadoService.findById(ESTADO_CAMBIO_TIPO), usuarioSesion, null, null);
+
                 expedienteRepository.saveAndFlush(expediente);
-            }else{
+            } else {
                 throw new BusinessLogicException("Las TRDS del expediente ya se encuentran asociadas con documentos. Para realizar esta acción el expediente solo debe tener documentos de una sola TRD.");
             }
         }
@@ -328,32 +328,80 @@ public class ExpedienteService {
     public List<Expediente> obtenerExpedientesIndexacionPorUsuarioPorTrd(Usuario usuarioSesion, Trd trd) {
         return expedienteRepository.findExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion.getId(), trd.getId());
     }
-    
-    
-    public boolean permisoIndexacion(Usuario usuario, Expediente expediente){
+
+    public boolean permisoIndexacion(Usuario usuario, Expediente expediente) {
         List<ExpUsuario> expUsuarios = expUsuarioService.findByExpedienteAndUsuarioAndPermisoTrue(expediente, usuario);
         return !expUsuarios.isEmpty();
     }
-    
-    public boolean permisoAdministrador(Usuario usuario, Expediente expediente){
-        if (usuario == null || expediente == null)
+
+    public boolean permisoAdministrador(Usuario usuario, Expediente expediente) {
+        if (usuario == null || expediente == null) {
             return false;
+        }
         final Usuario jefeDep = expediente.getDepId().getJefe();
-        if (!(jefeDep != null && jefeDep.getId().equals(usuario.getId())) &&
-            !expediente.getUsuCreacion().getId().equals(usuario.getId()))
+        if (!(jefeDep != null && jefeDep.getId().equals(usuario.getId()))
+                && !expediente.getUsuCreacion().getId().equals(usuario.getId())) {
             return false;
+        }
         return true;
     }
-    
-    public boolean permisoJefeDependencia(Usuario usuario, Expediente expediente){
-        if (usuario == null || expediente == null)
+
+    public boolean permisoJefeDependencia(Usuario usuario, Expediente expediente) {
+        if (usuario == null || expediente == null) {
             return false;
+        }
         final Usuario jefeDep = expediente.getDepId().getJefe();
         return jefeDep != null && jefeDep.getId().equals(usuario.getId());
     }
     
+    public boolean permisoUsuarioLeer(Usuario usuario, Expediente expediente){
+        if (usuario == null || expediente == null) {
+            return false;
+        }
+        
+        List<ExpUsuario> expUsuarios = expUsuarioService.findByExpedienteAndUsuarioAndPermisoTrue(expediente, usuario);
+        
+        return !expUsuarios.isEmpty();
+    }
+    
+    public void cerrarExpediente(Expediente expediente, Usuario usuarioSesion) {
+        expediente.setIndCerrado(true);
+        expedienteRepository.saveAndFlush(expediente);
+        expedienteTransicionService.crearTransicion(expediente,
+            expedienteEstadoService.findById(ESTADO_EXPEDIENTE_CERRADO), usuarioSesion, null, null);
+        
+        Map<String, Object> model = new HashMap();
+        model.put("usuario", usuarioSesion);
+        model.put("expediente", expediente);
+
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_CERRADO, expediente.getDepId().getJefe());
+        } catch (Exception ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void abrirExpediente(Expediente expediente, Usuario usuarioSesion) {
+        expediente.setIndCerrado(false);
+        expedienteRepository.saveAndFlush(expediente);
+        
+        expedienteTransicionService.crearTransicion(expediente,
+            expedienteEstadoService.findById(ESTADO_EXPEDIENTE_REABIERTO), usuarioSesion, null, null);
+    
+        Map<String, Object> model = new HashMap();
+        model.put("usuario", usuarioSesion);
+        model.put("expediente", expediente);
+
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_REABIERTO, expediente.getDepId().getJefe());
+        } catch (Exception ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     /**
-     * Obtiene el numero de registros de los documentos por expediente y usuario.
+     * Obtiene el numero de registros de los documentos por expediente y
+     * usuario.
      *
      * @param usuId
      * @param expId
@@ -362,10 +410,10 @@ public class ExpedienteService {
     public int findDocumentosByUsuIdAndExpIdCount(Integer usuId, Long expId) {
         return documentoRepository.findDocumentosByUsuIdAndExpIdCount(usuId, expId);
     }
-    
+
     /**
-     * Obtiene los registros de los documentos por usuario y expediente, de acuerdo
-     * a la fila inicial y final.
+     * Obtiene los registros de los documentos por usuario y expediente, de
+     * acuerdo a la fila inicial y final.
      *
      * @param usuId
      * @param expId
@@ -373,7 +421,7 @@ public class ExpedienteService {
      * @param fin
      * @return Lista de bandejas de entrada.
      */
-    public List<DocumentoExpDTO> findDocumentosByUsuIdAndExpIdPaginado(Integer usuId, Long expId, int inicio, int fin){
+    public List<DocumentoExpDTO> findDocumentosByUsuIdAndExpIdPaginado(Integer usuId, Long expId, int inicio, int fin) {
         List<DocumentoExpDTO> expedientes = new ArrayList<>();
         List<Object[]> result = documentoRepository.findDocumentosByUsuIdAndExpIdPaginado(usuId, expId, inicio, fin);
         if (result != null && !result.isEmpty()) {
@@ -384,7 +432,7 @@ public class ExpedienteService {
         }
         return expedientes;
     }
-    
+
     private DocumentoExpDTO retornaDocumentoExpDTO(Object[] object) {
         DocumentoExpDTO dTO = new DocumentoExpDTO();
         dTO.setPinId(object[0] != null ? (String) object[0] : "");
@@ -396,4 +444,5 @@ public class ExpedienteService {
         dTO.setDocId(object[6] != null ? (String) object[6] : "");
         return dTO;
     }
+
 }

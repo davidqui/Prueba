@@ -66,21 +66,34 @@
             </div>
         </#if>
         
-        <#if expediente.indUsuarioAsignado == 1 && expediente.indJefeDependencia>
-            <a id="btnAprobar" title="El expediente se encuentra con cambios sin aprobar" onclick="mostrarCambiosPendientes(${expediente.expId})" data-toggle="modal" href="#enviarJefeModal" class="btn btn-success">
+        <#if (expediente.indUsuarioAsignado == 1 && expediente.indJefeDependencia) && !expediente.indCerrado>
+            <a id="btnAprobar" title="El expediente se encuentra con cambios sin aprobar" onclick="mostrarCambiosPendientes(${expediente.expId})"
+               data-toggle="modal" href="#enviarJefeModal" class="btn btn-success" style="width: 100%; margin: 5px 0;">
                 Aprobar
             </a>
         </#if>
-        <#if expediente.indUsuCreador || expediente.indJefeDependencia>
-            <a href="#" onclick="modificarTipo(${expediente.expId})" class="btn btn-warning">
+        <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
+            <a href="#" onclick="modificarTipo(${expediente.expId})" class="btn btn-warning" style="width:100%; margin: 5px 0;">
                 Modificar Tipo de expediente
+            </a>
+        </#if>
+        
+        <#if expediente.indJefeDependencia && !expediente.indCerrado>
+            <a  onclick="cerrarExpediente(${expediente.expId})" class="btn btn-danger" style="width: 100%; margin: 5px 0;">
+                Cerrar Expediente
+            </a>
+        </#if>
+        
+        <#if expediente.indJefeDependencia && expediente.indCerrado>
+            <a onclick="abrirExpediente(${expediente.expId})" class="btn btn-danger" style="width: 100%; margin: 5px 0;">
+                Abrir Expediente
             </a>
         </#if>
     </div>
         
     <div class="col-md-8 col-lg-9">
         <div class="pull-xs-right">
-            <#if expediente.indUsuCreador || expediente.indJefeDependencia>
+            <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
                 <a title="Administrar Usuarios" href="/expediente/asignar-usuario-expediente/${expediente.expId}">
                     <img class="card-img-top" src="/img/users.svg" alt=""/>
                 </a>
@@ -145,7 +158,7 @@
             </div>
             
             <br/>
-            <#if expediente.indUsuCreador || expediente.indJefeDependencia>
+            <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
                 <div class="card-block cus-gray-bg">
                     <form method="post" id="obsForm">
                         <fieldset class="form-group">
@@ -208,7 +221,7 @@
           <div class="modal-footer">
             <a class="btn btn-primary" data-dismiss="modal" >Aceptar</a>
           </div>
-        </div>
+        </div>  
       </div>
     </div>
 <script src="/js/app/expediente-administrar.js"></script>

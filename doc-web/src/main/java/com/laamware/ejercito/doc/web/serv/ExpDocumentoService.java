@@ -77,9 +77,7 @@ public class ExpDocumentoService {
         
         try {
             notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_DOCUMENTO_INDEXADO, expediente.getDepId().getJefe());
-        } catch (IOException ex) {
-            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (TemplateException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
