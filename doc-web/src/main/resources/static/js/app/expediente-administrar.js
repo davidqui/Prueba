@@ -43,6 +43,9 @@ function mostrarCambiosPendientes(expId){
         var arrayLength = data.length;
         console.log($("#enviarJefeModal .modal-body"));
         $("#enviarJefeModal .modal-contenido").empty();
+        $("#enviarJefeModal .modal-contenido").append("<input type=\"hidden\" id=\"expId\" value=\""+expId+"\">");
+        
+        
         for (var i = 0; i < arrayLength; i++) {
             var expUsuario = data[i];
             var content = " \n\
@@ -96,7 +99,8 @@ function aprobarOrechazarCambios(tipo){
 }
 
 function modificarTipo(expId){
-    console.log("expId? "+expId);
+    var resultado = confirm("Esta seguro de modificar el tipo de expediente?");
+    if(resultado){
     $(".div-loader").css({ display: "block" });
     $.ajax({
         type: "POST",
@@ -124,6 +128,7 @@ function modificarTipo(expId){
 
         }
     });
+    }
 }
 
 
@@ -153,7 +158,7 @@ function agregarDocumentoExpediente(expId){
 
 function desvinculaDocumento(expId, docId){
     console.log("expId? "+expId);
-    var result = confirm("Esta seguro de cambiar el usuario Creador?")
+    var result = confirm("Esta seguro de desvincular el documento?")
     if (result){
         $.ajax({
             type: "POST",
@@ -170,7 +175,7 @@ function desvinculaDocumento(expId, docId){
                     content = content +" <ul>";
                     for (var i = 0; i < arrayLength; i++) {
                         var trd = dataJSON[i];
-                        content = content + "<li> "+trd.codigo+" "+ trd.nombre+"</li>"
+                        content = content + "<li> "+trd.codigo+" "+ trd.nombre+"</li>";
                     }
                     content = content + "</ul>";
                     $('#modal-body-info').html(content);
