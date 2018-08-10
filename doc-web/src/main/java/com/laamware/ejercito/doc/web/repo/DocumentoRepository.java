@@ -186,7 +186,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "       DOC.DOC_RADICADO RADICADO,\n"
             + "       CLADOC.CLA_NOMBRE CLASIFICACION_DOCUMENTO,\n"
             + "       CASE WHEN CLAUSU.CLA_ORDEN >= CLADOC.CLA_ORDEN THEN 1 ELSE 0 END IND_VISUALIZACION,\n"
-            + "       0 IND_JEFE_DEPENDENCIA,\n"
+            + "       DECODE(UJD.USU_ID, UC.USU_ID, 1, 0) IND_JEFE_DEPENDENCIA,\n"
             + "       DOC.DOC_ID,\n"
             + "       UC.USU_ID USUARIO,\n"
             + "       EXP.EXP_ID,\n"
