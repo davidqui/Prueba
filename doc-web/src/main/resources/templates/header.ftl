@@ -193,4 +193,9 @@
                     $( window ).on( "load", function() {
                         $(".div-loader").css({ display: "none" });
                     });
+                        
+                    $("#consulta-form").on("submit", function(){
+                     $(".div-loader").css({ display: "block" });
+                     return true;
+                   })
                 </script>
