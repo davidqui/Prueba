@@ -93,10 +93,12 @@ public interface TrdRepository extends GenJpaRepository<Trd, Integer> {
     List<Trd> getTrdsByExpedienteDocumentos(@Param("expediente") Long expediente);
 
     /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
+     * Obtiene los registros de las series por expediente y usuario.
      *
-     * @param expId
-     * @param usuId
-     * @return
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
+     * @return Lista de series.
      */
     @Query(nativeQuery = true, value = ""
             + "SELECT *\n"
@@ -162,6 +164,15 @@ public interface TrdRepository extends GenJpaRepository<Trd, Integer> {
             + "AND DOC.USUARIO  = :usuId")
     List<Object[]> getSeriesByExpedienteAndUsuario(@Param("expId") Long expId, @Param("usuId") Integer usuId);
 
+    /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
+     * Obtiene los registros de las subseries por expediente, usuario y serie.
+     *
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
+     * @param trdId Identificador de la serie
+     * @return Lista de subseries.
+     */
     @Query(nativeQuery = true, value = ""
             + "SELECT *\n"
             + "FROM(\n"

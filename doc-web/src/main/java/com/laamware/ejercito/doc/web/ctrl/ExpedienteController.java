@@ -21,7 +21,6 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,10 +28,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.laamware.ejercito.doc.web.entity.Cargo;
-import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
-import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
 import com.laamware.ejercito.doc.web.entity.ExpDocumento;
 import com.laamware.ejercito.doc.web.entity.ExpObservacion;
 import com.laamware.ejercito.doc.web.entity.ExpTrd;
@@ -169,6 +166,14 @@ public class ExpedienteController extends UtilController {
     @Autowired
     DataSource ds;
 
+    /**
+     * Metodo que permite listar los expedientes que tiene el usuario en sesión
+     * @param model Modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @param pageIndex Registro inicial
+     * @param pageSize Registro Final
+     * @return Página de visualizacion de expedientes
+     */
     @RequestMapping(value = "/listarExpedientes", method = RequestMethod.GET)
     public String listarExpediente(Model model, Principal principal,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
@@ -187,10 +192,6 @@ public class ExpedienteController extends UtilController {
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 
-        for (ExpedienteDTO e : expedientes) {
-            System.err.println("" + e.toString());
-        }
-
         model.addAttribute("expedientes", expedientes);
         model.addAttribute("pageIndex", pageIndex);
         model.addAttribute("totalPages", totalPages);
@@ -200,6 +201,19 @@ public class ExpedienteController extends UtilController {
         return "expediente-listar";
     }
     
+    /**
+     * Metodo que permite listar los documentos que tiene un expediente de acuerdo
+     * al usuario en sesion, visualizandose por serie o por paginación.
+     * @param model Modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @param expId Identificador del expediente
+     * @param tipoVisualizacion Modo de visualización de los documentos
+     * @param trdId Identificador de la serie
+     * @param subtrdId Identificador de la subserie
+     * @param pageIndex Registro inicial
+     * @param pageSize Registro final
+     * @return Página de visualizacion de documentos del expediente
+     */
     @RequestMapping(value = "/listarDocumentos", method = RequestMethod.GET)
     public String listarDocumentos(Model model, Principal principal,
             @RequestParam(value = "expId", required = true) Long expId,
@@ -265,6 +279,15 @@ public class ExpedienteController extends UtilController {
         return "expediente-documento-listar";
     }
 
+    /**
+     * Metodo que se encarga de visualizar los datos parametricos del expediente,
+     * como también las transiciones que pueden ser realizadas por el usuario administrador
+     * y el jefe de la dependencia.
+     * @param model Modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @param expId Identificador del expediente
+     * @return Página de visualizacion del administrador del expediente
+     */
     @RequestMapping(value = "/administrarExpediente", method = RequestMethod.GET)
     public String administrar(Model model, Principal principal, @RequestParam(value = "expId", required = true) Long expId) {
         System.err.println("dto= " + expId.toString());
@@ -288,13 +311,13 @@ public class ExpedienteController extends UtilController {
     
     
     /**
-     * Crea una observación al documento
+     * Crea una observación al expediente
      *
-     * @param expId
-     * @param observacion
-     * @param model
-     * @param principal
-     * @return
+     * @param expId Identificador del expediente
+     * @param observacion Observación del expediente
+     * @param model Modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @return Objeto con los atributos de las observaciones
      */
     @RequestMapping(value = {"/observacion"}, method = RequestMethod.POST)
     @ResponseBody
@@ -311,10 +334,17 @@ public class ExpedienteController extends UtilController {
         return map;
     }
         
+    /**
+     * Metodo que permite visualizar los usuarios pendientes de aprobación, por
+     * parte del jefe de la dependencia.
+     * @param expId Identificador de la dependencia
+     * @param model Modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @return Lista de usuarios pendientes de aprobación.
+     */
     @ResponseBody
     @RequestMapping(value = "/cambios-pendientes/{exp}", method = RequestMethod.GET)
     public ResponseEntity<?> retornaCambiosPendientes(@PathVariable("exp") Long expId, Model model, Principal principal) {
-//        System.out.println("retornaCambiosPendientes");
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuario = getUsuario(principal);
         
@@ -326,6 +356,16 @@ public class ExpedienteController extends UtilController {
         return ResponseEntity.ok(usuariosPorAprobar);
     }
     
+    /**
+     * Metodo que permite aprobar o rechazar los cambios de usuarios de un expediente
+     * por el jefe de la dependencia.
+     * @param expId Identificador del expediente
+     * @param tipo Aprobacion = 1; Rechazo = 0
+     * @param observacion Observación del cambio
+     * @param model Modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @return Pagina de visualizacion de expediente
+     */
     @RequestMapping(value = "/aprobar-rechazar/{exp}/{tipo}/{observacion}", method = RequestMethod.POST)
     @Transactional
     public String aprobarOrechazar(@PathVariable("exp") Long expId, @PathVariable("tipo") int tipo, @PathVariable("observacion") String observacion, Model model, Principal principal){
@@ -356,6 +396,14 @@ public class ExpedienteController extends UtilController {
         return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
     
+    /**
+     * Metodo que permite cambiar el tipo de expediente tanto a simple y complejo,
+     * teniendo en cuenta si cumple las condiciones para realizarlo.
+     * @param expId Identificador del expediente
+     * @param model Modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @RequestMapping(value = "/modifica-tipo-expediente", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<?> modificarTipoExpediente(@RequestParam(value = "expId", required = true) Long expId, Model model, Principal principal){
@@ -376,6 +424,15 @@ public class ExpedienteController extends UtilController {
         }
     }
     
+    /**
+     * Metodo que permite desvincular un documento del expediente por parte del
+     * jefe de la dependencia.
+     * @param expId Identificador del expediente
+     * @param docId Identificador del documento
+     * @param model Modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @RequestMapping(value = "/desvinculaDocumento", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<?> desvincularDocumento(@RequestParam(value = "expId", required = true) Long expId,@RequestParam(value = "docId", required = true) String docId, Model model, Principal principal){
@@ -688,72 +745,6 @@ public class ExpedienteController extends UtilController {
         }
     }
 
-
-    /**
-     * @param model
-     * @param principal
-     * @return exediente-list: La lista de expedientes que contienen documentos
-     * en estado final.
-     */
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public String list(Model model, Principal principal) {
-
-        Dependencia dependencia = getUsuario(principal).getDependencia();
-
-        try {
-            // Si es jefe de una dependencia padre muestra todos los expedientes
-            if (dependencia != null && dependencia.getPadre() == null) {
-                if (dependencia.getJefe().getId() == getUsuario(principal).getId()) {
-
-                    JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
-                    StringBuilder sbQuery = new StringBuilder();
-                    sbQuery.append("SELECT EXP.EXP_ID, EXP.EXP_NOMBRE, EXP.CUANDO,EXP.DEP_ID, EXP.TRD_ID, EXP.ESEX_ID, "
-                            + " count(doc.doc_id), sum(PES.PES_FINAL) " + " FROM EXPEDIENTE EXP "
-                            + " JOIN ESTADO_EXPEDIENTE EE ON EE.ESEX_ID = EXP.ESEX_ID "
-                            + " JOIN DEPENDENCIA DEP ON EXP.DEP_ID=DEP.DEP_ID "
-                            + " JOIN DOCUMENTO DOC ON EXP.EXP_ID = DOC.EXP_ID "
-                            + " JOIN PROCESO_INSTANCIA PIN ON DOC.PIN_ID = PIN.PIN_ID "
-                            + " JOIN PROCESO_ESTADO PES ON PIN.PES_ID = PES.PES_ID " + " WHERE EXP.ACTIVO=1 ");
-                    sbQuery.append(" AND (EE.ESEX_NOMBRE='Abierto' OR EE.ESEX_NOMBRE='Cerrado') ");
-                    sbQuery.append(
-                            " GROUP BY EXP.EXP_ID, EXP.EXP_NOMBRE, EXP.CUANDO,EXP.DEP_ID, EXP.TRD_ID, EXP.ESEX_ID ");
-                    sbQuery.append("having count(doc.doc_id) = sum(PES.PES_FINAL) ");
-                    sbQuery.append(" ORDER BY EXP.EXP_NOMBRE desc");
-
-                    model.addAttribute("uid", getUsuario(principal).getId());
-
-                    return "expediente-list";
-
-                }
-            }
-
-        } catch (Exception e) {
-
-        }
-        // Si no es jefe de una dependencia padre solo ve los expedientes de su
-        // dependencia
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
-        StringBuilder sbQuery = new StringBuilder();
-        sbQuery.append("SELECT EXP.EXP_ID, EXP.EXP_NOMBRE, EXP.CUANDO,EXP.DEP_ID, EXP.TRD_ID, EXP.ESEX_ID, "
-                + " count(doc.doc_id), sum(PES.PES_FINAL) " + " FROM EXPEDIENTE EXP "
-                + " JOIN ESTADO_EXPEDIENTE EE ON EE.ESEX_ID = EXP.ESEX_ID "
-                + " JOIN DEPENDENCIA DEP ON EXP.DEP_ID=DEP.DEP_ID " + " JOIN DOCUMENTO DOC ON EXP.EXP_ID = DOC.EXP_ID "
-                + " JOIN PROCESO_INSTANCIA PIN ON DOC.PIN_ID = PIN.PIN_ID "
-                + " JOIN PROCESO_ESTADO PES ON PIN.PES_ID = PES.PES_ID " + " WHERE DEP.DEP_ID=");
-        sbQuery.append(dependencia.getId());
-        sbQuery.append(" AND  EXP.ACTIVO=1 ");
-        sbQuery.append(" AND (EE.ESEX_NOMBRE='Abierto' OR EE.ESEX_NOMBRE='Cerrado') ");
-        sbQuery.append(" GROUP BY EXP.EXP_ID, EXP.EXP_NOMBRE, EXP.CUANDO,EXP.DEP_ID, EXP.TRD_ID, EXP.ESEX_ID ");
-        sbQuery.append("having count(doc.doc_id) = sum(PES.PES_FINAL) ");
-        sbQuery.append(" ORDER BY EXP.EXP_NOMBRE desc");
-
-        model.addAttribute("uid", getUsuario(principal).getId());
-
-        return "expediente-list";
-
-    }
-
     /**
      * Presenta la información del archivo del usuario, según los criterios
      * indicados.
@@ -1034,6 +1025,11 @@ public class ExpedienteController extends UtilController {
         return this;
     }
     
+    /**
+     * Retorna los valores para la paginación
+     * @param model
+     * @return 
+     */
     @ModelAttribute("pageSizes")
     public List<Integer> pageSizes(Model model) {
         List<Integer> list = Arrays.asList(10, 30, 50);

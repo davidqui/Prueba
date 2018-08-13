@@ -17,6 +17,9 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
      */
     List<Expediente> getByExpNombreAndDepId(String nombre, Dependencia dependencia);
 
+    /**
+     * Consulta que se encarga de listar los expedientes por usuario
+     */
     String CONSULTALISTAEXPEDIENTESXUSUARIO = ""
             + "SELECT DISTINCT EXP.EXP_ID,  "
             + "       EXP.EXP_NOMBRE, "
