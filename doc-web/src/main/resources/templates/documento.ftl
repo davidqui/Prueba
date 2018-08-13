@@ -764,7 +764,7 @@
         		    	-->
         		    	<#if (usuariologueado.id == documento.instancia.asignado.id)>
                 <!--#181 se agrega loader --> 
-                <button id="guardar-doc-btn" type="submit" class="btn ${btnGuardarStyle} btn-sm" onclick="loading();">Guardar</button>
+                <button id="guardar-doc-btn" type="submit" class="btn ${btnGuardarStyle} btn-sm" onclick="loading(event);">Guardar</button>
 
                 <script type="text/javascript">
                     $(document).ready(function () {
@@ -863,11 +863,11 @@
                                                                                 -->
                                                                                 <!--#181 se agrega loader --> 
                                                                                 <#if (mode.cargoIdFirma_edit && cambiarIdCargoFirma!false) && isTransicionFirmar(transicion)>
-                                                                                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="loading(); processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="loading(event); processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
                                                                                         ${transicion.nombre}
                                                                                     </button>
                                                                                 <#else>
-                                                                                    <button class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="loading(); processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                    <button class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="loading(event); processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
                                                                                         ${transicion.nombre}
                                                                                     </button>
                                                                                 </#if>
@@ -1014,7 +1014,7 @@
     <div class="card">
         <div class="card-header">
             <!--#181 se agrega loader --> 
-            <a href="/proceso/instancia/detalle?pin=${instancia.id}" onclick="loading();">Proceso</a>
+            <a href="/proceso/instancia/detalle?pin=${instancia.id}" onclick="loading(event);">Proceso</a>
             </div>
         <div class="card-block">
 

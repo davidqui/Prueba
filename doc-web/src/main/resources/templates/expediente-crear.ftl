@@ -104,7 +104,7 @@
             </div>
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
-                <a href="/expediente/listarExpedientes" class="btn btn-secondary" onclick="loading();">Cancelar</a>
+                <a href="/expediente/listarExpedientes" class="btn btn-secondary" onclick="loading(event);">Cancelar</a>
             </div>    
             </form>
         <#else>
@@ -166,7 +166,7 @@
     }).change();
     
     $(document).on('submit','form',function(){
-        loading();
+        loading(event);
     });
 </script>
 

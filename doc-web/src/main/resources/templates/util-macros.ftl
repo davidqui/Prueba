@@ -97,7 +97,7 @@
 	<#if utilController.isAuthorized(role)>
 <li class="nav-item">
     <!--#181 se agrega loader --> 
-    <a href=${path} class="nav-link <#if activePill == ap >active</#if>" onclick="loading()">${label}</a>
+    <a href=${path} class="nav-link <#if activePill == ap >active</#if>" onclick="loading(event);">${label}</a>
     </li>
     </#if>
 </#macro>

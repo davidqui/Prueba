@@ -155,6 +155,6 @@
         <#assign first = 0 />
     </#list>
     <!--#181 se agrega loader --> 
-    <a href="${epath}" class="btn btn-link btn-sm" onclick="loading();">${accion.label}</a>
+    <a href="${epath}" class="btn btn-link btn-sm" onclick="loading(event);">${accion.label}</a>
 </#macro>
 

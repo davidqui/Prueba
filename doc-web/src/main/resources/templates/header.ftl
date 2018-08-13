@@ -56,7 +56,7 @@
           <#if utilController??>
           	<#if utilController.hasAdminRole()>
                 <!--#181 se agrega loader --> 
-                <a href="/admin" onclick="loading();">Administración</a>
+                <a href="/admin" onclick="loading(event);">Administración</a>
           	</#if>
           </#if>
 
@@ -66,7 +66,7 @@
           	</#if>
           </#if>
                 <!--#181 se agrega loader --> 
-                <a href="/capacitacion-juego/intro" onclick="loading();">Capacitación</a>
+                <a href="/capacitacion-juego/intro" onclick="loading(event);">Capacitación</a>
                 <a href="/video/manual_registro1_player.html" target="_blank">Manual  </a>
 
     <#--
@@ -114,9 +114,9 @@
                             </button>
                         <div class="dropdown-menu">
                             <!--#181 se agrega loader --> 
-                            <a href="/bandeja/entrada" class="dropdown-item" onclick="loading();">Bandeja de entrada</a>
-                            <a href="/bandeja/enviados" class="dropdown-item" onclick="loading();">Bandeja de enviados</a>
-                            <a href="/bandeja/entramite" class="dropdown-item" onclick="loading();">Bandeja en trámite</a>
+                            <a href="/bandeja/entrada" class="dropdown-item" onclick="loading(event);">Bandeja de entrada</a>
+                            <a href="/bandeja/enviados" class="dropdown-item" onclick="loading(event);">Bandeja de enviados</a>
+                            <a href="/bandeja/entramite" class="dropdown-item" onclick="loading(event);">Bandeja en trámite</a>
 
 	  				  		<#--
 	  				  		    2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech):
@@ -128,15 +128,15 @@
                     </li>
                 <li class="nav-item">
                     <!--#181 se agrega loader --> 
-                    <a href="/proceso/list" class="btn btn-success btn-sm" onclick="loading();"><span class="hidden-md-down">Registro</span><span class="hidden-lg-up">Reg</span></a>
+                    <a href="/proceso/list" class="btn btn-success btn-sm" onclick="loading(event);"><span class="hidden-md-down">Registro</span><span class="hidden-lg-up">Reg</span></a>
                     </li>
                 <li class="nav-item">
                     <!--#181 se agrega loader --> 
-                    <a href="/expediente/listarExpedientes?" class="btn btn-secondary btn-sm" onclick="loading();"><span class="hidden-md-down">Expedientes</span><span class="hidden-lg-up">Exp</span></a>
+                    <a href="/expediente/listarExpedientes?" class="btn btn-secondary btn-sm" onclick="loading(event);"><span class="hidden-md-down">Expedientes</span><span class="hidden-lg-up">Exp</span></a>
                     </li>
                 <li class="nav-item">
                     <!--#181 se agrega loader --> 
-                    <a href="/expediente/carpeta" class="btn btn-secondary btn-sm" onclick="loading();"><span class="hidden-md-down">Archivos</span><span class="hidden-lg-up">Car</span></a>
+                    <a href="/expediente/carpeta" class="btn btn-secondary btn-sm" onclick="loading(event);"><span class="hidden-md-down">Archivos</span><span class="hidden-lg-up">Car</span></a>
                 </li>
 
                 <!--
@@ -145,7 +145,7 @@
                 -->
                 <li class="nav-item">
                     <!--#181 se agrega loader --> 
-                    <a href="/transferencia-archivo/crear" class="btn btn-warning btn-sm" onclick="loading();">
+                    <a href="/transferencia-archivo/crear" class="btn btn-warning btn-sm" onclick="loading(event);">
                         <span class="hidden-md-down">Transferencia de Archivo</span>
                         <span class="hidden-lg-up">TAR</span>
                         </a>
@@ -156,15 +156,15 @@
                         <div class="input-group">
                             <input type="text" class="form-control form-control-sm" id="paramConsulta" name="term"/>
                             <!--#181 se agrega loader --> 
-                            <a href="#" class="btn btn-secondary btn-sm input-group-addon" onclick="loading(); return submitConsulta();">Buscar</a>
+                            <a href="#" class="btn btn-secondary btn-sm input-group-addon" onclick="loading(event); return submitConsulta();">Buscar</a>
                             </div><br/>
-                        <a href="/consulta/parametros" onclick="loading();"><small>Búsqueda avanzada</small></a>
+                        <a href="/consulta/parametros" onclick="loading(event);"><small>Búsqueda avanzada</small></a>
                         </form>
                     </li>
 
                 <li class="nav-item">
                     <!--#181 se agrega loader --> 
-                    <a href="/reporteDependencia/init" class="btn btn-warning btn-sm" onclick="loading();">
+                    <a href="/reporteDependencia/init" class="btn btn-warning btn-sm" onclick="loading(event);">
                         <span class="hidden-md-down">Reporte</span>
                         <span class="hidden-lg-up">TAR</span>
                         </a>

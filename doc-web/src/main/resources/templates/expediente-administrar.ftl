@@ -65,39 +65,6 @@
                 
             </div>
         </#if>
-        <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
-            <a href="/expediente/asignar-usuario-expediente/${expediente.expId}" class="btn btn-success" style="width: 49%;margin: 15px 0px;">
-                Modificar Usuarios
-            </a>
-            <#if expediente.expTipoId == 2>
-                <a href="/expediente/trds-expediente/${expediente.expId}" class="btn btn-warning" style="width: 49%;margin: 15px 0px;">
-                    Modificar Trds
-                </a>
-            </#if>
-        </#if>
-        <#if (expediente.indUsuarioAsignado == 1 && expediente.indJefeDependencia) && !expediente.indCerrado>
-            <a id="btnAprobar" title="El expediente se encuentra con cambios sin aprobar" onclick="mostrarCambiosPendientes(${expediente.expId})"
-               data-toggle="modal" href="#enviarJefeModal" class="btn btn-success" style="width: 100%; margin: 5px 0;">
-                Aprobar
-            </a>
-        </#if>
-        <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
-            <a href="#" onclick="modificarTipo(${expediente.expId})" class="btn btn-warning" style="width:100%; margin: 5px 0;">
-                Modificar Tipo de expediente
-            </a>
-        </#if>
-        
-        <#if expediente.indJefeDependencia && !expediente.indCerrado>
-            <a  onclick="cerrarExpediente(${expediente.expId})" class="btn btn-danger" style="width: 100%; margin: 5px 0;">
-                Cerrar Expediente
-            </a>
-        </#if>
-        
-        <#if expediente.indJefeDependencia && expediente.indCerrado>
-            <a onclick="abrirExpediente(${expediente.expId})" class="btn btn-danger" style="width: 100%; margin: 5px 0;">
-                Abrir Expediente
-            </a>
-        </#if>
     </div>
         
     <div class="col-md-8 col-lg-9">
@@ -171,6 +138,41 @@
                 </div>
             </#if>
         </div>
+    </div>
+    <div class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
+        <#if (expediente.indUsuarioAsignado == 1 && expediente.indJefeDependencia) && !expediente.indCerrado>
+            <a id="btnAprobar" title="El expediente se encuentra con cambios sin aprobar" onclick="mostrarCambiosPendientes(${expediente.expId})"
+               data-toggle="modal" href="#enviarJefeModal" class="btn btn-success" >
+                Aprobar
+            </a>
+        </#if>
+        <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
+            <a href="/expediente/asignar-usuario-expediente/${expediente.expId}" class="btn btn-warning" >
+                Modificar Usuarios
+            </a>
+            <#if expediente.expTipoId == 2>
+                <a href="/expediente/trds-expediente/${expediente.expId}" class="btn btn-warning" >
+                    Modificar Trds
+                </a>
+            </#if>
+        </#if>
+        <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
+            <a href="#" onclick="modificarTipo(${expediente.expId})" class="btn btn-warning" >
+                Modificar Tipo de expediente
+            </a>
+        </#if>
+        
+        <#if expediente.indJefeDependencia && !expediente.indCerrado>
+            <a  onclick="cerrarExpediente(${expediente.expId})" class="btn btn-danger">
+                Cerrar Expediente
+            </a>
+        </#if>
+        
+        <#if expediente.indJefeDependencia && expediente.indCerrado>
+            <a onclick="abrirExpediente(${expediente.expId})" class="btn btn-danger" style="width: 100%; margin: 5px 0;">
+                Abrir Expediente
+            </a>
+        </#if>
     </div>
 </div>
 

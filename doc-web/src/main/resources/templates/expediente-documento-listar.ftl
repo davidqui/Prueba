@@ -16,7 +16,7 @@
             </span>
         </#if>
         <span>
-            <a title="Administrar expediente" href="/expediente/administrarExpediente?expId=${expediente.expId}" style="float:right;">
+            <a title="Administrar expediente" href="/expediente/administrarExpediente?expId=${expediente.expId}" onclick="loading(event);" style="float:right;">
                 <img class="card-img-top" src="/img/settings.svg" alt=""/>
             </a>  
         </span>
@@ -25,8 +25,8 @@
     </br>
     <div>
         <label for="trd">Modo de visualización:</label>
-        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=P" class="<#if tipoVisualizacion == 'P'>btn btn-primary<#else>btn btn-default</#if>" id="btn-paginado" onclick="selectVisualizacion(1)" style="width: 150px; margin-left:10px;">Paginado</a>
-        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S" class="<#if tipoVisualizacion == 'S'>btn btn-primary<#else>btn btn-default</#if>" id="btn-serie" onclick="selectVisualizacion(2)" style="width: 150px;">Serie</a>
+        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=P" onclick="loading(event);" class="<#if tipoVisualizacion == 'P'>btn btn-primary<#else>btn btn-default</#if>" id="btn-paginado" onclick="selectVisualizacion(1)" style="width: 150px; margin-left:10px;">Paginado</a>
+        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S" onclick="loading(event);" class="<#if tipoVisualizacion == 'S'>btn btn-primary<#else>btn btn-default</#if>" id="btn-serie" onclick="selectVisualizacion(2)" style="width: 150px;">Serie</a>
     </div>
     
     <#if tipoVisualizacion == 'P'>

@@ -46,7 +46,7 @@
                             </td>
                             <td style="text-align: center; vertical-align: middle;word-wrap:break-word;">
                                 <!--#181 se agrega loader --> 
-                                <strong><a href="/proceso/instancia?pin=${x.instancia.id}" onclick="loading()">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
+                                <strong><a href="/proceso/instancia?pin=${x.instancia.id}" onclick="loading(event);">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                             </td>
 
                             <td style="text-align: center; vertical-align: middle; width : 10%">

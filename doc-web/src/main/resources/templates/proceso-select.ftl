@@ -35,7 +35,7 @@
 
                 <div class="card-footer" style="position: absolute; bottom: 0; width:100%; text-align: center;">
                     <!--#181 se agrega loader --> 
-                    <a href="/proceso/instancia/nueva?proId=${proceso.id}" class="btn btn-primary" onclick="loading();">Seleccionar</a>
+                    <a href="/proceso/instancia/nueva?proId=${proceso.id}" class="btn btn-primary" onclick="loading(event);">Seleccionar</a>
                     </div>
 
                 </div>

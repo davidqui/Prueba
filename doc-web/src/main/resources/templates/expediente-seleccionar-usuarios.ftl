@@ -20,7 +20,7 @@
     Agregar usuario
 </button>
 <#if esJefeDependencia || expediente.usuarioAsignado == 1 || !tieneCambios>
-    <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;" onclick="loading();">
+    <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;" onclick="loading(event);">
         Regresar a Expediente
     </a>
 <#else>

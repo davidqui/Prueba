@@ -14,7 +14,16 @@
 </div>
 
 <script>
-    function loading() {
-       $(".div-loader").css({ display: "block" });
+    function loading(evnt) {
+        if (
+            evnt.ctrlKey || 
+            evnt.shiftKey || 
+            evnt.metaKey || 
+            (evnt.button && evnt.button == 1)
+        ){
+            return true;
+        }
+        $(".div-loader").css({ display: "block" });
+        return true;
     }
 </script>
