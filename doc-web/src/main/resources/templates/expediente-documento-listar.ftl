@@ -25,8 +25,8 @@
     </br>
     <div>
         <label for="trd">Modo de visualización:</label>
-        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=P" class="<#if tipoVisualizacion == 'P'>btn btn-primary<#else>btn btn-default</#if>" id="btn-paginado" onclick="selectVisualizacion(1)">Paginado</a>
-        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S" class="<#if tipoVisualizacion == 'S'>btn btn-primary<#else>btn btn-default</#if>" id="btn-serie" onclick="selectVisualizacion(2)">Serie</a>
+        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=P" class="<#if tipoVisualizacion == 'P'>btn btn-primary<#else>btn btn-default</#if>" id="btn-paginado" onclick="selectVisualizacion(1)" style="width: 150px; margin-left:10px;">Paginado</a>
+        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S" class="<#if tipoVisualizacion == 'S'>btn btn-primary<#else>btn btn-default</#if>" id="btn-serie" onclick="selectVisualizacion(2)" style="width: 150px;">Serie</a>
     </div>
     
     <#if tipoVisualizacion == 'P'>
