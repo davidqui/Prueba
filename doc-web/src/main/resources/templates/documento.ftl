@@ -643,32 +643,7 @@
                 </div>
             </fieldset>
         </#if>
-        <!--
 
-
-            Expediente
-        -->
-        <#if mode.expediente_edit >
-        <fieldset class="form-group">
-            <label for="expediente">Expediente</label>
-                <@spring.bind "documento.expediente" />
-            <select class="form-control" id="expediente" name="${spring.status.expression}">
-                    <#if expedientes??>
-                <option value=""></option>
-                        <#list expedientes as exp>
-                        <#if spring.status.value?? && exp == spring.status.value >
-                <option value="${exp.id}" selected="selected">${exp.nombre}</option>
-                        <#else>
-                <option value="${exp.id}">${exp.nombre}</option>
-                        </#if>
-                        </#list>
-                    </#if>
-                </select>
-            <div class="error">
-                    <@spring.showErrors "<br>"/>
-                </div>
-            </fieldset>
-        </#if>
         
         <!--
             Contenido
