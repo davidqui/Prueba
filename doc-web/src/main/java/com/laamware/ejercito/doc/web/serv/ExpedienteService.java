@@ -433,7 +433,27 @@ public class ExpedienteService {
         }
         return expedientes;
     }
-
+    
+    /**
+     * Obtiene los registros de los documentos por usuario, expediente y subserie.
+     *
+     * @param usuId
+     * @param expId
+     * @param trdId
+     * @return Lista documentos.
+     */
+    public List<DocumentoExpDTO> findDocumentosByUsuIdAndExpIdAndTrdId(Integer usuId, Long expId, int trdId){
+        List<DocumentoExpDTO> expedientes = new ArrayList<>();
+        List<Object[]> result = documentoRepository.findDocumentosByUsuIdAndExpIdAndTrdId(usuId, expId, trdId);
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                DocumentoExpDTO dTO = retornaDocumentoExpDTO(object);
+                expedientes.add(dTO);
+            }
+        }
+        return expedientes;
+    }
+    
     private DocumentoExpDTO retornaDocumentoExpDTO(Object[] object) {
         DocumentoExpDTO dTO = new DocumentoExpDTO();
         dTO.setPinId(object[0] != null ? (String) object[0] : "");

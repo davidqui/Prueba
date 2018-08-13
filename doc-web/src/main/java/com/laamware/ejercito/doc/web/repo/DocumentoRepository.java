@@ -171,32 +171,37 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "       DOC.DOC_ID,\n"
             + "       USUEXP.USU_ID USUARIO,\n"
             + "       EXP.EXP_ID,\n"
-            + "       DOC.CUANDO_MOD\n"
+            + "       DOC.CUANDO_MOD,\n"
+            + "       DOC.TRD_ID\n"
             + "FROM DOCUMENTO DOC\n"
             + "JOIN EXP_DOCUMENTO EXPDOC ON (EXPDOC.DOC_ID = DOC.DOC_ID AND EXPDOC.ACTIVO = 1)\n"
             + "JOIN CLASIFICACION CLADOC ON (CLADOC.CLA_ID = DOC.CLA_ID)\n"
             + "JOIN EXPEDIENTE EXP ON (EXP.EXP_ID = EXPDOC.EXP_ID)\n"
-            + "LEFT OUTER JOIN EXP_USUARIO EXPUSU ON (EXPUSU.EXP_ID = EXP.EXP_ID AND EXPUSU.IND_APROBADO = 1 AND EXPUSU.ACTIVO = 1)\n"
-            + "LEFT OUTER JOIN USUARIO USUEXP ON (USUEXP.USU_ID = EXPUSU.USU_ID AND USUEXP.ACTIVO = 1)\n"
-            + "LEFT OUTER JOIN CLASIFICACION CLAUSU ON (CLAUSU.CLA_ID = USUEXP.CLA_ID)\n"
-            + "UNION ALL\n"
+            + "JOIN EXP_USUARIO EXPUSU ON (EXPUSU.EXP_ID = EXP.EXP_ID AND EXPUSU.IND_APROBADO = 1 AND EXPUSU.ACTIVO = 1)\n"
+            + "JOIN USUARIO USUEXP ON (USUEXP.USU_ID = EXPUSU.USU_ID AND USUEXP.ACTIVO = 1)\n"
+            + "JOIN CLASIFICACION CLAUSU ON (CLAUSU.CLA_ID = USUEXP.CLA_ID)\n"
+            + "UNION\n"
             + "SELECT DOC.PIN_ID PIN_ID,\n"
             + "       DOC.DOC_ASUNTO ASUNTO,\n"
             + "       DOC.DOC_RADICADO RADICADO,\n"
             + "       CLADOC.CLA_NOMBRE CLASIFICACION_DOCUMENTO,\n"
             + "       CASE WHEN CLAUSU.CLA_ORDEN >= CLADOC.CLA_ORDEN THEN 1 ELSE 0 END IND_VISUALIZACION,\n"
-            + "       0 IND_JEFE_DEPENDENCIA,\n"
+            + "       DECODE(UJD.USU_ID, UC.USU_ID, 1, 0) IND_JEFE_DEPENDENCIA,\n"
             + "       DOC.DOC_ID,\n"
             + "       UC.USU_ID USUARIO,\n"
             + "       EXP.EXP_ID,\n"
-            + "       DOC.CUANDO_MOD\n"
+            + "       DOC.CUANDO_MOD,\n"
+            + "       DOC.TRD_ID\n"
             + "FROM DOCUMENTO DOC\n"
             + "JOIN EXP_DOCUMENTO EXPDOC ON (EXPDOC.DOC_ID = DOC.DOC_ID AND EXPDOC.ACTIVO = 1)\n"
             + "JOIN CLASIFICACION CLADOC ON (CLADOC.CLA_ID = DOC.CLA_ID)\n"
             + "JOIN EXPEDIENTE EXP ON (EXP.EXP_ID = EXPDOC.EXP_ID)\n"
-            + "LEFT OUTER JOIN USUARIO UC ON (UC.USU_ID = EXP.USU_CREACION AND UC.ACTIVO = 1)\n"
-            + "LEFT JOIN CLASIFICACION CLAUSU ON (CLAUSU.CLA_ID = UC.CLA_ID)\n"
-            + "UNION ALL\n"
+            + "JOIN USUARIO UC ON (UC.USU_ID = EXP.USU_CREACION AND UC.ACTIVO = 1)\n"
+            + "JOIN CLASIFICACION CLAUSU ON (CLAUSU.CLA_ID = UC.CLA_ID)\n"
+            + "LEFT OUTER JOIN DEPENDENCIA DEP_JEFE ON (DEP_JEFE.DEP_ID = EXP.DEP_ID)\n"
+            + "LEFT OUTER JOIN USUARIO UJD ON (UJD.USU_ID = DEP_JEFE.USU_ID_JEFE AND UJD.ACTIVO = 1)\n"
+            + "LEFT OUTER JOIN CLASIFICACION CLAUSU ON (CLAUSU.CLA_ID = UJD.CLA_ID)\n"
+            + "UNION \n"
             + "SELECT DOC.PIN_ID PIN_ID,\n"
             + "       DOC.DOC_ASUNTO ASUNTO,\n"
             + "       DOC.DOC_RADICADO RADICADO,\n"
@@ -206,14 +211,15 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "       DOC.DOC_ID,\n"
             + "       UJD.USU_ID USUARIO,\n"
             + "       EXP.EXP_ID,\n"
-            + "       DOC.CUANDO_MOD\n"
+            + "       DOC.CUANDO_MOD,\n"
+            + "       DOC.TRD_ID\n"
             + "FROM DOCUMENTO DOC\n"
             + "JOIN EXP_DOCUMENTO EXPDOC ON (EXPDOC.DOC_ID = DOC.DOC_ID AND EXPDOC.ACTIVO = 1)\n"
             + "JOIN CLASIFICACION CLADOC ON (CLADOC.CLA_ID = DOC.CLA_ID)\n"
             + "JOIN EXPEDIENTE EXP ON (EXP.EXP_ID = EXPDOC.EXP_ID)\n"
-            + "LEFT OUTER JOIN DEPENDENCIA DEP_JEFE ON (DEP_JEFE.DEP_ID = EXP.DEP_ID)\n"
-            + "LEFT OUTER JOIN USUARIO UJD ON (UJD.USU_ID = DEP_JEFE.USU_ID_JEFE AND UJD.ACTIVO = 1)\n"
-            + "LEFT JOIN CLASIFICACION CLAUSU ON (CLAUSU.CLA_ID = UJD.CLA_ID))DOC\n"
+            + "JOIN DEPENDENCIA DEP_JEFE ON (DEP_JEFE.DEP_ID = EXP.DEP_ID)\n"
+            + "JOIN USUARIO UJD ON (UJD.USU_ID = DEP_JEFE.USU_ID_JEFE AND UJD.ACTIVO = 1)\n"
+            + "JOIN CLASIFICACION CLAUSU ON (CLAUSU.CLA_ID = UJD.CLA_ID))DOC\n"
             + "WHERE DOC.EXP_ID = :expId\n"
             + "AND DOC.USUARIO  = :usuId\n";
 
@@ -667,9 +673,10 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "AND s_instancia_usuario.pin_id   = :pin_id "
             + "")
     public BigDecimal verificaAccesoDocumentoActa(@Param("usu_id") Integer usuarioID, @Param("pin_id") String procesoInstanciaID);
-    
+
     /**
-     * Obtiene el numero de registros de los documentos por expediente y usuario.
+     * Obtiene el numero de registros de los documentos por expediente y
+     * usuario.
      *
      * @param usuId
      * @param expId
@@ -682,8 +689,8 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     int findDocumentosByUsuIdAndExpIdCount(@Param("usuId") Integer usuId, @Param("expId") Long expId);
 
     /**
-     * Obtiene los registros de los documentos por usuario y expediente, de acuerdo
-     * a la fila inicial y final.
+     * Obtiene los registros de los documentos por usuario y expediente, de
+     * acuerdo a la fila inicial y final.
      *
      * @param usuId
      * @param expId
@@ -702,4 +709,18 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + ") doc\n"
             + "where doc.num_lineas >= :inicio and doc.num_lineas <= :fin\n", nativeQuery = true)
     List<Object[]> findDocumentosByUsuIdAndExpIdPaginado(@Param("usuId") Integer usuId, @Param("expId") Long expId, @Param("inicio") int inicio, @Param("fin") int fin);
+
+    /**
+     * Obtiene los registros de los documentos por usuario, expediente y
+     * subserie.
+     *
+     * @param usuId
+     * @param expId
+     * @param trdId
+     * @return Lista de documentos de expediente.
+     */
+    @Query(value = ""
+            + CONSULTABANDEJAEXPEDIENTE
+            + " AND DOC.TRD_ID = :trdId", nativeQuery = true)
+    List<Object[]> findDocumentosByUsuIdAndExpIdAndTrdId(@Param("usuId") Integer usuId, @Param("expId") Long expId, @Param("trdId") int trdId);
 }
