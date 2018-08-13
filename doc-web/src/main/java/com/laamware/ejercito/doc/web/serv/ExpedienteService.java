@@ -2,8 +2,6 @@ package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoExpDTO;
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
-import com.laamware.ejercito.doc.web.entity.AppConstants;
-import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.ExpTrd;
 import com.laamware.ejercito.doc.web.entity.ExpUsuario;
 import com.laamware.ejercito.doc.web.entity.Expediente;
@@ -11,11 +9,8 @@ import com.laamware.ejercito.doc.web.entity.ParNombreExpediente;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
-import com.laamware.ejercito.doc.web.repo.ExpUsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
-import freemarker.template.TemplateException;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,8 +21,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 /**
@@ -98,30 +91,33 @@ public class ExpedienteService {
 
     public Expediente CrearExpediente(Expediente expediente, Usuario usuario,
             String numeroExpediente, ParNombreExpediente parNombreExpediente, String opcionalNombre) throws BusinessLogicException {
-        
-        if (usuario.getDependencia().getJefe() == null)
+
+        if (usuario.getDependencia().getJefe() == null) {
             throw new BusinessLogicException("En su dependencia no existe un jefe.");
-        if (expediente.getTrdIdPrincipal() == null) 
+        }
+        if (expediente.getTrdIdPrincipal() == null) {
             throw new BusinessLogicException("Debe elegir una TRD principal");
-        if (expediente.getExpDescripcion() == null || expediente.getExpDescripcion().trim().length() < 1)
+        }
+        if (expediente.getExpDescripcion() == null || expediente.getExpDescripcion().trim().length() < 1) {
             throw new BusinessLogicException("La descripción del expediente es requerida");
-        if (numeroExpediente.trim().equals("") || parNombreExpediente == null) 
+        }
+        if (numeroExpediente.trim().equals("") || parNombreExpediente == null) {
             throw new BusinessLogicException("La construcción del nombre requiere todos los campos exceptuando el ultimo");
-        
+        }
 
         String nombre = expediente.getTrdIdPrincipal().getCodigo() + "-" + Calendar.getInstance().get(Calendar.YEAR)
                 + "-" + String.format("%03d", Integer.parseInt(numeroExpediente)) + "-" + parNombreExpediente.getParNombre();
 
-        if (!opcionalNombre.trim().equals(""))
+        if (!opcionalNombre.trim().equals("")) {
             nombre += "-" + opcionalNombre;
-        
+        }
 
         expediente.setExpNombre(nombre);
 
         List<Expediente> expedientesNombre = expedienteRepository.getByExpNombreAndDepId(expediente.getExpNombre(), usuario.getDependencia());
-        if (!expedientesNombre.isEmpty())
+        if (!expedientesNombre.isEmpty()) {
             throw new BusinessLogicException("Ya existe un expediente con este nombre.");
-        
+        }
 
         expediente.setUsuCreacion(usuario);
         expediente.setUsuarioAsignado(Expediente.ASIGNADO_USUARIO);
@@ -131,7 +127,7 @@ public class ExpedienteService {
         expediente.setIndAprobadoInicial(false);
         expediente.setEstadoCambio(false);
         expediente.setIndAprobadoInicial(true);
-        
+
         try {
             expediente = expedienteRepository.saveAndFlush(expediente);
         } catch (Exception e) {
@@ -323,6 +319,8 @@ public class ExpedienteService {
         dTO.setNumUsuarios(object[18] != null ? ((BigDecimal) object[18]).intValue() : null);
         dTO.setNumDocumentos(object[19] != null ? ((BigDecimal) object[19]).intValue() : null);
         dTO.setIndIndexacion(object[20] != null ? ((BigDecimal) object[20]).equals(BigDecimal.ONE) : false);
+        dTO.setFecMinDocumento(encuentrafechaMinimaExpediente(dTO.getExpId()));
+        dTO.setFecMaxDocumento(encuentrafechaMaximaExpediente(dTO.getExpId()));
         return dTO;
     }
 
@@ -354,23 +352,23 @@ public class ExpedienteService {
         final Usuario jefeDep = expediente.getDepId().getJefe();
         return jefeDep != null && jefeDep.getId().equals(usuario.getId());
     }
-    
-    public boolean permisoUsuarioLeer(Usuario usuario, Expediente expediente){
+
+    public boolean permisoUsuarioLeer(Usuario usuario, Expediente expediente) {
         if (usuario == null || expediente == null) {
             return false;
         }
-        
+
         List<ExpUsuario> expUsuarios = expUsuarioService.findByExpedienteAndUsuarioAndPermisoTrue(expediente, usuario);
-        
+
         return !expUsuarios.isEmpty();
     }
-    
+
     public void cerrarExpediente(Expediente expediente, Usuario usuarioSesion) {
         expediente.setIndCerrado(true);
         expedienteRepository.saveAndFlush(expediente);
         expedienteTransicionService.crearTransicion(expediente,
-            expedienteEstadoService.findById(ESTADO_EXPEDIENTE_CERRADO), usuarioSesion, null, null);
-        
+                expedienteEstadoService.findById(ESTADO_EXPEDIENTE_CERRADO), usuarioSesion, null, null);
+
         Map<String, Object> model = new HashMap();
         model.put("usuario", usuarioSesion);
         model.put("expediente", expediente);
@@ -385,10 +383,10 @@ public class ExpedienteService {
     public void abrirExpediente(Expediente expediente, Usuario usuarioSesion) {
         expediente.setIndCerrado(false);
         expedienteRepository.saveAndFlush(expediente);
-        
+
         expedienteTransicionService.crearTransicion(expediente,
-            expedienteEstadoService.findById(ESTADO_EXPEDIENTE_REABIERTO), usuarioSesion, null, null);
-    
+                expedienteEstadoService.findById(ESTADO_EXPEDIENTE_REABIERTO), usuarioSesion, null, null);
+
         Map<String, Object> model = new HashMap();
         model.put("usuario", usuarioSesion);
         model.put("expediente", expediente);
@@ -433,16 +431,17 @@ public class ExpedienteService {
         }
         return expedientes;
     }
-    
+
     /**
-     * Obtiene los registros de los documentos por usuario, expediente y subserie.
+     * Obtiene los registros de los documentos por usuario, expediente y
+     * subserie.
      *
      * @param usuId
      * @param expId
      * @param trdId
      * @return Lista documentos.
      */
-    public List<DocumentoExpDTO> findDocumentosByUsuIdAndExpIdAndTrdId(Integer usuId, Long expId, int trdId){
+    public List<DocumentoExpDTO> findDocumentosByUsuIdAndExpIdAndTrdId(Integer usuId, Long expId, int trdId) {
         List<DocumentoExpDTO> expedientes = new ArrayList<>();
         List<Object[]> result = documentoRepository.findDocumentosByUsuIdAndExpIdAndTrdId(usuId, expId, trdId);
         if (result != null && !result.isEmpty()) {
@@ -453,7 +452,7 @@ public class ExpedienteService {
         }
         return expedientes;
     }
-    
+
     private DocumentoExpDTO retornaDocumentoExpDTO(Object[] object) {
         DocumentoExpDTO dTO = new DocumentoExpDTO();
         dTO.setPinId(object[0] != null ? (String) object[0] : "");
@@ -466,4 +465,17 @@ public class ExpedienteService {
         return dTO;
     }
 
+    public Date encuentrafechaMinimaExpediente(Long expId) {
+        if (documentoRepository.encuentrafechaMinimaExpediente(expId) != null) {
+            return (Date) documentoRepository.encuentrafechaMinimaExpediente(expId);
+        }
+        return null;
+    }
+    
+    public Date encuentrafechaMaximaExpediente(Long expId) {
+        if (documentoRepository.encuentrafechaMaximaExpediente(expId) != null) {
+            return (Date) documentoRepository.encuentrafechaMaximaExpediente(expId);
+        }
+        return null;
+    }
 }
