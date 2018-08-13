@@ -145,6 +145,28 @@
             </div>
             
             <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Fecha Mínima</label>
+                <label>
+                <#if expediente.fecMinDocumento??>
+                    ${expediente.fecMinDocumento?string('yyyy-MM-dd')}
+                <#else>
+                    No definido
+                </#if>
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label style="font-weight:bold;" class="control-label col-sm-2">Fecha Máxima</label>
+                <label>
+                <#if expediente.fecMaxDocumento??>
+                    ${expediente.fecMaxDocumento?string('yyyy-MM-dd')}
+                <#else>
+                    No definido                    
+                </#if>
+                </label>
+            </div>
+            
+            <div class="form-group">
                 <label style="font-weight:bold;" class="control-label col-sm-2">Número de usuarios</label>
                 <label>${expediente.numUsuarios}</label>
             </div>

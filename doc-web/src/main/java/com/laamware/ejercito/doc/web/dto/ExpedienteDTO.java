@@ -37,11 +37,13 @@ public class ExpedienteDTO implements Serializable{
     private Integer numUsuarios;
     private Integer numDocumentos;
     private boolean indIndexacion;
+    private Date fecMinDocumento;
+    private Date fecMaxDocumento;
     
     public ExpedienteDTO() {
     }
 
-    public ExpedienteDTO(Long expId, String expNombre, Date fecCreacion, Integer depId, String depNombre, Integer trdIdPrincipal, String trdNomIdPrincipal, boolean indJefeDependencia, boolean indUsuCreador, String jefeDependencia, String usuarioCreador) {
+    public ExpedienteDTO(Long expId, String expNombre, Date fecCreacion, Integer depId, String depNombre, Integer trdIdPrincipal, String trdNomIdPrincipal, boolean indJefeDependencia, boolean indUsuCreador, String jefeDependencia, String usuarioCreador, Date fecMinDocumento, Date fecMaxDocumento) {
         this.expId = expId;
         this.expNombre = expNombre;
         this.fecCreacion = fecCreacion;
@@ -53,6 +55,8 @@ public class ExpedienteDTO implements Serializable{
         this.indUsuCreador = indUsuCreador;
         this.jefeDependencia = jefeDependencia;
         this.usuarioCreador = usuarioCreador;
+        this.fecMinDocumento = fecMinDocumento;
+        this.fecMaxDocumento = fecMaxDocumento;
     }
 
     public Long getExpId() {
@@ -222,10 +226,25 @@ public class ExpedienteDTO implements Serializable{
     public void setExpTipoId(Integer expTipoId) {
         this.expTipoId = expTipoId;
     }
-    
+
+    public Date getFecMinDocumento() {
+        return fecMinDocumento;
+    }
+
+    public void setFecMinDocumento(Date fecMinDocumento) {
+        this.fecMinDocumento = fecMinDocumento;
+    }
+
+    public Date getFecMaxDocumento() {
+        return fecMaxDocumento;
+    }
+
+    public void setFecMaxDocumento(Date fecMaxDocumento) {
+        this.fecMaxDocumento = fecMaxDocumento;
+    }
 
     @Override
     public String toString() {
-        return "ExpedienteDTO{" + "expId=" + expId + ", expNombre=" + expNombre + ", fecCreacion=" + fecCreacion + ", depId=" + depId + ", depNombre=" + depNombre + ", trdIdPrincipal=" + trdIdPrincipal + ", trdNomIdPrincipal=" + trdNomIdPrincipal + ", indJefeDependencia=" + indJefeDependencia + ", indUsuCreador=" + indUsuCreador + ", indAprobadoInicial=" + indAprobadoInicial + ", jefeDependencia=" + jefeDependencia + ", usuarioCreador=" + usuarioCreador + ", expTipo=" + expTipo + ", expDescripcion=" + expDescripcion + ", indUsuarioAsignado=" + indUsuarioAsignado + ", indCerrado=" + indCerrado + ", numTrdComplejo=" + numTrdComplejo + ", numUsuarios=" + numUsuarios + ", numDocumentos=" + numDocumentos + ", indIndexacion=" + indIndexacion + '}';
+        return "ExpedienteDTO{" + "expId=" + expId + ", expNombre=" + expNombre + ", fecCreacion=" + fecCreacion + ", depId=" + depId + ", depNombre=" + depNombre + ", trdIdPrincipal=" + trdIdPrincipal + ", trdNomIdPrincipal=" + trdNomIdPrincipal + ", indJefeDependencia=" + indJefeDependencia + ", indUsuCreador=" + indUsuCreador + ", indAprobadoInicial=" + indAprobadoInicial + ", jefeDependencia=" + jefeDependencia + ", usuarioCreador=" + usuarioCreador + ", expTipoId=" + expTipoId + ", expTipo=" + expTipo + ", expDescripcion=" + expDescripcion + ", indUsuarioAsignado=" + indUsuarioAsignado + ", indCerrado=" + indCerrado + ", numTrdComplejo=" + numTrdComplejo + ", numUsuarios=" + numUsuarios + ", numDocumentos=" + numDocumentos + ", indIndexacion=" + indIndexacion + ", fecMinDocumento=" + fecMinDocumento + ", fecMaxDocumento=" + fecMaxDocumento + '}';
     }
 }
