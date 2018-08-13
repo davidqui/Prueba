@@ -392,10 +392,11 @@ public class TRDService {
     }
     
     /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
      * Obtiene los registros de las series por expediente y usuario.
      *
-     * @param usuId
-     * @param expId
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
      * @return Lista de series.
      */
     public List<TrdDTO> getSeriesByExpedienteAndUsuario(Integer usuId, Long expId){
@@ -411,12 +412,13 @@ public class TRDService {
     }
     
     /**
-     * Obtiene los registros de las series por expediente y usuario.
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
+     * Obtiene los registros de las subseries por expediente, usuario y serie.
      *
-     * @param usuId
-     * @param expId
-     * @param trdId
-     * @return Lista de series.
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
+     * @param trdId Identificador de la serie
+     * @return Lista de subseries.
      */
     public List<TrdDTO> getSubSeriesByExpedienteAndUsuario(Integer usuId, Long expId, Integer trdId){
         List<TrdDTO> expedientes = new ArrayList<>();
@@ -430,6 +432,11 @@ public class TRDService {
         return expedientes;
     }
     
+    /**
+     * Metodo que se encarga de crear el objeto TrdDTO.
+     * @param object 
+     * @return TrdDTO
+     */
     private TrdDTO retornaTrdDTO(Object[] object) {
         TrdDTO dTO = new TrdDTO();
         dTO.setTrdId(object[0] != null ? ((BigDecimal) object[0]).intValue() : null);

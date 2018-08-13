@@ -158,7 +158,7 @@ public class ExpedienteService {
     }
 
     /**
-     * Obtiene el numero de registros de las bandejas de entrada por usuario
+     * Obtiene el numero de expedientes por usuario
      *
      * @param usuId Identificador del usuario
      * @return Número de registros
@@ -168,7 +168,7 @@ public class ExpedienteService {
     }
 
     /**
-     * Obtiene los registros de las bandejas de entrada por usuario, de acuerdo
+     * Obtiene los registros de los expedientes por usuario, de acuerdo
      * a la fila inicial y final.
      *
      * @param usuId Identificador del usuario
@@ -212,10 +212,20 @@ public class ExpedienteService {
         expedienteRepository.saveAndFlush(expediente);
     }
 
+    /**
+     * Metodo que permite retorna el Expediente de acuerdo a su identificador.
+     * @param expId Identificador del expediente
+     * @return Expediente
+     */
     public Expediente findOne(Long expId) {
         return expedienteRepository.findOne(expId);
     }
 
+    /**
+     * Metodo que permite aprobar los cambios de un expediente
+     * @param expediente Objeto expediente
+     * @param usuarioSesion Usuario jefe de dependencia
+     */
     public void aprobarExpediente(Expediente expediente, Usuario usuarioSesion) {
         expediente.setUsuarioAsignado(0);
         expediente.setEstadoCambio(true);
@@ -242,6 +252,11 @@ public class ExpedienteService {
         }
     }
 
+    /**
+     * Metodo que permite rechazar los cambios de un expediente
+     * @param expediente Objeto expediente
+     * @param usuarioSesion Usuario jefe de dependencia
+     */
     public void rechazarExpediente(Expediente expediente, Usuario usuarioSesion) {
         expediente.setUsuarioAsignado(0);
         expediente.setEstadoCambio(false);
@@ -267,6 +282,12 @@ public class ExpedienteService {
         }
     }
 
+    /**
+     * Metodo que permite modificar el tipo de un expediente a simple o complejo.
+     * @param expediente Objeto expediente
+     * @param usuarioSesion Usuario jefe de dependencia
+     * @throws com.laamware.ejercito.doc.web.util.BusinessLogicException
+     */
     public void modificarTipoExpediente(Expediente expediente, Usuario usuarioSesion) throws BusinessLogicException {
         //Modificar tipo de expediente simple
         if (expediente.getExpTipo() == EXPEDIENTE_SIMPLE) {
@@ -296,6 +317,11 @@ public class ExpedienteService {
         }
     }
 
+    /**
+     * Retorna el objeto con los datos parámetricos del expediente
+     * @param object Objeto de la consulta
+     * @return Datos del expediente
+     */
     private ExpedienteDTO retornaExpedienteDTO(Object[] object) {
         ExpedienteDTO dTO = new ExpedienteDTO();
         dTO.setExpId(object[0] != null ? ((BigDecimal) object[0]).longValue() : null);
@@ -402,8 +428,8 @@ public class ExpedienteService {
      * Obtiene el numero de registros de los documentos por expediente y
      * usuario.
      *
-     * @param usuId
-     * @param expId
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
      * @return Numero de registros.
      */
     public int findDocumentosByUsuIdAndExpIdCount(Integer usuId, Long expId) {
@@ -414,11 +440,11 @@ public class ExpedienteService {
      * Obtiene los registros de los documentos por usuario y expediente, de
      * acuerdo a la fila inicial y final.
      *
-     * @param usuId
-     * @param expId
-     * @param inicio
-     * @param fin
-     * @return Lista de bandejas de entrada.
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
+     * @param inicio Registro inicial
+     * @param fin Registro final
+     * @return Lista de documentos.
      */
     public List<DocumentoExpDTO> findDocumentosByUsuIdAndExpIdPaginado(Integer usuId, Long expId, int inicio, int fin) {
         List<DocumentoExpDTO> expedientes = new ArrayList<>();
@@ -436,9 +462,9 @@ public class ExpedienteService {
      * Obtiene los registros de los documentos por usuario, expediente y
      * subserie.
      *
-     * @param usuId
-     * @param expId
-     * @param trdId
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
+     * @param trdId Identificador de la subserie
      * @return Lista documentos.
      */
     public List<DocumentoExpDTO> findDocumentosByUsuIdAndExpIdAndTrdId(Integer usuId, Long expId, int trdId) {
@@ -453,6 +479,11 @@ public class ExpedienteService {
         return expedientes;
     }
 
+    /**
+     * Objeto que contiene información de los documentos del expediente
+     * @param object 
+     * @return DocumentoExpDTO
+     */
     private DocumentoExpDTO retornaDocumentoExpDTO(Object[] object) {
         DocumentoExpDTO dTO = new DocumentoExpDTO();
         dTO.setPinId(object[0] != null ? (String) object[0] : "");
@@ -465,16 +496,28 @@ public class ExpedienteService {
         return dTO;
     }
 
+    /**
+     * Metodo que permite identificar las fecha minima de los documentos de un expediente.
+     * @param expId Identificador del expediente
+     * @return Fecha minima del expediente
+     */
     public Date encuentrafechaMinimaExpediente(Long expId) {
-        if (documentoRepository.encuentrafechaMinimaExpediente(expId) != null) {
-            return (Date) documentoRepository.encuentrafechaMinimaExpediente(expId);
+        Object fecMin = documentoRepository.encuentrafechaMinimaExpediente(expId);
+        if (fecMin != null) {
+            return (Date) fecMin;
         }
         return null;
     }
     
+    /**
+     * Metodo que permite identificar la fecha maxima de los documentos de un expediente.
+     * @param expId Identificador del expediente
+     * @return Fecha máxima del expediente
+     */
     public Date encuentrafechaMaximaExpediente(Long expId) {
-        if (documentoRepository.encuentrafechaMaximaExpediente(expId) != null) {
-            return (Date) documentoRepository.encuentrafechaMaximaExpediente(expId);
+        Object fecMax = documentoRepository.encuentrafechaMaximaExpediente(expId);
+        if ( fecMax != null) {
+            return (Date) fecMax;
         }
         return null;
     }

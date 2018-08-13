@@ -675,11 +675,12 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     public BigDecimal verificaAccesoDocumentoActa(@Param("usu_id") Integer usuarioID, @Param("pin_id") String procesoInstanciaID);
 
     /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
      * Obtiene el numero de registros de los documentos por expediente y
      * usuario.
      *
-     * @param usuId
-     * @param expId
+     * @param usuId identificador del usuario
+     * @param expId identificador del expediente
      * @return Numero de registros.
      */
     @Query(value = "select count(1)\n"
@@ -689,13 +690,14 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     int findDocumentosByUsuIdAndExpIdCount(@Param("usuId") Integer usuId, @Param("expId") Long expId);
 
     /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
      * Obtiene los registros de los documentos por usuario y expediente, de
      * acuerdo a la fila inicial y final.
      *
-     * @param usuId
-     * @param expId
-     * @param inicio
-     * @param fin
+     * @param usuId identificador del usuario
+     * @param expId identificador del expediente
+     * @param inicio Registro inicial
+     * @param fin Registro final
      * @return Lista de bandejas de entrada.
      */
     @Query(value = ""
@@ -711,19 +713,26 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     List<Object[]> findDocumentosByUsuIdAndExpIdPaginado(@Param("usuId") Integer usuId, @Param("expId") Long expId, @Param("inicio") int inicio, @Param("fin") int fin);
 
     /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
      * Obtiene los registros de los documentos por usuario, expediente y
      * subserie.
      *
-     * @param usuId
-     * @param expId
-     * @param trdId
-     * @return Lista de documentos de expediente.
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
+     * @param trdId Identificador de la subserie
+     * @return Lista documentos.
      */
     @Query(value = ""
             + CONSULTABANDEJAEXPEDIENTE
             + " AND DOC.TRD_ID = :trdId", nativeQuery = true)
     List<Object[]> findDocumentosByUsuIdAndExpIdAndTrdId(@Param("usuId") Integer usuId, @Param("expId") Long expId, @Param("trdId") int trdId);
 
+    /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
+     * Obtiene la fechas minima de un expediente.
+     * @param expId Identificador del expediente
+     * @return Fecha minima del expediente
+     */
     @Query(value = ""
             + "select min(min_date) \n"
             + "from(\n"
@@ -759,6 +768,12 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + ")", nativeQuery = true)
     Object encuentrafechaMinimaExpediente(@Param("expId") Long expId);
 
+    /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
+     * Obtiene la fecha máxima de un expediente.
+     * @param expId Identificador del expediente
+     * @return Fecha máxima del expediente
+     */
     @Query(value = ""
             + "select max(max_date) \n"
             + "from(\n"
