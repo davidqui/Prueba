@@ -36,11 +36,21 @@ public class ExpTrdService {
         return expTrdRepository.findByExpIdAndActivoTrue(expediente);
     }
     
+    /***
+     * Lista las trds por un expediente.
+     * @param expediente
+     * @return lista de trd en un expediente
+     */
     public List<ExpTrd> findTrdsByExpedienteAll(Expediente expediente){
         return expTrdRepository.findByExpId(expediente);
     }
     
-    
+    /**
+     * Guarda una trd en un expediente 
+     * @param expediente expediente a agregar
+     * @param trd trd por agregar 
+     * @param usuario usuario que agrega
+     */
     public void guardarTrdExpediente(final Expediente expediente, final Trd trd,
             final Usuario usuario){
         
@@ -55,6 +65,12 @@ public class ExpTrdService {
         expTrdRepository.saveAndFlush(expTrd);
     }
     
+    /***
+     * Cambia el estado de una trd ya existente
+     * @param expTrd trd existente dentro de expediente
+     * @param usuario usuario que realiza la acción de modificar
+     * @param activo parametro a actualizar
+     */
     public void guardarTrdExpediente(ExpTrd expTrd, final Usuario usuario, boolean activo){
         expTrd.setUsuModificacion(usuario);
         expTrd.setFecModificacion(new Date());
@@ -63,6 +79,12 @@ public class ExpTrdService {
         expTrdRepository.saveAndFlush(expTrd);
     }
     
+    /***
+     * Valida en un expediente una trd
+     * @param expediente exopediente a validar
+     * @param trd trd por validar
+     * @return true si si la contiene, false de lo contrario
+     */
     public boolean validateTrdByExpediente(Expediente expediente, Trd trd){
         List<ExpTrd> trds = expTrdRepository.findByExpIdAndActivoTrue(expediente);
         for (ExpTrd tr : trds) {

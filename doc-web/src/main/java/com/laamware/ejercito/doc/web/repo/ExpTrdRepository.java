@@ -14,5 +14,10 @@ public interface ExpTrdRepository extends JpaRepository<ExpTrd, Long> {
      */
     List<ExpTrd> findByExpIdAndActivoTrue(Expediente expediente);
     
+    /**
+     * Lista todas las trds de un expediente 
+     * @param expediente expediente a consultar
+     * @return lista de trds 
+     */
     List<ExpTrd> findByExpId(Expediente expediente);
 }

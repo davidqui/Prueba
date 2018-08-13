@@ -31,10 +31,23 @@ public class ExpedienteTransicionService {
     @Autowired
     private ExpedienteTransicionRepository expedienteTransicionRepository;
     
+    /***
+     * Lista las transiciones de un expediente.
+     * @param expId Identificador del expediente
+     * @return lista de transiciones
+     */
     public List<ExpedienteTransicion> retornarListaTransicionesXexpediente(Long expId){
         return expedienteTransicionRepository.findByExpIdExpId(expId, new Sort(Sort.Direction.DESC, "fecCreacion"));
     }     
     
+    /***
+     * Crea una trasición dentro de un expediente
+     * @param expediente expediente de la trasición
+     * @param estadoTransicion estado de la trasición
+     * @param usuario usuario de la trasición
+     * @param documento documento de la trasición
+     * @param usuModificado  Usuario que modifica
+     */
     public void crearTransicion(Expediente expediente, ExpedienteEstado estadoTransicion, Usuario usuario, Documento documento, Usuario usuModificado){
         
         ExpedienteTransicion expedienteTransicion = new ExpedienteTransicion();
@@ -47,7 +60,11 @@ public class ExpedienteTransicionService {
         expedienteTransicionRepository.saveAndFlush(expedienteTransicion);
     }
     
-    
+    /***
+     * Lista las trasiciones por un documento
+     * @param documento documento a consultar las transiciones
+     * @return 
+     */
     public List<ExpedienteTransicion> listaTrasicionesXdocumento(Documento documento){
         return expedienteTransicionRepository.findByDocId(documento, new Sort(Sort.Direction.DESC, "fecCreacion"));
     }

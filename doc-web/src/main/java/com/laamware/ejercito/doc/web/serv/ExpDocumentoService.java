@@ -44,7 +44,9 @@ public class ExpDocumentoService {
      */
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
-    
+    /**
+     * Servicio de documento
+     */
     @Autowired
     private DocumentoService documentoService;
     /*
@@ -53,12 +55,18 @@ public class ExpDocumentoService {
     @Autowired
     private NotificacionService notificacionService;
     
-    
+    // constante de notificación
     public final static Integer NOTIFICACION_EXPEDIENTE_DOCUMENTO_INDEXADO = 204;
-    
+    // constantes de estado
     public static final Long ESTADO_DOCUMENTO_AGREGADO = new Long(1104) ;
     public static final Long ESTADO_DOCUMENTO_DESVINCULADO = new Long(1105) ;
     
+    /***
+     * Agrega un documento a un expediente
+     * @param documento documento a agregar
+     * @param expediente expediente a agregar
+     * @param usuarioSesion usuario que agrega
+     */
     public void agregarDocumentoExpediente(final Documento documento, final Expediente expediente, Usuario usuarioSesion){
         ExpDocumento expDocumento = new ExpDocumento();
         expDocumento.setDocId(documento);
@@ -91,6 +99,12 @@ public class ExpDocumentoService {
         return expDocumentoRepository.findByActivoTrueAndDocId(documento);
     }
     
+    /***
+     * Elimina un documento de un expediente
+     * @param documento documento a eliminar
+     * @param expediente expediente al que se le eliminara
+     * @param usuarioSesion usuario que elimina
+     */
     public void eliminaDocumentoExpediente(final Documento documento, final Expediente expediente, Usuario usuarioSesion){
         ExpDocumento expDocumento = expDocumentoRepository.findByActivoTrueAndDocId(documento);
         if(expDocumento != null){

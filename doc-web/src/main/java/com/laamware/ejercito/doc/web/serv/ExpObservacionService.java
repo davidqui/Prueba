@@ -27,10 +27,22 @@ public class ExpObservacionService {
     @Autowired
     private ExpObservacionRepository expObservacionRepository;
     
+    /**
+     * Lista las observaciones dado un expediente
+     * @param expId Identificador del expediente
+     * @return lista de observaciones en un expediente
+     */
     public List<ExpObservacion> retornarListaTransicionesXexpediente(Long expId){
         return expObservacionRepository.findByExpIdExpId(expId, new Sort(Sort.Direction.DESC, "fecCreacion"));
     } 
     
+    /***
+     * Guarda un observación de un expediente
+     * @param expediente expediente al que pertence la observación
+     * @param observacion observación a agregar
+     * @param usuarioSesion usuario que agrega
+     * @return Observación del expediente
+     */
     public ExpObservacion guardarObservacion(Expediente expediente, String observacion, Usuario usuarioSesion){
         ExpObservacion expObservacion = new ExpObservacion();
         expObservacion.setExpId(expediente);

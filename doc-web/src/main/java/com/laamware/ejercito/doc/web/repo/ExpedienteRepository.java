@@ -64,7 +64,9 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "LEFT OUTER JOIN TRD TRDPRINCIPAL ON (TRDPRINCIPAL.TRD_ID = EXP.TRD_ID_PRINCIPAL) "
             + "LEFT OUTER JOIN USUARIO UJD ON (UJD.USU_ID = DEP_JEFE.USU_ID_JEFE) "
             + "WHERE ((EXP.USU_CREACION = :usuId) OR (EXPUSUARIO.USU_ID = :usuId and EXPUSUARIO.IND_APROBADO = 1 AND EXPUSUARIO.ACTIVO = 1) OR (DEP_JEFE.USU_ID_JEFE = :usuId)) ";
-
+    /**
+     * Consulta encargada de traer los expedientes a los que un usuario puede agregar un documento por trd
+     */
     String CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO = ""
             + "SELECT DISTINCT EXP.*"
             + "FROM EXPEDIENTE EXP "
@@ -110,11 +112,23 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "where exp.num_lineas >= :inicio and exp.num_lineas <= :fin\n", nativeQuery = true)
     List<Object[]> findExpedientesPorUsuarioPaginado(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin);
 
+    /**
+     * Obtiene los registros de expedientes por usuario, de acuerdo a un expediente
+     * @param usuId
+     * @param expId
+     * @return 
+     */
     @Query(value = ""
             + CONSULTALISTAEXPEDIENTESXUSUARIO
             + "AND EXP.EXP_ID = :expId", nativeQuery = true)
     List<Object[]> findExpedienteDtoPorUsuarioPorExpId(@Param("usuId") Integer usuId, @Param("expId") Long expId);
-
+    
+    /***
+     * Lista los expedientes a los que un usuario puede indexar documentos dao una trd
+     * @param usuId Identificador del usuario
+     * @param trd identificador de la trd 
+     * @return lista de los expedientes validos
+     */
     @Query(value = ""
             + CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO
             + "", nativeQuery = true)

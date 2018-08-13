@@ -453,7 +453,13 @@ public class ExpedienteController extends UtilController {
         }
     }
 
-    
+    /***
+     * Método que cambia el estado de un expediente para que el administrador lo pueda editar
+     * @param expId Identificador del expediente
+     * @param model odelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @return Pagina de administración del expediente
+     */
     @RequestMapping(value = "/enviarAprobar/{exp}", method = RequestMethod.GET)
     @Transactional
     public String enviarAprobar(@PathVariable("exp") Long expId, Model model, Principal principal){
@@ -473,6 +479,12 @@ public class ExpedienteController extends UtilController {
         return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
     
+    /***
+     * Método para la pagina de crear expediente.
+     * @param model odelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @return Pagina de creación del expediente
+     */
     @RequestMapping(value = "/crear", method = RequestMethod.GET)
     @Transactional
     public String crearExpediente(Model model, Principal principal) {
@@ -488,6 +500,14 @@ public class ExpedienteController extends UtilController {
         return "expediente-crear";
     }
 
+    /***
+     * Método para crear el expediente.
+     * @param expediente expediente
+     * @param model odelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @param req request
+     * @return Pagina de trds del expediente o asignación de usuarios
+     */
     @RequestMapping(value = "/crear", method = RequestMethod.POST)
     @Transactional
     public String guardarExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req) {
@@ -519,7 +539,14 @@ public class ExpedienteController extends UtilController {
     }
 
     
-    
+    /**
+     * Método para la pagina de los usuarios de un expediente
+     * @param expId  Identificador del expediente
+     * @param model odelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @param req request
+     * @return  Pagina de asignar usuario a aexpediente
+     */
     @RequestMapping(value = "/asignar-usuario-expediente/{exp}", method = RequestMethod.GET)
     public String listUsuarioExpediente(@PathVariable("exp") Long expId, Model model, Principal principal, HttpServletRequest req){
 
@@ -547,7 +574,16 @@ public class ExpedienteController extends UtilController {
        
         return "expediente-seleccionar-usuarios";
     }
-
+    
+    /***
+     * Método para asignar un usuario al expediente
+     * @param expId  Identificador del expediente
+     * @param permiso persmiso que se le esta asignando
+     * @param usuarioID Identificador del usuario
+     * @param cargoID Identificador del cargo del usuario
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @ResponseBody
     @RequestMapping(value = "/asignar-usuario-expediente/{exp}/{permiso}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
     public ResponseEntity<?> asignarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Integer usuarioID,
@@ -570,6 +606,13 @@ public class ExpedienteController extends UtilController {
         return ResponseEntity.ok(usuarioID);
     }
     
+    /***
+     * método que agrega un documento al expediente
+     * @param expId Identificador del expediente
+     * @param docId Identificador del documento
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @ResponseBody
     @RequestMapping(value = "/agregar-documento-expediente/{exp}/{docId}", method = RequestMethod.POST)
     public ResponseEntity<?> asignarDocumentoExpediente(@PathVariable("exp") Long expId, @PathVariable("docId") String docId,
@@ -597,6 +640,15 @@ public class ExpedienteController extends UtilController {
         return ResponseEntity.ok("Agregado Correctamente");
     }
 
+    /***
+     * Método para editar un usuario en un expediente
+     * @param expId Identificador del expediente
+     * @param permiso permiso sobre el expediente
+     * @param usuarioID Identificador del usuario
+     * @param cargoID Identificador del cargo
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @ResponseBody
     @RequestMapping(value = "/editar-usuario-expediente/{exp}/{permiso}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
     public ResponseEntity<?> editarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Long usuarioID,
@@ -614,7 +666,14 @@ public class ExpedienteController extends UtilController {
         
         return ResponseEntity.ok(usuarioID);
     }
-
+    
+    /***
+     * Método para eliminar a un usuario de un expediente
+     * @param expId Identificador del expediente
+     * @param usuarioID Identificador del usuario
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @ResponseBody
     @RequestMapping(value = "/eliminar-usuario-expediente/{exp}/{usuarioID}", method = RequestMethod.POST)
     public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Long usuarioID, Principal principal){
@@ -629,6 +688,13 @@ public class ExpedienteController extends UtilController {
         return ResponseEntity.ok(usuarioID);
     }
     
+    /***
+     * Método para cambiar el usuario creador
+     * @param expId Identificador del expediente
+     * @param usuarioID Identificador del usuario
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @ResponseBody
     @RequestMapping(value = "/cambiar-creador/{exp}/{usuarioID}", method = RequestMethod.POST)
     public ResponseEntity<?> cambiarUsuarioCreadorExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Integer usuarioID, Principal principal){
@@ -653,6 +719,12 @@ public class ExpedienteController extends UtilController {
         return ResponseEntity.ok(usuarioID);
     }
 
+    /***
+     * Método que lista los cargos de un usuario.
+     * @param usuarioID Identificador del usuario
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @ResponseBody
     @RequestMapping(value = "/cargos-usuario/{usuarioID}", method = RequestMethod.POST)
     public ResponseEntity<?> cargosUsuario(@PathVariable("usuarioID") Integer usuarioID, Principal principal) {
@@ -664,7 +736,15 @@ public class ExpedienteController extends UtilController {
         }
         return ResponseEntity.ok(cargoDTOs);
     }
-
+    
+    /***
+     * Método para pagina de seleccionar las trds de un usuario
+     * @param expId Identificador del expediente
+     * @param model odelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @param req request
+     * @return Pagina de asignar trds a aexpediente 
+     */
     @RequestMapping(value = "/trds-expediente/{expId}", method = RequestMethod.GET)
     public String seleccionarTrdExpediente(@PathVariable("expId") Long expId, Model model, Principal principal, HttpServletRequest req){
         final Usuario usuarioSesion = getUsuario(principal);
@@ -689,6 +769,15 @@ public class ExpedienteController extends UtilController {
         return "expediente-seleccionar-trds";
     }
 
+    /***
+     * Método para asignar las trds a un expediente
+     * @param expId Identificador del expediente
+     * @param trds trds del expediente
+     * @param principal Información de sesión autenticada.
+     * @param req request
+     * @param redirect redirect para redireccionar a otras paginas
+     * @return Pagina de asignar trds a aexpediente 
+     */
     @RequestMapping(value = "/trds-expediente/{expId}", method = RequestMethod.POST)
     public String asignarTrdsExpediente(@PathVariable("expId") Long expId,  @RequestParam(value="trd", required=false) Integer[] trds, Principal principal,
             HttpServletRequest req, RedirectAttributes redirect){
@@ -722,6 +811,13 @@ public class ExpedienteController extends UtilController {
         return "redirect:"+PATH+"/administrarExpediente?expId="+expediente.getExpId();
     }
     
+    /***
+     * Método para desvicular las trds de un expediente
+     * @param trdExpediente lista de trd existente en el expediente
+     * @param trdsb trds que se mantienen
+     * @param usuarioSesion Usuario que esta actualmente en sesión
+     * @param trdDocumentos lista de Trds
+     */
     public void desvincularTrds(List<ExpTrd> trdExpediente, Integer[] trds, Usuario usuarioSesion, List<Trd> trdDocumentos){
         for (ExpTrd trd : trdExpediente) {
             boolean hasElment = false;
@@ -901,6 +997,13 @@ public class ExpedienteController extends UtilController {
         return "expediente-vacio";
     }
     
+    /***
+     * Método que cierra el expediente
+     * @param expId Identificador del expediente
+     * @param model modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @RequestMapping(value = "/cerrar-expediente/{expId}", method = RequestMethod.POST)
     public ResponseEntity<?> expedienteCerrar(@PathVariable("expId") Long expId, Model model, Principal principal){
         final Expediente expediente = expedienteService.finById(expId);
@@ -914,6 +1017,13 @@ public class ExpedienteController extends UtilController {
         return ResponseEntity.ok("Cerrado Correctamente");
     }
     
+    /***
+     * Método para abrir un expediente cerrado
+     * @param expId Identificador del expediente
+     * @param model modelo de información entre vista y controlador.
+     * @param principal Información de sesión autenticada.
+     * @return Codigo de respuesta exitoso, en caso contrario Bad Request
+     */
     @RequestMapping(value = "/abrir-expediente/{expId}", method = RequestMethod.POST)
     public ResponseEntity<?> expedienteAbrir(@PathVariable("expId") Long expId, Model model, Principal principal){
         final Expediente expediente = expedienteService.finById(expId);
@@ -946,6 +1056,12 @@ public class ExpedienteController extends UtilController {
         return cargoDTOs;
     }
     
+    /***
+     * Comprueba que una dependecia posea ciertas trds
+     * @param expTrds trds
+     * @param usuario usuario en dependencia
+     * @return 
+     */
     public boolean esDependenciaCompatible(List<ExpTrd> expTrds, Usuario usuario){
         List<Trd> padres = trdService.findSeriesByUsuario(usuario);
         List<Trd> trds = new ArrayList<>();
@@ -967,7 +1083,12 @@ public class ExpedienteController extends UtilController {
         return counter == expTrds.size();
     }
 
-    
+    /**
+     * Comprueba que dentro de una lista de trds exista una en especifico
+     * @param trdId Identificador de la trd
+     * @param PreSeleccionadas trds seleccionadas en el expediente
+     * @return true si la contiene, false de lo contrario
+     */
     public boolean has(Integer trdId, List<ExpTrd> PreSeleccionadas) {
         for (ExpTrd trd : PreSeleccionadas) {
             if (trd.getTrdId().getId().equals(trdId)) {
@@ -977,7 +1098,12 @@ public class ExpedienteController extends UtilController {
         return false;
     }
     
-    
+    /**
+     * Comprueba que en una lista de documentos exista un documento con esta.
+     * @param trdId Identificador de la trd
+     * @param trdsDocumento trds seleccionadas en los documentos
+     * @return true si la contiene, false de lo contrario
+     */
     public boolean hasInDocument(Integer trdId, List<Trd> trdsDocumento){
         for (Trd trd : trdsDocumento) {
             if (trd.getId().equals(trdId)) {
@@ -987,6 +1113,12 @@ public class ExpedienteController extends UtilController {
         return false;
     }
     
+    /***
+     * comprueba una serie de trds y verifica si entan dentro de las seleecionada en el expediente
+     * @param PreSeleccionadas trds preseleccionadas
+     * @param subseries trd subseries
+     * @return true si la contiene, false de lo contrario
+     */
     public boolean hasAllSubseriesSelected(final List<ExpTrd> PreSeleccionadas, final List<Trd> subseries) {
         if (subseries.size() != PreSeleccionadas.size()) {
             return false;
@@ -1000,7 +1132,14 @@ public class ExpedienteController extends UtilController {
 
         return true;
     }
-
+    
+    /***
+     * comprueba una serie de trds y verifica si entan dentro de las seleecionada en el expediente
+     * @param PreSeleccionadas
+     * @param subseries
+     * @param id
+     * @return true si la contiene, false de lo contrario
+     */
     public boolean hasAllSubseriesSelectedByPadre(final List<ExpTrd> PreSeleccionadas, final List<Trd> subseries, Integer id){
         for (Trd subserie : subseries) {
             if (subserie.getId().equals(id)) {
@@ -1037,14 +1176,4 @@ public class ExpedienteController extends UtilController {
         return list;
     }
     
-     public boolean hasPermitions(Usuario usuario, Expediente expediente){
-        if (usuario == null || expediente == null)
-            return false;
-        final Usuario jefeDep = expediente.getDepId().getJefe();
-        if (!(jefeDep != null && jefeDep.getId().equals(usuario.getId())) &&
-            !expediente.getUsuCreacion().getId().equals(usuario.getId()))
-            return false;
-        return true;
-    }
-
 }

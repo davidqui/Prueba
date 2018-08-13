@@ -4,14 +4,11 @@ import com.laamware.ejercito.doc.web.dto.ExpUsuarioDto;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.ExpUsuario;
 import com.laamware.ejercito.doc.web.entity.Expediente;
-import com.laamware.ejercito.doc.web.entity.Notificacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.ExpUsuarioRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
-import freemarker.template.TemplateException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,14 +51,16 @@ public class ExpUsuarioService {
     @Autowired
     private NotificacionService notificacionService;
 
+    // constantes de estado
     public static final Long ESTADO_USUARIO_ASIGNADO = new Long(1107);
     public static final Long ESTADO_USUARIO_MODIFICADO = new Long(1101);
     public static final Long ESTADO_USUARIO_ELIMINADO = new Long(1101);
-
+    
+    // constantes de proceso 
     public final static Integer PER_LECTURA = 1;
     public final static Integer PER_INDEXACION = 2;
 
-    
+    // constantes de notificación
     public final static Integer NOTIFICACION_EXPEDIENTE_USUARIO_AGREGADO = 200;
     public final static Integer NOTIFICACION_EXPEDIENTE_USUARIO_ELIMINADO = 201;
     
@@ -96,6 +95,14 @@ public class ExpUsuarioService {
         return expUsuarioRepository.getByExpIdAndUsuIdAndActivoTrueIndAprobadoTrue(expediente, usuario);
     }
     
+    /***
+     * Agrega un usuario a un expediente
+     * @param expediente expediente a agergar 
+     * @param usuCreador usuario quien agrega
+     * @param usuario usuario a agregar
+     * @param cargo cargo con el que se agregara
+     * @param permiso permiso con el que se le agregara
+     */
     public void agregarUsuarioExpediente(Expediente expediente, Usuario usuCreador, Usuario usuario, Cargo cargo, Integer permiso){
         ExpUsuario expUsuario = new ExpUsuario();
         expUsuario.setUsuCreacion(usuario);
@@ -126,6 +133,12 @@ public class ExpUsuarioService {
         }
     }
 
+    /**
+     * Elimina un usuario de un expediente 
+     * @param EpxUsuarioId Identificador usuario a eliminar 
+     * @param usuarioSesion usuario quien elimina
+     * @param expediente expediente del que se le elimina
+     */
     public void eliminarUsuarioExpediente(Long EpxUsuarioId, Usuario usuarioSesion, Expediente expediente) {
         ExpUsuario expUsuario = expUsuarioRepository.getOne(EpxUsuarioId);
         expUsuario.setActivo(false);
@@ -146,6 +159,14 @@ public class ExpUsuarioService {
         }
     }
 
+    /***
+     * Edita un ususario de un expediente
+     * @param expediente expediente al que se le editara
+     * @param usuarioSesion usuario que edita 
+     * @param usuario usuario que se edita 
+     * @param cargoUsu cargo de usuario editado 
+     * @param permiso permiso del usuario editado
+     */
     public void editarUsuarioExpediente(Expediente expediente, Usuario usuarioSesion, Long usuario, Cargo cargoUsu, Integer permiso) {
         ExpUsuario expUsuario = expUsuarioRepository.getOne(usuario);
         expUsuario.setPermiso(permiso);
@@ -156,7 +177,12 @@ public class ExpUsuarioService {
         expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_USUARIO_MODIFICADO), usuarioSesion, null, expUsuario.getUsuId());
     }
-
+    
+    /***
+     * Lista los usuarios que estan pendientes por aprobar dentro de un expediente
+     * @param expediente
+     * @return lista de usuarios 
+     */
     public List<ExpUsuarioDto> retornaUsuariosPendientesPorAprobar(Expediente expediente) {
         List<ExpUsuario> usuarios = expUsuarioRepository.getByExpIdAndActivoTrueAndIndAprobadoFalse(expediente, new Sort(Sort.Direction.DESC, "usuId.usuGrado.pesoOrden"));
         List<ExpUsuarioDto> expUsuarioDtos = new ArrayList<>();
@@ -169,6 +195,11 @@ public class ExpUsuarioService {
         return expUsuarioDtos;
     }
     
+    /***
+     * Aprueba los usuarios de un expediente
+     * @param expediente expediente a aprobar usuarios
+     * @param usuarioSesion usuario que aprueba 
+     */
     public void aprobarUsuariosPorExpediente(Expediente expediente,Usuario usuarioSesion){
         List<ExpUsuario> expUsuarios = expUsuarioRepository.getByExpIdAndActivoTrueAndIndAprobadoFalse(expediente, new Sort(Sort.Direction.DESC, "usuId.usuGrado.pesoOrden"));
         if(expUsuarios.size() > 0){
@@ -181,6 +212,11 @@ public class ExpUsuarioService {
         }
     }
     
+    /***
+     * Rechaza un expediente
+     * @param expediente Expediente a rechazar usuarios
+     * @param usuarioSesion usuario que rechaza
+     */
     public void rechazarUsuariosPorExpediente(Expediente expediente,Usuario usuarioSesion){
         List<ExpUsuario> expUsuarios = expUsuarioRepository.getByExpIdAndActivoTrueAndIndAprobadoFalse(expediente, new Sort(Sort.Direction.DESC, "usuId.usuGrado.pesoOrden"));
         if(expUsuarios.size() > 0){
@@ -193,7 +229,12 @@ public class ExpUsuarioService {
             }
         }
     }
-
+    
+    /***
+     * Verifica si una lista de usuraios tiene algun cambio por aprobar
+     * @param usuarios
+     * @return 
+     */
     public boolean tieneCambios(List<ExpUsuario> usuarios) {
         for (ExpUsuario usuario : usuarios) {
             if (!usuario.getIndAprobado())
