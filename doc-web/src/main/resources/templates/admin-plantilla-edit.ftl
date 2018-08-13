@@ -8,7 +8,7 @@
 <div class="container">
     <h1 class="cus-h1-page-title">${pageTitle}</h1>
     <p style="padding: 16px;
-    border: 5px dashed red;
+    border: 5px solid#2e73a1;
     font-size: 16px;">Mensaje:
     </br>
     Señor Usuario recuerde tener en cuenta los siguientes aspectos ante la <u>creación</u> o <u>actualización</u> de plantillas:

@@ -392,6 +392,7 @@ public class ExpedienteController extends UtilController {
         List<ParNombreExpediente> nombreExpediente = parNombreExpedienteService.findAll();
         Expediente expediente = new Expediente();
         model.addAttribute("expediente", expediente);
+        model.addAttribute("dependencia", usuarioSesion.getDependencia());
         List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
         model.addAttribute("trds", trds);
         model.addAttribute("nombreExpediente", nombreExpediente);
@@ -405,9 +406,7 @@ public class ExpedienteController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         
         String numeroExpediente = req.getParameter("numberExpediente");
-        
         String parNombreExpediente = req.getParameter("parNombreExpediente");
-        
         String opcionalNombre = req.getParameter("opcionalNombre");
         
         try {

@@ -98,30 +98,30 @@ public class ExpedienteService {
 
     public Expediente CrearExpediente(Expediente expediente, Usuario usuario,
             String numeroExpediente, ParNombreExpediente parNombreExpediente, String opcionalNombre) throws BusinessLogicException {
-
-        if (expediente.getTrdIdPrincipal() == null) {
+        
+        if (usuario.getDependencia().getJefe() == null)
+            throw new BusinessLogicException("En su dependencia no existe un jefe.");
+        if (expediente.getTrdIdPrincipal() == null) 
             throw new BusinessLogicException("Debe elegir una TRD principal");
-        }
-        if (expediente.getExpDescripcion() == null || expediente.getExpDescripcion().trim().length() < 1) {
+        if (expediente.getExpDescripcion() == null || expediente.getExpDescripcion().trim().length() < 1)
             throw new BusinessLogicException("La descripción del expediente es requerida");
-        }
-        if (numeroExpediente.trim().equals("") || parNombreExpediente == null) {
+        if (numeroExpediente.trim().equals("") || parNombreExpediente == null) 
             throw new BusinessLogicException("La construcción del nombre requiere todos los campos exceptuando el ultimo");
-        }
+        
 
         String nombre = expediente.getTrdIdPrincipal().getCodigo() + "-" + Calendar.getInstance().get(Calendar.YEAR)
                 + "-" + String.format("%03d", Integer.parseInt(numeroExpediente)) + "-" + parNombreExpediente.getParNombre();
 
-        if (!opcionalNombre.trim().equals("")) {
+        if (!opcionalNombre.trim().equals(""))
             nombre += "-" + opcionalNombre;
-        }
+        
 
         expediente.setExpNombre(nombre);
 
         List<Expediente> expedientesNombre = expedienteRepository.getByExpNombreAndDepId(expediente.getExpNombre(), usuario.getDependencia());
-        if (!expedientesNombre.isEmpty()) {
+        if (!expedientesNombre.isEmpty())
             throw new BusinessLogicException("Ya existe un expediente con este nombre.");
-        }
+        
 
         expediente.setUsuCreacion(usuario);
         expediente.setUsuarioAsignado(Expediente.ASIGNADO_USUARIO);
@@ -132,7 +132,11 @@ public class ExpedienteService {
         expediente.setEstadoCambio(false);
         expediente.setIndAprobadoInicial(true);
         
-        expediente = expedienteRepository.saveAndFlush(expediente);
+        try {
+            expediente = expedienteRepository.saveAndFlush(expediente);
+        } catch (Exception e) {
+            throw new BusinessLogicException("Ha ocurrido un error con la BD comuniquese");
+        }
         expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_INICIAL_EXPEDIENTE), usuario, null, null);
         return expediente;
