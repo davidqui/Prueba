@@ -660,7 +660,7 @@ public class ExpedienteController extends UtilController {
         }
         
         desvincularTrds(trdsPreseleccionadas, trds, usuarioSesion, trdDocumentos);
-        if (!expediente.getIndAprobadoInicial())
+        if (expediente.getUsuarioAsignado() == 0)
             return "redirect:"+PATH+"/asignar-usuario-expediente/"+expediente.getExpId();
         return "redirect:"+PATH+"/administrarExpediente?expId="+expediente.getExpId();
     }

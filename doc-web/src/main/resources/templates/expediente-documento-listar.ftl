@@ -52,7 +52,7 @@
                     <#list documentos as doc>
                         <tr>
                             <#if doc.indVisualizacion>
-                                <td><a href="/proceso/instancia?pin=${doc.pinId}">${doc.asunto!""}</a></td>
+                                <td><a href="/proceso/instancia?pin=${doc.pinId}" onclick="loading(event);">${doc.asunto!""}</a></td>
                             <#else>
                                 <td>${doc.asunto!""}</td>
                             </#if>
