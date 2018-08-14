@@ -89,6 +89,7 @@ import com.laamware.ejercito.doc.web.entity.RestriccionDifusion;
 import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Trd;
+import com.laamware.ejercito.doc.web.entity.UsuSelFavoritos;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.Variable;
 import com.laamware.ejercito.doc.web.entity.WildcardPlantilla;
@@ -119,6 +120,7 @@ import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
+import com.laamware.ejercito.doc.web.serv.UsuSelFavoritosService;
 import com.laamware.ejercito.doc.web.serv.DriveService;
 import com.laamware.ejercito.doc.web.serv.ExpDocumentoService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteService;
@@ -367,6 +369,13 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private ExpDocumentoService expDocumentoService;
+    
+     /*
+     * 2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
+     * feature-6: Asignación de usuarios favoritos.
+     */
+    @Autowired
+    private UsuSelFavoritosService usuSelFavoritosService;
     
     /* ---------------------- públicos ------------------------------- */
     /**
@@ -1962,6 +1971,8 @@ public class DocumentoController extends UtilController {
             @RequestParam(value = "uid", required = false) final String uidS, Model model, final Principal principal,
             RedirectAttributes redirect) {
 
+        final Usuario usuarioSesion = getUsuario(principal);
+        
         Integer idUsuario = null;
         if (uidS != null) {
             idUsuario = Integer.parseInt(uidS.replaceAll("\\.", ""));
@@ -1983,17 +1994,21 @@ public class DocumentoController extends UtilController {
 
         if ("usuario".equals(mode)) {
             if (uid != null) {
-
                 Instancia i = asignar(pin, tid, new EstrategiaSeleccionUsuario() {
                     @Override
                     public Usuario select(Instancia i, Documento d) {
-                        return usuR.getOne(uid);
+                        /*
+                        * 2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
+                        * feature-6: Asignación de usuarios favoritos.
+                        */
+                        Usuario uselected = usuR.getOne(uid);
+                        usuSelFavoritosService.addUsuarioSelected(usuarioSesion, uselected);
+                        return uselected;
                     }
                 });
-                // TODO FAVORITOS
                 String docId = i.getVariable(Documento.DOC_ID);
                 Documento doc = documentRepository.getOne(docId);
-                doc.setUsuarioUltimaAccion(getUsuario(principal));
+                doc.setUsuarioUltimaAccion(usuarioSesion);
                 documentRepository.saveAndFlush(doc);
 
                 /*
@@ -2004,17 +2019,17 @@ public class DocumentoController extends UtilController {
                         buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
                 return redirectToInstancia(i);
             } else {
+                Instancia i = procesoService.instancia(pin);
+                String docId = i.getVariable(Documento.DOC_ID);
+                Documento doc = documentRepository.getOne(docId);
+
+                model.addAttribute("documento", doc);
+
+                int pesoClasificacionDocumento = doc.getClasificacion().getId();
                 if (did != null) {
-                    Instancia i = procesoService.instancia(pin);
 
                     // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131
                     List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrueOrderByGradoDesc(did);
-                    String docId = i.getVariable(Documento.DOC_ID);
-                    Documento doc = documentRepository.getOne(docId);
-
-                    model.addAttribute("documento", doc);
-
-                    int pesoClasificacionDocumento = doc.getClasificacion().getId();
 
                     for (Usuario usuarioSeleccionado : usuarios) {
 
@@ -2032,6 +2047,28 @@ public class DocumentoController extends UtilController {
                     }
 
                     model.addAttribute("usuarios", usuarios);
+                }else{
+                    /*
+                    * 2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
+                    * feature-6: Asignación de usuarios favoritos.
+                    */
+                    List<UsuSelFavoritos> listarUsuariosFavoritos = usuSelFavoritosService.listarUsuariosFavoritos(usuarioSesion);
+                    for (UsuSelFavoritos usuarioSeleccionado : listarUsuariosFavoritos) {
+
+                        if (usuarioSeleccionado.getUsuFav().getClasificacion() == null
+                                || usuarioSeleccionado.getUsuFav().getClasificacion().getId() == null) {
+                            usuarioSeleccionado.getUsuFav().setMensajeNivelAcceso(" ****SIN CLSIFICACIÓN****");
+                            usuarioSeleccionado.getUsuFav().setRestriccionDocumentoNivelAcceso(true);
+                        } else {
+                            int pesoClasificacionUsuario = usuarioSeleccionado.getUsuFav().getClasificacion().getId();
+                            usuarioSeleccionado
+                                    .getUsuFav().setMensajeNivelAcceso(" -" + usuarioSeleccionado.getUsuFav().getClasificacion().getNombre());
+                            usuarioSeleccionado.getUsuFav().setRestriccionDocumentoNivelAcceso(
+                                    pesoClasificacionUsuario < pesoClasificacionDocumento);
+                        }
+                    }
+
+                    model.addAttribute("usuariosFav", listarUsuariosFavoritos);
                 }
                 List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
                 model.addAttribute("dependencias", listaDependencias);

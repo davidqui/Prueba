@@ -59,21 +59,25 @@
                                                 </#if>
                                             </div>
                                         </#list>
-                                    <#else>
-                                        <h5>Usuarios Favoritos</h5>
-                                        <#list usuariosFav as ufav>
-                                            <div>
-                                                <#if u.restriccionDocumentoNivelAcceso== true>
-                                                    <label style="color:#FF0000">								
-                                                                                                        ${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
-                                                                                                    </label>
-                                                    <#else>
-                                                        <label class="c-input c-radio" style="color:#5cb85c">
-                                                                                                        <input type="radio" name="uid" value="${ufav.usuFav.id}"><span class="c-indicator"></span>${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
-                                                                                                    </label>
-                                                </#if>
-                                            </div>
-                                        </#list>
+                                    <#else>    
+                                    <!--2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
+                                      feature-6: Asignación de usuarios favoritos.--> 
+                                        <#if usuariosFav?? && usuariosFav?size!= 0>
+                                            <h5>Usuarios Favoritos</h5>
+                                            <#list usuariosFav as ufav>
+                                                <div>
+                                                    <#if ufav.usuFav.restriccionDocumentoNivelAcceso== true>
+                                                        <label style="color:#FF0000">								
+                                                                                                            ${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
+                                                                                                        </label>
+                                                        <#else>
+                                                            <label class="c-input c-radio" style="color:#5cb85c">
+                                                                                                            <input type="radio" name="uid" value="${ufav.usuFav.id}"><span class="c-indicator"></span>${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
+                                                                                                        </label>
+                                                    </#if>
+                                                </div>
+                                            </#list>
+                                        </#if>
                                     </#if>
                                 </div>
                             </div>
