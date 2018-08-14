@@ -113,7 +113,7 @@
                     </button>
                     <div class="card-header">
                       <#if usuario.permiso == 1>
-                        Letura
+                        lectura
                       </#if>
                       <#if usuario.permiso == 2>
                         Indexación
