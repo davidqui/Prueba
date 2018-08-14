@@ -18,6 +18,9 @@ import org.hibernate.annotations.Parameter;
 
 import com.laamware.ejercito.doc.web.ctrl.UsuarioMode;
 import com.laamware.ejercito.doc.web.dto.UsuarioHistorialFirmaDTO;
+import javax.persistence.CascadeType;
+import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * @author rafar
@@ -222,6 +225,11 @@ public class Usuario extends AuditActivoModifySupport {
 
     @Transient
     private boolean restriccionDocumentoNivelAcceso;
+    
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuId")
+    private List<UsuSelFavoritos> usuSelFavoritosList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuFav")
+    private List<UsuSelFavoritos> usuSelFavoritosList1;
 
     public Usuario(Integer id) {
         this.id = id;
@@ -511,4 +519,22 @@ public class Usuario extends AuditActivoModifySupport {
         this.dominio = dominio;
     }
 
+    @XmlTransient
+    public List<UsuSelFavoritos> getUsuSelFavoritosList() {
+        return usuSelFavoritosList;
+    }
+
+    public void setUsuSelFavoritosList(List<UsuSelFavoritos> usuSelFavoritosList) {
+        this.usuSelFavoritosList = usuSelFavoritosList;
+    }
+
+    @XmlTransient
+    public List<UsuSelFavoritos> getUsuSelFavoritosList1() {
+        return usuSelFavoritosList1;
+    }
+
+    public void setUsuSelFavoritosList1(List<UsuSelFavoritos> usuSelFavoritosList1) {
+        this.usuSelFavoritosList1 = usuSelFavoritosList1;
+    }
+    
 }
