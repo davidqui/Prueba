@@ -25,7 +25,7 @@
 	        <#if p.name == 'padre' >
         <fieldset class="form-group">
             <label for="${p.name}">${p.label}</label>
-            <select class="form-control" name="${p.name}" id="${p.name}">	                	        
+            <select class="selectpicker" name="${p.name}" id="${p.name}" data-live-search="true">	                	        
                 <option value=""></option>
 		            <#list dependencias as dep>	                    
 		                    <#if dep.idString == ((entity.idPadreString)!"")?string>

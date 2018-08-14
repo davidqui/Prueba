@@ -176,7 +176,7 @@
             <input type="hidden" id="destinoDocumento" name="destinoDocumento" value="" />
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
           <button type="button" class="btn btn-primary" onclick="agregarDocumentoExpediente(${expediente.expId})">Agregar</button>
         </div>
       </div>
