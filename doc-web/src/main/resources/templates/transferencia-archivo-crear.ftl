@@ -7,6 +7,17 @@
 <#include "header.ftl" />
 <#include "lib/transferencia-archivo_functions.ftl" />
 
+<select class="selectpicker" data-live-search="true">
+  <option>Mustard</option>
+  <option>Ketchup</option>
+  <option>Relish</option>
+</select>
+
+<script>
+    $('.selectpicker').selectpicker();
+</script>
+
+
 <div class="container-fluid">
     <h4>${pageTitle}</h4>
 

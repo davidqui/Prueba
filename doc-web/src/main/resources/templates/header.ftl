@@ -8,20 +8,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-<!-- Bootstrap CSS -->
+        <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="/css/bootstrap.css">
         <!-- Fonts -->
         <link href='/fonts/roboto.css' rel='stylesheet' type='text/css'>
         <link href='/fonts/lobster.css' rel='stylesheet' type='text/css'>
         <link href='/fonts/raleway.css' rel='stylesheet' type='text/css'>
 
-    <!-- Custom -->
+        <!-- Custom -->
         <link href='/css/custom.css' rel='stylesheet' type='text/css'>
         <link href='/css/juego.css' rel='stylesheet' type='text/css'>
         <link href='/css/vis.min.css' rel='stylesheet' type='text/css'>
 
         <link rel="stylesheet" href="/css/cdnjscloudfire.style.min.css" />
 
+        
         <link rel="stylesheet" href="/css/jquery-ui.css">
         <script src="/jquery/jquery.min.js"></script>
         <title>${pageTitle}</title>
@@ -29,6 +30,9 @@
         <script src="/ckeditor/ckeditor.js"></script>
          <!-- loader -->
         <link href='/css/loader.css' rel='stylesheet' type='text/css'>
+        <!-- search selector -->
+        <link rel="stylesheet" href="/css/bootstrap-select.css" />
+        <script src="/js/bootstrap-select.min.js"></script>
 
     <#if headScripts??>
       ${headScripts}
@@ -197,5 +201,7 @@
                     $("#consulta-form").on("submit", function(){
                      $(".div-loader").css({ display: "block" });
                      return true;
-                   })
+                   });
+                       
+                   $('.selectpicker').selectpicker();
                 </script>

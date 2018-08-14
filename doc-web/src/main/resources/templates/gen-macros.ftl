@@ -27,7 +27,7 @@
        		<input type="file" class="form-control" name="archivo" id="archivo"/>
             <#break>
         <#case "select">
-            <select class="form-control" name="${propd.name}" id="${propd.name}">
+            <select class="selectpicker" name="${propd.name}" id="${propd.name}" data-live-search="true">
                 <#assign vlist = lists.get(propd.widgetList) >
                 <option value=""></option>
                 <#list vlist as vitem>
@@ -73,7 +73,7 @@
        		<input type="file" class="form-control" name="archivo" id="archivo"/>
             <#break>
         <#case "select">
-            <select class="form-control" name="${propd.name}" id="${propd.name}">
+            <select class="selectpicker" name="${propd.name}" id="${propd.name}" data-live-search="true">
                 <#assign vlist = lists.get(propd.widgetList) >
                 <#assign vvalue = (propd.id(obj)!"")?string >
                 <option value=""></option>
