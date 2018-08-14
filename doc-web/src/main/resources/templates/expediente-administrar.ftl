@@ -162,12 +162,6 @@
         </div>
     </div>
     <div class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
-        <#if (expediente.indUsuarioAsignado == 1 && expediente.indJefeDependencia) && !expediente.indCerrado>
-            <a id="btnAprobar" title="El expediente se encuentra con cambios sin aprobar" onclick="mostrarCambiosPendientes(${expediente.expId})"
-               data-toggle="modal" href="#enviarJefeModal" class="btn btn-success" >
-                Aprobar
-            </a>
-        </#if>
         <#if (expediente.indUsuCreador || expediente.indJefeDependencia) && !expediente.indCerrado>
             <a href="/expediente/asignar-usuario-expediente/${expediente.expId}" class="btn btn-warning" >
                 Modificar Usuarios
