@@ -10,11 +10,15 @@ import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
 /**
  *
@@ -29,7 +33,13 @@ public class UsuSelFavoritos implements Serializable {
 
     private static final long serialVersionUID = 2610226341798500045L;
 
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @GenericGenerator(name = "seq_USU_SEL_FAVORITOS", strategy = "sequence",
+            parameters = {
+                @Parameter(name = "sequence", value = "seq_USU_SEL_FAVORITOS")
+                ,@Parameter(name = "allocationSize", value = "1")
+            })
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+            generator = "seq_USU_SEL_FAVORITOS")
     @Id
     @Basic(optional = false)
     @Column(name = "USU_SEL_ID")
