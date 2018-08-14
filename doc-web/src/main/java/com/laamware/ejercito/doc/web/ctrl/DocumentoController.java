@@ -1990,7 +1990,7 @@ public class DocumentoController extends UtilController {
                         return usuR.getOne(uid);
                     }
                 });
-
+                // TODO FAVORITOS
                 String docId = i.getVariable(Documento.DOC_ID);
                 Documento doc = documentRepository.getOne(docId);
                 doc.setUsuarioUltimaAccion(getUsuario(principal));
@@ -2089,6 +2089,9 @@ public class DocumentoController extends UtilController {
         String docId = i.getVariable(Documento.DOC_ID);
         Documento doc = documentRepository.getOne(docId);
         model.addAttribute("documento", doc);
+        
+        //TODO ADD USUARIOS FAVORITOS
+        
         return "documento-asignar";
     }
 

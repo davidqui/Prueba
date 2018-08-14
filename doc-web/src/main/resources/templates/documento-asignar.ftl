@@ -44,8 +44,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-5">
-                                    <h5>Usuarios</h5>
                                     <#if usuarios??>
+                                        <h5>Usuarios</h5>
                                         <#list usuarios as u>
                                             <div>
                                                 <#if u.restriccionDocumentoNivelAcceso== true>
@@ -55,6 +55,21 @@
                                                     <#else>
                                                         <label class="c-input c-radio" style="color:#5cb85c">
                                                                                                         <input type="radio" name="uid" value="${u.id}"><span class="c-indicator"></span>${u} ${u.mensajeNivelAcceso}
+                                                                                                    </label>
+                                                </#if>
+                                            </div>
+                                        </#list>
+                                    <#else>
+                                        <h5>Usuarios Favoritos</h5>
+                                        <#list usuariosFav as ufav>
+                                            <div>
+                                                <#if u.restriccionDocumentoNivelAcceso== true>
+                                                    <label style="color:#FF0000">								
+                                                                                                        ${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
+                                                                                                    </label>
+                                                    <#else>
+                                                        <label class="c-input c-radio" style="color:#5cb85c">
+                                                                                                        <input type="radio" name="uid" value="${ufav.usuFav.id}"><span class="c-indicator"></span>${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
                                                                                                     </label>
                                                 </#if>
                                             </div>
