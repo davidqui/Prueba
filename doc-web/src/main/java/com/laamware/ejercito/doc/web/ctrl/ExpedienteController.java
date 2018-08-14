@@ -272,6 +272,9 @@ public class ExpedienteController extends UtilController {
                 model.addAttribute("documentosSerie", documentos);
             }
         }
+        
+        if (expedienteService.permisoAdministrador(usuSesion, expediente) || expedienteService.permisoIndexacion(usuSesion, expediente))
+            model.addAttribute("indexacion", true);
         model.addAttribute("expediente", expediente);
         model.addAttribute("tipoVisualizacion", tipoVisualizacion);
         model.addAttribute("expId", expId);

@@ -10,7 +10,7 @@
         </ol>
     </div>
     <div>
-        <#if !expediente.indCerrado>
+        <#if !expediente.indCerrado && indexacion??>
             <span>
                 <a  class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="modal" data-trigger="hover" data-placement="right" title="Indexar documento" data-content="Pulse para indexar documento" style="float:left;" data-target="#agregarDocumento">Indexar Doocumento</a>
             </span>

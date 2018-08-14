@@ -218,9 +218,7 @@ CREATE TABLE EXP_USUARIO (
   USU_CREACION     number(10) NOT NULL, 
   FEC_MODIFICACION timestamp(0), 
   USU_MODIFICACION number(10), 
-  PRIMARY KEY (EXP_USU_ID), 
-  CONSTRAINT EXP_UNI_USU
-    UNIQUE (EXP_ID, USU_ID));
+  PRIMARY KEY (EXP_USU_ID));
 COMMENT ON COLUMN EXP_USUARIO.EXP_USU_ID IS 'Identificador unico de la tabla';
 COMMENT ON COLUMN EXP_USUARIO.EXP_ID IS 'Identificador del expediente';
 COMMENT ON COLUMN EXP_USUARIO.USU_ID IS 'Identificador del usuario asignado al expediente';

@@ -394,7 +394,7 @@ public class ExpedienteService {
      * @return true si tiene permisos de indexación false si no
      */
     public boolean permisoIndexacion(Usuario usuario, Expediente expediente) {
-        List<ExpUsuario> expUsuarios = expUsuarioService.findByExpedienteAndUsuarioAndPermisoTrue(expediente, usuario);
+        List<ExpUsuario> expUsuarios = expUsuarioService.findByExpedienteAndUsuarioAndPermisoTruePermisoIndexacion(expediente, usuario);
         return !expUsuarios.isEmpty();
     }
 

@@ -95,6 +95,16 @@ public class ExpUsuarioService {
         return expUsuarioRepository.getByExpIdAndUsuIdAndActivoTrueIndAprobadoTrue(expediente, usuario);
     }
     
+    /**
+     * Lista los usuarios expediente de un expediente por un usuario si tiene permiso de indexación
+     * @param expediente
+     * @param usuario
+     * @return 
+     */
+    public List<ExpUsuario> findByExpedienteAndUsuarioAndPermisoTruePermisoIndexacion(Expediente expediente, Usuario usuario){
+        return expUsuarioRepository.getByExpIdAndUsuIdAndPermisoAndActivoTrueIndAprobadoTrue(expediente, usuario, 2);
+    }
+    
     /***
      * Agrega un usuario a un expediente
      * @param expediente expediente a agergar 
