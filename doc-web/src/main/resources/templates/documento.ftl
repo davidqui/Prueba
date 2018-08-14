@@ -1329,7 +1329,7 @@
         <h5 class="modal-title" id="exampleModalLongTitle">Seleccionar Expediente</h5>
       </div>
       <div class="modal-body" style="max-height: 650px; overflow: hidden; overflow-y: auto;">
-        <#if expedientesValidos??>
+        <#if expedientesValidos?? && expedientesValidos?size != 0>
             <div class="list-group">
                 <input type="hidden" id="expedienteDestino" name="expedienteDestino" value="" />
                 <#list expedientesValidos as pExpediente>
@@ -1350,6 +1350,8 @@
                     </button>
                 </#list>
             </div>
+        <#else>
+           <p>No tiene expedientes validos para este documento.</p>
         </#if>
       </div>
       <div class="modal-footer">
