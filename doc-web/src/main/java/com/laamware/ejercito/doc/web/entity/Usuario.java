@@ -216,6 +216,18 @@ public class Usuario extends AuditActivoModifySupport {
     @ManyToOne
     @JoinColumn(name = "DOM_CODIGO", referencedColumnName = "DOM_CODIGO")
     private Dominio dominio;
+    
+    
+    /*
+     * 2018-08-15 samuel.delgado@controltechcg.com Issue #7 (SICDI-Controltech)
+     * feature-gogs-7: Estado del usuario activo para hacer operaciones y el mensaje si este essta inactivo
+     */
+    @Column(name = "USU_ACTIVO")
+    private Boolean usuActivo;
+    
+    @Column(name = "USU_TEXTO_ACTIVO")
+    private String textoActivo;
+
 
     @Transient
     private List<UsuarioHistorialFirmaDTO> historialUsuarios = new ArrayList<UsuarioHistorialFirmaDTO>();
@@ -399,6 +411,22 @@ public class Usuario extends AuditActivoModifySupport {
         this.restriccionDocumentoNivelAcceso = restriccionDocumentoNivelAcceso;
     }
 
+    public Boolean getUsuActivo() {
+        return usuActivo;
+    }
+
+    public void setUsuActivo(Boolean usuActivo) {
+        this.usuActivo = usuActivo;
+    }
+
+    public String getTextoActivo() {
+        return textoActivo;
+    }
+
+    public void setTextoActivo(String textoActivo) {
+        this.textoActivo = textoActivo;
+    }
+    
     @Transient
     private String idString;
 

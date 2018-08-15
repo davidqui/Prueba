@@ -388,4 +388,29 @@ public class UsuarioService {
         Dependencia unidadPadre = dependenciaService.buscarUnidad(usuarioSesion.getDependencia());;
         return unidadPadre.getUsuarioRegistro();
     }
+    
+    /*
+    * 2018-08-15 samuel.delgado@controltechcg.com Issue #7 (SICDI-Controltech)
+    * feature-gogs-7: metodos para activar (habilitarUsuario) o desactivar usuario (inhabilitarUsuario)
+    */
+    /***
+     * Método para inhabilitar un usuario.
+     * @param usuarioSesion Usuario en sesión
+     * @param message mensaje por el que se inhabilita
+     */
+    public void inhabilitarUsuario(final Usuario usuarioSesion, final String message){
+        usuarioSesion.setUsuActivo(Boolean.FALSE);
+        usuarioSesion.setTextoActivo(message);
+        usuarioRepository.saveAndFlush(usuarioSesion);
+    }
+    
+    /***
+     * Método para habilitar un usuario.
+     * @param usuarioSesion Usuario en sesión
+     */
+    public void habilitarUsuario(final Usuario usuarioSesion){
+        usuarioSesion.setUsuActivo(Boolean.TRUE);
+        usuarioSesion.setTextoActivo(null);
+        usuarioRepository.saveAndFlush(usuarioSesion);
+    }
 }

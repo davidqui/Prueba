@@ -44,7 +44,7 @@
     <body>
     <#include "loader.ftl">
     <#if username?? >
-        <div class="cus-top-bar">
+        <div class="cus-top-bar" style="height: 30px;">
             <div class="pull-xs-right">
                 <form action="/logout" method="POST" class="form-inline" id="logout-form">            	
                     <span class="hidden-lg-down">Usuario: ${username} - ${userprofile}</span>
@@ -58,12 +58,15 @@
                     </script>
                 </div>        
             <div>
-          <#if utilController??>
-          	<#if utilController.hasAdminRole()>
-                <!--#181 se agrega loader --> 
+       </#if>   
+        <#if usuActivo??>
+            <#if usuActivo>
+                <#if username?? >
+                    <#if utilController??>
+                        <#if utilController.hasAdminRole()>
                 <a href="/admin" onclick="loading(event);">Administración</a>
-          	</#if>
-          </#if>
+                        </#if>
+                    </#if>
 
           <#if utilController??>
           	<#if utilController.hasArchivoRole()>
@@ -74,12 +77,12 @@
                 <a href="/capacitacion-juego/intro" onclick="loading(event);">Capacitación</a>
                 <a href="/video/manual_registro1_player.html" target="_blank">Manual  </a>
 
-    <#--
-        2018-05-02 jgarcia@controltechcg.com Issue #159 (SICDI-Controltech)
-        feature-159: Presentación de enlace al OWA, si el usuario en sesión
-        tiene activado el acceso en su configuración de dominio.
-    -->
-    <#if user_can_use_owa_link>
+                    <#--
+                        2018-05-02 jgarcia@controltechcg.com Issue #159 (SICDI-Controltech)
+                        feature-159: Presentación de enlace al OWA, si el usuario en sesión
+                        tiene activado el acceso en su configuración de dominio.
+                    -->
+                    <#if user_can_use_owa_link>
                 <a href="#" data-toggle="modal" data-target="#modal-owa-link">Cambiar Contraseña</a>
 
                 <div class="modal fade" id="modal-owa-link" role="dialog">
@@ -88,24 +91,24 @@
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title" style="color: #0275d8;">Cambiar Contraseña</h4>
-                            </div>
+                                </div>
                             <div class="modal-body" style="color: black;">
                                 <p>Al dar clic al botón "Continuar", acepta acceder al sistema OWA para realizar allí el proceso de cambio de contraseña.</p>
                                 <p>Debe permitir en su navegador activar popups provenientes de la URL de SICDI.</p>
                                 <p>Finalizado el procedimiento en el sistema mencionado, se recomienda cerrar la sesión en SICDI y acceder con la nueva contraseña.</p>
-                            </div>
+                                </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-success" data-dismiss="modal" onclick="goToOWA('${owa_link_url}');">Continuar</button>
                                 <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-    </#if>
+                    </#if>
 
 
                 <a href="#" data-toggle="modal" data-target="#modal-notificaciones" onclick="notificar()">Notificaciones</a>
-             
+                <!--modal admin notificaciones-->
                 <div class="modal fade" id="modal-notificaciones" role="dialog">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -113,21 +116,42 @@
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title" style="color: #0275d8;">Configuración Notificaciones</h4>
                                 </div>
-                            <div class="modal-body" style="color: black;">
-                                
+                                <div class="modal-body" style="color: black;">
+
                                 </div>
                             </div>
                         </div>
                     </div>
-                
+            
+                <a href="#" data-toggle="modal" data-target="#modal-inhabilitar-usuario">Desabilitar Usuario</a>
+                <!--modal inhabilitar Usuario-->
+                <div class="modal fade" id="modal-inhabilitar-usuario" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title" style="color: #0275d8;">Desabilitar Usuario</h4>
+                                </div>
+                                <div class="modal-body" style="color: black;">
+                                    <div class="form-group">
+                                      <label for="comment">Razón de inhabilitar:</label>
+                                      <textarea class="form-control" rows="5" id="comentario-deshabilitar"></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                  <button type="button" class="btn btn-danger" onclick="deshabilitarUsuario()">Desabilitar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-    </#if>
-
+                </#if>
         <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
-        <#-- 2017-03-31 jgarcia@controltechcg.com Issue #34 Cambio de nombre de aplicación a SICDI. -->
+                <#-- 2017-03-31 jgarcia@controltechcg.com Issue #34 Cambio de nombre de aplicación a SICDI. -->
             <a class="navbar-brand hidden-md-down" href="#"><h3>SICDI</h3></a>
-		<#if username?? >
+                        <#if username?? >
             <ul class="nav navbar-nav">
                 <li class="nav-item">
                     <div class="btn-group">
@@ -140,10 +164,10 @@
                             <a href="/bandeja/enviados" class="dropdown-item" onclick="loading(event);">Bandeja de enviados</a>
                             <a href="/bandeja/entramite" class="dropdown-item" onclick="loading(event);">Bandeja en trámite</a>
 
-	  				  		<#--
-	  				  		    2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech):
-	  				  		    Opción de bandeja de apoyo y consulta. 
-	  				  		 -->	  				  			  				  			  				  			  				  			  				  		
+                                                                <#--
+                                                                    2017-04-18 jgarcia@controltechcg.com Issue #50 (SICDI-Controltech):
+                                                                    Opción de bandeja de apoyo y consulta. 
+                                                                 -->	  				  			  				  			  				  			  				  			  				  		
                             <a href="/bandeja/apoyo-consulta" class="dropdown-item">Bandeja de consulta</a>
                             </div>
                         </div>
@@ -161,9 +185,9 @@
                     <a href="/expediente/carpeta" class="btn btn-secondary btn-sm" onclick="loading(event);"><span class="hidden-md-down">Archivos</span><span class="hidden-lg-up">Car</span></a>
                 </li>
 
-                <!--
-                    2017-08-29 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech) feature-120:
-                    Botón para acceder al módulo de transferencia de archivo.
+                        <!--
+                            2017-08-29 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech) feature-120:
+                            Botón para acceder al módulo de transferencia de archivo.
                 -->
                 <li class="nav-item">
                     <!--#181 se agrega loader --> 
@@ -192,7 +216,7 @@
                         </a>
                     </li>
                 </ul>
-		</#if>
+                        </#if>
             </nav>
         <nav class="navbar navbar-light hidden-sm-up" style="background-color: #e3f2fd;">
             <form action="/consulta" method="POST" class="form-inline" id="consulta-form">
@@ -208,8 +232,37 @@
                  return true;
                 }
             </script>
-	<@flash/>   
-        <div class="container-fluid">
+            <#else>
+        </div>
+    </div>
+        <div class="container">
+            <div class="row">
+                <h1 class="display-1 hidden-md-down">&nbsp;</h1>
+                <div class="card card-inverse"
+                     style="color: #fff; background-color: #2e73a1; border-color: #2e73a1">
+                    <div class="card-block">
+                        <h1>SICDI</h1>
+                        <p class="lead">SISTEMA CLASIFICADO DE DOCUMENTOS DE INTELIGENCIA MILITAR</p>
+                        </div>
+                    </div>
+                <div class="card"
+                     style="background-color: #fff; border-color: #94ce18">
+                    <div class="card-block lead">
+                        <p>
+                            <b>Su Usuario esta inactivo.</b>
+                            </p>
+                        <p> Si desea activarlo pulse aqui</p>
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="habilitarUsuario()">
+                            Activar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </#if>
+        </#if>
+	<@flash/>
+        <div class="container-fluid" id="masterdiv">
             <div class="row cus-root-container">
                 <script>
                     $( window ).on( "load", function() {

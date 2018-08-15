@@ -49,3 +49,34 @@ function cambioEstado(tnfId){
     });
 };
 
+
+function habilitarUsuario() {
+    $.ajax({ 
+        method: "POST", 
+        url: "/habilitar-usuario"
+    }).then(function() { 
+        location.reload(); 
+      }, function() { 
+        console.log("ERROR");
+    }); 
+}
+
+function deshabilitarUsuario() {
+    var descripcion = $("#comentario-deshabilitar").val();
+    
+    if (descripcion.trim().length < 0) {
+        alert("Debe ingresar una razón para deshabilitar.");
+        return;
+    } 
+    
+    $.ajax({ 
+        method: "POST", 
+        url: "/inhabilitar-usuario",
+        data: {descr: descripcion},
+        dataType: 'html'
+    }).then(function() { 
+        location.reload(); 
+      }, function() { 
+        console.log("ERROR");
+    }); 
+}
