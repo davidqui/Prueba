@@ -73,7 +73,7 @@ public class UsuarioService {
      */
     @Autowired
     ProcesoService procesoService;
-    
+
     /**
      * Repositorio de dependencias
      */
@@ -385,18 +385,7 @@ public class UsuarioService {
      * feature-162.
      */
     public Usuario retornaUsuarioRegistro(Usuario usuarioSesion) {
-        Usuario usuarioRegistro;
-        Dependencia unidadPadre = usuarioSesion.getDependencia();
-        do {
-            usuarioRegistro = unidadPadre.getUsuarioRegistro();
-            if(usuarioRegistro == null && unidadPadre.getPadre() == null){
-                break;
-            }else{
-                unidadPadre = dependenciaRepository.findOne(unidadPadre.getPadre());
-                unidadPadre = dependenciaService.buscarUnidad(unidadPadre);
-            }
-        } while (usuarioRegistro == null);
-
-        return usuarioRegistro;
+        Dependencia unidadPadre = dependenciaService.buscarUnidad(usuarioSesion.getDependencia());;
+        return unidadPadre.getUsuarioRegistro();
     }
 }
