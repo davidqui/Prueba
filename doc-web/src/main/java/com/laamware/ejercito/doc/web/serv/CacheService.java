@@ -27,11 +27,13 @@ public class CacheService {
         cache.putIfAbsent(key, object);
     }
     
-    public void deleteKeyCache(String key){
+    /**
+     * 26/07/2018 hotfix-183 se agrega synchronized a el metodo para que no existan problemas de concurrencia.
+     */
+    public synchronized void deleteKeyCache(String key){
         initMap();
-    for(Iterator<Map.Entry<String, Object>> it = cache.entrySet().iterator(); it.hasNext(); ) {
+        for(Iterator<Map.Entry<String, Object>> it = cache.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<String, Object> entry = it.next();
-            System.out.println(entry.getKey()+" -- "+key+" = "+entry.getKey().contains(key));
             if (entry.getKey().contains(key)) {
                 it.remove();
             }
