@@ -62,7 +62,13 @@ public class ParNombreExpedienteService {
         if (parNombre.trim().length() > textoNombreColumnLength) {
             throw new BusinessLogicException("El texto de la observación permite máximo " + textoNombreColumnLength + " caracteres.");
         }
-
+        
+        ParNombreExpediente nombreExpediente = parNombreExpedienteRepository.findOneByParNombre(parNombre);
+        if (nombreExpediente != null) {
+            throw new BusinessLogicException("Este nombre ya existe.");
+        }
+        
+        parNombreExpediente.setParNombre(parNombre.toUpperCase());
         parNombreExpediente.setUsuCreacion(usuario);
         parNombreExpediente.setFecCreacion(new Date());
         parNombreExpediente.setUsuModificacion(usuario);
@@ -82,7 +88,14 @@ public class ParNombreExpedienteService {
         if (parNombre.trim().length() > textoNombreColumnLength) {
             throw new BusinessLogicException("El texto del nombre permite máximo " + textoNombreColumnLength + " caracteres.");
         }
-
+        
+        ParNombreExpediente nombreExpediente = parNombreExpedienteRepository.findOneByParNombre(parNombre);
+        if (!nombreExpediente.getParId().equals(parNombreExpediente.getParId()) && nombreExpediente != null) {
+            throw new BusinessLogicException("Este nombre ya existe.");
+        }
+        
+        parNombreExpediente.setParNombre(parNombre.toUpperCase());
+        
         ParNombreExpediente nombreExpedienteAnterior
                 = findOne(parNombreExpediente.getParId());
         

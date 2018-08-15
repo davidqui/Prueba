@@ -35,14 +35,14 @@
                     <input type="text" class="form-control" id="trdSigla" name="trdSigla" disabled style="width: 10%;"/>
                     <input type="text" class="form-control" id="anoActual" name="anoActual" value="${(year)!""}" disabled style="width: 10%;"/>
                     <input type="number" class="form-control" id="numberExpediente" name="numberExpediente" style="width: 10%;" placeholder="000" required max="999" min="1"/>
-                    <select class="form-control" id="parNombreExpediente" name="parNombreExpediente" style="width: 50%;">
+                    <select class="selectpicker" id="parNombreExpediente" name="parNombreExpediente" style="width: 50%;" data-live-search="true">
                         <#list nombreExpediente as nombreEx>
                             <option value="${(nombreEx.parId)!""}" data-text="${(nombreEx.parNombre)!""}">${(nombreEx.parNombre)!""}</option>
                         </#list>
                     </select>
-                    <input type="text" class="form-control" id="opcionalNombre" name="opcionalNombre" style="width: 20%;" placeholder="opcional"/>
+                    <input type="text" class="form-control" id="opcionalNombre" name="opcionalNombre" style="width: 20%; text-transform:uppercase" placeholder="opcional"/>
                 </div>
-                <p><b>Nombre:</b> <span id="input-nombre-1"></span>-<span id="input-nombre-2">${(year)!""}</span>-<span id="input-nombre-3"></span>-<span id="input-nombre-4"></span><span id="input-nombre-5"></span><p>    
+                <p style="text-transform:uppercase"><b>Nombre:</b> <span id="input-nombre-1"></span>-<span id="input-nombre-2">${(year)!""}</span>-<span id="input-nombre-3"></span>-<span id="input-nombre-4"></span><span id="input-nombre-5"></span><p>    
             <label for="tipoExp">Tipo de expediente:</label>
             <div class="btn-group" data-toggle="buttons" id="topButtonDiv" style="width: 100%;">
                 <button type="button" class="btn btn-primary" id="btn-simple" style="width: 50%;" onclick="selectExpediente(1)">SIMPLE
@@ -50,7 +50,12 @@
                 <button type="button" class="btn btn-default" id="btn-complejo" style="width: 50%;" onclick="selectExpediente(2)">COMPLEJO
                 <input type="radio" id="radio2" name="expTipo" value="2"> </button>              
             </div>
-
+            
+            <p style="margin-top:10px;">
+                <b>Series documentales Simples:</b> Acuerdos, Decretos, Circulares, Resoluciones
+                </br>
+                <b>Series documentales Complejas:</b> Contratos, Historias Laborales, Investigaciones Disciplinarias, Procesos Jurídicos
+            </p>
 
             <fieldset class="form-group" style="margin-top:10px;">
                 <label for="expNombre">Descripción</label>

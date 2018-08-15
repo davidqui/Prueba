@@ -122,7 +122,7 @@ public class ExpedienteService {
             nombre += "-" + opcionalNombre;
         }
 
-        expediente.setExpNombre(nombre);
+        expediente.setExpNombre(nombre.toUpperCase());
 
         List<Expediente> expedientesNombre = expedienteRepository.getByExpNombreAndDepId(expediente.getExpNombre(), usuario.getDependencia());
         if (!expedientesNombre.isEmpty()) {
