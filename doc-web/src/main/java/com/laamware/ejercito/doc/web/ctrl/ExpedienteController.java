@@ -531,6 +531,7 @@ public class ExpedienteController extends UtilController {
             model.addAttribute("trds", trds);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
             model.addAttribute("nombreExpediente", nombreExpediente);
+            model.addAttribute("dependencia", usuarioSesion.getDependencia());
             model.addAttribute("year", Calendar.getInstance().get(Calendar.YEAR));
             return "expediente-crear";
         }

@@ -45,7 +45,8 @@
       </div>
       <div class="modal-body" style="max-height: 650px; overflow: hidden; overflow-y: auto;">
         <#if expedientesValidos?? && expedientesValidos?size != 0>
-            <div class="list-group">
+            <input class="form-control" type="text" id="buscardor-expediente" onkeyup="buscarEnLista()" placeholder="buscar" title="Esctriba el nombre del expediente" style="margin-bottom: 10px;">
+            <div class="list-group" id="lista-expedientes">
                 <input type="hidden" id="expedienteDestino" name="expedienteDestino" value="" />
                 <#list expedientesValidos as pExpediente>
                     <button id="expediente-${(pExpediente.expId)!""}" onclick="seleccionarExpediente(${(pExpediente.expId)!""})"
