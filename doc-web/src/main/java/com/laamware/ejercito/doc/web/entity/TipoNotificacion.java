@@ -19,7 +19,7 @@ import javax.persistence.Temporal;
 /**
  * Tipos de Notificación
  *
- * @author samuel.delgado@controltechcg.com 
+ * @author samuel.delgado@controltechcg.com
  * @since 1.8
  * @version 30/05/2018 Issue #169 (SICDI-Controltech) feature-169
  */
@@ -30,36 +30,38 @@ import javax.persistence.Temporal;
 public class TipoNotificacion implements Serializable {
 
     private static final long serialVersionUID = 8775290198456675507L;
-    
+
     @Id
     @Basic(optional = false)
     @Column(name = "TNF_ID")
     private Integer id;
-    
+
     @LaamLabel("Nombre")
     @Basic(optional = false)
     @Column(name = "NOMBRE", length = 32)
     private String nombre;
-    
+
     @LaamLabel("Valor")
     @LaamListColumn(order = 10)
     @LaamCreate(order = 10)
     @Basic(optional = false)
     @Column(name = "VALOR")
     private Integer valor;
-    
+
     @Basic(optional = false)
     @Column(name = "ACTIVO")
     private Boolean activo;
-    
-    @ManyToMany(cascade = { CascadeType.PERSIST })
+
+    @ManyToMany(cascade = {CascadeType.PERSIST})
     @JoinTable(
-        name = "WILDCARD_TIPO_NOTIFICACION", 
-        joinColumns = { @JoinColumn(name = "TNF_ID", referencedColumnName = "TNF_ID") }, 
-        inverseJoinColumns = { @JoinColumn(name = "WNF_ID", referencedColumnName = "WNF_ID") }
+            name = "WILDCARD_TIPO_NOTIFICACION",
+            joinColumns = {
+                @JoinColumn(name = "TNF_ID", referencedColumnName = "TNF_ID")},
+            inverseJoinColumns = {
+                @JoinColumn(name = "WNF_ID", referencedColumnName = "WNF_ID")}
     )
     private List<WildCardNotificacion> wildCards;
-    
+
     @ManyToOne
     @JoinColumn(name = "QUIEN", updatable = false, insertable = true, nullable = false)
     private Usuario quien;
@@ -75,6 +77,13 @@ public class TipoNotificacion implements Serializable {
     @Column(name = "CUANDO_MOD")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date cuandoMod;
+
+    public TipoNotificacion() {
+    }
+
+    public TipoNotificacion(Integer id) {
+        this.id = id;
+    }
 
     public Integer getId() {
         return id;
@@ -147,8 +156,7 @@ public class TipoNotificacion implements Serializable {
     public void setWildCards(List<WildCardNotificacion> wildCards) {
         this.wildCards = wildCards;
     }
-    
-    
+
     @Override
     public int hashCode() {
         int hash = 5;

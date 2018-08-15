@@ -127,6 +127,7 @@ import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.JasperService;
 import com.laamware.ejercito.doc.web.serv.MailQueueService;
 import com.laamware.ejercito.doc.web.serv.NotificacionService;
+import com.laamware.ejercito.doc.web.serv.NotificacionxUsuarioService;
 import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
@@ -171,7 +172,6 @@ public class DocumentoController extends UtilController {
 
     static final String PATH = "/documento";
 
-    
     private static final com.aspose.words.License LICENSE = new com.aspose.words.License();
     /*
     2017-10-02 edison.gonzalez@controltechcg.com feature #129 : Organizacion
@@ -189,12 +189,13 @@ public class DocumentoController extends UtilController {
     /*
         2018-06-20 samuel.delgado@controltechcg.com #169 : Constantes proceso 
         estado.
-    */
+     */
     public static final Integer ESTADO_ANULADO = 83;
     public static final Integer ESTADO_ENVIADO = 49;
     public static final Integer ESTADO_NUEVO_EXTERNO = 46;
     public static final Integer ID_TIPO_NOTIFICACION_FIRMA = 110;
     public static final Integer ID_TIPO_NOTIFICACION_ENVIADO = 120;
+
     /**
      * Id del proceso de acta
      */
@@ -206,11 +207,11 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     private DataSource dataSource;
-    
+
     /*
         2018-06-21 samuel.delgado@controltechcg.com feature #129 : variable para
         validar las plantillas.
-    */
+     */
     @Value("${com.mil.imi.sicdi.plantillas.validar}")
     private Boolean VALIDAR_PLANTILLAS;
 
@@ -327,7 +328,7 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private DependenciaService dependenciaService;
-    
+
     /*
      * 2018-05-21 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
      * feature-162: Servicio de archivos adjuntos.
@@ -341,20 +342,24 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private DocumentoObservacionDefectoService observacionDefectoService;
-    
+
     /*
      * 2018-06-13 samuel.delgado@controltechcg.com Issue #169 (SICDI-Controltech)
      * feature-169: Servicio de notificaciones de correo eléctronico.
      */
     @Autowired
     private MailQueueService mailQueueService;
-    
+
     /*
      * 2018-06-13 samuel.delgado@controltechcg.com Issue #169 (SICDI-Controltech)
      * feature-169: Servicio de notificaciones.
      */
     @Autowired
     private NotificacionService notificacionService;
+
+    @Autowired
+    private NotificacionxUsuarioService notificacionxUsuarioService;
+
     
     /*
      * 2018-08-02 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
@@ -662,7 +667,7 @@ public class DocumentoController extends UtilController {
         if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS)) {
             return "redirect:" + DocumentoActaController.PATH + "?pin=" + pin;
         }
-        
+
         // Si el request trae información en headerView, se envía a la vista
         // para que se muestre otro header al que está por defecto
         model.addAttribute("archivoHeader", archivoHeader);
@@ -1014,8 +1019,8 @@ public class DocumentoController extends UtilController {
             BindingResult docBind, final RedirectAttributes redirect, Model model, Principal principal) {
 
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias =  dependenciaService.depsHierarchy();
-        
+        List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
+
         model.addAttribute("dependencias", listaDependencias);
 
         // Obtiene la instancia de proceso
@@ -1084,7 +1089,7 @@ public class DocumentoController extends UtilController {
         } else {
             old = documentRepository.getOne(docId);
         }
-        
+
         if (fileSaveRequestGet) {
 
             if ((file == null || file.getOriginalFilename().isEmpty())) {
@@ -1154,7 +1159,7 @@ public class DocumentoController extends UtilController {
         }
 
         String fileId = null;
-        
+
         if (file != null && VALIDAR_PLANTILLAS) {
             try {
                 if (file.getContentType()
@@ -1164,7 +1169,7 @@ public class DocumentoController extends UtilController {
                     String nombrePlantilla = null;
                     String versionPlantilla = null;
                     for (Bookmark bookmark : bookmarks) {
-                        System.out.println("Bookmark name "+bookmark.getName());
+                        System.out.println("Bookmark name " + bookmark.getName());
                         try {
                             String key = bookmark.getName().split("_")[0];
                             String value = bookmark.getName().split("_")[1];
@@ -1174,12 +1179,13 @@ public class DocumentoController extends UtilController {
                             if (key.equals("version")) {
                                 versionPlantilla = value;
                             }
-                        } catch (Exception ex) {  }
+                        } catch (Exception ex) {
+                        }
                     }
 
-                    System.out.println("NOMBRE PLANTILLA = "+nombrePlantilla+" Version = "+versionPlantilla);
+                    System.out.println("NOMBRE PLANTILLA = " + nombrePlantilla + " Version = " + versionPlantilla);
 
-                    if (nombrePlantilla == null || versionPlantilla == null){
+                    if (nombrePlantilla == null || versionPlantilla == null) {
                         doc.setMode(mode);
                         plantillas(model);
                         tipologias(doc.getTrd(), model);
@@ -1191,7 +1197,7 @@ public class DocumentoController extends UtilController {
 
                     List<Plantilla> plantilla = plantillaRepository.findByBookmarkNameAndBookmarkValue(nombrePlantilla, versionPlantilla);
 
-                    if (plantilla.isEmpty()){
+                    if (plantilla.isEmpty()) {
                         doc.setMode(mode);
                         plantillas(model);
                         tipologias(doc.getTrd(), model);
@@ -1215,8 +1221,8 @@ public class DocumentoController extends UtilController {
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(DocumentoController.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } 
-        
+        }
+
         if (fileSaveRequestGet) {
             try {
                 if (file != null) {
@@ -1281,7 +1287,7 @@ public class DocumentoController extends UtilController {
             model.addAttribute(AppConstants.FLASH_ERROR, "Ocurrió un error inesperado: " + e.getMessage());
             return "documento";
         }
-        
+
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Los datos han sido guardados correctamente");
 
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
@@ -2111,15 +2117,16 @@ public class DocumentoController extends UtilController {
             /*
             * 2018-06-14 samuel.delgado@controltechcg.com Issue #169
             * (SICDI-Controltech) feature-169 Envio notificación.
-            */
+             */
             enviarNotificacionesCambioProceso(i, doc, null, null);
             return redirectToInstancia(i);
         } else {
             model.addAttribute("mode", "nomode");
         }
-        /***
-         * 05-07-2018 se agrega información del documento (ASUNTO)
-         * para que al momento de seleccionar un usuario despiegue la información
+        /**
+         * *
+         * 05-07-2018 se agrega información del documento (ASUNTO) para que al
+         * momento de seleccionar un usuario despiegue la información
          * release-20180628
          */
         Instancia i = instanciaRepository.findOne(pin);
@@ -2895,7 +2902,7 @@ public class DocumentoController extends UtilController {
          */
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                 buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
-        
+
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
         } else {
@@ -4292,7 +4299,7 @@ public class DocumentoController extends UtilController {
 
         // 2017-02-09 jgarcia@controltechcg.com Issue #11 (SIGDI-Incidencias01)
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Reasignado a: " + instancia.getAsignado());
-        
+
         if (instancia.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
         } else {
@@ -4919,7 +4926,6 @@ public class DocumentoController extends UtilController {
 //            depsHierarchyPadre(x);
 //        }
 //    }
-
     private String redirectToInstancia(Instancia i) {
         if (i.transiciones().size() > 0) {
             return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, i.getId());
@@ -5341,9 +5347,9 @@ public class DocumentoController extends UtilController {
          * asignados debe manejar múltiples destinos o no.
          */
         final Estado estado = instancia.getEstado();
-        
+
         final String documentoID = instancia.getVariable(Documento.DOC_ID);
-        
+
         /*
          * 2018-06-12 jgarcia@controltechcg.com Issue #169 (SICDI-Controltech)
          * feature-169: Búsqueda del documento.
@@ -5351,12 +5357,12 @@ public class DocumentoController extends UtilController {
         final Documento documento = documentoRepository.findOne(documentoID);
 
         final List<DependenciaCopiaMultidestino> copiaMultidestinos = copiaMultidestinoService.listarActivos(documento);
-        
+
         if (!estado.getId().equals(Estado.ENVIADO)) {
             /**
              * 2018-05-02 samuel.delgado@controltechcg.com Issue #169
-             * (SICDI-Controltech) feature-169: Envia las notificaciones
-             * a los usuarios.
+             * (SICDI-Controltech) feature-169: Envia las notificaciones a los
+             * usuarios.
              */
             try {
                 enviarNotificacionesCambioProceso(instancia, documento, null, null);
@@ -5487,7 +5493,6 @@ public class DocumentoController extends UtilController {
 //            fillTrdsHierarchy(subserie, usuario);
 //        }
 //    }
-
     /**
      * Construye las propiedades del documento que han de quedar consignadas
      * como data en el documento físico que se descarga (PDF).
@@ -5663,9 +5668,8 @@ public class DocumentoController extends UtilController {
     public List<DocumentoObservacionDefecto> listarObservacionDefectoActivas() {
         return observacionDefectoService.listarActivas();
     }
-    
-    
-    public boolean verificarWildcardsPLantilla(String[] wildcards, List<WildcardPlantilla> wildcardsPlantilla){
+
+    public boolean verificarWildcardsPLantilla(String[] wildcards, List<WildcardPlantilla> wildcardsPlantilla) {
         List<String> strs = Arrays.asList(wildcards);
         int counter = 0;
         for (WildcardPlantilla wildcardPlantilla : wildcardsPlantilla) {
@@ -5682,22 +5686,23 @@ public class DocumentoController extends UtilController {
         enviarNotificacionesCambioProceso(instancia, documentoResultado, null, null);
     }
 
-    private void enviarNotificacionesCambioProceso(final Instancia instancia, final Documento documento, List<Notificacion> notificaciones, Usuario usuarioAsignado){
-        
+    private void enviarNotificacionesCambioProceso(final Instancia instancia, final Documento documento, List<Notificacion> notificaciones, Usuario usuarioAsignado) {
+
         if (usuarioAsignado == null) {
             usuarioAsignado = instancia.getAsignado();
         }
-        
+
         if (notificaciones == null) {
             if (instancia.getEstado().getId() == ESTADO_ENVIADO) {
                 notificaciones = notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_ENVIADO);
-                if (usuarioAsignado.getId() == documento.getElabora().getId())
+                if (usuarioAsignado.getId() == documento.getElabora().getId()) {
                     return;
-            }else{
+                }
+            } else {
                 notificaciones = notificacionService.fingByTypoNotificacionValor(instancia.getEstado().getId());
             }
         }
-        
+
         if (notificaciones != null && !notificaciones.isEmpty()) {
             try {
                 Notificacion notificacion = notificaciones.get(0);
@@ -5706,35 +5711,38 @@ public class DocumentoController extends UtilController {
                 model.put("usuario", usuarioAsignado);
                 model.put("instancia", instancia);
                 model.put("documento", documento);
-                
+
                 if (!hProcesoInstancias.isEmpty() && hProcesoInstancias.size() >= 2) {
                     model.put("instanciaAnterior", getInstanciaNoUsuario(hProcesoInstancias, usuarioAsignado));
                 }
-                
+
                 Template t = new Template(notificacion.toString(), new StringReader(notificacion.getTemplate()));
                 String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
-                EmailDTO mensaje = new EmailDTO(usuarioAsignado.getEmail(), null,
-                        notificacion.getAsunto(), "", html, "", null);
-                
+                EmailDTO mensaje = new EmailDTO(usuarioAsignado.getEmail(), null, notificacion.getAsunto(), "", html, "", null);
+
                 if (instancia.getEstado().getId() == ESTADO_ANULADO) {
                     mensaje.setDestino(documento.getElabora().getEmail());
-                    if (usuarioAsignado.getId() == documento.getElabora().getId())
+                    if (usuarioAsignado.getId() == documento.getElabora().getId()) {
                         return;
+                    }
                 }
-                
-                if (instancia.getEstado().getId() == ESTADO_NUEVO_EXTERNO && 
-                        usuarioAsignado.getId() == documento.getElabora().getId())
+
+                if (instancia.getEstado().getId() == ESTADO_NUEVO_EXTERNO
+                        && usuarioAsignado.getId() == documento.getElabora().getId()) {
                     return;
-                
+                }
+
+                if (notificacionxUsuarioService.findCountByUsuIdAndTnfId(documento.getElabora().getId(), notificacion.getTipoNotificacion().getId()) == 1) {
+                    return;
+                }
                 mailQueueService.enviarCorreo(mensaje);
             } catch (IOException | TemplateException ex) {
                 LOG.error(ex.getMessage(), ex);
             }
         }
     }
-    
-    
-    private HProcesoInstancia getInstanciaNoUsuario(List<HProcesoInstancia> hProcesoInstancias, Usuario usuario){
+
+    private HProcesoInstancia getInstanciaNoUsuario(List<HProcesoInstancia> hProcesoInstancias, Usuario usuario) {
         for (int i = 0; i < hProcesoInstancias.size(); i++) {
             HProcesoInstancia instancia = hProcesoInstancias.get(i);
             if (instancia.getAsignado().getId() != usuario.getId()) {

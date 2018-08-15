@@ -8,6 +8,7 @@ import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.serv.MailQueueService;
 import com.laamware.ejercito.doc.web.serv.NotificacionService;
+import com.laamware.ejercito.doc.web.serv.NotificacionxUsuarioService;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import java.io.IOException;
@@ -41,6 +42,9 @@ public class NotificacionJobTask {
 
     @Autowired
     private DocumentoRepository documentoRepository;
+    
+    @Autowired
+    private NotificacionxUsuarioService notificacionxUsuarioService;
 
     @Value("${com.mil.imi.sicdi.job.notificacion.plazo-vencido.activo}")
     private Boolean jobNotificacionPlazoVencidoActivo;
@@ -115,6 +119,10 @@ public class NotificacionJobTask {
                 String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
                 EmailDTO mensaje = new EmailDTO(usuarioAsignado.getEmail(), null,
                         notificacion.getAsunto(), "", html, "", null);
+                
+                if(notificacionxUsuarioService.findCountByUsuIdAndTnfId(usuarioAsignado.getId(), notificacion.getTipoNotificacion().getId()) == 1) {
+                    return;
+                }
                 mailQueueService.enviarCorreo(mensaje);
                 System.out.println("*** " + documento.getAsunto());
             }
@@ -159,6 +167,10 @@ public class NotificacionJobTask {
                 String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
                 EmailDTO mensaje = new EmailDTO(usuarioAsignado.getEmail(), null,
                         notificacion.getAsunto(), "", html, "", null);
+                
+                if(notificacionxUsuarioService.findCountByUsuIdAndTnfId(usuarioAsignado.getId(), notificacion.getTipoNotificacion().getId()) == 1) {
+                    return;
+                }
                 mailQueueService.enviarCorreo(mensaje);
                 System.out.println("*** " + documento.getAsunto());
             }
