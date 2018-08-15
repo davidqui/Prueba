@@ -112,6 +112,7 @@
                         X
                     </button>
                     <div class="card-header">
+                        Permiso de: 
                       <#if usuario.permiso == 1>
                         lectura
                       </#if>

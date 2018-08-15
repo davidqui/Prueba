@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ParNombreExpedienteRepository extends JpaRepository<ParNombreExpediente, Long> {
 
+    ParNombreExpediente findOneByParNombre(String nopmbre);
 }

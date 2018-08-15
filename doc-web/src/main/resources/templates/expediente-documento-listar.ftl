@@ -12,13 +12,17 @@
     <div>
         <#if !expediente.indCerrado && indexacion??>
             <span>
-                <a  class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="modal" data-trigger="hover" data-placement="right" title="Indexar documento" data-content="Pulse para indexar documento" style="float:left;" data-target="#agregarDocumento">Indexar Doocumento</a>
+                <a  class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="modal" data-trigger="hover" data-placement="right" title="Indexar documento" data-content="Pulse para indexar documento" style="float:left;" data-target="#agregarDocumento">Indexar Documento</a>
             </span>
         </#if>
         <span>
-            <a title="Administrar expediente" href="/expediente/administrarExpediente?expId=${expediente.expId}" onclick="loading(event);" style="float:right;">
-                <img class="card-img-top" src="/img/settings.svg" alt=""/>
-            </a>  
+    <a title="Administrar expediente" href="/expediente/administrarExpediente?expId=22" onclick="loading(event);" style="float:right;" class="btn btn-secondary">
+        <img class="card-img-top" src="/img/settings.svg" alt="">
+        <span style="
+        margin-left:  5px;
+        color:  black;">
+            Administrar Expediente 
+        </span></a>
         </span>
     </div>
     </br>
@@ -174,6 +178,11 @@
                 <script src="/js/app/buscar-documento.js"></script>
             </div>
             <input type="hidden" id="destinoDocumento" name="destinoDocumento" value="" />
+            <p>
+                <b>Nota:</b> recuerde que para agregar un documento la trd de este debe estar dentro del expediente.
+                </br> </br>
+                 En caso de expedientes simples correspondera a solo la trd principal del expediente.
+            <p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>

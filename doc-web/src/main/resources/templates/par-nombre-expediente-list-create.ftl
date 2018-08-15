@@ -12,7 +12,7 @@
         <form action="/admin/parnombrexpediente/crear" method="POST" enctype="multipart/form-data" >
             <fieldset class="form-group">
                 <label for="parNombre">Texto</label>
-                <input type="text" class="form-control" id="parNombre" name="parNombre" value="${(nombreExpediente.parNombre)!""}"/>
+                <input type="text" class="form-control" id="parNombre" name="parNombre" value="${(nombreExpediente.parNombre)!""}" style="text-transform:uppercase"/>
             </fieldset>
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
