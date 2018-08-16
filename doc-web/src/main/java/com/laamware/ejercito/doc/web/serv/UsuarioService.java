@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
+import com.laamware.ejercito.doc.web.entity.RazonInhabilitar;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.enums.UsuarioFinderTipo;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
@@ -79,6 +80,12 @@ public class UsuarioService {
      */
     @Autowired
     private DependenciaRepository dependenciaRepository;
+    
+    /***
+     * Servicio de {@link RazonInabilitar}
+     */
+    @Autowired
+    private RazonInhabilitarService razonInhabilitarService;
 
     /**
      * Obtiene una página de usuarios correspondientes a la criteria de búsqueda
@@ -396,11 +403,12 @@ public class UsuarioService {
     /***
      * Método para inhabilitar un usuario.
      * @param usuarioSesion Usuario en sesión
-     * @param message mensaje por el que se inhabilita
+     * @param idRazon id de la razón por la cual se inhabilita
      */
-    public void inhabilitarUsuario(final Usuario usuarioSesion, final String message){
+    public void inhabilitarUsuario(final Usuario usuarioSesion, final Integer idRazon){
+        RazonInhabilitar razon = razonInhabilitarService.findOne(idRazon);
         usuarioSesion.setUsuActivo(Boolean.FALSE);
-        usuarioSesion.setTextoActivo(message);
+        usuarioSesion.setRazonInhabilitar(razon);
         usuarioRepository.saveAndFlush(usuarioSesion);
     }
     
@@ -410,7 +418,7 @@ public class UsuarioService {
      */
     public void habilitarUsuario(final Usuario usuarioSesion){
         usuarioSesion.setUsuActivo(Boolean.TRUE);
-        usuarioSesion.setTextoActivo(null);
+        usuarioSesion.setRazonInhabilitar(null);
         usuarioRepository.saveAndFlush(usuarioSesion);
     }
 }

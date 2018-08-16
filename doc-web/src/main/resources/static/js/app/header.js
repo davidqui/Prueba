@@ -62,9 +62,9 @@ function habilitarUsuario() {
 }
 
 function deshabilitarUsuario() {
-    var descripcion = $("#comentario-deshabilitar").val();
+    var descripcion = $("#razonInhabilitar").val();
     
-    if (descripcion.trim().length < 0) {
+    if (descripcion == null) {
         alert("Debe ingresar una razón para deshabilitar.");
         return;
     } 
@@ -72,11 +72,28 @@ function deshabilitarUsuario() {
     $.ajax({ 
         method: "POST", 
         url: "/inhabilitar-usuario",
-        data: {descr: descripcion},
+        data: {razon: descripcion},
         dataType: 'html'
     }).then(function() { 
         location.reload(); 
-      }, function() { 
-        console.log("ERROR");
+      }, function(message) { 
+        alert(message.responseText);
+    }); 
+}
+
+
+function razonesInhabilitacion(){
+    $("#razonInhabilitar option").remove();
+    $.ajax({ 
+        method: "GET",
+        url: "/razon-inhabilitar"
+    }).always(function(razones) {
+        console.log(razones);
+        razones = JSON.parse(razones);
+        console.log(razones);
+        $.each(razones, function(index, item) {
+            console.log(item.id);
+            $("#razonInhabilitar").append("<option value="+item.id+">"+item.texto+"</option>");
+        });
     }); 
 }

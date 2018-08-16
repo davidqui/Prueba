@@ -123,7 +123,7 @@
                         </div>
                     </div>
             
-                <a href="#" data-toggle="modal" data-target="#modal-inhabilitar-usuario">Desabilitar Usuario</a>
+                <a href="#" data-toggle="modal" data-target="#modal-inhabilitar-usuario" onclick="razonesInhabilitacion();">Desabilitar Usuario</a>
                 <!--modal inhabilitar Usuario-->
                 <div class="modal fade" id="modal-inhabilitar-usuario" role="dialog">
                     <div class="modal-dialog">
@@ -135,7 +135,8 @@
                                 <div class="modal-body" style="color: black;">
                                     <div class="form-group">
                                       <label for="comment">Razón de inhabilitar:</label>
-                                      <textarea class="form-control" rows="5" id="comentario-deshabilitar"></textarea>
+                                      <select class="form-control" id="razonInhabilitar" name="razonInhabilitar">
+                                      </select>
                                     </div>
                                 </div>
                                 <div class="modal-footer">

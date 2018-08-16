@@ -220,13 +220,14 @@ public class Usuario extends AuditActivoModifySupport {
     
     /*
      * 2018-08-15 samuel.delgado@controltechcg.com Issue #7 (SICDI-Controltech)
-     * feature-gogs-7: Estado del usuario activo para hacer operaciones y el mensaje si este essta inactivo
+     * feature-gogs-7: Estado del usuario activo para hacer operaciones y la razón si este essta inhabilitado
      */
     @Column(name = "USU_ACTIVO")
     private Boolean usuActivo;
     
-    @Column(name = "USU_TEXTO_ACTIVO")
-    private String textoActivo;
+    @ManyToOne
+    @JoinColumn(name = "RAZ_ID")
+    private RazonInhabilitar razonInhabilitar;
 
 
     @Transient
@@ -419,12 +420,12 @@ public class Usuario extends AuditActivoModifySupport {
         this.usuActivo = usuActivo;
     }
 
-    public String getTextoActivo() {
-        return textoActivo;
+    public RazonInhabilitar getRazonInhabilitar() {
+        return razonInhabilitar;
     }
 
-    public void setTextoActivo(String textoActivo) {
-        this.textoActivo = textoActivo;
+    public void setRazonInhabilitar(RazonInhabilitar razonInhabilitar) {
+        this.razonInhabilitar = razonInhabilitar;
     }
     
     @Transient
