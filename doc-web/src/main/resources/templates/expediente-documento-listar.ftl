@@ -16,7 +16,7 @@
             </span>
         </#if>
         <span>
-    <a title="Administrar expediente" href="/expediente/administrarExpediente?expId=22" onclick="loading(event);" style="float:right;" class="btn btn-secondary">
+    <a title="Administrar expediente" href="/expediente/administrarExpediente?expId=${expediente.expId}" onclick="loading(event);" style="float:right;" class="btn btn-secondary">
         <img class="card-img-top" src="/img/settings.svg" alt="">
         <span style="
         margin-left:  5px;
