@@ -70,7 +70,7 @@
     </table>
         
         <#if totalPages gt 0>
-            <@printBar url="/expediente/listarExpedientes" params={"buscadorExpediente": buscadorExpediente!""} metodo="get"/>
+            <@printBar url="/expediente/listarExpedientes" params={"filtro": filtro!""} metodo="get"/>
         </#if>
         
         <!-- Modal aprobar cambios por jefe de dependencia -->
