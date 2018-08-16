@@ -89,15 +89,19 @@ public class ExpedienteService {
         return expedienteRepository.findOne(id);
     }
 
-    /***
+    /**
+     * *
      * Método para crear un expediente
+     *
      * @param expediente expediente a crear
      * @param usuario usuario quien crea el expediente
      * @param numeroExpediente elemento del nombre del expediente
-     * @param parNombreExpediente elemento de los parametrizables por el administrador 
+     * @param parNombreExpediente elemento de los parametrizables por el
+     * administrador
      * @param opcionalNombre elemnto opcional dentro del nombre
      * @return Expediente creado
-     * @throws BusinessLogicException si ocurre algun error con validación de logica del negocio
+     * @throws BusinessLogicException si ocurre algun error con validación de
+     * logica del negocio
      */
     public Expediente CrearExpediente(Expediente expediente, Usuario usuario,
             String numeroExpediente, ParNombreExpediente parNombreExpediente, String opcionalNombre) throws BusinessLogicException {
@@ -148,10 +152,12 @@ public class ExpedienteService {
         return expediente;
     }
 
-    /***
+    /**
+     * *
      * Enviá a aprobar un expediente
-     * @param expediente  expediente a aprobar
-     * @param usuarioSesion usuario quien aprueba 
+     *
+     * @param expediente expediente a aprobar
+     * @param usuarioSesion usuario quien aprueba
      */
     public void enviarAprobar(Expediente expediente, Usuario usuarioSesion) {
         expediente.setUsuarioAsignado(1);
@@ -173,27 +179,39 @@ public class ExpedienteService {
     }
 
     /**
-     * Obtiene el numero de expedientes por usuario
+     * Obtiene el numero de expedientes por usuario y filtro
      *
      * @param usuId Identificador del usuario
+     * @param filtro filtro de busqueda
      * @return Número de registros
      */
-    public int obtenerCountExpedientesPorUsuario(Integer usuId) {
+    public int obtenerCountExpedientesPorUsuario(Integer usuId, String filtro) {
+        if (filtro != null && filtro.trim().length() > 0) {
+            return expedienteRepository.findExpedientesDTOPorUsuarioYfiltroCount(usuId, filtro);
+        }
         return expedienteRepository.findExpedientesDTOPorUsuarioCount(usuId);
     }
 
     /**
-     * Obtiene los registros de los expedientes por usuario, de acuerdo
+     * Obtiene los registros de los expedientes por usuario y filtro, de acuerdo
      * a la fila inicial y final.
      *
      * @param usuId Identificador del usuario
      * @param inicio Numero de registro inicial
      * @param fin Numero de registro final
+     * @param filtro Filtro de busqueda
      * @return Lista de documentos
      */
-    public List<ExpedienteDTO> obtenerExpedientesDTOPorUsuarioPaginado(Integer usuId, int inicio, int fin) {
+    public List<ExpedienteDTO> obtenerExpedientesDTOPorUsuarioPaginado(Integer usuId, int inicio, int fin, String filtro) {
         List<ExpedienteDTO> expedientes = new ArrayList<>();
-        List<Object[]> result = expedienteRepository.findExpedientesPorUsuarioPaginado(usuId, inicio, fin);
+        List<Object[]> result;
+        if (filtro != null && filtro.trim().length() > 0) {
+            System.err.println("filtroservice= " + filtro);
+            result = expedienteRepository.findExpedientesPorUsuarioYfiltroPaginado(usuId, inicio, fin, filtro);
+        } else {
+            result = expedienteRepository.findExpedientesPorUsuarioPaginado(usuId, inicio, fin);
+        }
+
         if (result != null && !result.isEmpty()) {
             for (Object[] object : result) {
                 ExpedienteDTO dTO = retornaExpedienteDTO(object);
@@ -203,11 +221,13 @@ public class ExpedienteService {
         return expedientes;
     }
 
-    /***
+    /**
+     * *
      * Obtiene un expediente dado un usuario y un expediente
+     *
      * @param usuId identificador del usuario
      * @param expId identificador del expediente
-     * @return 
+     * @return
      */
     public ExpedienteDTO obtieneExpedienteDTOPorUsuarioPorExpediente(Integer usuId, Long expId) {
         ExpedienteDTO expedienteDTO = null;
@@ -223,10 +243,12 @@ public class ExpedienteService {
         return expedienteDTO;
     }
 
-    /****
+    /**
+     * **
      * Cambia el usuario creador de un expediente
+     *
      * @param expediente expediente a cambiar
-     * @param usuario usuario quíen va a ser el creador 
+     * @param usuario usuario quíen va a ser el creador
      * @param usuarioSesion usuario quien realiza la aación
      */
     public void cambiarUsuarioCreador(Expediente expediente, Usuario usuario, Usuario usuarioSesion) {
@@ -241,6 +263,7 @@ public class ExpedienteService {
 
     /**
      * Metodo que permite retorna el Expediente de acuerdo a su identificador.
+     *
      * @param expId Identificador del expediente
      * @return Expediente
      */
@@ -250,6 +273,7 @@ public class ExpedienteService {
 
     /**
      * Metodo que permite aprobar los cambios de un expediente
+     *
      * @param expediente Objeto expediente
      * @param usuarioSesion Usuario jefe de dependencia
      */
@@ -281,6 +305,7 @@ public class ExpedienteService {
 
     /**
      * Metodo que permite rechazar los cambios de un expediente
+     *
      * @param expediente Objeto expediente
      * @param usuarioSesion Usuario jefe de dependencia
      */
@@ -310,7 +335,9 @@ public class ExpedienteService {
     }
 
     /**
-     * Metodo que permite modificar el tipo de un expediente a simple o complejo.
+     * Metodo que permite modificar el tipo de un expediente a simple o
+     * complejo.
+     *
      * @param expediente Objeto expediente
      * @param usuarioSesion Usuario jefe de dependencia
      * @throws com.laamware.ejercito.doc.web.util.BusinessLogicException
@@ -346,6 +373,7 @@ public class ExpedienteService {
 
     /**
      * Retorna el objeto con los datos parámetricos del expediente
+     *
      * @param object Objeto de la consulta
      * @return Datos del expediente
      */
@@ -377,8 +405,10 @@ public class ExpedienteService {
         return dTO;
     }
 
-    /***
+    /**
+     * *
      * Obtienen los expedientes dado una trd y un usuario
+     *
      * @param usuarioSesion Identificador del usuario
      * @param trd identificador de la trd
      * @return lista de expedientes compatibles
@@ -386,9 +416,11 @@ public class ExpedienteService {
     public List<Expediente> obtenerExpedientesIndexacionPorUsuarioPorTrd(Usuario usuarioSesion, Trd trd) {
         return expedienteRepository.findExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion.getId(), trd.getId());
     }
-    
-    /***
-     * verifica si el usuario tiene permiso de indexación sobre el documento 
+
+    /**
+     * *
+     * verifica si el usuario tiene permiso de indexación sobre el documento
+     *
      * @param usuario usuario acción
      * @param expediente expediente a consultar
      * @return true si tiene permisos de indexación false si no
@@ -398,8 +430,11 @@ public class ExpedienteService {
         return !expUsuarios.isEmpty();
     }
 
-    /***
-     * Verifica si el usuario tiene permiso de administrador sobre el expediente.
+    /**
+     * *
+     * Verifica si el usuario tiene permiso de administrador sobre el
+     * expediente.
+     *
      * @param usuario usuario a consultar
      * @param expediente expediente a consultar
      * @return true si tiene permiso false de lo contrario
@@ -416,8 +451,10 @@ public class ExpedienteService {
         return true;
     }
 
-    /***
+    /**
+     * *
      * Verifica si el usuario es jefe de dependencia sobre el expediente.
+     *
      * @param usuario usuario a consultar
      * @param expediente expediente a consultar
      * @return true si tiene permiso false de lo contrario
@@ -430,8 +467,10 @@ public class ExpedienteService {
         return jefeDep != null && jefeDep.getId().equals(usuario.getId());
     }
 
-    /***
+    /**
+     * *
      * Verifica si el usuario tiene permiso de visualizar el expediente.
+     *
      * @param usuario usuario a consultar
      * @param expediente expediente a consultar
      * @return true si tiene permiso false de lo contrario
@@ -445,9 +484,11 @@ public class ExpedienteService {
 
         return !expUsuarios.isEmpty();
     }
-    
-    /***
+
+    /**
+     * *
      * Cierra un expediente
+     *
      * @param expediente expediente a cerrar
      * @param usuarioSesion usuario quien realiza el cierre
      */
@@ -468,10 +509,12 @@ public class ExpedienteService {
         }
     }
 
-    /***
-     * Abre el expediente 
+    /**
+     * *
+     * Abre el expediente
+     *
      * @param expediente expediente a abrir
-     * @param usuarioSesion  usuario quien abre
+     * @param usuarioSesion usuario quien abre
      */
     public void abrirExpediente(Expediente expediente, Usuario usuarioSesion) {
         expediente.setIndCerrado(false);
@@ -548,7 +591,8 @@ public class ExpedienteService {
 
     /**
      * Objeto que contiene información de los documentos del expediente
-     * @param object 
+     *
+     * @param object
      * @return DocumentoExpDTO
      */
     private DocumentoExpDTO retornaDocumentoExpDTO(Object[] object) {
@@ -564,7 +608,9 @@ public class ExpedienteService {
     }
 
     /**
-     * Metodo que permite identificar las fecha minima de los documentos de un expediente.
+     * Metodo que permite identificar las fecha minima de los documentos de un
+     * expediente.
+     *
      * @param expId Identificador del expediente
      * @return Fecha minima del expediente
      */
@@ -575,15 +621,17 @@ public class ExpedienteService {
         }
         return null;
     }
-    
+
     /**
-     * Metodo que permite identificar la fecha maxima de los documentos de un expediente.
+     * Metodo que permite identificar la fecha maxima de los documentos de un
+     * expediente.
+     *
      * @param expId Identificador del expediente
      * @return Fecha máxima del expediente
      */
     public Date encuentrafechaMaximaExpediente(Long expId) {
         Object fecMax = documentoRepository.encuentrafechaMaximaExpediente(expId);
-        if ( fecMax != null) {
+        if (fecMax != null) {
             return (Date) fecMax;
         }
         return null;

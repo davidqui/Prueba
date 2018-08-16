@@ -24,6 +24,15 @@
     <#else>
         </br>
         </br>
+        <div class="container-fluid">
+            <form action="/expediente/listarExpedientes" method="GET" class="form-inline">
+                <div class="form-group row">
+                    <input type="text" class="form-control" id="filtro" name="filtro" value="${filtro!""}" style="width:400px" placeholder="FILTRO POR EL NOMBRE DE EXPEDIENTE"/>
+                    <button type="submit" class="btn btn-default">Buscar</button>
+                </div>
+            </form>
+        </div>
+        </br>
         <table class="table">
             <thead>
                 <tr>
@@ -61,7 +70,7 @@
     </table>
         
         <#if totalPages gt 0>
-            <@printBar url="/expediente/listarExpedientes" params=null metodo="get"/>
+            <@printBar url="/expediente/listarExpedientes" params={"buscadorExpediente": buscadorExpediente!""} metodo="get"/>
         </#if>
         
         <!-- Modal aprobar cambios por jefe de dependencia -->

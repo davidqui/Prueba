@@ -90,6 +90,21 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + CONSULTALISTAEXPEDIENTESXUSUARIO
             + ") exp\n", nativeQuery = true)
     int findExpedientesDTOPorUsuarioCount(@Param("usuId") Integer usuId);
+    
+    /**
+     * Obtiene el numero de registros de expedientes por usuario y filtro por el nombre
+     * del expediente
+     *
+     * @param usuId Identificador del Usuario
+     * @param filtro filtro de busqueda
+     * @return Numero de registros.
+     */
+    @Query(value = "select count(1)\n"
+            + "from(\n"
+            + CONSULTALISTAEXPEDIENTESXUSUARIO
+            +" AND EXP.EXP_NOMBRE LIKE UPPER('%'||:filtro||'%') "
+            + ") exp\n", nativeQuery = true)
+    int findExpedientesDTOPorUsuarioYfiltroCount(@Param("usuId") Integer usuId, @Param("filtro") String filtro);
 
     /**
      * Obtiene los registros de expedientes por usuario, de acuerdo a la fila
@@ -111,6 +126,29 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + ") exp\n"
             + "where exp.num_lineas >= :inicio and exp.num_lineas <= :fin\n", nativeQuery = true)
     List<Object[]> findExpedientesPorUsuarioPaginado(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin);
+    
+    /**
+     * Obtiene los registros de expedientes por usuario y filtro, de acuerdo a la fila
+     * inicial y final.
+     *
+     * @param usuId Identificador del usuario
+     * @param inicio Número de registro inicial
+     * @param fin Numero de registro final
+     * @param filtro Filtro de busqueda
+     * @return Lista de bandejas de entrada.
+     */
+    @Query(value = ""
+            + "select exp.*\n"
+            + "from(\n"
+            + "     select exp.*, rownum num_lineas\n"
+            + "     from(\n"
+            + CONSULTALISTAEXPEDIENTESXUSUARIO
+            +" AND EXP.EXP_NOMBRE LIKE UPPER('%'||:filtro||'%')"
+            + "         ORDER BY EXP.USUARIO_ASIGNADO DESC, EXP.FEC_CREACION DESC\n"
+            + "     )exp\n"
+            + ") exp\n"
+            + "WHERE EXP.NUM_LINEAS >= :inicio AND EXP.NUM_LINEAS <= :fin\n", nativeQuery = true)
+    List<Object[]> findExpedientesPorUsuarioYfiltroPaginado(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin, @Param("filtro") String filtro);
 
     /**
      * Obtiene los registros de expedientes por usuario, de acuerdo a un expediente

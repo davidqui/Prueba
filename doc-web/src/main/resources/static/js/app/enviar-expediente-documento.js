@@ -15,3 +15,12 @@ function submitSeleccionarExpediente(pinId){
         location.reload();
     });
 }
+
+$(document).ready(function(){
+  $("#buscardor-expediente").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#lista-expedientes button").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
