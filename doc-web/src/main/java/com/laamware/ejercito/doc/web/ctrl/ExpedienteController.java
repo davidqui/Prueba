@@ -86,7 +86,7 @@ public class ExpedienteController extends UtilController {
     private static final Logger LOG = LoggerFactory.getLogger(DocumentoController.class);
 
     public static final String PATH = "/expediente";
-    
+
     private static final String VISUALIZACIONPAGINADA = "P";
     /*
      * 2018-05-03 jgarcia@controltechcg.com Issue #157 (SICDI-Controltech)
@@ -127,7 +127,6 @@ public class ExpedienteController extends UtilController {
     @Autowired
     TRDService trdService;
 
-    
     @Autowired
     ExpedienteService expedienteService;
 
@@ -137,10 +136,9 @@ public class ExpedienteController extends UtilController {
     @Autowired
     ExpUsuarioService expUsuarioService;
 
-    
     @Autowired
     ExpDocumentoService expDocumentoService;
-     
+
     @Autowired
     private ExpedienteTransicionService expedienteTransicionService;
 
@@ -156,10 +154,10 @@ public class ExpedienteController extends UtilController {
 
     @Autowired
     private DocumentoObservacionDefectoService observacionDefectoService;
-    
+
     @Autowired
     private ParNombreExpedienteService parNombreExpedienteService;
-    
+
     @Autowired
     private TRDService tRDService;
 
@@ -168,27 +166,32 @@ public class ExpedienteController extends UtilController {
 
     /**
      * Metodo que permite listar los expedientes que tiene el usuario en sesión
+     *
      * @param model Modelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
      * @param pageIndex Registro inicial
      * @param pageSize Registro Final
+     * @param filtro Parámetro que permite filtrar los expedientes por su
+     * nombre.
      * @return Página de visualizacion de expedientes
      */
     @RequestMapping(value = "/listarExpedientes", method = RequestMethod.GET)
     public String listarExpediente(Model model, Principal principal,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
-            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false, value = "filtro") String filtro) {
+        System.err.println("buscadorExpediente= " + filtro);
         Usuario usuSesion = getUsuario(principal);
 
         List<ExpedienteDTO> expedientes = new ArrayList<>();
-        int count = expedienteService.obtenerCountExpedientesPorUsuario(usuSesion.getId());
+        int count = expedienteService.obtenerCountExpedientesPorUsuario(usuSesion.getId(), filtro);
         int totalPages = 0;
         String labelInformacion = "";
 
         if (count > 0) {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
-            expedientes = expedienteService.obtenerExpedientesDTOPorUsuarioPaginado(usuSesion.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            expedientes = expedienteService.obtenerExpedientesDTOPorUsuarioPaginado(usuSesion.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(), filtro);
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 
@@ -197,13 +200,15 @@ public class ExpedienteController extends UtilController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("labelInformacion", labelInformacion);
         model.addAttribute("pageSize", pageSize);
+        model.addAttribute("filtro", filtro);
 
         return "expediente-listar";
     }
-    
+
     /**
-     * Metodo que permite listar los documentos que tiene un expediente de acuerdo
-     * al usuario en sesion, visualizandose por serie o por paginación.
+     * Metodo que permite listar los documentos que tiene un expediente de
+     * acuerdo al usuario en sesion, visualizandose por serie o por paginación.
+     *
      * @param model Modelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
      * @param expId Identificador del expediente
@@ -224,16 +229,17 @@ public class ExpedienteController extends UtilController {
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         Usuario usuSesion = getUsuario(principal);
         Expediente expediente = expedienteService.findOne(expId);
-        
-        if (!expedienteService.permisoUsuarioLeer(usuSesion, expediente) && !expedienteService.permisoAdministrador(usuSesion, expediente))
+
+        if (!expedienteService.permisoUsuarioLeer(usuSesion, expediente) && !expedienteService.permisoAdministrador(usuSesion, expediente)) {
             return "security-denied";
-            
-        if (expediente.getIndCerrado() && !expedienteService.permisoAdministrador(usuSesion, expediente)){
+        }
+
+        if (expediente.getIndCerrado() && !expedienteService.permisoAdministrador(usuSesion, expediente)) {
             model.addAttribute("usuario", expediente.getDepId().getJefe());
             return "expediente-cerrado";
         }
-        
-        if(tipoVisualizacion.equals(VISUALIZACIONPAGINADA)){
+
+        if (tipoVisualizacion.equals(VISUALIZACIONPAGINADA)) {
             List<DocumentoExpDTO> documentos = new ArrayList<>();
             int count = expedienteService.findDocumentosByUsuIdAndExpIdCount(usuSesion.getId(), expId);
             int totalPages = 0;
@@ -251,30 +257,31 @@ public class ExpedienteController extends UtilController {
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("labelInformacion", labelInformacion);
             model.addAttribute("pageSize", pageSize);
-        }else{
+        } else {
             List<TrdDTO> dTOs;
-            if(trdId == null && subtrdId == null){
+            if (trdId == null && subtrdId == null) {
                 dTOs = tRDService.getSeriesByExpedienteAndUsuario(usuSesion.getId(), expId);
                 model.addAttribute("trds", dTOs);
             }
-            
-            if(trdId != null){
+
+            if (trdId != null) {
                 Trd trd = tRDService.findOne(trdId);
                 dTOs = tRDService.getSubSeriesByExpedienteAndUsuario(usuSesion.getId(), expId, trdId);
                 model.addAttribute("serie", trd);
                 model.addAttribute("trdId", trdId);
                 model.addAttribute("trds", dTOs);
             }
-            if(subtrdId != null){
+            if (subtrdId != null) {
                 Trd trd = tRDService.findOne(subtrdId);
                 List<DocumentoExpDTO> documentos = expedienteService.findDocumentosByUsuIdAndExpIdAndTrdId(usuSesion.getId(), expId, subtrdId);
                 model.addAttribute("subserie", trd);
                 model.addAttribute("documentosSerie", documentos);
             }
         }
-        
-        if (expedienteService.permisoAdministrador(usuSesion, expediente) || expedienteService.permisoIndexacion(usuSesion, expediente))
+
+        if (expedienteService.permisoAdministrador(usuSesion, expediente) || expedienteService.permisoIndexacion(usuSesion, expediente)) {
             model.addAttribute("indexacion", true);
+        }
         model.addAttribute("expediente", expediente);
         model.addAttribute("tipoVisualizacion", tipoVisualizacion);
         model.addAttribute("expId", expId);
@@ -283,9 +290,10 @@ public class ExpedienteController extends UtilController {
     }
 
     /**
-     * Metodo que se encarga de visualizar los datos parametricos del expediente,
-     * como también las transiciones que pueden ser realizadas por el usuario administrador
-     * y el jefe de la dependencia.
+     * Metodo que se encarga de visualizar los datos parametricos del
+     * expediente, como también las transiciones que pueden ser realizadas por
+     * el usuario administrador y el jefe de la dependencia.
+     *
      * @param model Modelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
      * @param expId Identificador del expediente
@@ -296,23 +304,20 @@ public class ExpedienteController extends UtilController {
         System.err.println("dto= " + expId.toString());
         Usuario usuSesion = getUsuario(principal);
         ExpedienteDTO dTO = expedienteService.obtieneExpedienteDTOPorUsuarioPorExpediente(usuSesion.getId(), expId);
-        if(dTO == null){
+        if (dTO == null) {
             return "security-denied";
         }
 
         List<ExpedienteTransicion> expedienteTransicions = expedienteTransicionService.retornarListaTransicionesXexpediente(expId);
         List<ExpObservacion> expObservacions = expObservacionService.retornarListaTransicionesXexpediente(expId);
 
-        model.addAttribute("expediente",dTO);
-        model.addAttribute("expTransicion",expedienteTransicions);
-        model.addAttribute("observaciones",expObservacions);
+        model.addAttribute("expediente", dTO);
+        model.addAttribute("expTransicion", expedienteTransicions);
+        model.addAttribute("observaciones", expObservacions);
 
-        
         return "expediente-administrar";
     }
-    
-    
-    
+
     /**
      * Crea una observación al expediente
      *
@@ -329,17 +334,18 @@ public class ExpedienteController extends UtilController {
         Long expIdValue = Long.parseLong(expId);
         Expediente expediente = expedienteService.findOne(expIdValue);
 
-        ExpObservacion expObservacion = expObservacionService.guardarObservacion(expediente,observacion, usuSesion);
+        ExpObservacion expObservacion = expObservacionService.guardarObservacion(expediente, observacion, usuSesion);
         Map<String, String> map = new HashMap<>();
         map.put("texto", expObservacion.getExpObservacion());
         map.put("cuando", DateUtil.dateFormatObservacion.format(expObservacion.getFecCreacion()));
         map.put("quien", expObservacion.getUsuId().toString());
         return map;
     }
-        
+
     /**
      * Metodo que permite visualizar los usuarios pendientes de aprobación, por
      * parte del jefe de la dependencia.
+     *
      * @param expId Identificador de la dependencia
      * @param model Modelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
@@ -350,18 +356,19 @@ public class ExpedienteController extends UtilController {
     public ResponseEntity<?> retornaCambiosPendientes(@PathVariable("exp") Long expId, Model model, Principal principal) {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuario = getUsuario(principal);
-        
-        if(!expedienteService.permisoAdministrador(usuario, expediente))
+
+        if (!expedienteService.permisoAdministrador(usuario, expediente)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
-        
+        }
+
         List<ExpUsuarioDto> usuariosPorAprobar = expUsuarioService.retornaUsuariosPendientesPorAprobar(expediente);
         return ResponseEntity.ok(usuariosPorAprobar);
     }
-    
+
     /**
-     * Metodo que permite aprobar o rechazar los cambios de usuarios de un expediente
-     * por el jefe de la dependencia.
+     * Metodo que permite aprobar o rechazar los cambios de usuarios de un
+     * expediente por el jefe de la dependencia.
+     *
      * @param expId Identificador del expediente
      * @param tipo Aprobacion = 1; Rechazo = 0
      * @param observacion Observación del cambio
@@ -371,37 +378,39 @@ public class ExpedienteController extends UtilController {
      */
     @RequestMapping(value = "/aprobar-rechazar/{exp}/{tipo}/{observacion}", method = RequestMethod.POST)
     @Transactional
-    public String aprobarOrechazar(@PathVariable("exp") Long expId, @PathVariable("tipo") int tipo, @PathVariable("observacion") String observacion, Model model, Principal principal){
+    public String aprobarOrechazar(@PathVariable("exp") Long expId, @PathVariable("tipo") int tipo, @PathVariable("observacion") String observacion, Model model, Principal principal) {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
 
-        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
+        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente)) {
             return "security-denied";
+        }
 
-        if(tipo == 1){
+        if (tipo == 1) {
             expedienteService.aprobarExpediente(expediente, usuarioSesion);
-            if(expediente.getIndAprobadoInicial()){
+            if (expediente.getIndAprobadoInicial()) {
                 model.addAttribute(AppConstants.FLASH_SUCCESS, "Los cambios en el expediente han sido aprobados.");
-            }else{
+            } else {
                 model.addAttribute(AppConstants.FLASH_SUCCESS, "El expediente ha sido aprobado.");
             }
-        }else{
+        } else {
             expedienteService.rechazarExpediente(expediente, usuarioSesion);
-            if(expediente.getIndAprobadoInicial()){
+            if (expediente.getIndAprobadoInicial()) {
                 model.addAttribute(AppConstants.FLASH_SUCCESS, "Los cambios en el expediente han sido rechazados.");
-            }else{
+            } else {
                 model.addAttribute(AppConstants.FLASH_SUCCESS, "El expediente ha sido rechazado.");
             }
         }
-        
-        expObservacionService.guardarObservacion(expediente,observacion, usuarioSesion);
-        
+
+        expObservacionService.guardarObservacion(expediente, observacion, usuarioSesion);
+
         return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
-    
+
     /**
-     * Metodo que permite cambiar el tipo de expediente tanto a simple y complejo,
-     * teniendo en cuenta si cumple las condiciones para realizarlo.
+     * Metodo que permite cambiar el tipo de expediente tanto a simple y
+     * complejo, teniendo en cuenta si cumple las condiciones para realizarlo.
+     *
      * @param expId Identificador del expediente
      * @param model Modelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
@@ -409,13 +418,14 @@ public class ExpedienteController extends UtilController {
      */
     @RequestMapping(value = "/modifica-tipo-expediente", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<?> modificarTipoExpediente(@RequestParam(value = "expId", required = true) Long expId, Model model, Principal principal){
+    public ResponseEntity<?> modificarTipoExpediente(@RequestParam(value = "expId", required = true) Long expId, Model model, Principal principal) {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
 
-        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente))
+        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
+        }
+
         try {
             expedienteService.modificarTipoExpediente(expediente, usuarioSesion);
             model.addAttribute(AppConstants.FLASH_SUCCESS, "Se ha cambiado el tipo de expediente.");
@@ -426,10 +436,11 @@ public class ExpedienteController extends UtilController {
             return new ResponseEntity<>(trdExpedienteDocumentos, HttpStatus.BAD_REQUEST);
         }
     }
-    
+
     /**
      * Metodo que permite desvincular un documento del expediente por parte del
      * jefe de la dependencia.
+     *
      * @param expId Identificador del expediente
      * @param docId Identificador del documento
      * @param model Modelo de información entre vista y controlador.
@@ -438,14 +449,15 @@ public class ExpedienteController extends UtilController {
      */
     @RequestMapping(value = "/desvinculaDocumento", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<?> desvincularDocumento(@RequestParam(value = "expId", required = true) Long expId,@RequestParam(value = "docId", required = true) String docId, Model model, Principal principal){
+    public ResponseEntity<?> desvincularDocumento(@RequestParam(value = "expId", required = true) Long expId, @RequestParam(value = "docId", required = true) String docId, Model model, Principal principal) {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
         final Documento documento = documentoRepository.findOne(docId);
 
-        if (!expedienteService.permisoJefeDependencia(usuarioSesion, expediente) || expediente.getIndCerrado())
+        if (!expedienteService.permisoJefeDependencia(usuarioSesion, expediente) || expediente.getIndCerrado()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-                
+        }
+
         try {
             expDocumentoService.eliminaDocumentoExpediente(documento, expediente, usuarioSesion);
             model.addAttribute(AppConstants.FLASH_SUCCESS, "Se ha cambiado el tipo de expediente.");
@@ -456,8 +468,11 @@ public class ExpedienteController extends UtilController {
         }
     }
 
-    /***
-     * Método que cambia el estado de un expediente para que el administrador lo pueda editar
+    /**
+     * *
+     * Método que cambia el estado de un expediente para que el administrador lo
+     * pueda editar
+     *
      * @param expId Identificador del expediente
      * @param model odelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
@@ -465,25 +480,28 @@ public class ExpedienteController extends UtilController {
      */
     @RequestMapping(value = "/enviarAprobar/{exp}", method = RequestMethod.GET)
     @Transactional
-    public String enviarAprobar(@PathVariable("exp") Long expId, Model model, Principal principal){
+    public String enviarAprobar(@PathVariable("exp") Long expId, Model model, Principal principal) {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
-        
-        if (expediente.getIndCerrado()){
+
+        if (expediente.getIndCerrado()) {
             model.addAttribute("usuario", expediente.getDepId().getJefe());
             return "expediente-cerrado";
         }
-        
-        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
+
+        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente)) {
             return "security-denied";
+        }
 
         expedienteService.enviarAprobar(expediente, usuarioSesion);
         model.addAttribute(AppConstants.FLASH_SUCCESS, "Se a enviado una notificación al jefe de la dependencia para que apruebe el expediente.");
         return String.format("redirect:%s/administrarExpediente?expId=%s", PATH, expediente.getExpId());
     }
-    
-    /***
+
+    /**
+     * *
      * Método para la pagina de crear expediente.
+     *
      * @param model odelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
      * @return Pagina de creación del expediente
@@ -503,8 +521,10 @@ public class ExpedienteController extends UtilController {
         return "expediente-crear";
     }
 
-    /***
+    /**
+     * *
      * Método para crear el expediente.
+     *
      * @param expediente expediente
      * @param model odelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
@@ -515,11 +535,11 @@ public class ExpedienteController extends UtilController {
     @Transactional
     public String guardarExpediente(Expediente expediente, Model model, Principal principal, HttpServletRequest req) {
         final Usuario usuarioSesion = getUsuario(principal);
-        
+
         String numeroExpediente = req.getParameter("numberExpediente");
         String parNombreExpediente = req.getParameter("parNombreExpediente");
         String opcionalNombre = req.getParameter("opcionalNombre");
-        
+
         try {
             ParNombreExpediente pNombreExpediente = parNombreExpedienteService.findOne(Long.parseLong(parNombreExpediente));
             expediente = expedienteService.CrearExpediente(expediente, usuarioSesion, numeroExpediente,
@@ -536,52 +556,56 @@ public class ExpedienteController extends UtilController {
             return "expediente-crear";
         }
 
-        if (expediente.getExpTipo() == 1)    
-            return "redirect:"+PATH+"/asignar-usuario-expediente/"+expediente.getExpId();
+        if (expediente.getExpTipo() == 1) {
+            return "redirect:" + PATH + "/asignar-usuario-expediente/" + expediente.getExpId();
+        }
 
-        return "redirect:"+PATH+"/trds-expediente/"+expediente.getExpId();
+        return "redirect:" + PATH + "/trds-expediente/" + expediente.getExpId();
     }
 
-    
     /**
      * Método para la pagina de los usuarios de un expediente
-     * @param expId  Identificador del expediente
+     *
+     * @param expId Identificador del expediente
      * @param model odelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
      * @param req request
-     * @return  Pagina de asignar usuario a aexpediente
+     * @return Pagina de asignar usuario a aexpediente
      */
     @RequestMapping(value = "/asignar-usuario-expediente/{exp}", method = RequestMethod.GET)
-    public String listUsuarioExpediente(@PathVariable("exp") Long expId, Model model, Principal principal, HttpServletRequest req){
+    public String listUsuarioExpediente(@PathVariable("exp") Long expId, Model model, Principal principal, HttpServletRequest req) {
 
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
 
-        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
+        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente)) {
             return "security-denied";
-        
-        if (expediente.getIndCerrado()){
+        }
+
+        if (expediente.getIndCerrado()) {
             model.addAttribute("usuario", expediente.getDepId().getJefe());
             return "expediente-cerrado";
         }
-        
-       Usuario usuCreador = expediente.getUsuCreacion();
-       Usuario jefeDependencia = expediente.getDepId().getJefe();
-       List<ExpUsuario> usuarios = expUsuarioService.findByExpediente(expediente);
-       boolean tieneCambios = expUsuarioService.tieneCambios(usuarios);
-       model.addAttribute("usuCreador", usuCreador);
-       model.addAttribute("jefeDependencia", jefeDependencia);
-       model.addAttribute("usuarios", usuarios);
-       model.addAttribute("expediente", expediente);
-       model.addAttribute("tieneCambios", tieneCambios);
-       model.addAttribute("esJefeDependencia", usuarioSesion.getId().equals(jefeDependencia.getId()));
-       
+
+        Usuario usuCreador = expediente.getUsuCreacion();
+        Usuario jefeDependencia = expediente.getDepId().getJefe();
+        List<ExpUsuario> usuarios = expUsuarioService.findByExpediente(expediente);
+        boolean tieneCambios = expUsuarioService.tieneCambios(usuarios);
+        model.addAttribute("usuCreador", usuCreador);
+        model.addAttribute("jefeDependencia", jefeDependencia);
+        model.addAttribute("usuarios", usuarios);
+        model.addAttribute("expediente", expediente);
+        model.addAttribute("tieneCambios", tieneCambios);
+        model.addAttribute("esJefeDependencia", usuarioSesion.getId().equals(jefeDependencia.getId()));
+
         return "expediente-seleccionar-usuarios";
     }
-    
-    /***
+
+    /**
+     * *
      * Método para asignar un usuario al expediente
-     * @param expId  Identificador del expediente
+     *
+     * @param expId Identificador del expediente
      * @param permiso persmiso que se le esta asignando
      * @param usuarioID Identificador del usuario
      * @param cargoID Identificador del cargo del usuario
@@ -598,20 +622,24 @@ public class ExpedienteController extends UtilController {
 
         final Expediente expediente = expedienteService.finById(expId);
 
-        if(expediente.getIndCerrado() || !expedienteService.permisoAdministrador(usuarioSesion, expediente))
+        if (expediente.getIndCerrado() || !expedienteService.permisoAdministrador(usuarioSesion, expediente)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
         List<ExpUsuario> usuarioEnEspediente = expUsuarioService.findByExpedienteAndUsuario(expediente, usuario);
-        if (!usuarioEnEspediente.isEmpty() || expediente.getUsuCreacion().getId().equals(usuarioID) || expediente.getDepId().getJefe().getId().equals(usuarioID))
+        if (!usuarioEnEspediente.isEmpty() || expediente.getUsuCreacion().getId().equals(usuarioID) || expediente.getDepId().getJefe().getId().equals(usuarioID)) {
             return new ResponseEntity<>("Ya existe este usuario en el expediente.", HttpStatus.BAD_REQUEST);
+        }
 
         expUsuarioService.agregarUsuarioExpediente(expediente, usuarioSesion, usuario, cargoUsu, permiso);
 
         return ResponseEntity.ok(usuarioID);
     }
-    
-    /***
+
+    /**
+     * *
      * método que agrega un documento al expediente
+     *
      * @param expId Identificador del expediente
      * @param docId Identificador del documento
      * @param principal Información de sesión autenticada.
@@ -624,28 +652,34 @@ public class ExpedienteController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         final Documento documento = documentoRepository.findOne(docId);
         final Expediente expediente = expedienteService.finById(expId);
-        
+
         Boolean acceso = usuarioService.verificaAccesoDocumento(usuarioSesion.getId(), documento.getInstancia().getId());
-        if((!expedienteService.permisoAdministrador(usuarioSesion, expediente) && !expedienteService.permisoIndexacion(usuarioSesion, expediente)) || !acceso)
+        if ((!expedienteService.permisoAdministrador(usuarioSesion, expediente) && !expedienteService.permisoIndexacion(usuarioSesion, expediente)) || !acceso) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        if (!expediente.getIndAprobadoInicial())
+        }
+        if (!expediente.getIndAprobadoInicial()) {
             return new ResponseEntity<>("El expediente no ha sido aprobado por el jefe de la dependencia.", HttpStatus.UNAUTHORIZED);
-        if (expediente.getIndCerrado() || !((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())&& (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) && !(documento.getInstancia().getEstado().getId().equals(153)))
+        }
+        if (expediente.getIndCerrado() || !((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) && (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) && !(documento.getInstancia().getEstado().getId().equals(153))) {
             return new ResponseEntity<>("El documento no se encuentra en la etapa necesaria para agregarlo al expediente", HttpStatus.BAD_REQUEST);
-        if (!expTrdService.validateTrdByExpediente(expediente, documento.getTrd()))
-            return new ResponseEntity<>("El expediente no admite esta trd comuníquese con el administrador de este para que la agregue. </br></br> "+documento.getTrd().getNombre(),HttpStatus.UNAUTHORIZED);
+        }
+        if (!expTrdService.validateTrdByExpediente(expediente, documento.getTrd())) {
+            return new ResponseEntity<>("El expediente no admite esta trd comuníquese con el administrador de este para que la agregue. </br></br> " + documento.getTrd().getNombre(), HttpStatus.UNAUTHORIZED);
+        }
         ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
-        if(expDocumento != null || documento.getExpediente() != null)
-            return new ResponseEntity<>("Este documento ya esta asociado a un expediente.",HttpStatus.UNAUTHORIZED);
-        
-        
+        if (expDocumento != null || documento.getExpediente() != null) {
+            return new ResponseEntity<>("Este documento ya esta asociado a un expediente.", HttpStatus.UNAUTHORIZED);
+        }
+
         expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
 
         return ResponseEntity.ok("Agregado Correctamente");
     }
 
-    /***
+    /**
+     * *
      * Método para editar un usuario en un expediente
+     *
      * @param expId Identificador del expediente
      * @param permiso permiso sobre el expediente
      * @param usuarioID Identificador del usuario
@@ -656,23 +690,25 @@ public class ExpedienteController extends UtilController {
     @ResponseBody
     @RequestMapping(value = "/editar-usuario-expediente/{exp}/{permiso}/{usuarioID}/{cargoID}", method = RequestMethod.POST)
     public ResponseEntity<?> editarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("permiso") Integer permiso, @PathVariable("usuarioID") Long usuarioID,
-            @PathVariable("cargoID") Integer cargoID, Principal principal){
+            @PathVariable("cargoID") Integer cargoID, Principal principal) {
 
         final Usuario usuarioSesion = getUsuario(principal);
         final Cargo cargoUsu = cargoService.findOne(cargoID);
         final Expediente expediente = expedienteService.finById(expId);
 
-        if(!expedienteService.permisoAdministrador(usuarioSesion, expediente))
+        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
         expUsuarioService.editarUsuarioExpediente(expediente, usuarioSesion, usuarioID, cargoUsu, permiso);
 
-        
         return ResponseEntity.ok(usuarioID);
     }
-    
-    /***
+
+    /**
+     * *
      * Método para eliminar a un usuario de un expediente
+     *
      * @param expId Identificador del expediente
      * @param usuarioID Identificador del usuario
      * @param principal Información de sesión autenticada.
@@ -680,20 +716,23 @@ public class ExpedienteController extends UtilController {
      */
     @ResponseBody
     @RequestMapping(value = "/eliminar-usuario-expediente/{exp}/{usuarioID}", method = RequestMethod.POST)
-    public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Long usuarioID, Principal principal){
+    public ResponseEntity<?> eliminarUsuarioExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Long usuarioID, Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
-        
-        if(expediente.getIndCerrado() || !expedienteService.permisoAdministrador(usuarioSesion, expediente))
+
+        if (expediente.getIndCerrado() || !expedienteService.permisoAdministrador(usuarioSesion, expediente)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
         expUsuarioService.eliminarUsuarioExpediente(usuarioID, usuarioSesion, expediente);
 
         return ResponseEntity.ok(usuarioID);
     }
-    
-    /***
+
+    /**
+     * *
      * Método para cambiar el usuario creador
+     *
      * @param expId Identificador del expediente
      * @param usuarioID Identificador del usuario
      * @param principal Información de sesión autenticada.
@@ -701,30 +740,36 @@ public class ExpedienteController extends UtilController {
      */
     @ResponseBody
     @RequestMapping(value = "/cambiar-creador/{exp}/{usuarioID}", method = RequestMethod.POST)
-    public ResponseEntity<?> cambiarUsuarioCreadorExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Integer usuarioID, Principal principal){
+    public ResponseEntity<?> cambiarUsuarioCreadorExpediente(@PathVariable("exp") Long expId, @PathVariable("usuarioID") Integer usuarioID, Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
         final Usuario usuarioAsignar = usuarioService.findOne(usuarioID);
         final Expediente expediente = expedienteService.finById(expId);
-        
-        if (expediente.getIndCerrado() || !expediente.getDepId().getJefe().getId().equals(usuarioSesion.getId()))
+
+        if (expediente.getIndCerrado() || !expediente.getDepId().getJefe().getId().equals(usuarioSesion.getId())) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
-       if (usuarioAsignar.getDependencia().getJefe() == null)
-           return new ResponseEntity<>("No existe un jefe en esta dependencia.", HttpStatus.BAD_REQUEST);
-       
+        }
+
+        if (usuarioAsignar.getDependencia().getJefe() == null) {
+            return new ResponseEntity<>("No existe un jefe en esta dependencia.", HttpStatus.BAD_REQUEST);
+        }
+
         List<ExpTrd> expTrds = expTrdService.findTrdsByExpediente(expediente);
-       if (!esDependenciaCompatible(expTrds, usuarioAsignar)){
-           String message = "<ul>";
-           for (ExpTrd expTrd : expTrds) { message += "<li>"+expTrd.getTrdId().getNombre()+"</li>"; }
-           return new ResponseEntity<>("La dependencia no cumple con las trd minimas para realizar el traspaso."+message+"</ul>", HttpStatus.BAD_REQUEST);
-       }
-       expedienteService.cambiarUsuarioCreador(expediente, usuarioAsignar, usuarioSesion);
-       
+        if (!esDependenciaCompatible(expTrds, usuarioAsignar)) {
+            String message = "<ul>";
+            for (ExpTrd expTrd : expTrds) {
+                message += "<li>" + expTrd.getTrdId().getNombre() + "</li>";
+            }
+            return new ResponseEntity<>("La dependencia no cumple con las trd minimas para realizar el traspaso." + message + "</ul>", HttpStatus.BAD_REQUEST);
+        }
+        expedienteService.cambiarUsuarioCreador(expediente, usuarioAsignar, usuarioSesion);
+
         return ResponseEntity.ok(usuarioID);
     }
 
-    /***
+    /**
+     * *
      * Método que lista los cargos de un usuario.
+     *
      * @param usuarioID Identificador del usuario
      * @param principal Información de sesión autenticada.
      * @return Codigo de respuesta exitoso, en caso contrario Bad Request
@@ -740,28 +785,31 @@ public class ExpedienteController extends UtilController {
         }
         return ResponseEntity.ok(cargoDTOs);
     }
-    
-    /***
+
+    /**
+     * *
      * Método para pagina de seleccionar las trds de un usuario
+     *
      * @param expId Identificador del expediente
      * @param model odelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
      * @param req request
-     * @return Pagina de asignar trds a aexpediente 
+     * @return Pagina de asignar trds a aexpediente
      */
     @RequestMapping(value = "/trds-expediente/{expId}", method = RequestMethod.GET)
-    public String seleccionarTrdExpediente(@PathVariable("expId") Long expId, Model model, Principal principal, HttpServletRequest req){
+    public String seleccionarTrdExpediente(@PathVariable("expId") Long expId, Model model, Principal principal, HttpServletRequest req) {
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
-        
-        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente) || expediente.getExpTipo() == 1)
+
+        if (!expedienteService.permisoAdministrador(usuarioSesion, expediente) || expediente.getExpTipo() == 1) {
             return "security-denied";
-        
-        if (expediente.getIndCerrado()){
+        }
+
+        if (expediente.getIndCerrado()) {
             model.addAttribute("usuario", expediente.getDepId().getJefe());
             return "expediente-cerrado";
         }
-        
+
         List<Trd> trds = trdService.buildTrdsHierarchy(usuarioSesion);
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpediente(expediente);
         List<Trd> trdDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
@@ -773,23 +821,26 @@ public class ExpedienteController extends UtilController {
         return "expediente-seleccionar-trds";
     }
 
-    /***
+    /**
+     * *
      * Método para asignar las trds a un expediente
+     *
      * @param expId Identificador del expediente
      * @param trds trds del expediente
      * @param principal Información de sesión autenticada.
      * @param req request
      * @param redirect redirect para redireccionar a otras paginas
-     * @return Pagina de asignar trds a aexpediente 
+     * @return Pagina de asignar trds a aexpediente
      */
     @RequestMapping(value = "/trds-expediente/{expId}", method = RequestMethod.POST)
-    public String asignarTrdsExpediente(@PathVariable("expId") Long expId,  @RequestParam(value="trd", required=false) Integer[] trds, Principal principal,
-            HttpServletRequest req, RedirectAttributes redirect){
+    public String asignarTrdsExpediente(@PathVariable("expId") Long expId, @RequestParam(value = "trd", required = false) Integer[] trds, Principal principal,
+            HttpServletRequest req, RedirectAttributes redirect) {
         final Usuario usuarioSesion = getUsuario(principal);
         final Expediente expediente = expedienteService.finById(expId);
 
-        if(expediente.getIndCerrado() || !expedienteService.permisoAdministrador(usuarioSesion, expediente))
+        if (expediente.getIndCerrado() || !expedienteService.permisoAdministrador(usuarioSesion, expediente)) {
             return "security-denied";
+        }
 
         List<ExpTrd> trdsPreseleccionadas = expTrdService.findTrdsByExpedienteAll(expediente);
         List<Trd> trdDocumentos = trdService.getTrdExpedienteDocumentos(expediente);
@@ -808,21 +859,24 @@ public class ExpedienteController extends UtilController {
                 }
             }
         }
-        
+
         desvincularTrds(trdsPreseleccionadas, trds, usuarioSesion, trdDocumentos);
-        if (expediente.getUsuarioAsignado() == 0)
-            return "redirect:"+PATH+"/asignar-usuario-expediente/"+expediente.getExpId();
-        return "redirect:"+PATH+"/administrarExpediente?expId="+expediente.getExpId();
+        if (expediente.getUsuarioAsignado() == 0) {
+            return "redirect:" + PATH + "/asignar-usuario-expediente/" + expediente.getExpId();
+        }
+        return "redirect:" + PATH + "/administrarExpediente?expId=" + expediente.getExpId();
     }
-    
-    /***
+
+    /**
+     * *
      * Método para desvicular las trds de un expediente
+     *
      * @param trdExpediente lista de trd existente en el expediente
      * @param trdsb trds que se mantienen
      * @param usuarioSesion Usuario que esta actualmente en sesión
      * @param trdDocumentos lista de Trds
      */
-    public void desvincularTrds(List<ExpTrd> trdExpediente, Integer[] trds, Usuario usuarioSesion, List<Trd> trdDocumentos){
+    public void desvincularTrds(List<ExpTrd> trdExpediente, Integer[] trds, Usuario usuarioSesion, List<Trd> trdDocumentos) {
         for (ExpTrd trd : trdExpediente) {
             boolean hasElment = false;
             if (trds != null) {
@@ -997,47 +1051,53 @@ public class ExpedienteController extends UtilController {
 
     @RequestMapping(value = "/expediente-vacio", method = RequestMethod.GET)
     public String expedienteVacio(Model model, Principal principal) {
-        
+
         return "expediente-vacio";
     }
-    
-    /***
+
+    /**
+     * *
      * Método que cierra el expediente
+     *
      * @param expId Identificador del expediente
      * @param model modelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
      * @return Codigo de respuesta exitoso, en caso contrario Bad Request
      */
     @RequestMapping(value = "/cerrar-expediente/{expId}", method = RequestMethod.POST)
-    public ResponseEntity<?> expedienteCerrar(@PathVariable("expId") Long expId, Model model, Principal principal){
+    public ResponseEntity<?> expedienteCerrar(@PathVariable("expId") Long expId, Model model, Principal principal) {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
 
-        if(!expedienteService.permisoJefeDependencia(usuarioSesion, expediente))
+        if (!expedienteService.permisoJefeDependencia(usuarioSesion, expediente)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
+        }
+
         expedienteService.cerrarExpediente(expediente, usuarioSesion);
-        
+
         return ResponseEntity.ok("Cerrado Correctamente");
     }
-    
-    /***
+
+    /**
+     * *
      * Método para abrir un expediente cerrado
+     *
      * @param expId Identificador del expediente
      * @param model modelo de información entre vista y controlador.
      * @param principal Información de sesión autenticada.
      * @return Codigo de respuesta exitoso, en caso contrario Bad Request
      */
     @RequestMapping(value = "/abrir-expediente/{expId}", method = RequestMethod.POST)
-    public ResponseEntity<?> expedienteAbrir(@PathVariable("expId") Long expId, Model model, Principal principal){
+    public ResponseEntity<?> expedienteAbrir(@PathVariable("expId") Long expId, Model model, Principal principal) {
         final Expediente expediente = expedienteService.finById(expId);
         final Usuario usuarioSesion = getUsuario(principal);
 
-        if(!expedienteService.permisoJefeDependencia(usuarioSesion, expediente))
+        if (!expedienteService.permisoJefeDependencia(usuarioSesion, expediente)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
+        }
+
         expedienteService.abrirExpediente(expediente, usuarioSesion);
-        
+
         return ResponseEntity.ok("Cerrado Correctamente");
     }
 
@@ -1059,18 +1119,20 @@ public class ExpedienteController extends UtilController {
         }
         return cargoDTOs;
     }
-    
-    /***
+
+    /**
+     * *
      * Comprueba que una dependecia posea ciertas trds
+     *
      * @param expTrds trds
      * @param usuario usuario en dependencia
-     * @return 
+     * @return
      */
-    public boolean esDependenciaCompatible(List<ExpTrd> expTrds, Usuario usuario){
+    public boolean esDependenciaCompatible(List<ExpTrd> expTrds, Usuario usuario) {
         List<Trd> padres = trdService.findSeriesByUsuario(usuario);
         List<Trd> trds = new ArrayList<>();
         for (Trd padre : padres) {
-           List<Trd> subTrds = trdService.findSubseriesbySerieAndUsuario(padre, usuario);
+            List<Trd> subTrds = trdService.findSubseriesbySerieAndUsuario(padre, usuario);
             for (Trd subTrd : subTrds) {
                 trds.add(subTrd);
             }
@@ -1089,6 +1151,7 @@ public class ExpedienteController extends UtilController {
 
     /**
      * Comprueba que dentro de una lista de trds exista una en especifico
+     *
      * @param trdId Identificador de la trd
      * @param PreSeleccionadas trds seleccionadas en el expediente
      * @return true si la contiene, false de lo contrario
@@ -1101,14 +1164,15 @@ public class ExpedienteController extends UtilController {
         }
         return false;
     }
-    
+
     /**
      * Comprueba que en una lista de documentos exista un documento con esta.
+     *
      * @param trdId Identificador de la trd
      * @param trdsDocumento trds seleccionadas en los documentos
      * @return true si la contiene, false de lo contrario
      */
-    public boolean hasInDocument(Integer trdId, List<Trd> trdsDocumento){
+    public boolean hasInDocument(Integer trdId, List<Trd> trdsDocumento) {
         for (Trd trd : trdsDocumento) {
             if (trd.getId().equals(trdId)) {
                 return true;
@@ -1116,9 +1180,12 @@ public class ExpedienteController extends UtilController {
         }
         return false;
     }
-    
-    /***
-     * comprueba una serie de trds y verifica si entan dentro de las seleecionada en el expediente
+
+    /**
+     * *
+     * comprueba una serie de trds y verifica si entan dentro de las
+     * seleecionada en el expediente
+     *
      * @param PreSeleccionadas trds preseleccionadas
      * @param subseries trd subseries
      * @return true si la contiene, false de lo contrario
@@ -1136,15 +1203,18 @@ public class ExpedienteController extends UtilController {
 
         return true;
     }
-    
-    /***
-     * comprueba una serie de trds y verifica si entan dentro de las seleecionada en el expediente
+
+    /**
+     * *
+     * comprueba una serie de trds y verifica si entan dentro de las
+     * seleecionada en el expediente
+     *
      * @param PreSeleccionadas
      * @param subseries
      * @param id
      * @return true si la contiene, false de lo contrario
      */
-    public boolean hasAllSubseriesSelectedByPadre(final List<ExpTrd> PreSeleccionadas, final List<Trd> subseries, Integer id){
+    public boolean hasAllSubseriesSelectedByPadre(final List<ExpTrd> PreSeleccionadas, final List<Trd> subseries, Integer id) {
         for (Trd subserie : subseries) {
             if (subserie.getId().equals(id)) {
                 for (Trd sub : subserie.getSubs()) {
@@ -1167,11 +1237,12 @@ public class ExpedienteController extends UtilController {
     public ExpedienteController controller() {
         return this;
     }
-    
+
     /**
      * Retorna los valores para la paginación
+     *
      * @param model
-     * @return 
+     * @return
      */
     @ModelAttribute("pageSizes")
     public List<Integer> pageSizes(Model model) {
@@ -1179,5 +1250,5 @@ public class ExpedienteController extends UtilController {
         model.addAttribute("pageSizes", list);
         return list;
     }
-    
+
 }
