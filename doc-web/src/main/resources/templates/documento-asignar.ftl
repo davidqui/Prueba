@@ -48,14 +48,21 @@
                                         <h5>Usuarios</h5>
                                         <#list usuarios as u>
                                             <div>
-                                                <#if u.restriccionDocumentoNivelAcceso== true>
-                                                    <label style="color:#FF0000">								
-                                                                                                        ${u} ${u.mensajeNivelAcceso}
-                                                                                                    </label>
+                                                <!--validación si el usuario esta activo issue gogs #7 feature-gogs-7-->  
+                                                <#if u.usuActivo == false>
+                                                    <label style="color:#adadad" id="nav-toggle-button" role="button" data-toggle="popover" data-trigger="hover" data-placement="right" title="Usuario Inactivo" data-content="${u.razonInhabilitar.textoRazon}">
+                                                        ${u} ${u.mensajeNivelAcceso}
+                                                    </label>
+                                                <#else>
+                                                    <#if u.restriccionDocumentoNivelAcceso== true>
+                                                        <label style="color:#FF0000">								
+                                                            ${u} ${u.mensajeNivelAcceso}
+                                                        </label>
                                                     <#else>
                                                         <label class="c-input c-radio" style="color:#5cb85c">
-                                                                                                        <input type="radio" name="uid" value="${u.id}"><span class="c-indicator"></span>${u} ${u.mensajeNivelAcceso}
-                                                                                                    </label>
+                                                            <input type="radio" name="uid" value="${u.id}"><span class="c-indicator"></span>${u} ${u.mensajeNivelAcceso}
+                                                        </label>
+                                                    </#if>
                                                 </#if>
                                             </div>
                                         </#list>

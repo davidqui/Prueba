@@ -39,15 +39,22 @@
 							<#if lista_usuarios??>
 								<#list lista_usuarios as usuario >
 								<div>
-									<#if usuario.restriccionDocumentoNivelAcceso == true >
-										<label style="color:#FF0000">								
-									        ${usuario} ${usuario.mensajeNivelAcceso}
-									    </label> 
-							        <#else>
-							        	<label class="c-input c-radio" style="color:#5cb85c">
-									        <input type="radio" name="usuId" value="${usuario.id}"><span class="c-indicator"></span>${usuario} ${usuario.mensajeNivelAcceso}
-									    </label>
-							        </#if>
+                                                                    <!--validación si el usuario esta activo issue gogs #7 feature-gogs-7-->  
+                                                                    <#if usuario.usuActivo == false>
+                                                                        <label style="color:#adadad" id="nav-toggle-button" role="button" data-toggle="popover" data-trigger="hover" data-placement="right" title="Usuario Inactivo" data-content="${(usuario.razonInhabilitar.textoRazon)!""}">
+                                                                            ${usuario} ${usuario.mensajeNivelAcceso}
+                                                                        </label>
+                                                                    <#else>
+                                                                        <#if usuario.restriccionDocumentoNivelAcceso == true >
+                                                                            <label style="color:#FF0000">								
+                                                                                ${usuario} ${usuario.mensajeNivelAcceso}
+                                                                            </label> 
+                                                                        <#else>
+                                                                            <label class="c-input c-radio" style="color:#5cb85c">
+                                                                                <input type="radio" name="usuId" value="${usuario.id}"><span class="c-indicator"></span>${usuario} ${usuario.mensajeNivelAcceso}
+                                                                            </label>
+                                                                        </#if>
+                                                                    </#if>
 								</div>
 								</#list>
 							</#if>
