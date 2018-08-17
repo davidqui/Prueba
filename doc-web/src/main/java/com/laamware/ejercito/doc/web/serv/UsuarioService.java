@@ -449,6 +449,8 @@ public class UsuarioService {
         usuarioSesion.setRazonInhabilitar(null);
         usuarioRepository.saveAndFlush(usuarioSesion);
         
+        Map<String, Object> model = new HashMap();
+        
         if (usuarioSesion.getDependencia().getJefe() != null) {
             model.put("usuario", usuarioSesion);
             model.put("jefe", usuarioSesion.getDependencia().getJefe());

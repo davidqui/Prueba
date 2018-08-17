@@ -72,5 +72,5 @@ public interface DependenciaRepository extends GenJpaRepository<Dependencia, Int
     * (SICDI-Controltech) feature-gogs-7: Lista las dependencias que tengan un 
     *  usuario registro dado por un usuario.
     */
-    public List<Dependencia> findActivoByByUsuarioRegistro(Usuario usuario);
+    public List<Dependencia> findActivoByUsuarioRegistro(Usuario usuario);
 }

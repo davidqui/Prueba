@@ -290,7 +290,7 @@ public class DependenciaService {
     *  usuario registro dado por un usuario.
     */
     public List<Dependencia> dependenciasUsuarioRegistro(Usuario usuario){
-        return dependenciaRepository.findActivoByByUsuarioRegistro(usuario);
+        return dependenciaRepository.findActivoByUsuarioRegistro(usuario);
     }
 
 }
