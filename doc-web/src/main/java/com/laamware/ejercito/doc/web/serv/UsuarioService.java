@@ -44,7 +44,8 @@ public class UsuarioService {
 
     public final static Integer NOTIFICACION_USUARIO_ACTIVADO = 300;
     public final static Integer NOTIFICACION_USUARIO_INACTIVO = 301;
-
+    public final static Integer NOTIFICACION_USUARIO_INACTIVO_RECURRENTE = 302;
+    
     /**
      * Repositorio de usuarios.
      */
@@ -431,7 +432,12 @@ public class UsuarioService {
             model.put("usuario", usuarioSesion);
             model.put("jefe", usuarioSesion.getDependencia().getJefe());
             try {
-                notificacionService.enviarNotificacion(model, NOTIFICACION_USUARIO_INACTIVO, usuarioSesion.getDependencia().getJefe());
+                Integer numeroInactividades = usuarioRepository.getCountUsuarioCambiosActivoSemana(usuarioSesion.getId());
+                if(numeroInactividades == 3){
+                    notificacionService.enviarNotificacion(model, NOTIFICACION_USUARIO_INACTIVO_RECURRENTE, usuarioSesion.getDependencia().getJefe());
+                }else{
+                    notificacionService.enviarNotificacion(model, NOTIFICACION_USUARIO_INACTIVO, usuarioSesion.getDependencia().getJefe());
+                }
             } catch (Exception ex) {
                 Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
             }
