@@ -64,7 +64,7 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "LEFT OUTER JOIN DEPENDENCIA DEP_JEFE ON (DEP_JEFE.DEP_ID = EXP.DEP_ID) "
             + "LEFT OUTER JOIN TRD TRDPRINCIPAL ON (TRDPRINCIPAL.TRD_ID = EXP.TRD_ID_PRINCIPAL) "
             + "LEFT OUTER JOIN USUARIO UJD ON (UJD.USU_ID = DEP_JEFE.USU_ID_JEFE) "
-            + "WHERE ((EXP.USU_CREACION = :usuId) OR (EXPUSUARIO.USU_ID = :usuId and EXPUSUARIO.IND_APROBADO = 1 AND EXPUSUARIO.ACTIVO = 1) OR (DEP_JEFE.USU_ID_JEFE = :usuId)) ";
+            + "WHERE ((EXP.USU_CREACION = :usuId) OR (EXPUSUARIO.USU_ID = :usuId and EXPUSUARIO.IND_APROBADO = 1 AND EXPUSUARIO.ACTIVO = 1 AND EXP.IND_CERRADO = 0) OR (DEP_JEFE.USU_ID_JEFE = :usuId)) ";
     /**
      * Consulta encargada de traer los expedientes a los que un usuario puede agregar un documento por trd
      */
@@ -84,13 +84,15 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
      * Obtiene el numero de registros de expedientes por usuario.
      *
      * @param usuId Identificador del Usuario
+     * @param indicador Estado del expediente cerrado
      * @return Numero de registros.
      */
     @Query(value = "select count(1)\n"
             + "from(\n"
             + CONSULTALISTAEXPEDIENTESXUSUARIO
+            +" AND EXP.IND_CERRADO IN (:indicador) "
             + ") exp\n", nativeQuery = true)
-    int findExpedientesDTOPorUsuarioCount(@Param("usuId") Integer usuId);
+    int findExpedientesDTOPorUsuarioCount(@Param("usuId") Integer usuId, @Param("indicador") List<Integer> indicador);
     
     /**
      * Obtiene el numero de registros de expedientes por usuario y filtro por el nombre
@@ -98,14 +100,16 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
      *
      * @param usuId Identificador del Usuario
      * @param filtro filtro de busqueda
+     * @param indicador Estado del expediente cerrado
      * @return Numero de registros.
      */
     @Query(value = "select count(1)\n"
             + "from(\n"
             + CONSULTALISTAEXPEDIENTESXUSUARIO
             +" AND EXP.EXP_NOMBRE LIKE UPPER('%'||:filtro||'%') "
+            +" AND EXP.IND_CERRADO IN (:indicador) "
             + ") exp\n", nativeQuery = true)
-    int findExpedientesDTOPorUsuarioYfiltroCount(@Param("usuId") Integer usuId, @Param("filtro") String filtro);
+    int findExpedientesDTOPorUsuarioYfiltroCount(@Param("usuId") Integer usuId, @Param("filtro") String filtro, @Param("indicador") List<Integer> indicador);
 
     /**
      * Obtiene los registros de expedientes por usuario, de acuerdo a la fila
@@ -114,6 +118,7 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
      * @param usuId Identificador del usuario
      * @param inicio Número de registro inicial
      * @param fin Numero de registro final
+     * @param indicador Estado del expediente cerrado
      * @return Lista de bandejas de entrada.
      */
     @Query(value = ""
@@ -122,11 +127,12 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "     select exp.*, rownum num_lineas\n"
             + "     from(\n"
             + CONSULTALISTAEXPEDIENTESXUSUARIO
+            +" AND EXP.IND_CERRADO IN (:indicador) "
             + "         ORDER BY exp.usuario_asignado desc, exp.fec_creacion desc\n"
             + "     )exp\n"
             + ") exp\n"
             + "where exp.num_lineas >= :inicio and exp.num_lineas <= :fin\n", nativeQuery = true)
-    List<Object[]> findExpedientesPorUsuarioPaginado(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin);
+    List<Object[]> findExpedientesPorUsuarioPaginado(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin, @Param("indicador") List<Integer> indicador);
     
     /**
      * Obtiene los registros de expedientes por usuario y filtro, de acuerdo a la fila
@@ -136,6 +142,7 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
      * @param inicio Número de registro inicial
      * @param fin Numero de registro final
      * @param filtro Filtro de busqueda
+     * @param indicador Estado del expediente cerrado
      * @return Lista de bandejas de entrada.
      */
     @Query(value = ""
@@ -145,11 +152,12 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "     from(\n"
             + CONSULTALISTAEXPEDIENTESXUSUARIO
             +" AND EXP.EXP_NOMBRE LIKE UPPER('%'||:filtro||'%')"
+            +" AND EXP.IND_CERRADO IN (:indicador) "
             + "         ORDER BY EXP.USUARIO_ASIGNADO DESC, EXP.FEC_CREACION DESC\n"
             + "     )exp\n"
             + ") exp\n"
             + "WHERE EXP.NUM_LINEAS >= :inicio AND EXP.NUM_LINEAS <= :fin\n", nativeQuery = true)
-    List<Object[]> findExpedientesPorUsuarioYfiltroPaginado(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin, @Param("filtro") String filtro);
+    List<Object[]> findExpedientesPorUsuarioYfiltroPaginado(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin, @Param("filtro") String filtro, @Param("indicador") List<Integer> indicador);
 
     /**
      * Obtiene los registros de expedientes por usuario, de acuerdo a un expediente
