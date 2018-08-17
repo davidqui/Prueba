@@ -123,16 +123,17 @@
                         </div>
                     </div>
             
-                <a href="#" data-toggle="modal" data-target="#modal-inhabilitar-usuario" onclick="razonesInhabilitacion();">Desabilitar Usuario</a>
+                <a href="#" data-toggle="modal" data-target="#modal-inhabilitar-usuario" onclick="razonesInhabilitacion();">Inactivar Usuario</a>
                 <!--modal inhabilitar Usuario-->
                 <div class="modal fade" id="modal-inhabilitar-usuario" role="dialog">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title" style="color: #0275d8;">Desabilitar Usuario</h4>
+                                <h4 class="modal-title" style="color: #0275d8;">Inactivar Usuario</h4>
                                 </div>
                                 <div class="modal-body" style="color: black;">
+                                    <p>“Señor Usuario recuerde que al inactivar su usuario, bloqueara inmediatamente el acceso a las funcionalidades de SICDI, además no permitirá que otros usuarios le asignen documentos, es su responsabilidad activarse nuevamente una vez concluida su ausencia laboral.”</p>
                                     <div class="form-group">
                                       <label for="comment">Razón de inhabilitar:</label>
                                       <select class="form-control" id="razonInhabilitar" name="razonInhabilitar">
@@ -141,7 +142,7 @@
                                 </div>
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                  <button type="button" class="btn btn-danger" onclick="deshabilitarUsuario()">Desabilitar</button>
+                                  <button type="button" class="btn btn-danger" onclick="deshabilitarUsuario()">Inactivar</button>
                                 </div>
                             </div>
                         </div>
@@ -250,9 +251,9 @@
                      style="background-color: #fff; border-color: #94ce18">
                     <div class="card-block lead">
                         <p>
-                            <b>Su Usuario esta inactivo.</b>
+                            Usuario actualmente <b>Inactivo</b>
                             </p>
-                        <p> Si desea activarlo pulse aqui</p>
+                        <p> para retomar operación en el sistema SICDI debe activar su usuario”.</p>
                         <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="habilitarUsuario()">
                             Activar
                             </button>

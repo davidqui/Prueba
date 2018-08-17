@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.laamware.ejercito.doc.web.entity.Dependencia;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 
 public interface DependenciaRepository extends GenJpaRepository<Dependencia, Integer> {
 
@@ -65,4 +66,11 @@ public interface DependenciaRepository extends GenJpaRepository<Dependencia, Int
     * unidades padres en el arbol, cuando se reasigna un documento.
     */
     List<Dependencia> findByActivoAndPadreAndDepIndEnvioDocumentos(boolean activo, Integer padreId, boolean indUnidadPadre, Sort sort);
+
+    /*
+    * 2018-08-17 samuel.delgado@controltechcg.com issue #7 gogs
+    * (SICDI-Controltech) feature-gogs-7: Lista las dependencias que tengan un 
+    *  usuario registro dado por un usuario.
+    */
+    public List<Dependencia> findActivoByByUsuarioRegistro(Usuario usuario);
 }

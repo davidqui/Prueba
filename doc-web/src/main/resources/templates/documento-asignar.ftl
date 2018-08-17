@@ -73,14 +73,20 @@
                                             <h5>Usuarios Favoritos</h5>
                                             <#list usuariosFav as ufav>
                                                 <div>
-                                                    <#if ufav.usuFav.restriccionDocumentoNivelAcceso== true>
-                                                        <label style="color:#FF0000">								
-                                                                                                            ${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
-                                                                                                        </label>
-                                                        <#else>
-                                                            <label class="c-input c-radio" style="color:#5cb85c">
-                                                                                                            <input type="radio" name="uid" value="${ufav.usuFav.id}"><span class="c-indicator"></span>${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
-                                                                                                        </label>
+                                                    <#if ufav.usuFav.usuActivo == false>
+                                                        <label style="color:#adadad" id="nav-toggle-button" role="button" data-toggle="popover" data-trigger="hover" data-placement="right" title="Usuario Inactivo" data-content="${ufav.usuFav.razonInhabilitar.textoRazon}">
+                                                            ${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
+                                                        </label>
+                                                    <#else>
+                                                        <#if ufav.usuFav.restriccionDocumentoNivelAcceso== true>
+                                                            <label style="color:#FF0000">								
+                                                                                                                ${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
+                                                                                                            </label>
+                                                            <#else>
+                                                                <label class="c-input c-radio" style="color:#5cb85c">
+                                                                                                                <input type="radio" name="uid" value="${ufav.usuFav.id}"><span class="c-indicator"></span>${ufav.usuFav} ${ufav.usuFav.mensajeNivelAcceso}
+                                                                                                            </label>
+                                                        </#if>
                                                     </#if>
                                                 </div>
                                             </#list>
