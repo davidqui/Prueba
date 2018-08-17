@@ -5722,6 +5722,7 @@ public class DocumentoController extends UtilController {
 
                 if (instancia.getEstado().getId() == ESTADO_ANULADO) {
                     mensaje.setDestino(documento.getElabora().getEmail());
+                    usuarioAsignado = documento.getElabora();
                     if (usuarioAsignado.getId() == documento.getElabora().getId()) {
                         return;
                     }
@@ -5732,7 +5733,7 @@ public class DocumentoController extends UtilController {
                     return;
                 }
 
-                if (notificacionxUsuarioService.findCountByUsuIdAndTnfId(documento.getElabora().getId(), notificacion.getTipoNotificacion().getId()) == 1) {
+                if (notificacionxUsuarioService.findCountByUsuIdAndTnfId(usuarioAsignado.getId(), notificacion.getTipoNotificacion().getId()) == 1) {
                     return;
                 }
                 mailQueueService.enviarCorreo(mensaje);
