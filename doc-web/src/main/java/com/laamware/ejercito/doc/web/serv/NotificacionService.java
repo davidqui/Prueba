@@ -41,6 +41,10 @@ public class NotificacionService {
      */
     @Autowired
     private MailQueueService mailQueueService;
+    
+    
+    @Autowired
+    private NotificacionxUsuarioService notificacionxUsuarioService;
 
     /**
      * *
@@ -176,9 +180,10 @@ public class NotificacionService {
 
     public void enviarNotificacion(Map<String, Object> model,
             Integer IdNotificacion, Usuario usuario) throws IOException, TemplateException {
-
         Notificacion notificacion = notificacionRepository.getOneByIdTipoNotificacion(IdNotificacion);
         if (notificacion != null) {
+            if (notificacionxUsuarioService.findCountByUsuIdAndTnfId(usuario.getId(), notificacion.getTipoNotificacion().getId()) == 1)
+                  return;
             Template t = new Template(notificacion.toString(), new StringReader(notificacion.getTemplate()));
             String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
             EmailDTO mensaje = new EmailDTO(usuario.getEmail(), null,
