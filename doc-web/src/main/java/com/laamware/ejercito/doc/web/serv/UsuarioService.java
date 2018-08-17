@@ -19,6 +19,8 @@ import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
 import com.laamware.ejercito.doc.web.serv.spec.UsuarioSpecifications;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -39,6 +41,9 @@ public class UsuarioService {
      * Logger.
      */
     private static final Logger LOG = Logger.getLogger(UsuarioService.class.getName());
+
+    public final static Integer NOTIFICACION_USUARIO_ACTIVADO = 300;
+    public final static Integer NOTIFICACION_USUARIO_INACTIVO = 301;
 
     /**
      * Repositorio de usuarios.
@@ -80,12 +85,19 @@ public class UsuarioService {
      */
     @Autowired
     private DependenciaRepository dependenciaRepository;
-    
-    /***
+
+    /**
+     * *
      * Servicio de {@link RazonInabilitar}
      */
     @Autowired
     private RazonInhabilitarService razonInhabilitarService;
+
+    /**
+     * servicio de {@link Notificacion}
+     */
+    @Autowired
+    private NotificacionService notificacionService;
 
     /**
      * Obtiene una página de usuarios correspondientes a la criteria de búsqueda
@@ -395,30 +407,56 @@ public class UsuarioService {
         Dependencia unidadPadre = dependenciaService.buscarUnidad(usuarioSesion.getDependencia());;
         return unidadPadre.getUsuarioRegistro();
     }
-    
+
     /*
     * 2018-08-15 samuel.delgado@controltechcg.com Issue #7 (SICDI-Controltech)
     * feature-gogs-7: metodos para activar (habilitarUsuario) o desactivar usuario (inhabilitarUsuario)
-    */
-    /***
+     */
+    /**
+     * *
      * Método para inhabilitar un usuario.
+     *
      * @param usuarioSesion Usuario en sesión
      * @param idRazon id de la razón por la cual se inhabilita
      */
-    public void inhabilitarUsuario(final Usuario usuarioSesion, final Integer idRazon){
+    public void inhabilitarUsuario(final Usuario usuarioSesion, final Integer idRazon) {
         RazonInhabilitar razon = razonInhabilitarService.findOne(idRazon);
         usuarioSesion.setUsuActivo(Boolean.FALSE);
         usuarioSesion.setRazonInhabilitar(razon);
         usuarioRepository.saveAndFlush(usuarioSesion);
+
+        Map<String, Object> model = new HashMap();
+
+        if (usuarioSesion.getDependencia().getJefe() != null) {
+            model.put("usuario", usuarioSesion);
+            model.put("jefe", usuarioSesion.getDependencia().getJefe());
+            try {
+                notificacionService.enviarNotificacion(model, NOTIFICACION_USUARIO_INACTIVO, usuarioSesion.getDependencia().getJefe());
+            } catch (Exception ex) {
+                Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
-    
-    /***
+
+    /**
+     * *
      * Método para habilitar un usuario.
+     *
      * @param usuarioSesion Usuario en sesión
      */
-    public void habilitarUsuario(final Usuario usuarioSesion){
+    public void habilitarUsuario(final Usuario usuarioSesion) {
         usuarioSesion.setUsuActivo(Boolean.TRUE);
         usuarioSesion.setRazonInhabilitar(null);
         usuarioRepository.saveAndFlush(usuarioSesion);
+        
+        if (usuarioSesion.getDependencia().getJefe() != null) {
+            model.put("usuario", usuarioSesion);
+            model.put("jefe", usuarioSesion.getDependencia().getJefe());
+            try {
+                notificacionService.enviarNotificacion(model, NOTIFICACION_USUARIO_ACTIVADO, usuarioSesion.getDependencia().getJefe());
+            } catch (Exception ex) {
+                Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }

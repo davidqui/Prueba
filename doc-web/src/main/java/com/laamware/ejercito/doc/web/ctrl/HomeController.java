@@ -3,6 +3,7 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.laamware.ejercito.doc.web.entity.RazonInhabilitar;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
+import com.laamware.ejercito.doc.web.serv.NotificacionService;
 import com.laamware.ejercito.doc.web.serv.RazonInhabilitarService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import java.security.Principal;
@@ -26,7 +27,7 @@ public class HomeController extends UtilController {
         
         @Autowired
         private DependenciaService dependenciaService;
-        
+                
         /*
         * 2018-08-16 samuel.delgado@controltechcg.com Issue #7 (SICDI-Controltech)
         * feature-gogs-7: servicio para razones de inhabilitación
@@ -71,10 +72,9 @@ public class HomeController extends UtilController {
             
             if (usuarioSesion.getDependencia().getJefe() != null &&
                     usuarioSesion.getDependencia().getJefe().getId().equals(usuarioSesion.getId()))
-                return new ResponseEntity<>("Usted es jefe de dependencia mientras lo sea no puede desactivarse.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Usted es jefe de dependencia mientras lo sea no puede Inactivarse.", HttpStatus.BAD_REQUEST);
             if(!dependenciaService.dependenciasUsuarioRegistro(usuarioSesion).isEmpty())
-                return new ResponseEntity<>("Usted es usuario registro de dependencia mientras lo sea no puede desactivarse.", HttpStatus.BAD_REQUEST);
-                                
+                return new ResponseEntity<>("Usted es usuario registro de dependencia mientras lo sea no puede Inactivarse.", HttpStatus.BAD_REQUEST);
             
             usuarioService.inhabilitarUsuario(usuarioSesion, razon);
             return new ResponseEntity<>(HttpStatus.OK);
