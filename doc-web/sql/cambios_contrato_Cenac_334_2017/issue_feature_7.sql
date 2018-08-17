@@ -48,6 +48,41 @@ ADD CONSTRAINT USUARIO_RAZ_ID_FK
 FOREIGN KEY (RAZ_ID)
 REFERENCES RAZON_INHABILITAR (RAZ_ID);
 
+
+-- -----------------------------------------------------------------------------
+-- TABLA: H_USUARIO_ACTIVO
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE H_USUARIO_ACTIVO (
+    HUA_ID              NUMBER(38)          NOT NULL,
+    USU_ID              NUMBER(38)          NOT NULL,
+    USU_ACTIVO          NUMBER(1)           NOT NULL,
+    RAZ_ID              NUMBER(38)              NULL,
+    CUANDO              DATE                NOT NULL,
+    PRIMARY KEY (HUA_ID)
+);
+
+CREATE SEQUENCE H_USUARIO_ACTIVO_SEQ;
+
+COMMENT ON TABLE H_USUARIO_ACTIVO
+IS 'Historico de activación de un usuario.';
+
+-- -----------------------------------------------------------------------------
+-- TRIGGER: TRG_REGISTRO_H_USUARIO_ACTIVO
+-- -----------------------------------------------------------------------------
+
+SET DEFINE OFF
+
+CREATE OR REPLACE TRIGGER TRG_REGISTRO_H_USUARIO_ACTIVO
+AFTER UPDATE OF USU_ACTIVO ON USUARIO
+FOR EACH ROW
+BEGIN
+    INSERT INTO H_USUARIO_ACTIVO (HUA_ID, USU_ID, USU_ACTIVO, RAZ_ID, CUANDO)
+    VALUES (H_USUARIO_ACTIVO_SEQ.NEXTVAL, :OLD.USU_ID, :NEW.USU_ACTIVO, :NEW.RAZ_ID, SYSDATE);
+END;
+
+
+
 -- -----------------------------------------------------------------------------
 -- TABLA: ROL
 -- -----------------------------------------------------------------------------
