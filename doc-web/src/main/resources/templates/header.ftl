@@ -135,7 +135,7 @@
                                 <div class="modal-body" style="color: black;">
                                     <p>“Señor Usuario recuerde que al inactivar su usuario, bloqueara inmediatamente el acceso a las funcionalidades de SICDI, además no permitirá que otros usuarios le asignen documentos, es su responsabilidad activarse nuevamente una vez concluida su ausencia laboral.”</p>
                                     <div class="form-group">
-                                      <label for="comment">Razón de inhabilitar:</label>
+                                      <label for="comment">Motivo de la ausencia laboral:</label>
                                       <select class="form-control" id="razonInhabilitar" name="razonInhabilitar">
                                       </select>
                                     </div>
