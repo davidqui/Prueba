@@ -32,6 +32,12 @@
                 </div>
             </form>
         </div>
+        
+        <#if all?? && all>
+            <a class="btn btn-link" href="/expediente/listarExpedientes?all=false&filtro=${filtro!""}">No mostrar expedientes cerrados</a>
+        <#else>
+            <a class="btn btn-link" href="/expediente/listarExpedientes?all=true&filtro=${filtro!""}">Mostrar expedientes cerrados</a>
+        </#if>
         </br>
         <table class="table">
             <thead>

@@ -183,13 +183,20 @@ public class ExpedienteService {
      *
      * @param usuId Identificador del usuario
      * @param filtro filtro de busqueda
+     * @param mostrarTodos Estado del expediente cerrado
      * @return Número de registros
      */
-    public int obtenerCountExpedientesPorUsuario(Integer usuId, String filtro) {
-        if (filtro != null && filtro.trim().length() > 0) {
-            return expedienteRepository.findExpedientesDTOPorUsuarioYfiltroCount(usuId, filtro);
+    public int obtenerCountExpedientesPorUsuario(Integer usuId, String filtro, boolean mostrarTodos) {
+        List<Integer> indicador = new ArrayList<>();
+        indicador.add(0);
+        if (mostrarTodos) {
+            indicador.add(1);
         }
-        return expedienteRepository.findExpedientesDTOPorUsuarioCount(usuId);
+
+        if (filtro != null && filtro.trim().length() > 0) {
+            return expedienteRepository.findExpedientesDTOPorUsuarioYfiltroCount(usuId, filtro, indicador);
+        }
+        return expedienteRepository.findExpedientesDTOPorUsuarioCount(usuId, indicador);
     }
 
     /**
@@ -200,16 +207,24 @@ public class ExpedienteService {
      * @param inicio Numero de registro inicial
      * @param fin Numero de registro final
      * @param filtro Filtro de busqueda
+     * @param mostrarTodos Estado del expediente cerrado
      * @return Lista de documentos
      */
-    public List<ExpedienteDTO> obtenerExpedientesDTOPorUsuarioPaginado(Integer usuId, int inicio, int fin, String filtro) {
+    public List<ExpedienteDTO> obtenerExpedientesDTOPorUsuarioPaginado(Integer usuId, int inicio, int fin, String filtro, boolean mostrarTodos) {
         List<ExpedienteDTO> expedientes = new ArrayList<>();
         List<Object[]> result;
+        
+        List<Integer> indicador = new ArrayList<>();
+        indicador.add(0);
+        if (mostrarTodos) {
+            indicador.add(1);
+        }
+        
         if (filtro != null && filtro.trim().length() > 0) {
             System.err.println("filtroservice= " + filtro);
-            result = expedienteRepository.findExpedientesPorUsuarioYfiltroPaginado(usuId, inicio, fin, filtro);
+            result = expedienteRepository.findExpedientesPorUsuarioYfiltroPaginado(usuId, inicio, fin, filtro, indicador);
         } else {
-            result = expedienteRepository.findExpedientesPorUsuarioPaginado(usuId, inicio, fin);
+            result = expedienteRepository.findExpedientesPorUsuarioPaginado(usuId, inicio, fin, indicador);
         }
 
         if (result != null && !result.isEmpty()) {

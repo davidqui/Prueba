@@ -173,25 +173,27 @@ public class ExpedienteController extends UtilController {
      * @param pageSize Registro Final
      * @param filtro Parámetro que permite filtrar los expedientes por su
      * nombre.
+     * @param all Estado del indicador de cerrado
      * @return Página de visualizacion de expedientes
      */
     @RequestMapping(value = "/listarExpedientes", method = RequestMethod.GET)
     public String listarExpediente(Model model, Principal principal,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false, value = "filtro") String filtro) {
+            @RequestParam(required = false, value = "filtro") String filtro,
+            @RequestParam(required = false, value = "all") boolean all) {
         System.err.println("buscadorExpediente= " + filtro);
         Usuario usuSesion = getUsuario(principal);
 
         List<ExpedienteDTO> expedientes = new ArrayList<>();
-        int count = expedienteService.obtenerCountExpedientesPorUsuario(usuSesion.getId(), filtro);
+        int count = expedienteService.obtenerCountExpedientesPorUsuario(usuSesion.getId(), filtro, all);
         int totalPages = 0;
         String labelInformacion = "";
 
         if (count > 0) {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
-            expedientes = expedienteService.obtenerExpedientesDTOPorUsuarioPaginado(usuSesion.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(), filtro);
+            expedientes = expedienteService.obtenerExpedientesDTOPorUsuarioPaginado(usuSesion.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(), filtro, all);
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 
@@ -201,6 +203,7 @@ public class ExpedienteController extends UtilController {
         model.addAttribute("labelInformacion", labelInformacion);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("filtro", filtro);
+        model.addAttribute("all", all);
 
         return "expediente-listar";
     }
