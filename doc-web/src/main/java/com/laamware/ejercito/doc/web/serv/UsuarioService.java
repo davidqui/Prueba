@@ -431,6 +431,7 @@ public class UsuarioService {
         if (usuarioSesion.getDependencia().getJefe() != null) {
             model.put("usuario", usuarioSesion);
             model.put("jefe", usuarioSesion.getDependencia().getJefe());
+            model.put("razon", razon);
             try {
                 Integer numeroInactividades = usuarioRepository.getCountUsuarioCambiosActivoSemana(usuarioSesion.getId());
                 if(numeroInactividades == 3){
