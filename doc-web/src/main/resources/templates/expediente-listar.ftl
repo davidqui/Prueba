@@ -75,7 +75,7 @@
                                     </#if>
                             </td>
                     </tr>
-            </#list>
+                </#list>
             </tbody>
         </table>
 
