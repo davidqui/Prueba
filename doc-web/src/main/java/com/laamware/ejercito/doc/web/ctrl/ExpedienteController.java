@@ -671,7 +671,7 @@ public class ExpedienteController extends UtilController {
         }
         ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
         if (expDocumento != null || documento.getExpediente() != null) {
-            return new ResponseEntity<>("Este documento ya esta asociado a un expediente.", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Este documento ya esta asociado a un expediente. </br></br>"+expDocumento.getExpId().getExpNombre()+"</br> Dependencia:"+expDocumento.getExpId().getDepId().getNombre(), HttpStatus.UNAUTHORIZED);
         }
 
         expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);

@@ -14,6 +14,21 @@
             </span>
         </div>
     </br>
+    </div>
+    <div class="container-fluid" style="margin-top: 30px;">
+        <form action="/expediente/listarExpedientes?all=true" method="GET" class="form-inline">
+            <div class="form-group row">
+                <input type="text" class="form-control" id="filtro" name="filtro" value="${filtro!""}" style="width:400px" placeholder="FILTRO POR EL NOMBRE DE EXPEDIENTE"/>
+                <button type="submit" class="btn btn-default">Buscar</button>
+                </div>
+            <input type="hidden" name="all" value="true">
+            </form>
+        </div>
+        <#if all?? && all>
+    <a class="btn btn-link" href="/expediente/listarExpedientes?all=false&filtro=${filtro!""}">No mostrar expedientes cerrados</a>
+        <#else>
+    <a class="btn btn-link" href="/expediente/listarExpedientes?all=true&filtro=${filtro!""}">Mostrar expedientes cerrados</a>
+        </#if>
 
     <#if expedientes?size = 0 >
     </br>
@@ -24,20 +39,6 @@
     <#else>
     </br>
     </br>
-    <div class="container-fluid">
-        <form action="/expediente/listarExpedientes" method="GET" class="form-inline">
-            <div class="form-group row">
-                <input type="text" class="form-control" id="filtro" name="filtro" value="${filtro!""}" style="width:400px" placeholder="FILTRO POR EL NOMBRE DE EXPEDIENTE"/>
-                <button type="submit" class="btn btn-default">Buscar</button>
-                </div>
-            </form>
-        </div>
-
-        <#if all?? && all>
-    <a class="btn btn-link" href="/expediente/listarExpedientes?all=false&filtro=${filtro!""}">No mostrar expedientes cerrados</a>
-        <#else>
-    <a class="btn btn-link" href="/expediente/listarExpedientes?all=true&filtro=${filtro!""}">Mostrar expedientes cerrados</a>
-        </#if>
     </br>
     <table class="table">
         <thead>
@@ -46,32 +47,38 @@
                 <th>Nombre</th>
                 <th>Fecha</th>
                 <th>Dependencia</th>
+                <th>Usuario Creador</th>
                 <th>TRD principal</th>
                 <th>Acción</th>
                 </tr>
             </thead>
         <tbody>
                 <#list expedientes as exp>
-            <tr <#if exp.indJefeDependencia && exp.indUsuarioAsignado == 1>style="background-color: #f1d1d1;"</#if>>
-                <td>
-                    <img class="svg" src="/img/folder.svg" alt=""/>
-                    </td>
-                <td><a href="/expediente/listarDocumentos?expId=${exp.expId}">${exp.expNombre!""}</a></td>
-                <td nowrap>${exp.fecCreacion?string('yyyy-MM-dd')}</td>
-                <td>${exp.depNombre!""}</td>
-                <td>${exp.trdNomIdPrincipal!""}</td>
-                <td>
-                    <a title="Ver detalle" href="/expediente/administrarExpediente?expId=${exp.expId}">
-                        <img class="card-img-top" src="/img/eye.svg" alt="">
-                        </a>
-                            <#if exp.indUsuarioAsignado == 1 && exp.indJefeDependencia>
-                    <a class="btn btn-success btn-sm" onclick="mostrarCambiosPendientes(${exp.expId})" data-toggle="modal" href="#enviarJefeModal" style="float: right;">
-                        Aprobar
-                        </a>
-                            </#if>
-                    </td>
-                </tr>
-            </#list>
+                    <#assign vclasses = "" />
+                    <#if !exp.indCerrado?? || exp.indCerrado == true >
+                        <#assign vclasses = "text-danger" />
+                    </#if>
+                    <tr <#if exp.indJefeDependencia && exp.indUsuarioAsignado == 1>style="background-color: #f1d1d1;"</#if>>
+                        <td>
+                            <img class="svg" src="/img/folder.svg" alt=""/>
+                            </td>
+                        <td class="${vclasses}"><a href="/expediente/listarDocumentos?expId=${exp.expId}">${exp.expNombre!""}</a></td>
+                        <td class="${vclasses}">${exp.fecCreacion?string('yyyy-MM-dd')}</td>
+                        <td class="${vclasses}">${exp.depNombre!""}</td>
+                        <td class="${vclasses}">${exp.usuarioCreador!""}</td>
+                        <td class="${vclasses}">${exp.trdNomIdPrincipal!""}</td>
+                        <td>
+                            <a title="Ver detalle" href="/expediente/administrarExpediente?expId=${exp.expId}">
+                                <img class="card-img-top" src="/img/eye.svg" alt="">
+                                </a>
+                                    <#if exp.indUsuarioAsignado == 1 && exp.indJefeDependencia>
+                            <a class="btn btn-success btn-sm" onclick="mostrarCambiosPendientes(${exp.expId})" data-toggle="modal" href="#enviarJefeModal" style="float: right;">
+                                Aprobar
+                                </a>
+                                    </#if>
+                            </td>
+                    </tr>
+                </#list>
             </tbody>
         </table>
 

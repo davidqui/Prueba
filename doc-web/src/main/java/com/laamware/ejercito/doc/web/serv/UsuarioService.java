@@ -19,6 +19,7 @@ import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioSpecificationRepository;
 import com.laamware.ejercito.doc.web.serv.spec.UsuarioSpecifications;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,8 +43,8 @@ public class UsuarioService {
      */
     private static final Logger LOG = Logger.getLogger(UsuarioService.class.getName());
 
-    public final static Integer NOTIFICACION_USUARIO_ACTIVADO = 300;
-    public final static Integer NOTIFICACION_USUARIO_INACTIVO = 301;
+    public final static Integer NOTIFICACION_USUARIO_ACTIVADO = 301;
+    public final static Integer NOTIFICACION_USUARIO_INACTIVO = 300;
     public final static Integer NOTIFICACION_USUARIO_INACTIVO_RECURRENTE = 302;
     
     /**
@@ -432,6 +433,7 @@ public class UsuarioService {
             model.put("usuario", usuarioSesion);
             model.put("jefe", usuarioSesion.getDependencia().getJefe());
             model.put("razon", razon);
+            model.put("fecha", new Date());
             try {
                 Integer numeroInactividades = usuarioRepository.getCountUsuarioCambiosActivoSemana(usuarioSesion.getId());
                 if(numeroInactividades == 3){
@@ -461,6 +463,7 @@ public class UsuarioService {
         if (usuarioSesion.getDependencia().getJefe() != null) {
             model.put("usuario", usuarioSesion);
             model.put("jefe", usuarioSesion.getDependencia().getJefe());
+            model.put("fecha", new Date());
             try {
                 notificacionService.enviarNotificacion(model, NOTIFICACION_USUARIO_ACTIVADO, usuarioSesion.getDependencia().getJefe());
             } catch (Exception ex) {
