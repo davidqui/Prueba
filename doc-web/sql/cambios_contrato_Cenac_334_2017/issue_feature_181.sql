@@ -409,4 +409,36 @@ INSERT INTO WILDCARD_TIPO_NOTIFICACION (TNF_ID,WNF_ID) VALUES ('206','203');
 INSERT INTO WILDCARD_TIPO_NOTIFICACION (TNF_ID,WNF_ID) VALUES ('206','204');
 INSERT INTO WILDCARD_TIPO_NOTIFICACION (TNF_ID,WNF_ID) VALUES ('206','205');
 
+-- -----------------------------------------------------------------------------
+-- DESACTIVACIÓN NOTIFICACIONES EXPEDIENTES
+-- -----------------------------------------------------------------------------
+declare
+    cursor c_usuario is
+    select *
+    from Usuario
+    where activo = 1;
+    
+    cursor c_tip_notificacion is    
+    select *
+    from TIPO_NOTIFICACION
+    where valor > -2
+    and activo = 1
+    AND TNF_ID IN (200,201,202,203,204,205,206);
+    aux_total  NUMBER := 0;
+begin
+    for auxc_usuario in c_usuario loop
+        aux_total := aux_total + 1;
+        for aux_c_tip_notificacion in c_tip_notificacion loop
+            begin
+                INSERT INTO NOTIFICACION_X_USUARIO VALUES(NOTIFICACION_X_USUARIO_SEQ.NEXTVAL, auxc_usuario.usu_id, aux_c_tip_notificacion.tnf_id);
+            exception when others then
+                DBMS_OUTPUT.PUT_LINE(' Error desactivando la notificación '||aux_c_tip_notificacion.nombre||'.'||'al usuario '||auxc_usuario.usu_grado||' '||auxc_usuario.usu_nombre);
+            end;
+        end loop;
+        DBMS_OUTPUT.PUT_LINE('Desactivando notificaciones al usuario '||auxc_usuario.usu_grado||' '||auxc_usuario.usu_nombre);
+    end loop;
+    DBMS_OUTPUT.PUT_LINE('TOTAL DE USUARIOS: '||aux_total);
+end;
+/
+
 COMMIT;
