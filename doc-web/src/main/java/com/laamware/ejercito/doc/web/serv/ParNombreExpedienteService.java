@@ -90,7 +90,7 @@ public class ParNombreExpedienteService {
         }
         
         ParNombreExpediente nombreExpediente = parNombreExpedienteRepository.findOneByParNombre(parNombre);
-        if (!nombreExpediente.getParId().equals(parNombreExpediente.getParId()) && nombreExpediente != null) {
+        if (nombreExpediente != null && !nombreExpediente.getParId().equals(parNombreExpediente.getParId()) && nombreExpediente != null) {
             throw new BusinessLogicException("Este nombre ya existe.");
         }
         
