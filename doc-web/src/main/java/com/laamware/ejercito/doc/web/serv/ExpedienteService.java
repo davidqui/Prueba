@@ -119,8 +119,8 @@ public class ExpedienteService {
             throw new BusinessLogicException("La construcción del nombre requiere todos los campos exceptuando el ultimo");
         }
 
-        String nombre = expediente.getTrdIdPrincipal().getCodigo() + "-" + Calendar.getInstance().get(Calendar.YEAR)
-                + "-" + String.format("%03d", Integer.parseInt(numeroExpediente)) + "-" + parNombreExpediente.getParNombre();
+        String nombre = expediente.getTrdIdPrincipal().getCodigo() + "-" + parNombreExpediente.getParNombre() +"-"
+                + String.format("%03d", Integer.parseInt(numeroExpediente)) + "-" + Calendar.getInstance().get(Calendar.YEAR);
 
         if (!opcionalNombre.trim().equals("")) {
             nombre += "-" + opcionalNombre;
