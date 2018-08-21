@@ -928,13 +928,15 @@
             </nav>
         </form>
 
-<!--
+    <!--
         Observaciones
-    -->       	
+    -->
     <div class="card m-y">                           		        
-	            <#if (documento.observaciones)??>
-        <div class="card-block" id="obsDiv">
-            <h5>Observaciones</h5>
+    <#if (!((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+            && (usuariologueado.id == documento.instancia.asignado.id))) >
+        <#if (documento.observaciones)??>
+        <h5 class="card-title" style="padding: 16px;margin: 0;">Observaciones</h5>
+        <div class="card-body" id="obsDiv" style="padding: 0 16px;max-height: 373px;overflow: hidden;overflow-y: auto;">
 	                    <#list documento.observaciones as obs>
             <hr/>
             <strong>${utilController.nombre(obs.quien)}</strong>, <em> ${obs.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
@@ -966,10 +968,10 @@
                     </div>
                 </div>
             </form>
+        </#if>
         </div>
                 <#assign deferredJSObs>
         <script type="text/javascript">
-            <!--
             $("#obsButton").click(function(event){
             event.preventDefault();
 
@@ -986,23 +988,23 @@
             url: "/documento/observacion?doc=${documento.id}",
             data: $("#obsForm").serialize(),
             success: function(data) {
-            var hr = $("<hr/>");
-            hr.appendTo("#obsDiv");
-            var strong = $("<strong/>");
-            strong.text(data.quien + ", ");
-            strong.appendTo("#obsDiv");
-            var em = $("<em/>");
-            em.text(data.cuando);
-            em.appendTo("#obsDiv");
             var p = $("<p/>");
             p.html(data.texto);
-            p.appendTo("#obsDiv");
+            $("#obsDiv").prepend(p);
             $("#observacion").val('');
+            var em = $("<em/>");
+            em.text(data.cuando);
+            $("#obsDiv").prepend(em);
+            var strong = $("<strong/>");
+            strong.text(data.quien + ", ");
+            $("#obsDiv").prepend(strong);
+            var hr = $("<hr/>");
+            $("#obsDiv").prepend(hr);
+            
             }
             });
             }
             });
-            -->
             </script>
                 </#assign>
                 <#assign deferredJS = deferredJS + deferredJSObs />
@@ -1506,8 +1508,8 @@
     -->
     <script src="/js/app/documento-observaciones.js"></script>
     <#--
-        2018-08-03 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
-        feature-162: Separación del selector de observaciones por defecto.
+        2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+        feature-162: js para enviar documento a expediente.
     -->
     <script src="/js/app/enviar-expediente-documento.js"></script>
     

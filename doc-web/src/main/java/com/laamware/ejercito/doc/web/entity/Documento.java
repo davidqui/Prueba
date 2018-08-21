@@ -154,6 +154,7 @@ public class Documento extends AuditModifySupport {
 
     @OneToMany
     @JoinColumn(name = "DOC_ID")
+    @OrderBy("CUANDO DESC")
     private List<DocumentoObservacion> observaciones;
 
     @ManyToOne

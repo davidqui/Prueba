@@ -130,6 +130,6 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      * @param usuId Identificador del usuario.
      * @return numero de veces que se ha inactivado
      */
-    @Query(value = "SELECT COUNT(*) FROM H_USUARIO_ACTIVO WHERE to_number(to_char(CUANDO,'WW')) = to_number(to_char(SYSDATE,'WW')) AND USU_ID = :usuId AND USU_ACTIVO = 0")
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM H_USUARIO_ACTIVO WHERE to_number(to_char(CUANDO,'WW')) = to_number(to_char(SYSDATE,'WW')) AND USU_ID = :usuId AND USU_ACTIVO = 0")
     Integer getCountUsuarioCambiosActivoSemana(@Param(value = "usuId") Integer usuId);
 }
