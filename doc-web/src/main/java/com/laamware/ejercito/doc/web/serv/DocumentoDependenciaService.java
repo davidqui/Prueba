@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoDependenciaArchivoDTO;
+import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
@@ -119,5 +120,5 @@ public class DocumentoDependenciaService {
     public DocumentoDependencia buscarRegistroActivo(final Documento documento, final Usuario usuario) {
         return documentoDependenciaRepository.findOneByDocumentoAndQuienAndActivoTrue(documento, usuario.getId());
     }
-
+    
 }

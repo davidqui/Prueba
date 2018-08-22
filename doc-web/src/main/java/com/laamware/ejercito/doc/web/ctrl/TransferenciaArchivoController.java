@@ -3,12 +3,14 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.aspose.words.License;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
+import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
+import com.laamware.ejercito.doc.web.serv.DocumentoService;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import java.math.BigDecimal;
@@ -60,6 +62,12 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @Autowired
     private UsuarioService usuarioService;
+    
+    /**
+     * Servicio de documentos.
+     */
+    @Autowired    
+    private DocumentoService documentoService;
 
     /**
      * Servicio de cargos.
@@ -317,6 +325,15 @@ public class TransferenciaArchivoController extends UtilController {
             cargoDTOs.add(cargoDTO);
         }
         return cargoDTOs;
+    }
+    
+    
+    @RequestMapping(value = "/seleccionar-documentos", method = RequestMethod.GET)
+    public String seleccionarDocumentos(Principal principal, Model model){
+        Usuario usuarioSesion = getUsuario(principal);
+        List<TrdDTO> documentoXtrdDadoUsuario = documentoService.documentoXtrdDadoUsuario(usuarioSesion);
+        model.addAttribute("trds", documentoXtrdDadoUsuario);
+        return "transferencia-seleccionar-documentos";
     }
 
 }

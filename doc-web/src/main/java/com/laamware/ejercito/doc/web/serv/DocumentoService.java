@@ -1,12 +1,21 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
+import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
+import com.laamware.ejercito.doc.web.repo.TrdRepository;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +35,9 @@ public class DocumentoService {
 
     @Autowired
     private InstanciaRepository instanciaRepository;
+    
+    @Autowired
+    private TrdRepository trdRepository;
 
     /**
      * Crea un nuevo documento.
@@ -92,5 +104,38 @@ public class DocumentoService {
     Documento actualizar(Documento documento) {
         return documentoRepository.saveAndFlush(documento);
     }
-
+    
+    
+        
+    public List<TrdDTO> documentoXtrdDadoUsuario(Usuario usuario){
+        List<Documento> documentosDependenciaXUsuario = documentoRepository.documentosDependenciaXUsuario(usuario.getId());
+        Map<Trd, List<Documento>> hashMap = new HashMap<>();
+        for (Documento documento : documentosDependenciaXUsuario) {
+            if (!hashMap.containsKey(documento.getTrd().getId())) {
+                List<Documento> list = new ArrayList<>();
+                list.add(documento);
+                hashMap.put(documento.getTrd(), list);
+            } else {
+                hashMap.get(documento.getTrd()).add(documento);
+            }
+        }
+        List<Trd> findByActivoAndSerieNull = trdRepository.findByActivoAndSerieNull(true);
+        List<TrdDTO> documentosXtrd = new ArrayList<>();
+        for (Trd trd : findByActivoAndSerieNull) {
+            TrdDTO tdto = new TrdDTO(trd.getId(), trd.getNombre(), trd.getCodigo(), 0);
+            documentosXtrd.add(tdto);
+        }
+        for (Map.Entry<Trd, List<Documento>> entry : hashMap.entrySet()) {
+            for (TrdDTO trdDTO : documentosXtrd) {
+                if (trdDTO.getTrdId() == entry.getKey().getSerie()) {
+                    TrdDTO tdto = new TrdDTO(entry.getKey().getId(), entry.getKey().getNombre(), entry.getKey().getCodigo(), entry.getValue().size());
+                    tdto.setDocumentosDependencia(entry.getValue());
+                    if (trdDTO.getSubSeries() == null)
+                        trdDTO.setSubSeries(new ArrayList<TrdDTO>());
+                    trdDTO.getSubSeries().add(tdto);
+                }
+            }
+        }
+        return documentosXtrd;
+    }
 }
