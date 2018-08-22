@@ -136,6 +136,7 @@ public class ExpUsuarioService {
         Map<String, Object> model = new HashMap();
         model.put("expUsuario", expUsuario);
         model.put("usuario", usuCreador);
+        model.put("expediente", expediente);
         try {
             notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_USUARIO_AGREGADO, usuario);
         } catch (Exception ex) {
@@ -160,7 +161,9 @@ public class ExpUsuarioService {
         
         Map<String, Object> model = new HashMap();
         model.put("expUsuario", expUsuario);
-        model.put("usuario", usuarioSesion);
+        model.put("usuarioCreador", expediente.getUsuCreacion());
+        model.put("jefe", expediente.getDepId().getJefe());
+        model.put("expediente", expediente);
         
         try {
             notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_USUARIO_ELIMINADO, expUsuario.getUsuId());
