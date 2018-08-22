@@ -1,7 +1,11 @@
 
 package com.laamware.ejercito.doc.web.dto;
 
+import com.laamware.ejercito.doc.web.entity.Documento;
+import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
+import com.laamware.ejercito.doc.web.entity.Trd;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -18,6 +22,10 @@ public class TrdDTO implements Serializable{
     private String trdNombre;
     private String trdCodigo;
     private int cantidad;
+    
+    private List<Documento> documentosDependencia;
+    
+    private List<TrdDTO> subSeries;
 
     public TrdDTO() {
     }
@@ -61,6 +69,22 @@ public class TrdDTO implements Serializable{
         this.cantidad = cantidad;
     }
 
+    public List<TrdDTO> getSubSeries() {
+        return subSeries;
+    }
+
+    public void setSubSeries(List<TrdDTO> subSeries) {
+        this.subSeries = subSeries;
+    }
+
+    public List<Documento> getDocumentosDependencia() {
+        return documentosDependencia;
+    }
+
+    public void setDocumentosDependencia(List<Documento> documentosDependencia) {
+        this.documentosDependencia = documentosDependencia;
+    }
+    
     @Override
     public String toString() {
         return "TrdDTO{" + "trdId=" + trdId + ", trdNombre=" + trdNombre + ", trdCodigo=" + trdCodigo + ", cantidad=" + cantidad + '}';
