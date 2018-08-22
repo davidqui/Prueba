@@ -283,5 +283,14 @@ public class DependenciaService {
             depsHierarchyPadre(x);
         }
     }
+    
+    /*
+    * 2018-08-17 samuel.delgado@controltechcg.com issue #7 gogs
+    * (SICDI-Controltech) feature-gogs-7: Lista las dependencias que tengan un 
+    *  usuario registro dado por un usuario.
+    */
+    public List<Dependencia> dependenciasUsuarioRegistro(Usuario usuario){
+        return dependenciaRepository.findActivoByUsuarioRegistro(usuario);
+    }
 
 }

@@ -75,6 +75,7 @@ import com.laamware.ejercito.doc.web.entity.DocumentoEnConsulta;
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacion;
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
 import com.laamware.ejercito.doc.web.entity.Estado;
+import com.laamware.ejercito.doc.web.entity.ExpDocumento;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
@@ -88,6 +89,7 @@ import com.laamware.ejercito.doc.web.entity.RestriccionDifusion;
 import com.laamware.ejercito.doc.web.entity.Tipologia;
 import com.laamware.ejercito.doc.web.entity.Transicion;
 import com.laamware.ejercito.doc.web.entity.Trd;
+import com.laamware.ejercito.doc.web.entity.UsuSelFavoritos;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.Variable;
 import com.laamware.ejercito.doc.web.entity.WildcardPlantilla;
@@ -100,7 +102,6 @@ import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaAdicionalRepositor
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoObservacionRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
-import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
 import com.laamware.ejercito.doc.web.repo.FormatoRepository;
 import com.laamware.ejercito.doc.web.repo.HProcesoInstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
@@ -119,7 +120,10 @@ import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
+import com.laamware.ejercito.doc.web.serv.UsuSelFavoritosService;
 import com.laamware.ejercito.doc.web.serv.DriveService;
+import com.laamware.ejercito.doc.web.serv.ExpDocumentoService;
+import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.JasperService;
 import com.laamware.ejercito.doc.web.serv.MailQueueService;
 import com.laamware.ejercito.doc.web.serv.NotificacionService;
@@ -150,6 +154,8 @@ import java.util.logging.Level;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
 import net.sourceforge.jbarcodebean.model.Interleaved25;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
@@ -190,6 +196,11 @@ public class DocumentoController extends UtilController {
     public static final Integer ID_TIPO_NOTIFICACION_FIRMA = 110;
     public static final Integer ID_TIPO_NOTIFICACION_ENVIADO = 120;
 
+    /**
+     * Id del proceso de acta
+     */
+    public static final Integer ID_TIPO_PROCESO_ACTA = 100;
+    
     List<Plantilla> listaPlantilla;
     private String imagesRoot;
     private String ofsRoot;
@@ -209,9 +220,6 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     DocumentoRepository documentRepository;
-
-    @Autowired
-    ExpedienteRepository expedienteRepository;
 
     @Autowired
     ProcesoService procesoService;
@@ -352,6 +360,28 @@ public class DocumentoController extends UtilController {
     @Autowired
     private NotificacionxUsuarioService notificacionxUsuarioService;
 
+    
+    /*
+     * 2018-08-02 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+     * feature-181: Servicio de expediente.
+     */
+    @Autowired
+    private ExpedienteService expedienteService;
+    
+    /*
+     * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+     * feature-181: Servicio de los documentos del expediente.
+     */
+    @Autowired
+    private ExpDocumentoService expDocumentoService;
+    
+     /*
+     * 2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
+     * feature-6: Asignación de usuarios favoritos.
+     */
+    @Autowired
+    private UsuSelFavoritosService usuSelFavoritosService;
+    
     /* ---------------------- públicos ------------------------------- */
     /**
      * Muestra la página de acceso denegado
@@ -606,7 +636,7 @@ public class DocumentoController extends UtilController {
 
         return keysValuesAsposeDocxDTO;
     }
-
+    
     /**
      * Muestra la pantalla con los datos del documento. Si la instancia no tiene
      * definido un documento asociado entonces lo crea y lo enlaza a la
@@ -779,12 +809,26 @@ public class DocumentoController extends UtilController {
             model.addAttribute("relacionado", documentRepository.getOne(doc.getRelacionado()));
         }
 
-        expedientes(model, principal);
         tipologias(doc.getTrd(), model);
         plantillas(model);
 
         // 2017-04-26 jgarcia@controltechcg.com Issue #58 (SICDI-Controltech)
         addConsultaTemplateModelAttributes(model, usuarioLogueado, doc);
+        
+        /**
+         * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+         * feature-181: se agrega la lista de los expedientes al que se puede agregar un
+         * documento, todo mientras el documento no este en otro expediente.
+         */
+        ExpDocumento expDocumento = expDocumentoService.findByDocumento(doc);
+        if (expDocumento == null) {
+            if (((doc.esDocumentoRevisionRadicado() || doc.esDocumentoEnviadoInterno())&& (usuarioLogueado.getId() == doc.getInstancia().getAsignado().getId())
+                    || (doc.getAprueba() != null && usuarioLogueado.getId().equals(doc.getElabora().getId()))) && doc.getExpediente() == null){
+                List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioLogueado, doc.getTrd());
+                model.addAttribute("expedientesValidos", expedientesValidos);
+            }
+        }
+        
         return "documento";
     }
 
@@ -1107,7 +1151,6 @@ public class DocumentoController extends UtilController {
             }
 
             plantillas(model);
-            expedientes(model, principal);
             tipologias(doc.getTrd(), model);
 
             model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el formulario");
@@ -1145,7 +1188,6 @@ public class DocumentoController extends UtilController {
                     if (nombrePlantilla == null || versionPlantilla == null) {
                         doc.setMode(mode);
                         plantillas(model);
-                        expedientes(model, principal);
                         tipologias(doc.getTrd(), model);
                         model.addAttribute("documento", doc);
                         model.addAttribute(AppConstants.FLASH_ERROR, "Existen errores en el versionamiento del documento,"
@@ -1158,7 +1200,6 @@ public class DocumentoController extends UtilController {
                     if (plantilla.isEmpty()) {
                         doc.setMode(mode);
                         plantillas(model);
-                        expedientes(model, principal);
                         tipologias(doc.getTrd(), model);
                         model.addAttribute("documento", doc);
                         model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla esta desactualizada, verifique que tiene descargada la ultima versión.");
@@ -1171,7 +1212,6 @@ public class DocumentoController extends UtilController {
                     if (!verificarWildcardsPLantilla(fieldNames, wildcardsPlantilla)) {
                         doc.setMode(mode);
                         plantillas(model);
-                        expedientes(model, principal);
                         tipologias(doc.getTrd(), model);
                         model.addAttribute("documento", doc);
                         model.addAttribute(AppConstants.FLASH_ERROR, "La plantilla no cumple con los wildcards minimos, Asegúrese de descargar la ultima versión de la plantilla.");
@@ -1243,7 +1283,6 @@ public class DocumentoController extends UtilController {
             }
 
             plantillas(model);
-            expedientes(model, principal);
             tipologias(doc.getTrd(), model);
             model.addAttribute(AppConstants.FLASH_ERROR, "Ocurrió un error inesperado: " + e.getMessage());
             return "documento";
@@ -1254,7 +1293,7 @@ public class DocumentoController extends UtilController {
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
 
     }
-
+    
     /**
      * Genera el sticker del documento
      *
@@ -1938,6 +1977,8 @@ public class DocumentoController extends UtilController {
             @RequestParam(value = "uid", required = false) final String uidS, Model model, final Principal principal,
             RedirectAttributes redirect) {
 
+        final Usuario usuarioSesion = getUsuario(principal);
+        
         Integer idUsuario = null;
         if (uidS != null) {
             idUsuario = Integer.parseInt(uidS.replaceAll("\\.", ""));
@@ -1959,17 +2000,21 @@ public class DocumentoController extends UtilController {
 
         if ("usuario".equals(mode)) {
             if (uid != null) {
-
                 Instancia i = asignar(pin, tid, new EstrategiaSeleccionUsuario() {
                     @Override
                     public Usuario select(Instancia i, Documento d) {
-                        return usuR.getOne(uid);
+                        /*
+                        * 2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
+                        * feature-6: Asignación de usuarios favoritos.
+                        */
+                        Usuario uselected = usuR.getOne(uid);
+                        usuSelFavoritosService.addUsuarioSelected(usuarioSesion, uselected);
+                        return uselected;
                     }
                 });
-
                 String docId = i.getVariable(Documento.DOC_ID);
                 Documento doc = documentRepository.getOne(docId);
-                doc.setUsuarioUltimaAccion(getUsuario(principal));
+                doc.setUsuarioUltimaAccion(usuarioSesion);
                 documentRepository.saveAndFlush(doc);
 
                 /*
@@ -1980,17 +2025,17 @@ public class DocumentoController extends UtilController {
                         buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, i, "Asignado a ", documentRepository));
                 return redirectToInstancia(i);
             } else {
+                Instancia i = procesoService.instancia(pin);
+                String docId = i.getVariable(Documento.DOC_ID);
+                Documento doc = documentRepository.getOne(docId);
+
+                model.addAttribute("documento", doc);
+
+                int pesoClasificacionDocumento = doc.getClasificacion().getId();
                 if (did != null) {
-                    Instancia i = procesoService.instancia(pin);
 
                     // 2017-10-05 edison.gonzalez@controltechcg.com Issue #131
                     List<Usuario> usuarios = usuR.findByDependenciaAndActivoTrueOrderByGradoDesc(did);
-                    String docId = i.getVariable(Documento.DOC_ID);
-                    Documento doc = documentRepository.getOne(docId);
-
-                    model.addAttribute("documento", doc);
-
-                    int pesoClasificacionDocumento = doc.getClasificacion().getId();
 
                     for (Usuario usuarioSeleccionado : usuarios) {
 
@@ -2008,6 +2053,28 @@ public class DocumentoController extends UtilController {
                     }
 
                     model.addAttribute("usuarios", usuarios);
+                }else{
+                    /*
+                    * 2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
+                    * feature-6: Asignación de usuarios favoritos.
+                    */
+                    List<UsuSelFavoritos> listarUsuariosFavoritos = usuSelFavoritosService.listarUsuariosFavoritos(usuarioSesion);
+                    for (UsuSelFavoritos usuarioSeleccionado : listarUsuariosFavoritos) {
+
+                        if (usuarioSeleccionado.getUsuFav().getClasificacion() == null
+                                || usuarioSeleccionado.getUsuFav().getClasificacion().getId() == null) {
+                            usuarioSeleccionado.getUsuFav().setMensajeNivelAcceso(" ****SIN CLSIFICACIÓN****");
+                            usuarioSeleccionado.getUsuFav().setRestriccionDocumentoNivelAcceso(true);
+                        } else {
+                            int pesoClasificacionUsuario = usuarioSeleccionado.getUsuFav().getClasificacion().getId();
+                            usuarioSeleccionado
+                                    .getUsuFav().setMensajeNivelAcceso(" -" + usuarioSeleccionado.getUsuFav().getClasificacion().getNombre());
+                            usuarioSeleccionado.getUsuFav().setRestriccionDocumentoNivelAcceso(
+                                    pesoClasificacionUsuario < pesoClasificacionDocumento);
+                        }
+                    }
+
+                    model.addAttribute("usuariosFav", listarUsuariosFavoritos);
                 }
                 List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
                 model.addAttribute("dependencias", listaDependencias);
@@ -2066,6 +2133,9 @@ public class DocumentoController extends UtilController {
         String docId = i.getVariable(Documento.DOC_ID);
         Documento doc = documentRepository.getOne(docId);
         model.addAttribute("documento", doc);
+        
+        //TODO ADD USUARIOS FAVORITOS
+        
         return "documento-asignar";
     }
 
@@ -2625,7 +2695,7 @@ public class DocumentoController extends UtilController {
                 if (bvb != null) {
                     d.setVistoBueno(null);
                 }
-
+                
                 Usuario yo = i.getAsignado();
 
                 List<HProcesoInstancia> hinstancias = hprocesoInstanciaRepository.findById(pin,
@@ -2650,6 +2720,12 @@ public class DocumentoController extends UtilController {
         String docId = i.getVariable(Documento.DOC_ID);
         Documento doc = documentRepository.getOne(docId);
         doc.setUsuarioUltimaAccion(getUsuario(principal));
+        /**
+        * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+        * feature-181: se cambia el revisado a null y el expediente cuando se devuelve el documento
+        */
+        doc.setAprueba(null);
+        doc.setExpediente(null);
         documentRepository.saveAndFlush(doc);
 
         i.setVariable(Documento.DOC_MODE, construccionMode);
@@ -2838,7 +2914,6 @@ public class DocumentoController extends UtilController {
     public String seleccionarExpediente(@RequestParam("returnUrl") String returnUrl,
             @RequestParam("cancelUrl") String cancelUrl, Model model, Principal principal,
             RedirectAttributes redirect) {
-        expedientes(model, principal);
         try {
             model.addAttribute("returnUrl", URLDecoder.decode(returnUrl, "UTF-8"));
             model.addAttribute("cancelUrl", URLDecoder.decode(cancelUrl, "UTF-8"));
@@ -2878,7 +2953,7 @@ public class DocumentoController extends UtilController {
      */
     // TODO: La URL es temporal mientras se realiza el desarrollo.
     @RequestMapping(value = "/firmar", method = RequestMethod.GET)
-    public String firmarDocumento(@RequestParam("pin") String pinID, @RequestParam("tid") Integer transicionID, @RequestParam(value = "expId", required = false) Integer expedienteID,
+    public String firmarDocumento(@RequestParam("pin") String pinID, @RequestParam("tid") Integer transicionID, @RequestParam(value = "expId", required = false) Long expedienteID,
             @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma, Model model, Principal principal, RedirectAttributes redirect) {
 
         final String redirectURL = String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pinID);
@@ -2900,6 +2975,15 @@ public class DocumentoController extends UtilController {
                     redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
                     return redirectURL;
                 }
+                
+                /**
+                * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+                * feature-181: se agrega a expediente si existe en el documento
+                */
+                Expediente expediente = documento.getExpediente();
+                if (expediente != null)
+                    expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
+                
 
                 /*
                  * Issue #118
@@ -3018,6 +3102,15 @@ public class DocumentoController extends UtilController {
          * 2018-04-25 edison.gonzalez@controltechcg.com Issue #156
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
+        
+        /**
+        * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+        * feature-181: se agrega a expediente si existe en el documento
+        */
+        Expediente expediente = documento.getExpediente();
+        if (expediente != null)
+            expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
+
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                 buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
         enviarNotificacionesCambioProceso(instancia, documento, notificacionService.fingByTypoNotificacionId(ID_TIPO_NOTIFICACION_FIRMA), documento.getElabora());
@@ -3030,7 +3123,7 @@ public class DocumentoController extends UtilController {
      * @param documento Documento.
      */
     // TODO: Cambiar el nombre y firma (parámetros) del método.
-    private void firmarYEnviarDocumento_NEW(Documento documento, final String pinID, final Integer transicionID, final Integer expedienteID,
+    private void firmarYEnviarDocumento_NEW(Documento documento, final String pinID, final Integer transicionID, final Long expedienteID,
             final Integer cargoIdFirma, final Usuario usuarioSesion) throws BusinessLogicException {
         // TODO: Aplicar el proceso de firma y envío.
         System.out.println("Firmar y enviar: " + documento.getId() + "-----pinID= " + pinID);
@@ -3144,7 +3237,7 @@ public class DocumentoController extends UtilController {
          */
         if (expedienteID != null && expedienteID > 0) {
             Expediente expediente = new Expediente();
-            expediente.setId(expedienteID);
+            expediente.setExpId(expedienteID);
             documento.setExpediente(expediente);
         }
 
@@ -3339,7 +3432,7 @@ public class DocumentoController extends UtilController {
     @Deprecated
     @RequestMapping(value = "/firmar-depreciado", method = RequestMethod.PATCH)
     public String firmar(@RequestParam("pin") String pin, @RequestParam("tid") Integer tid,
-            @RequestParam(value = "expId", required = false) Integer expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma,
+            @RequestParam(value = "expId", required = false) Long expId, @RequestParam(value = "cargoIdFirma", required = false) Integer cargoIdFirma,
             Model model, Principal principal, RedirectAttributes redirect) {
 
         /*
@@ -3456,7 +3549,7 @@ public class DocumentoController extends UtilController {
          */
         if (expId != null && expId > 0) {
             Expediente exp = new Expediente();
-            exp.setId(expId);
+            exp.setExpId(expId);
             doc.setExpediente(exp);
         }
 
@@ -4235,50 +4328,6 @@ public class DocumentoController extends UtilController {
     }
 
     /**
-     * Actualiza el nombre y la descripción del documento
-     *
-     * @param docId Es el identificador del documento
-     * @param asunto Es el asunto del documento
-     * @param desc Es la descripción del documento
-     *
-     *
-     * @return
-     */
-    @RequestMapping(value = "/update-info", method = RequestMethod.POST)
-    public String updateInfoDoc(@RequestParam("docId") String docId, @RequestParam("asunto") String asunto,
-            @RequestParam("desc") String desc) {
-
-        Documento doc = documentRepository.getOne(docId);
-        doc.setAsunto(asunto);
-        doc.setDescripcion(desc);
-        documentRepository.save(doc);
-
-        return String.format("redirect:%s/contenido?eid=%s", ExpedienteController.PATH, doc.getExpediente().getId());
-
-    }
-
-    /**
-     * Mueve el documento a otro expediente
-     *
-     * @param docid Es el identificador del documento
-     * @param expid El id del expediente al que se va a mover el documento
-     *
-     *
-     * @return
-     */
-    @RequestMapping(value = "/mover", method = RequestMethod.GET)
-    public String moveDoc(@RequestParam("docid") String docid, @RequestParam("expid") Integer expid) {
-
-        Documento doc = documentRepository.getOne(docid);
-        Expediente exp = expedienteRepository.getOne(expid);
-        doc.setExpediente(exp);
-        documentRepository.save(doc);
-
-        return String.format("redirect:%s/contenido?eid=%s", ExpedienteController.PATH, doc.getExpediente().getId());
-
-    }
-
-    /**
      * ************ DEFINITIVO ***********************
      */
     /**
@@ -4786,6 +4835,52 @@ public class DocumentoController extends UtilController {
 
         return "redirect:/";
     }
+    
+    /**
+     * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+     * feature-181: método para enviar un documento a un expediente.
+     */
+    /**
+     * Método que agrega un documento al expediente.
+     * @param pin
+     * @param principal
+     * @param model
+     * @param redirect
+     * @return 
+     */
+    @RequestMapping(value = "/addDocExpediente/{pinId}/{expId}", method = RequestMethod.POST)
+    public ResponseEntity<?> addDocExpediente(@PathVariable("expId") Long expId, 
+            @PathVariable("pinId") String pinId, Principal principal){
+        
+        Usuario usuarioSesion = getUsuario(principal);
+        // Obtiene la instancia
+        Instancia i = procesoService.instancia(pinId);
+        // Obtiene el documento registrado en las variables de la instancia
+        String docId = i.getVariable(Documento.DOC_ID);
+        
+        Boolean acceso = usuarioService.verificaAccesoDocumento(usuarioSesion.getId(), pinId);
+        if (!acceso)
+            return new ResponseEntity<>("No tiene permisos sobre el documento", HttpStatus.UNAUTHORIZED);
+        
+        Documento documento = documentRepository.getOne(docId);
+        Expediente expediente = expedienteService.findOne(expId);
+
+        if ((!expedienteService.permisoIndexacion(usuarioSesion, expediente) 
+                && !expedienteService.permisoAdministrador(usuarioSesion, expediente)))
+            return new ResponseEntity<>("No tiene permiso sobre el expediente", HttpStatus.UNAUTHORIZED);
+        
+        if (!i.getProceso().getId().equals(ID_TIPO_PROCESO_ACTA))
+             if (!(documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())&& 
+                    (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) {
+                documento.setExpediente(expediente);
+                documentRepository.saveAndFlush(documento);
+                return ResponseEntity.ok("ok");
+             }
+        
+        expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
+        
+        return ResponseEntity.ok("ok");
+    }
 
 //    /*
 //	 * 2017-04-11 jvargas@controltechcg.com Issue #45: DEPENDENCIAS:
@@ -4900,28 +4995,6 @@ public class DocumentoController extends UtilController {
         List<Dependencia> list = dependenciaRepository.findByActivo(true,
                 new Sort(Direction.ASC, "pesoOrden", "nombre"));
         model.addAttribute("dependencias", list);
-        return list;
-    }
-
-    /**
-     * Carga el listado de expedientes al modelo
-     *
-     * @param model
-     * @param principal
-     * @return
-     */
-    public List<Expediente> expedientes(Model model, Principal principal) {
-
-        Dependencia dependencia = getUsuario(principal).getDependencia();
-
-        if (dependencia == null) {
-            return new ArrayList<Expediente>();
-        }
-
-        Integer dependenciaId = dependencia.getId();
-        List<Expediente> list = expedienteRepository.findByActivoAndDependenciaId(true, dependenciaId,
-                new Sort(Direction.ASC, "nombre"));
-        model.addAttribute("expedientes", list);
         return list;
     }
 
@@ -5649,6 +5722,7 @@ public class DocumentoController extends UtilController {
 
                 if (instancia.getEstado().getId() == ESTADO_ANULADO) {
                     mensaje.setDestino(documento.getElabora().getEmail());
+                    usuarioAsignado = documento.getElabora();
                     if (usuarioAsignado.getId() == documento.getElabora().getId()) {
                         return;
                     }
@@ -5659,7 +5733,7 @@ public class DocumentoController extends UtilController {
                     return;
                 }
 
-                if (notificacionxUsuarioService.findCountByUsuIdAndTnfId(documento.getElabora().getId(), notificacion.getTipoNotificacion().getId()) == 1) {
+                if (notificacionxUsuarioService.findCountByUsuIdAndTnfId(usuarioAsignado.getId(), notificacion.getTipoNotificacion().getId()) == 1) {
                     return;
                 }
                 mailQueueService.enviarCorreo(mensaje);

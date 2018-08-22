@@ -45,6 +45,7 @@ public class WebConfig extends WebMvcAutoConfigurationAdapter {
     private static final String USER_DOMINIO_ATTR = "user_dominio";
     private static final String USER_CAN_USE_OWA_LINK_ATTR = "user_can_use_owa_link";
     private static final String OWA_LINK_URL_ATTR = "owa_link_url";
+    private static final String USU_ACTIVO_ATT = "usuActivo";
 
     @Autowired
     LogRepository logRepository;
@@ -102,7 +103,7 @@ public class WebConfig extends WebMvcAutoConfigurationAdapter {
                 final Dominio dominio = usuario.getDominio();
                 final Boolean visualizaLinkOWA = dominio.getActivo() && dominio.getVisualizaLinkOWA();
 
-                setUserInformation(request, usuario.toString(), usuario.getPerfil().toString(), dominio.getNombre(), visualizaLinkOWA);
+                setUserInformation(request, usuario.toString(), usuario.getPerfil().toString(), dominio.getNombre(), visualizaLinkOWA, usuario.getUsuActivo());
             }
         });
 
@@ -150,7 +151,7 @@ public class WebConfig extends WebMvcAutoConfigurationAdapter {
      * feature-159.
      */
     private void setNoUserInformation(final HttpServletRequest request) {
-        setUserInformation(request, request.getRemoteUser(), "No profile", null, false);
+        setUserInformation(request, request.getRemoteUser(), "No profile", null, false, null);
     }
 
     /**
@@ -169,12 +170,17 @@ public class WebConfig extends WebMvcAutoConfigurationAdapter {
      * 2018-05-02 jgarcia@controltechcg.com Issue #159 (SICDI-Controltech)
      * feature-159.
      */
+    /*
+    * 2018-08-15 samuel.delgado@controltechcg.com Issue #7 (SICDI-Controltech)
+    * feature-gogs-7: se setea variable si el usuario esta activo.
+    */
     private void setUserInformation(final HttpServletRequest request, final String userName, final String profileName, final String dominioNombre,
-            final boolean canUseOWALink) {
+            final boolean canUseOWALink, final Boolean usuarioActivo) {
         request.setAttribute(USERNAME_ATTR, userName);
         request.setAttribute(USERPROFILE_ATTR, profileName);
         request.setAttribute(USER_DOMINIO_ATTR, dominioNombre);
         request.setAttribute(USER_CAN_USE_OWA_LINK_ATTR, canUseOWALink);
+        request.setAttribute(USU_ACTIVO_ATT, usuarioActivo);
         request.setAttribute(OWA_LINK_URL_ATTR, owaURL);
     }
 

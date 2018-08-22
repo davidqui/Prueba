@@ -296,8 +296,6 @@ public abstract class UtilController {
                 return String.format("redirect:%s", AppConstants.PATH_ADMIN_DESTINATARIOS);
             case AppConstants.ADMIN_TRD:
                 return String.format("redirect:%s", AppConstants.PATH_ADMIN_TRD);
-            case AppConstants.ADMIN_EXPEDIENTES:
-                return String.format("redirect:%s", AppConstants.PATH_ADMIN_EXPEDIENTES);
             case AppConstants.ADMIN_AUDITORIA:
                 return String.format("redirect:%s", AppConstants.PATH_ADMIN_AUDITORIA);
             case AppConstants.ADMIN_CLASIFICACIONES:
@@ -322,6 +320,9 @@ public abstract class UtilController {
                 return String.format("redirect:%s", AppConstants.PATH_ADMIN_FORMATOS);
             case AppConstants.ARCHIVO_CENTRAL:
                 return String.format("redirect:%s", AppConstants.PATH_ARCHIVO_CENTRAL);
+            case AppConstants.ADMIN_PAR_NOMBRE_EXPEDIENTE:
+                return String.format("redirect:%s", AppConstants.PATH_ADMIN_PAR_NOMBRE_EXPEDIENTE);
+                
             default:
                 return null;
         }
@@ -372,9 +373,6 @@ public abstract class UtilController {
         }
         if (grantsMap.containsKey(AppConstants.ADMIN_TRD)) {
             return String.format("redirect:%s", AppConstants.PATH_ADMIN_TRD);
-        }
-        if (grantsMap.containsKey(AppConstants.ADMIN_EXPEDIENTES)) {
-            return String.format("redirect:%s", AppConstants.PATH_ADMIN_EXPEDIENTES);
         }
         if (grantsMap.containsKey(AppConstants.ADMIN_AUDITORIA)) {
             return String.format("redirect:%s", AppConstants.PATH_ADMIN_AUDITORIA);

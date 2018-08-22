@@ -65,7 +65,7 @@
                             </#if>
                         </#if>
                         <#if first && descriptor.actions?size != 0 >
-                    <div>
+                        <div>
                                 <#list descriptor.actions as a>
                                     <@accion a x />
                                 </#list>

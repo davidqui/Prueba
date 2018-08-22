@@ -30,6 +30,13 @@
         feature-151: Javascript general para operaciones con el framework.
     -->
 <script src="/js/app/framework-util.js"></script>
-
+<#if usuActivo??>
+    <#if usuActivo>
+    <#else>
+        <script>
+            jQuery('#masterdiv').html('');
+        </script>   
+    </#if>
+</#if>
 </body>
 </html>

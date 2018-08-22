@@ -14,18 +14,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
-import com.laamware.ejercito.doc.web.entity.ExpedienteEstado;
 import com.laamware.ejercito.doc.web.repo.ArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
-import com.laamware.ejercito.doc.web.repo.DocumentoPrestamoRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
-import com.laamware.ejercito.doc.web.repo.EstadoExpedienteRepository;
-import com.laamware.ejercito.doc.web.repo.ExpedienteEstadoRepository;
-import com.laamware.ejercito.doc.web.repo.ExpedientePrestamoRepository;
-import com.laamware.ejercito.doc.web.repo.ExpedienteRepository;
-import com.laamware.ejercito.doc.web.repo.PrestamoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 
 @Controller
@@ -38,21 +30,6 @@ public class ArchivoController extends UtilController {
 	ArchivoRepository archivoRepository;
 
 	@Autowired
-	PrestamoRepository prestamoRepository;
-
-	@Autowired
-	ExpedientePrestamoRepository expedientePrestamoRepository;
-
-	@Autowired
-	ExpedienteRepository expedienteRepository;
-
-	@Autowired
-	ExpedienteEstadoRepository expedienteEstadoRepository;
-
-	@Autowired
-	EstadoExpedienteRepository estadoExpedienteRepository;
-
-	@Autowired
 	DependenciaRepository dependenciaRepository;
 
 	@Autowired
@@ -60,9 +37,6 @@ public class ArchivoController extends UtilController {
 
 	@Autowired
 	DocumentoRepository documentoRepository;
-
-	@Autowired
-	DocumentoPrestamoRepository documentoPrestamoRepository;
 
 	@Autowired
 	SessionFactory sessionFactory;
@@ -77,34 +51,7 @@ public class ArchivoController extends UtilController {
 		return "redirect:/admin/edificio";
 	}
 
-	// Muestra el listado de expedientes archivados
-	@PreAuthorize("hasRole('ARCHIVO_CENTRAL')")
-	@RequestMapping(value = "/list-archivados-exp", method = RequestMethod.GET)
-	public String listExpedientes(Model model, Principal principal) {
-
-		model.addAttribute("activeNav", "archivados");
-
-		Dependencia dependencia = getUsuario(principal).getDependencia();
-		try {
-
-			if (dependencia != null) {
-
-				List<ExpedienteEstado> expArchivados = expedienteEstadoRepository
-						.findByActivoAndEstado(true, "Archivado");
-				if (expArchivados.size() > 0)
-					model.addAttribute("expArchivados", expArchivados);
-
-				return "archivo-expediente-list";
-
-			}
-
-		} catch (Exception e) {
-
-		}
-		return "archivo-expediente-list";
-
-	}
-
+	
 	// Muestra el listado de documentos archivados
 	@RequestMapping(value = "/list-archivados-doc", method = RequestMethod.GET)
 	public String listPrestamosDoc(Model model, Principal principal) {

@@ -79,6 +79,14 @@
                     Enlace para la opción de notificaciones.
                 -->
                 <@link_admin  "ADMIN_NOTIFICACIONES" "/admin/notificacion" 'notificaciones' 'Notificaciones'/>
+                
+                <@link_admin  "ADMIN_PAR_NOMBRE_EXPEDIENTE" "/admin/parnombrexpediente" 'parnombrexpediente' 'Parametro Nombre Expediente'/>
+                
+                <#--
+                    2018-08-16 samuel.delgado@controltechcg.com Issue #7 (SICDI-Controltech) feature-gogs-7:
+                    Enlace para la opción de notificaciones.
+                -->
+                <@link_admin  "ADMIN_RAZON_INHABILITAR" "/admin/razon-inhabilitar" 'razones-inhabilitar' 'Razones Inhabilitar Usuario'/>
                 </ul>
             </div>
         </div>

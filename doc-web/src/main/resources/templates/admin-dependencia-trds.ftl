@@ -60,7 +60,8 @@
         <br /><br />
         
         <nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <!--#181 se agrega loader --> 
+            <button type="submit" class="btn btn-primary" onclick="loading(event);">Guardar</button>
         </div>
     </form>
     

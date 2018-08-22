@@ -49,3 +49,51 @@ function cambioEstado(tnfId){
     });
 };
 
+
+function habilitarUsuario() {
+    $.ajax({ 
+        method: "POST", 
+        url: "/habilitar-usuario"
+    }).then(function() { 
+        location.reload(); 
+      }, function() { 
+        console.log("ERROR");
+    }); 
+}
+
+function deshabilitarUsuario() {
+    var descripcion = $("#razonInhabilitar").val();
+    
+    if (descripcion == null) {
+        alert("Debe ingresar una razón para deshabilitar.");
+        return;
+    } 
+    
+    $.ajax({ 
+        method: "POST", 
+        url: "/inhabilitar-usuario",
+        data: {razon: descripcion},
+        dataType: 'html'
+    }).then(function() { 
+        location.reload(); 
+      }, function(message) { 
+        alert(message.responseText);
+    }); 
+}
+
+
+function razonesInhabilitacion(){
+    $("#razonInhabilitar option").remove();
+    $.ajax({ 
+        method: "GET",
+        url: "/razon-inhabilitar"
+    }).always(function(razones) {
+        console.log(razones);
+        razones = JSON.parse(razones);
+        console.log(razones);
+        $.each(razones, function(index, item) {
+            console.log(item.id);
+            $("#razonInhabilitar").append("<option value="+item.id+">"+item.texto+"</option>");
+        });
+    }); 
+}

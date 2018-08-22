@@ -96,7 +96,8 @@
 <#macro link_admin role path ap label >
 	<#if utilController.isAuthorized(role)>
 <li class="nav-item">
-    <a href=${path} class="nav-link <#if activePill == ap >active</#if>">${label}</a>
+    <!--#181 se agrega loader --> 
+    <a href=${path} class="nav-link <#if activePill == ap >active</#if>" onclick="loading(event);">${label}</a>
     </li>
     </#if>
 </#macro>

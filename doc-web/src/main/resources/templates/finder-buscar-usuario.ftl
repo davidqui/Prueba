@@ -111,7 +111,7 @@
 
         </div>
 
-        <script src="/js/app/transferencia-archivo-crear.js"></script>
+        <script src="/js/app/buscar-usuario.js"></script>
         <#--
             2018-05-30 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
             feature-162: Javascript genérico para el finder de usuarios.
