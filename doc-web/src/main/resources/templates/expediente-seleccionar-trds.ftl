@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#assign pageTitle = "Subseries - Expediente " + expediente.expNombre />
 <#include "header.ftl">
 

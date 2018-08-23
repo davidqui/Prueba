@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#assign pageTitle = "Expedientes"/>
 <#include "bandeja-header.ftl">
 <#include "gen-paginacion.ftl">

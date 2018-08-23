@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#assign pageTitle = ""/>
 <#include "loader.ftl">
 <#include "bandeja-header.ftl">
