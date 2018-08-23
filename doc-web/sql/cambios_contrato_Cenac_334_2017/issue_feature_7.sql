@@ -39,7 +39,7 @@ ON RAZON_INHABILITAR (ACTIVO);
 -- -----------------------------------------------------------------------------
 
 ALTER TABLE USUARIO ADD (
-    USU_ACTIVO NUMBER(1,0) DEFAULT 1 NOT NULL, 
+    USU_ACTIVO NUMBER(1,0) DEFAULT 1 NULL, 
     RAZ_ID NUMBER(38) NULL
 );
 
