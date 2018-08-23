@@ -251,9 +251,9 @@
                      style="background-color: #fff; border-color: #94ce18">
                     <div class="card-block lead">
                         <p>
-                            Usuario actualmente <b>Inactivo</b>
+                            Usuario actualmente <b>Inactivo.</b>
                             </p>
-                        <p> para retomar operación en el sistema SICDI debe activar su usuario”.</p>
+                        <p> Para retomar operación en el sistema SICDI debe activar su usuario.</p>
                         <button type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="habilitarUsuario()">
                             Activar
                             </button>
