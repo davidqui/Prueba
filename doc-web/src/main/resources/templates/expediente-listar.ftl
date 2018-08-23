@@ -24,6 +24,7 @@
             <input type="hidden" name="all" value="true">
             </form>
         </div>
+        
         <#if all?? && all>
     <a class="btn btn-link" href="/expediente/listarExpedientes?all=false&filtro=${filtro!""}">No mostrar expedientes cerrados</a>
         <#else>
