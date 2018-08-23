@@ -810,7 +810,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     Object encuentrafechaMaximaExpediente(@Param("expId") Long expId);
     
     /***
-     * Trae todos los documentos
+     * Trae todos los documentos de una dependencia por un usuario.
      * @param usuID
      * @return 
      */

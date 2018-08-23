@@ -24,26 +24,38 @@
     .card-body{
         padding-left: 30px;
     }
+    
+    .span-badge{
+        font-size: 14px;
+        padding: 4px 6px;
+        background-color: white;
+        color: #0275d8;
+        margin-left: 10px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
 </style>
 <div class="container-fluid">
-    <h4>${pageTitle}</h4>
+<h4>${pageTitle}</h4>
 <div id="accordion">
-  <#assign hasAllSelected = true />            
+  <#assign hasAllSelected = false />            
   <button id="select-all-documents" name="select-all-documents" type="button" class="btn btn-default btn-sm slAllTrd" onclick="return selectAllDocuments(this.form, this);">
     <#if hasAllSelected >
         ${removeAllText}
     <#else>
         ${selectAllText}
     </#if>
-  </button
+  </button>
+  <input id="selected-all-documentos" name="selected-all-documentos" type="hidden" value="true" />
+<input class="form-control" type="text" id="documentos-buscar" onkeyup="finderDocument()" placeholder="Buscar por nombre" title="Type in a name" style="margin-top: 30px;">
+<form method="POST" id="formDocumentos">
   <#assign i = 0 >
-  <form method="POST">
     <#list trds as trd>
       <#if trd.subSeries??>
-          <div class="card">
+          <div class="card trdPadre">
             <div class="card-header" id="headingOne">
               <h5 class="mb-0">
-                <input type="checkbox">
+                <input type="checkbox" id="trd-documentos" onclick="selectdivCheckbox('collapse_${(i)!""}', this)">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#collapse_${(i)!""}" aria-expanded="true" aria-controls="collapse_${(i)!""}">
                   <b>${(trd.trdNombre)!""}</b>
                 </button>
@@ -55,10 +67,10 @@
                   <#assign j = 0 >
                   <#list trd.subSeries as strd>
                       <div id="accordion_${(i)!""}">
-                        <div class="card">
+                        <div class="card subTrd">
                           <div class="card-header" id="headingOne">
                             <h5 class="mb-0">
-                              <input type="checkbox" id="">
+                              <input type="checkbox" id="trd-documentos" onclick="selectdivCheckbox('collapse_sub_${(i)!""}_${(j)!""}', this)">
                               <button class="btn btn-link" data-toggle="collapse" data-target="#collapse_sub_${(i)!""}_${(j)!""}" aria-expanded="true" aria-controls="collapse_sub_${(i)!""}_${(j)!""}">
                                 ${(strd.trdNombre)!""}
                               </button>
@@ -79,10 +91,10 @@
                                   </thead>
                                   <tbody>
                                       <#list strd.documentosDependencia as doc>
-                                          <tr>
-                                              <td><input type="checkbox" name="documentos"></td>
-                                              <td nowrap>${doc.radicado!"&lt;Sin radicado&gt;"}</td>
-                                              <td>${doc.asunto!"&lt;Sin asunto&gt;"}</td>
+                                          <tr name="info-doc" id="info-doc">
+                                              <td><input type="checkbox" name="documentos" onclick="resetCheckTrd();"></td>
+                                              <td nowrap name="radicado">${doc.radicado!"&lt;Sin radicado&gt;"}</td>
+                                              <td name="asunto">${doc.asunto!"&lt;Sin asunto&gt;"}</td>
                                               <td nowrap>${(doc.cuando?string('yyyy-MM-dd hh:mm aa'))!""}</td>
                                               <td nowrap>${(doc.cargoIdElabora.carNombre)!""}</td>
                                           </tr>
@@ -101,6 +113,11 @@
         <#assign i = i + 1 >
       </#if>
     </#list>
+    <div class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
+        <button type="button" class="btn btn-primary">
+          Transferir <span class="span-badge" id="counterDoc">0 documentos</span>
+        </button>
+    </div>
   </form>
 <div>
 <script src="/js/app/transferencia-seleccionar-documento.js"></script>

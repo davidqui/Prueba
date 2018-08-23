@@ -1,39 +1,117 @@
 function selectAllDocuments(form, button){
-    var currentState = $("#selected-all-trd").val() === 'true';
-
-    var checkboxes = $(form).find("[name='documentos']");
-    checkboxes.prop('checked', !currentState);
-
+    var currentState = $("#selected-all-documentos").val() === 'true';
+    
+    $("[id='info-doc']").each(function(){
+        if ($(this).css('display') != 'none') {
+            $(this).find("[name='documentos']").prop('checked', currentState);
+        }
+    });
+    
+    $(".subTrd").each(function(){
+        if ($(this).css('display') != 'none') {
+            $(this).find("[id='trd-documentos']").prop('checked', currentState);
+        }
+    });
+    
+    $(".trdPadre").each(function(){
+        if ($(this).css('display') != 'none') {
+            $(this).find("[id='trd-documentos']").prop('checked', currentState);
+        }
+    });
+    
     if(currentState){
-        $("#select-all-documents").val('false');
-        $(button).html('${selectAllText}');
-        var buttons = $(form).find(".slAllTrd");
-        buttons.html('${selectAllText}');   
-        var values = $('[id^="selected-all-trd-"]');
-        values.val('false'); 
+        $("#selected-all-documentos").val('false');
+        $(button).html('Retirar todos');  
     } else {
-        $("#select-all-documents").val('true');                
-        $(button).html('${removeAllText}');
-        var buttons = $(form).find(".slAllTrd");
-        buttons.html('${removeAllText}');
-        var values = $('[id^="selected-all-trd-"]');
-        values.val('true'); 
+        $("#selected-all-documentos").val('true');                
+        $(button).html('Seleccionar todos');
     }
-
+    resetCheckTrd();
 }
 
-function selectAllTrdPadre(form, button, id){
-    var currentState = $("#selected-all-trd-"+id).val() === 'true';
+function selectdivCheckbox(idDiv, idCheck){
+    var currentState = idCheck.checked;
+    
+    $("#"+idDiv).find("#info-doc").each(function(){
+        if ($(this).css('display') != 'none') {
+            $(this).find("[name='documentos']").prop('checked', currentState);
+        }
+    });
+    
+    $("#"+idDiv).find(".subTrd").each(function(){
+        if ($(this).css('display') != 'none') {
+            $(this).find("[id='trd-documentos']").prop('checked', currentState);
+        }
+    });
+    resetCheckTrd();
+}
 
-    var checkboxes = $(form).find(".trd-"+id);
-    checkboxes.prop('checked', !currentState);
 
-    if(currentState){
-        $("#selected-all-trd-"+id).val('false');
-        $(button).html('${selectAllText}');
+function finderDocument(){
+    var criterio = $("#documentos-buscar").val();
+    $('.trdPadre').hide();
+    $('.trdPadre').each(function(){
+        console.log("TRD "+this);
+       $(this).find(".subTrd").hide();
+       var counterSubTrds = 0;
+       $(this).find(".subTrd").each(function(){
+           var counterDocuments = 0;
+           $(this).find("[name='info-doc']").hide();
+           $(this).find("[name='info-doc']").each(function(){
+               var asunto = $(this).find("[name='radicado']");
+                var radicado = $(this).find("[name='asunto']");
+                if ($(asunto).text().toUpperCase().indexOf(criterio.toUpperCase()) != -1 || 
+                        $(radicado).text().toUpperCase().indexOf(criterio.toUpperCase()) != -1) {
+                    counterDocuments++;
+                    $(this).show();
+                }
+           });
+            if (counterDocuments > 0) {
+                $(this).show();
+                counterSubTrds++;
+            }
+       });
+        if (counterSubTrds > 0) {
+            $(this).show();
+        }
+    });
+    resetCheckTrd();
+}
+
+
+function resetCheckTrd(){
+    var flagTodos = true;
+    var counterDoc = 0;
+    $('.trdPadre').each(function(){
+        var flagSelect = true;
+        if ($(this).css('display') != 'none') {
+            $(this).find(".subTrd").each(function(){
+                var aux = $(this).find("[name='documentos']:checked").length
+                counterDoc += aux;
+                if ($(this).css('display') != 'none') {
+                    if ( aux === $(this).find("[name='documentos']").length) {
+                       $(this).find("#trd-documentos").first().prop('checked', true);
+                    }else{
+                        flagSelect = false;
+                        $(this).find("#trd-documentos").first().prop('checked', false);
+                    }
+                }
+            });
+            if (flagSelect) {
+                $(this).find("#trd-documentos").first().prop('checked', true);
+            }else{
+                flagTodos = false;
+                $(this).find("#trd-documentos").first().prop('checked', false);
+            }
+        }   
+    });
+    console.log("QUE PASA", flagTodos);
+    $("#counterDoc").html(counterDoc+" documentos")
+    if(flagTodos){
+        $("#selected-all-documentos").val('false');
+        $("#select-all-documents").html('Retirar todos');  
     } else {
-        $("#selected-all-trd-"+id).val('true');                
-        $(button).html('${removeAllText}');
-
+        $("#selected-all-documentos").val('true');                
+        $("#select-all-documents").html('Seleccionar todos');
     }
 }
