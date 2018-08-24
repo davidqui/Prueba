@@ -79,7 +79,10 @@
                     Enlace para la opción de notificaciones.
                 -->
                 <@link_admin  "ADMIN_NOTIFICACIONES" "/admin/notificacion" 'notificaciones' 'Notificaciones'/>
-                
+                <#--
+                    2018-08-01 dquijanor@imi.mil.co Issue #181 (GETDE) feature-181:
+                    Enlace para la opción de parametrizacion del nombre del expediente.
+                -->
                 <@link_admin  "ADMIN_PAR_NOMBRE_EXPEDIENTE" "/admin/parnombrexpediente" 'parnombrexpediente' 'Parametro Nombre Expediente'/>
                 
                 <#--
@@ -87,6 +90,13 @@
                     Enlace para la opción de notificaciones.
                 -->
                 <@link_admin  "ADMIN_RAZON_INHABILITAR" "/admin/razon-inhabilitar" 'razones-inhabilitar' 'Razones Inhabilitar Usuario'/>
+                
+                <#--
+                    2018-08-23 dquijanor@imi.mil.co Issue #4 (GETDE) feature-gogs-4:
+                    Enlace para la opción de parametrizacion del nombre del expediente.
+                -->
+                <@link_admin  "ADMIN_TRANS_JUSTIF_DEFECTO" "/admin/transjustificaciondefecto" 'transjustificaciondefecto' 'Observacion Transferencia Archivo'/>
+                
                 </ul>
             </div>
         </div>
