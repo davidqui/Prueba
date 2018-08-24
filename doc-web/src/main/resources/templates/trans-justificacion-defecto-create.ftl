@@ -8,7 +8,7 @@
 
 <div class="container">
     <div class="row">
-        <h1 class="cus-h1-page-title">${pageTitle}</h1>
+        <h1 class="cus-h1-page-title">Crear ${pageTitle}</h1>
         <form action="/admin/transjustificaciondefecto/crear" method="POST" enctype="multipart/form-data" >
             <fieldset class="form-group">
                 <label for="textoObservacion">Texto</label>

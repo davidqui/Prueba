@@ -33,6 +33,7 @@ import org.hibernate.annotations.Parameter;
 @Table(name = "TRANS_JUSTIFICACION_DEFECTO")
 @XmlRootElement
 @SuppressWarnings("PersistenceUnitPresent")
+@LaamLabel("Observaciones Transferencia de Archivo")
 public class TransJustificacionDefecto implements Serializable {
 
     private static final long serialVersionUID = -3216316165675237241L;

@@ -8,7 +8,7 @@
 
 <div class="container">
     <div class="row">
-        <h1 class="cus-h1-page-title">${pageTitle}</h1>
+        <h1 class="cus-h1-page-title">Modificar ${pageTitle}</h1>
         <form action="/admin/transjustificaciondefecto/actualizar" method="POST" enctype="multipart/form-data" >
             <input type="hidden" id="tjdId" name="tjdId" value="${justificacionDefecto.tjdId}" />
             <fieldset class="form-group">
