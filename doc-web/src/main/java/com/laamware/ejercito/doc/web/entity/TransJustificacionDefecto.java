@@ -33,6 +33,7 @@ import org.hibernate.annotations.Parameter;
 @Table(name = "TRANS_JUSTIFICACION_DEFECTO")
 @XmlRootElement
 @SuppressWarnings("PersistenceUnitPresent")
+@LaamLabel("Observaciones Transferencia de Archivo")
 public class TransJustificacionDefecto implements Serializable {
 
     private static final long serialVersionUID = -3216316165675237241L;
@@ -44,12 +45,15 @@ public class TransJustificacionDefecto implements Serializable {
     @Basic(optional = false)
     @Column(name = "TJD_ID")
     private Long tjdId;
+    @LaamLabel("Texto")
+    @LaamListColumn(order = 10)
+    @LaamCreate(order = 10)
     @Basic(optional = false)
     @Column(name = "TEXTO_OBSERVACION")
     private String textoObservacion;
     @Basic(optional = false)
     @Column(name = "ACTIVO")
-    private int activo;
+    private Boolean activo;
     @Basic(optional = false)
     @Column(name = "CUANDO")
     @Temporal(TemporalType.TIMESTAMP)
@@ -71,7 +75,7 @@ public class TransJustificacionDefecto implements Serializable {
         this.tjdId = tjdId;
     }
 
-    public TransJustificacionDefecto(Long tjdId, String textoObservacion, int activo, Date cuando) {
+    public TransJustificacionDefecto(Long tjdId, String textoObservacion, Boolean activo, Date cuando) {
         this.tjdId = tjdId;
         this.textoObservacion = textoObservacion;
         this.activo = activo;
@@ -94,11 +98,11 @@ public class TransJustificacionDefecto implements Serializable {
         this.textoObservacion = textoObservacion;
     }
 
-    public int getActivo() {
+    public Boolean getActivo() {
         return activo;
     }
 
-    public void setActivo(int activo) {
+    public void setActivo(Boolean activo) {
         this.activo = activo;
     }
 
