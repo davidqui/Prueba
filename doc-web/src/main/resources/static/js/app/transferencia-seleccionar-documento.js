@@ -105,7 +105,6 @@ function resetCheckTrd(){
             }
         }   
     });
-    console.log("QUE PASA", flagTodos);
     $("#counterDoc").html(counterDoc+" documentos")
     if(flagTodos){
         $("#selected-all-documentos").val('false');

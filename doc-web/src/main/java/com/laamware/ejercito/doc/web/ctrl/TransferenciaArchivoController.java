@@ -7,10 +7,12 @@ import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
+import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.serv.DocumentoService;
+import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import java.math.BigDecimal;
@@ -68,6 +70,12 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @Autowired    
     private DocumentoService documentoService;
+    
+    /**
+     * Servicio de expediente
+     */
+    @Autowired
+    private ExpedienteService expedienteService;
 
     /**
      * Servicio de cargos.
@@ -335,5 +343,23 @@ public class TransferenciaArchivoController extends UtilController {
         model.addAttribute("trds", documentoXtrdDadoUsuario);
         return "transferencia-seleccionar-documentos";
     }
-
+    
+    
+    @RequestMapping(value = "/seleccionar-expediente", method = RequestMethod.GET)
+    public String seleccionarExpediente(Principal principal, Model model){
+        Usuario usuarioSesion = getUsuario(principal);
+        List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(usuarioSesion);
+        model.addAttribute("expedientes", expedientes);
+        return "transferencia-seleccionar-expedientes";
+    }
+    
+    
+    @RequestMapping(value = "/resumen", method = RequestMethod.GET)
+    public String resumenExpediente(Principal principal, Model model){
+        Usuario usuarioSesion = getUsuario(principal);
+        List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(usuarioSesion);
+        model.addAttribute("expedientes", expedientes);
+        return "transferencia-resumen";
+    }
+    
 }

@@ -47,7 +47,7 @@
     </#if>
   </button>
   <input id="selected-all-documentos" name="selected-all-documentos" type="hidden" value="true" />
-<input class="form-control" type="text" id="documentos-buscar" onkeyup="finderDocument()" placeholder="Buscar por nombre" title="Type in a name" style="margin-top: 30px;">
+<input class="form-control" type="text" id="documentos-buscar" onkeyup="finderDocument()" placeholder="Buscar por nombre o número de radicación" title="Buscar" style="margin-top: 30px;">
 <form method="POST" id="formDocumentos">
   <#assign i = 0 >
     <#list trds as trd>
@@ -114,7 +114,7 @@
       </#if>
     </#list>
     <div class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
-        <button type="button" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary" onclick="loading(event);">
           Transferir <span class="span-badge" id="counterDoc">0 documentos</span>
         </button>
     </div>

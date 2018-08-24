@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.repo;
 
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Expediente;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -180,4 +181,11 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO
             + "", nativeQuery = true)
     List<Expediente> findExpedientesIndexacionPorUsuarioPorTrd(@Param("usuId") Integer usuId, @Param("trdId") Integer trd);
+    
+    /***
+     * Lista todos los expedientes en las que un usuario es usuario creador
+     * @param usuario usuario creador
+     * @return 
+     */
+    List<Expediente> getByUsuCreacion(Usuario usuario);
 }

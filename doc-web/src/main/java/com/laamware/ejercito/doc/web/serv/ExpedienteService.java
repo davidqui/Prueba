@@ -651,4 +651,9 @@ public class ExpedienteService {
         }
         return null;
     }
+    
+    
+    public List<Expediente> getExpedientesXusuarioCreador(Usuario usuario){
+        return expedienteRepository.getByUsuCreacion(usuario);
+    }
 }
