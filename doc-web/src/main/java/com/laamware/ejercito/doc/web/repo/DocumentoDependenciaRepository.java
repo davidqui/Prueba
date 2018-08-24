@@ -163,4 +163,16 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * feature-162.
      */
     DocumentoDependencia findOneByDocumentoAndQuienAndActivoTrue(Documento documento, Integer quien);
+    
+    
+    /***
+     * Trae todos los documentos dependencia por un usuario.
+     * @param usuID
+     * @return 
+     */
+    @Query(value = ""
+            + "SELECT DISTINCT DOCD.* FROM DOCUMENTO_DEPENDENCIA DOCD LEFT JOIN DOCUMENTO DOC ON (DOC.DOC_ID = DOCD.DOC_ID) WHERE DOCD.QUIEN = :expId", nativeQuery = true)
+    List<DocumentoDependencia> documentosDependenciaXUsuario(@Param("expId") Integer usuID);
+    
+    
 }

@@ -809,12 +809,4 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + ")", nativeQuery = true)
     Object encuentrafechaMaximaExpediente(@Param("expId") Long expId);
     
-    /***
-     * Trae todos los documentos de una dependencia por un usuario.
-     * @param usuID
-     * @return 
-     */
-    @Query(value = ""
-            + "SELECT DOC.* FROM DOCUMENTO DOC LEFT JOIN DOCUMENTO_DEPENDENCIA DOCD ON (DOCD.DOC_ID = DOC.DOC_ID) WHERE DOCD.QUIEN = :expId", nativeQuery = true)
-    List<Documento> documentosDependenciaXUsuario(@Param("expId") Integer usuID);
 }

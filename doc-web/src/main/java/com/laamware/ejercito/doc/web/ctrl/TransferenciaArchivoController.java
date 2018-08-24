@@ -1,19 +1,30 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.aspose.words.License;
+import static com.laamware.ejercito.doc.web.ctrl.ExpedienteController.PATH;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
+import com.laamware.ejercito.doc.web.entity.ExpTrd;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
+import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
+import com.laamware.ejercito.doc.web.entity.TransferenciaTransicion;
+import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
+import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
+import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteService;
+import com.laamware.ejercito.doc.web.serv.TransExpedienteDetalleService;
+import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoDetalleService;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
+import com.laamware.ejercito.doc.web.serv.TransferenciaEstadoService;
+import com.laamware.ejercito.doc.web.serv.TransferenciaTransicionService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -27,6 +38,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +60,8 @@ public class TransferenciaArchivoController extends UtilController {
     private static final Logger LOG
             = Logger.getLogger(TransferenciaArchivoController.class.getName());
 
+    public static final Long ESTADO_RECHAZADO = new Long(50);
+    
     /**
      * Ruta raíz del controlador.
      */
@@ -82,7 +96,37 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @Autowired
     CargosRepository cargosRepository;
+    
+    /**
+     * Servicio de documentos dependencia
+     */
+    @Autowired
+    private DocumentoDependenciaService documentoDependenciaService;
+    
+    /**
+     *  respositorio de transferencia archivo detalle
+     */
+    @Autowired
+    private TransferenciaArchivoDetalleService transferenciaArchivoDetalleService;
 
+    /**
+     * servicio de transiciones de transferencia
+     */
+    @Autowired
+    private TransferenciaTransicionService transferenciaTransicionService;
+    
+    /***
+     * servicio de estado de una transferencia
+     */
+    @Autowired
+    private TransferenciaEstadoService transferenciaEstadoService;
+    
+    /**
+     * servicio de expediente de una transferencia
+     */
+    @Autowired
+    private TransExpedienteDetalleService transExpedienteDetalleService;
+    
     /**
      * Presenta el formulario de creación para el proceso de transferencia de
      * archivo.
@@ -335,31 +379,129 @@ public class TransferenciaArchivoController extends UtilController {
         return cargoDTOs;
     }
     
-    
-    @RequestMapping(value = "/seleccionar-documentos", method = RequestMethod.GET)
-    public String seleccionarDocumentos(Principal principal, Model model){
+    /**
+     * Método que retorna la pagina para seleccionar los documentos que van a estar en la transferencia de archivo
+     * @param transId Identificador de la transferencia
+     * @param principal usuario en sesión
+     * @param model modelo del template
+     * @return pagína para seleccionar los documentos.
+     */
+    @RequestMapping(value = "/seleccionar-documentos/{trans}", method = RequestMethod.GET)
+    public String seleccionarDocumentos(@PathVariable("trans") Integer transId, Principal principal, Model model){
         Usuario usuarioSesion = getUsuario(principal);
-        List<TrdDTO> documentoXtrdDadoUsuario = documentoService.documentoXtrdDadoUsuario(usuarioSesion);
+        TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
+        if(! transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion))
+            return "security-denied";
+        List<TrdDTO> documentoXtrdDadoUsuario = documentoDependenciaService.documentoXtrdDadoUsuario(usuarioSesion);
+        List<TransferenciaArchivoDetalle> documentosXTransferenciaArchivo = transferenciaArchivoDetalleService.buscarDocumentosTransferencia(transferenciaArchivo);
         model.addAttribute("trds", documentoXtrdDadoUsuario);
+        model.addAttribute("documentosXTransferenciaArchivo", documentosXTransferenciaArchivo);
         return "transferencia-seleccionar-documentos";
     }
     
-    
-    @RequestMapping(value = "/seleccionar-expediente", method = RequestMethod.GET)
-    public String seleccionarExpediente(Principal principal, Model model){
+    /***
+     * Método que recive los documentos seleccionados y los registra en el sistema.
+     * @param transId Identificador de la transferencia
+     * @param documentos Identificadores de los documentos a asignar
+     * @param principal usuario en sesión
+     * @param model modelo del template
+     * @return pagína de continuación del proceso.
+     */
+    @RequestMapping(value = "/seleccionar-documentos/{trans}", method = RequestMethod.POST)
+    public String asignarDocumentos(@PathVariable("trans") Integer transId, @RequestParam(value = "documentos", required = false) Integer[] documentos,
+            Principal principal, Model model){
+        
         Usuario usuarioSesion = getUsuario(principal);
+        TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
+        if(! transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion))
+            return "security-denied";
+        
+        transferenciaArchivoDetalleService.eliminarDocumentosTransferencia(transferenciaArchivo);
+        if (documentos != null) {
+            for (Integer documento : documentos) {
+                DocumentoDependencia documentoDependencia = documentoDependenciaService.buscarPorId(documento);
+                transferenciaArchivoDetalleService.guardarDocumentoTransferencia(transferenciaArchivo, documentoDependencia, usuarioSesion);
+            }
+        }
+        
+        List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(usuarioSesion);
+        TransferenciaTransicion findTransferenciaTransicionRechazado = transferenciaTransicionService.findTransferenciaTransicionRechazado(transferenciaEstadoService.getById(ESTADO_RECHAZADO), transferenciaArchivo);
+        
+        if (findTransferenciaTransicionRechazado != null || expedientes.isEmpty()) {
+            return "redirect:" + PATH + "/resumen/"+ transId;
+        }
+        return "redirect:" + PATH + "/seleccionar-expediente/" + transId;
+    }
+    
+    /***
+     * Método que retorna la página para seleccionar los expedientes.
+     * @param principal usuario en sesión
+     * @param model modelo del template
+     * @return pagína para seleccionar los expedientes. 
+     */
+    @RequestMapping(value = "/seleccionar-expediente/{trans}", method = RequestMethod.GET)
+    public String seleccionarExpedientes(@PathVariable("trans") Integer transId, Principal principal, Model model){
+        Usuario usuarioSesion = getUsuario(principal);
+        TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
+        if(! transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion))
+            return "security-denied";
         List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(usuarioSesion);
         model.addAttribute("expedientes", expedientes);
         return "transferencia-seleccionar-expedientes";
     }
     
     
+    @RequestMapping(value = "/seleccionar-expediente/{trans}", method = RequestMethod.POST)
+    public String asignarExpedientes(@PathVariable("trans") Integer transId, Principal principal, Model model,
+            @RequestParam(value = "expedientes", required = false) Long[] expedientes){
+        Usuario usuarioSesion = getUsuario(principal);
+        TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
+        if(! transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion))
+            return "security-denied";
+        transExpedienteDetalleService.eliminarExpedientesTransferencia(transferenciaArchivo);
+        if (expedientes != null) {
+            for (Long expediente : expedientes) {
+                Expediente pExpediente = expedienteService.finById(expediente);
+                transExpedienteDetalleService.guardarExpedienteTransferencia(transferenciaArchivo,
+                        pExpediente, usuarioSesion);
+            }
+        }
+        return "transferencia-resumen";
+    }
+    
+    /***
+     * Método que retorna la página para ver el resumen de la transferencia.
+     * @param principal usuario en sesión
+     * @param model modelo del template
+     * @return pagína para ver el resumen del expediente.
+     */
     @RequestMapping(value = "/resumen", method = RequestMethod.GET)
     public String resumenExpediente(Principal principal, Model model){
         Usuario usuarioSesion = getUsuario(principal);
         List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(usuarioSesion);
         model.addAttribute("expedientes", expedientes);
         return "transferencia-resumen";
+    }
+    
+    
+    /**
+     * Agrega el controlador
+     *
+     * @return controlador
+     */
+    @ModelAttribute("controller")
+    public TransferenciaArchivoController controller() {
+        return this;
+    }
+    
+    
+    public boolean hasDocumento(Integer id, List<TransferenciaArchivoDetalle> preseleccion){
+        for (TransferenciaArchivoDetalle pr : preseleccion) {
+            if(pr.getDocumentoDependencia().getId().equals(id)){
+                return true;
+            }
+        }
+        return false;
     }
     
 }

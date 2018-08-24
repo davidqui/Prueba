@@ -180,6 +180,7 @@ public class TransferenciaArchivoService {
     @Autowired
     CargosRepository cargosRepository;
 
+
     /**
      * Busca un registro de transferencia de archivo.
      *
@@ -602,7 +603,7 @@ public class TransferenciaArchivoService {
         asposeDocument.getMailMerge().execute(asposeMap.getNombres(), asposeMap.getValues());
 
         final List<TransferenciaArchivoDetalle> detalles
-                = detalleRepository.findAllByTransferenciaArchivo(transferenciaArchivo);
+                = detalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
         ordenarDetalles(detalles);
 
         // TODO: Formato de tabla (Negrita para títulos, etc...)
@@ -939,5 +940,18 @@ public class TransferenciaArchivoService {
             }
         });
     }
-
+    
+    /**
+     * Permiso para editar una transferecia segun un usuario
+     * @param transferenciaArchivo transferencia 
+     * @param usuario
+     * @return 
+     */
+    public boolean permisoEditarTransferencia( final TransferenciaArchivo transferenciaArchivo, final Usuario usuario){
+        return transferenciaArchivo != null && usuario != null && 
+                transferenciaArchivo.getUsuarioAsignado() == 0 && 
+                transferenciaArchivo.getIndAprobado() == 0 && 
+                transferenciaArchivo.getCreadorUsuario().getId().equals(usuario.getId());
+    } 
+        
 }

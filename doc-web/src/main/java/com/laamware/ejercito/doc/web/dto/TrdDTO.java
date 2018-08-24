@@ -23,7 +23,7 @@ public class TrdDTO implements Serializable{
     private String trdCodigo;
     private int cantidad;
     
-    private List<Documento> documentosDependencia;
+    private List<DocumentoDependencia> documentosDependencia;
     
     private List<TrdDTO> subSeries;
 
@@ -77,11 +77,11 @@ public class TrdDTO implements Serializable{
         this.subSeries = subSeries;
     }
 
-    public List<Documento> getDocumentosDependencia() {
+    public List<DocumentoDependencia> getDocumentosDependencia() {
         return documentosDependencia;
     }
 
-    public void setDocumentosDependencia(List<Documento> documentosDependencia) {
+    public void setDocumentosDependencia(List<DocumentoDependencia> documentosDependencia) {
         this.documentosDependencia = documentosDependencia;
     }
     

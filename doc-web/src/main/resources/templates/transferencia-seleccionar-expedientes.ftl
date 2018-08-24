@@ -67,7 +67,7 @@
             </#if>
              <tr id="table-tr">
                 <td>
-                    <input type="checkbox" name="expedientes" onclick="onSelectCounter(true);">
+                    <input type="checkbox" name="expedientes" onclick="onSelectCounter(true);" value="${exp.expId}">
                 </td>
                 <td class="${vclasses}"><a href="/expediente/listarDocumentos?expId=${exp.expId}" target="_blank">${exp.expNombre!""}</a></td>
                 <td class="${vclasses}">${exp.fecCreacion?string('yyyy-MM-dd')}</td>

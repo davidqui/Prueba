@@ -114,3 +114,7 @@ function resetCheckTrd(){
         $("#select-all-documents").html('Seleccionar todos');
     }
 }
+
+$( document ).ready(function() {
+    resetCheckTrd();
+});

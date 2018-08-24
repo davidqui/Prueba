@@ -1,6 +1,9 @@
 
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.entity.TransferenciaEstado;
+import com.laamware.ejercito.doc.web.repo.TransferenciaEstadoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -11,5 +14,16 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TransferenciaEstadoService {
-
+    
+    @Autowired
+    private TransferenciaEstadoRepository transferenciaEstadoRepository;
+    
+    /***
+     * Trae un estado dado por un identificador
+     * @param estadoId identificador de estado
+     * @return TransferenciaEstado
+     */
+    public TransferenciaEstado getById(Long estadoId){
+        return transferenciaEstadoRepository.getOne(estadoId);
+    }
 }

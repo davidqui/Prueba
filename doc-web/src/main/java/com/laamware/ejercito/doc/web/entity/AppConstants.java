@@ -201,6 +201,11 @@ public class AppConstants {
      */
     public static final String ADMIN_PAR_NOMBRE_EXPEDIENTE = "ADMIN_PAR_NOMBRE_EXPEDIENTE";
     public static final String PATH_ADMIN_PAR_NOMBRE_EXPEDIENTE = "/admin/parnombrexpediente";
+    /**
+     * Rol de administración de texto observacion transferecia de archivo
+     */
+    public static final String ADMIN_TRANS_JUSTIF_DEFECTO = "ADMIN_TRANS_JUSTIF_DEFECTO";
+    public static final String PATH_ADMIN_TRANS_JUSTIF_DEFECTO = "/admin/transjustificaciondefecto";
 
     /**
      * Rol para búsqueda de documentos por firma/envío UUID.

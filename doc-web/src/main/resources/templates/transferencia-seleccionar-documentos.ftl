@@ -92,11 +92,15 @@
                                   <tbody>
                                       <#list strd.documentosDependencia as doc>
                                           <tr name="info-doc" id="info-doc">
-                                              <td><input type="checkbox" name="documentos" onclick="resetCheckTrd();"></td>
-                                              <td nowrap name="radicado">${doc.radicado!"&lt;Sin radicado&gt;"}</td>
-                                              <td name="asunto">${doc.asunto!"&lt;Sin asunto&gt;"}</td>
-                                              <td nowrap>${(doc.cuando?string('yyyy-MM-dd hh:mm aa'))!""}</td>
-                                              <td nowrap>${(doc.cargoIdElabora.carNombre)!""}</td>
+                                              <td><input type="checkbox" name="documentos"
+                                                         onclick="resetCheckTrd();"
+                                                         value="${doc.id}"
+                                                         <#if controller.hasDocumento(doc.id, documentosXTransferenciaArchivo)>checked="checked"</#if>
+                                                         ></td>
+                                              <td nowrap name="radicado">${doc.documento.radicado!"&lt;Sin radicado&gt;"}</td>
+                                              <td name="asunto">${doc.documento.asunto!"&lt;Sin asunto&gt;"}</td>
+                                              <td nowrap>${(doc.documento.cuando?string('yyyy-MM-dd hh:mm aa'))!""}</td>
+                                              <td nowrap>${(doc.documento.cargoIdElabora.carNombre)!""}</td>
                                           </tr>
                                       </#list>
                                   </tbody>
