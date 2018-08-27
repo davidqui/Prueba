@@ -187,7 +187,6 @@ ALTER TABLE TRANS_EXPEDIENTE_DETALLE ADD CONSTRAINT FK_TED_TAR FOREIGN KEY (TAR_
 ALTER TABLE TRANS_EXPEDIENTE_DETALLE ADD CONSTRAINT FK_TED_USU_ANTERIOR FOREIGN KEY (ANTERIOR_QUIEN) REFERENCES USUARIO (USU_ID);
 ALTER TABLE TRANS_EXPEDIENTE_DETALLE ADD CONSTRAINT FK_TED_USU_NUEVO FOREIGN KEY (NUEVO_QUIEN) REFERENCES USUARIO (USU_ID);
 
-
 -- -----------------------------------------------------------------------------
 -- TABLA: ROL
 -- -----------------------------------------------------------------------------
@@ -197,6 +196,82 @@ INSERT INTO ROL
 VALUES 
     ('ADMIN_TRANS_JUSTIF_DEFECTO',3390, SYSDATE,3390,SYSDATE,1,'Observacion Transferencia de Archivo');
 
+-- -----------------------------------------------------------------------------
+-- TABLA: DOCUMENTO
+--        BLOQUE DE PL/SQL QUE PERMITE CENTRALIZAR LA FECHA DE RADICACIÓN DEL
+--        DOCUMENTO, INDEPENDIENTEMENTE DEL PROCESO.
+-- -----------------------------------------------------------------------------
 
+ALTER TABLE DOCUMENTO ADD DOC_FEC_RADICADO TIMESTAMP;
+
+SET SERVEROUTPUT ON;
+DECLARE
+    CURSOR C_RADICADO IS
+        select a.*, b.pro_id
+        from documento a,
+             proceso_instancia b
+        where b.pin_id = a.pin_id
+        and b.pro_id = 9
+        and doc_asunto is not null
+        and doc_fec_radicado is null;
+    
+    CURSOR C_INT_EXTERNO IS
+        select a.pin_id, a.doc_id, a.cuando, (select max(cuando) from DOCUMENTO_USU_FIRMA z where z.doc_id = a.doc_id) cuando_firma
+        from documento a,
+             proceso_instancia b
+        where b.pin_id = a.pin_id
+        and b.pro_id in (8,41)
+        and doc_asunto is not null
+        and doc_fec_radicado is null
+        and exists(
+            select 1
+            from DOCUMENTO_USU_FIRMA b
+            where b.doc_id = a.doc_id
+            and cuando is not null
+        )
+        and exists(
+            select 1
+            from h_proceso_instancia b
+            where b.pin_id = a.pin_id
+            and pes_id = 49
+        );
+    
+    CURSOR C_ACTAS IS
+        select a.*, b.pro_id
+        from documento a,
+             proceso_instancia b
+        where b.pin_id = a.pin_id
+        and b.pro_id = 100
+        and doc_asunto is not null
+        AND ACTA_FECHA_ELABORACION IS NOT NULL
+        and doc_fec_radicado is null;
+    
+    aux_doc_fec_firma       TIMESTAMP;
+    aux_count_radicacion    NUMBER := 0;
+    aux_count_int_externo   NUMBER := 0;
+    aux_count_acta          NUMBER := 0;
+    aux_count_error         NUMBER := 0;
+BEGIN
+    FOR AUX_C_RADICADO IN C_RADICADO LOOP         
+            aux_count_radicacion := aux_count_radicacion + 1;
+            UPDATE DOCUMENTO SET doc_fec_radicado = AUX_C_RADICADO.CUANDO WHERE DOC_ID = AUX_C_RADICADO.DOC_ID;
+    END LOOP;
+        
+    FOR AUX_C_INT_EXTERNO IN C_INT_EXTERNO LOOP   
+        aux_count_int_externo := aux_count_int_externo + 1;
+        UPDATE DOCUMENTO SET doc_fec_radicado = AUX_C_INT_EXTERNO.cuando_firma WHERE DOC_ID = AUX_C_INT_EXTERNO.DOC_ID;
+    END LOOP;
+        
+    FOR AUX_C_ACTAS IN C_ACTAS LOOP   
+        aux_count_acta := aux_count_acta + 1;
+        UPDATE DOCUMENTO SET doc_fec_radicado = AUX_C_ACTAS.ACTA_FECHA_ELABORACION WHERE DOC_ID = AUX_C_ACTAS.DOC_ID;
+    END LOOP;
+    DBMS_OUTPUT.PUT_LINE('radicacion= '||aux_count_radicacion);
+    DBMS_OUTPUT.PUT_LINE('int. externo= '||aux_count_int_externo);
+    DBMS_OUTPUT.PUT_LINE('actas = '||aux_count_acta);
+    DBMS_OUTPUT.PUT_LINE('error = '||aux_count_error);
+    commit;
+END;
+/
 
 COMMIT;

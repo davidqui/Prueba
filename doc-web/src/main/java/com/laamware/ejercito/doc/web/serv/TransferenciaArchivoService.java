@@ -940,4 +940,11 @@ public class TransferenciaArchivoService {
         });
     }
 
+    public int findCountByOrigenUsuarioId(Integer usuId){
+        return 0;
+    }
+    
+    public List<TransferenciaArchivo> findAllByOrigenUsuarioId(Integer usuId){
+        return transferenciaRepository.findAllByOrigenUsuarioId(usuId);
+    }
 }
