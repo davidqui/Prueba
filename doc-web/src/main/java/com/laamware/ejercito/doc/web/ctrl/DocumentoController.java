@@ -3263,7 +3263,15 @@ public class DocumentoController extends UtilController {
          * se registre el usuario de la última accíón.
          */
         documento.setUsuarioUltimaAccion(usuarioSesion);
-
+        
+        
+        /**
+        * 2018-08-27 edison.gonzalez@controltechcg.com Issue #4: Variable que permite
+        * centralizar la fecha de radicación de un documento de los procesos internos
+        * y externos.
+        */
+        documento.setDocFecRadicado(new Date());
+        
         documentRepository.saveAndFlush(documento);
 
         // EJECUTAMOS LA FUNCION PARA GENERAR LOS DATOS A CARGAR EN EL PDF
@@ -3281,6 +3289,9 @@ public class DocumentoController extends UtilController {
 
         if (!"OK".equals(plSqlResultado)) {
             // DEJAMOS EL DOC, COMO SU ESTADO ANTERIOR
+            
+            //2018-02-28 edison.gonzalez@controltechcg.com Issue #151.
+            documento.setDocFecRadicado(null);
             documento.setFirma(null);
             documento.setCargoIdFirma(null);
             documento.setRadicado(null);
@@ -3365,6 +3376,8 @@ public class DocumentoController extends UtilController {
             LOG.error(pinID + "\t" + ex.getMessage(), ex);
 
             try {
+                //2018-08-27 edison.gonzalez@controltechcg.com Issue #4.
+                documento.setDocFecRadicado(null);
                 documento.setFirma(null);
                 documento.setCargoIdFirma(null);
                 documento.setRadicado(null);

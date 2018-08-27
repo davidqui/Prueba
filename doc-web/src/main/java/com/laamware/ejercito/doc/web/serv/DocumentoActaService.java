@@ -377,6 +377,11 @@ public class DocumentoActaService {
         documento.setCargoIdElabora(new Cargo(Integer.parseInt(documentoActaDTO.getCargoElabora())));
         documento.setActaLugar(documentoActaDTO.getActaLugar());
         documento.setActaFechaElaboracion(buildFechaElaboracion(documentoActaDTO.getActaFechaElaboracion()));
+        /**
+        * 2018-08-27 edison.gonzalez@controltechcg.com Issue #4: Variable que permite
+        * centralizar la fecha de radicación de un documento del proceso de actas.
+        */
+        documento.setDocFecRadicado(documento.getActaFechaElaboracion());
         documento.setEstadoTemporal(null);
         documento.setActaDescripcion(documentoActaDTO.getActaDescripcion());
 

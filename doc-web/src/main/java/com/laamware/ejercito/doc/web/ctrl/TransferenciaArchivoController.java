@@ -108,6 +108,35 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @Autowired
     private TransferenciaArchivoDetalleService transferenciaArchivoDetalleService;
+    
+    
+    public String listarTransferencias(Principal principal, Model model,
+            @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize){
+        final Usuario origenUsuario = getUsuario(principal);
+        
+        
+////        List<TransferenciaArchivo> expedientes = new ArrayList<>();
+////        int count = expedienteService.obtenerCountExpedientesPorUsuario(usuSesion.getId(), filtro, all);
+////        int totalPages = 0;
+////        String labelInformacion = "";
+////
+////        if (count > 0) {
+////            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+////            totalPages = paginacionDTO.getTotalPages();
+////            expedientes = expedienteService.obtenerExpedientesDTOPorUsuarioPaginado(usuSesion.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(), filtro, all);
+////            labelInformacion = paginacionDTO.getLabelInformacion();
+////        }
+//
+//        model.addAttribute("expedientes", expedientes);
+//        model.addAttribute("pageIndex", pageIndex);
+//        model.addAttribute("totalPages", totalPages);
+//        model.addAttribute("labelInformacion", labelInformacion);
+//        model.addAttribute("pageSize", pageSize);
+        List<TransferenciaArchivo> transferenciasRealizadas = transferenciaService.findAllByOrigenUsuarioId(origenUsuario.getId());
+        model.addAttribute("transferenciasRealizadas", transferenciasRealizadas);
+        return "transferencia-archivo-listar";
+    }
 
     /**
      * servicio de transiciones de transferencia
@@ -138,12 +167,8 @@ public class TransferenciaArchivoController extends UtilController {
     @RequestMapping(value = "/crear", method = RequestMethod.GET)
     public String presentarFormularioCreacionGET(Principal principal, Model model) {
         final Usuario origenUsuario = getUsuario(principal);
-        model.addAttribute("origenUsuario", origenUsuario);
-
-        model.addAttribute("cargoOrigen", origenUsuario.getUsuCargoPrincipalId().getId());
-
-        final List<TransferenciaArchivo> transferenciasRecibidas
-                = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
+        
+        final List<TransferenciaArchivo> transferenciasRecibidas = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
 
         final Integer numArchivosRegistrosTotal = transferenciaService.countAllArchivoActivoByUsuario(origenUsuario.getId());

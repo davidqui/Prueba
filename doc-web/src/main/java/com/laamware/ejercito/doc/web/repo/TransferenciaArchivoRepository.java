@@ -37,5 +37,9 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
             + "")
     public List<TransferenciaArchivo> findAllRecibidasActivasByDestinoUsuario(
             @Param("destinoUsuario") Integer destinoUsuario);
+    
+    
+    
+    public List<TransferenciaArchivo> findAllByOrigenUsuarioId(Integer usuId);
 
 }

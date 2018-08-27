@@ -316,6 +316,15 @@ public class Documento extends AuditModifySupport {
     @Size(max = 2000)
     @Column(name = "ACTA_DESCRIPCION")
     private String actaDescripcion;
+    
+    /**
+     * 2018-08-27 edison.gonzalez@controltechcg.com Issue #4: Variable que permite
+     * centralizar la fecha de radicación de un documento, independientemente
+     * del proceso.
+     */
+    @Column(name = "DOC_FEC_RADICADO")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date docFecRadicado;
 
     @Transient
     private List<UsuarioVistoBuenoDTO> vistosBuenos = new ArrayList<UsuarioVistoBuenoDTO>();
@@ -1252,5 +1261,13 @@ public class Documento extends AuditModifySupport {
 
     public void setActaDescripcion(String actaDescripcion) {
         this.actaDescripcion = actaDescripcion;
+    }
+
+    public Date getDocFecRadicado() {
+        return docFecRadicado;
+    }
+
+    public void setDocFecRadicado(Date docFecRadicado) {
+        this.docFecRadicado = docFecRadicado;
     }
 }
