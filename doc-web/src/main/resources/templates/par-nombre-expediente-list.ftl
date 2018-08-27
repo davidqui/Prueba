@@ -54,9 +54,9 @@
                     <a href="/admin/parnombrexpediente/edit?id=${x.parId}" class="btn btn-sm btn-warning" title="Modificar">M</a>
                         <#if x.fecCreacion?? >
                             <#if x.fecModificacion?? >
-                    <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.usuCreacion!"Sistema"} el día ${x.fecModificacion?string('dd.MM.yyyy HH:mm:ss')}, Modificado por: ${x.usuModificacion!"Nadie"} el día ${x.fecModificacion?string('dd.MM.yyyy HH:mm:ss')!"Ninguno"}">H</a>
+                    <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.usuCreacion!"Sistema"} el día ${x.fecCreacion?string('dd.MM.yyyy HH:mm:ss')}, Modificado por: ${x.usuModificacion!"Nadie"} el día ${x.fecModificacion?string('dd.MM.yyyy HH:mm:ss')!"Ninguno"}">H</a>
                             <#else>
-                    <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.usuCreacion} el día ${x.fecModificacion?string('dd.MM.yyyy HH:mm:ss')}">H</a>
+                    <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.usuCreacion} el día ${x.fecCreacion?string('dd.MM.yyyy HH:mm:ss')}">H</a>
                             </#if>
                         </#if>
                     </td>
