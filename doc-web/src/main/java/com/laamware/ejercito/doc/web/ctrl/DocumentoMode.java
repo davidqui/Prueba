@@ -339,6 +339,15 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         if (get("cargoIdFirma_edit")) {
             target.setCargoIdFirma(source.getCargoIdFirma());
         }
+        
+        /**
+        * 2018-08-27 edison.gonzalez@controltechcg.com Issue #4: Variable que permite
+        * centralizar la fecha de radicación de un documento, para el caso de los
+        * documentos de radicación.
+        */
+        if(source.getInstancia().getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)){
+            target.setDocFecRadicado(source.getCuando());
+        }
     }
 
     /**

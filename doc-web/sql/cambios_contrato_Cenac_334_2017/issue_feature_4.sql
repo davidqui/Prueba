@@ -196,6 +196,8 @@ INSERT INTO ROL
 VALUES 
     ('ADMIN_TRANS_JUSTIF_DEFECTO',3390, SYSDATE,3390,SYSDATE,1,'Observacion Transferencia de Archivo');
 
+COMMIT;
+
 -- -----------------------------------------------------------------------------
 -- TABLA: DOCUMENTO
 --        BLOQUE DE PL/SQL QUE PERMITE CENTRALIZAR LA FECHA DE RADICACIÓN DEL
@@ -203,6 +205,8 @@ VALUES
 -- -----------------------------------------------------------------------------
 
 ALTER TABLE DOCUMENTO ADD DOC_FEC_RADICADO TIMESTAMP;
+
+COMMENT ON COLUMN DOCUMENTO.DOC_FEC_RADICADO    IS 'Permite identificar la fecha en que se realizó la radicación de un documento, independientemente del proceso.';
 
 SET SERVEROUTPUT ON;
 DECLARE
@@ -273,5 +277,3 @@ BEGIN
     commit;
 END;
 /
-
-COMMIT;
