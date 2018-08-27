@@ -45,7 +45,7 @@ public class TransJustificacionDefecto implements Serializable {
     @Basic(optional = false)
     @Column(name = "TJD_ID")
     private Long tjdId;
-    @LaamLabel("Texto")
+    @LaamLabel("Nombre de la Observación")
     @LaamListColumn(order = 10)
     @LaamCreate(order = 10)
     @Basic(optional = false)
