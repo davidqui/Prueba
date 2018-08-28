@@ -58,4 +58,6 @@ public class TransferenciaArchivoDetalleService {
     public List<TransferenciaArchivoDetalle> buscarDocumentosTransferencia(TransferenciaArchivo transferenciaArchivo){
         return transferenciaArchivoDetalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
     }
+    
+    
 }

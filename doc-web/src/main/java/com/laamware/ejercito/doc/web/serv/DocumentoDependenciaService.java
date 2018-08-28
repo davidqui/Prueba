@@ -172,6 +172,15 @@ public class DocumentoDependenciaService {
         }
     }
     return documentosXtrd;
-}
+    }
     
+    /**
+     * Lista los documentos que se encuentran en documentos en otras transferencias abiertas
+     * @param usuario usuario a consultar documentos
+     * @param transferenciaArchivo transferencia de archivo actual
+     * @return  lista de documentos dependencia
+     */
+    public List<DocumentoDependencia> listarDocumentosOtrasTransferencias(Usuario usuario, TransferenciaArchivo transferenciaArchivo){
+        return documentoDependenciaRepository.documentosDependenciaXUsuarioxNotTransferencia(usuario.getId(), transferenciaArchivo.getId());
+    }
 }
