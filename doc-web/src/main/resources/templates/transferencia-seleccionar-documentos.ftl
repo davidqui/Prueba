@@ -35,7 +35,7 @@
         font-weight: bold;
     }
 </style>
-<div class="container-fluid">
+<div class="container-fluid" style="padding-bottom: 100px;">
 <h4>${pageTitle}</h4>
 <div id="accordion">
   <#assign hasAllSelected = false />            
@@ -91,11 +91,25 @@
                                   </thead>
                                   <tbody>
                                       <#list strd.documentosDependencia as doc>
-                                          <tr name="info-doc" id="info-doc">
-                                              <td><input type="checkbox" name="documentos"
+                                          <tr 
+                                              name="info-doc"
+                                              id="info-doc"
+                                              <#if controller.hasDocumentoEnTransferencia(doc.id, documentosEnTransferencia)>
+                                                class="bd-popover"
+                                                style="background-color: #00000047; cursor: not-allowed;"
+                                                data-toggle="popover" data-trigger="hover" data-placement="top" title="Documento en Transferencia" data-content="Este documento ya se encuentra asociado a una transferencia, desasócielo para poder agregarlo a este."
+                                              </#if>
+                                              >
+                                              <td><input type="checkbox"
                                                          onclick="resetCheckTrd();"
                                                          value="${doc.id}"
                                                          <#if controller.hasDocumento(doc.id, documentosXTransferenciaArchivo)>checked="checked"</#if>
+                                                         <#if controller.hasDocumentoEnTransferencia(doc.id, documentosEnTransferencia)>
+                                                         style="border: 1px solid red;"
+                                                         disabled
+                                                         <#else>
+                                                            name="documentos"
+                                                         </#if>
                                                          ></td>
                                               <td nowrap name="radicado">${doc.documento.radicado!"&lt;Sin radicado&gt;"}</td>
                                               <td name="asunto">${doc.documento.asunto!"&lt;Sin asunto&gt;"}</td>

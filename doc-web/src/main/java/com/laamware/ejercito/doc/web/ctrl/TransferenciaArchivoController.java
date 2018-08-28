@@ -420,9 +420,12 @@ public class TransferenciaArchivoController extends UtilController {
         if(! transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion))
             return "security-denied";
         List<TrdDTO> documentoXtrdDadoUsuario = documentoDependenciaService.documentoXtrdDadoUsuario(usuarioSesion);
+        List<DocumentoDependencia> documentosEnTransferencia = documentoDependenciaService.listarDocumentosOtrasTransferencias(usuarioSesion, transferenciaArchivo);
         List<TransferenciaArchivoDetalle> documentosXTransferenciaArchivo = transferenciaArchivoDetalleService.buscarDocumentosTransferencia(transferenciaArchivo);
+        
         model.addAttribute("trds", documentoXtrdDadoUsuario);
         model.addAttribute("documentosXTransferenciaArchivo", documentosXTransferenciaArchivo);
+                model.addAttribute("documentosEnTransferencia", documentosEnTransferencia);
         return "transferencia-seleccionar-documentos";
     }
     
@@ -538,6 +541,15 @@ public class TransferenciaArchivoController extends UtilController {
     public boolean hasDocumento(Integer id, List<TransferenciaArchivoDetalle> preseleccion){
         for (TransferenciaArchivoDetalle pr : preseleccion) {
             if(pr.getDocumentoDependencia().getId().equals(id)){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean hasDocumentoEnTransferencia(Integer id, List<DocumentoDependencia> preseleccion){
+        for (DocumentoDependencia pr : preseleccion) {
+            if(pr.getId().equals(id)){
                 return true;
             }
         }

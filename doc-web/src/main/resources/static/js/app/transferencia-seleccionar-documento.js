@@ -1,7 +1,7 @@
 function selectAllDocuments(form, button){
     var currentState = $("#selected-all-documentos").val() === 'true';
     
-    $("[id='info-doc']").each(function(){
+    $("[name='info-doc']").each(function(){
         if ($(this).css('display') != 'none') {
             $(this).find("[name='documentos']").prop('checked', currentState);
         }
@@ -31,8 +31,7 @@ function selectAllDocuments(form, button){
 
 function selectdivCheckbox(idDiv, idCheck){
     var currentState = idCheck.checked;
-    
-    $("#"+idDiv).find("#info-doc").each(function(){
+    $("#"+idDiv).find("[name='info-doc']").each(function(){
         if ($(this).css('display') != 'none') {
             $(this).find("[name='documentos']").prop('checked', currentState);
         }
@@ -84,21 +83,31 @@ function resetCheckTrd(){
     var counterDoc = 0;
     $('.trdPadre').each(function(){
         var flagSelect = true;
+        var selectVacio = true;
         if ($(this).css('display') != 'none') {
             $(this).find(".subTrd").each(function(){
                 var aux = $(this).find("[name='documentos']:checked").length
                 counterDoc += aux;
                 if ($(this).css('display') != 'none') {
-                    if ( aux === $(this).find("[name='documentos']").length) {
+                    if ( aux === $(this).find("[name='documentos']").length && $(this).find("[name='documentos']").length > 0) {
                        $(this).find("#trd-documentos").first().prop('checked', true);
+                       selectVacio = false;
                     }else{
-                        flagSelect = false;
-                        $(this).find("#trd-documentos").first().prop('checked', false);
+                        if ($(this).find("[name='documentos']").length < 1) {
+                            $(this).find("#trd-documentos").first().css("display", "none");
+                        }else{
+                            flagSelect = false;
+                            $(this).find("#trd-documentos").first().prop('checked', false);
+                        }
                     }
                 }
             });
             if (flagSelect) {
-                $(this).find("#trd-documentos").first().prop('checked', true);
+                if(selectVacio){
+                    $(this).find("#trd-documentos").first().css("display", "none");
+                }else{
+                    $(this).find("#trd-documentos").first().prop('checked', true);
+                }
             }else{
                 flagTodos = false;
                 $(this).find("#trd-documentos").first().prop('checked', false);
