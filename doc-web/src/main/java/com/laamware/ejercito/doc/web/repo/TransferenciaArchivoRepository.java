@@ -39,7 +39,46 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
             @Param("destinoUsuario") Integer destinoUsuario);
     
     
+    /**
+     * Consulta que se encarga de listar las transferencias por un usuario origen
+     */
+    String CONSULTALISTATRANSFERENCIAXUSUARIOORIGEN = ""
+            + "SELECT * "
+            + "from TRANSFERENCIA_ARCHIVO "
+            + "WHERE ORIGEN_USU_ID = :usuId "
+            + "and num_documentos > 0";
     
-    public List<TransferenciaArchivo> findAllByOrigenUsuarioId(Integer usuId);
-
+    /**
+     * Obtiene el numero de registros de transferencias por usuario de origen.
+     *
+     * @param usuId Identificador del Usuario
+     * @return Numero de registros.
+     */
+    @Query(value = "select count(1)\n"
+            + "from(\n"
+            + CONSULTALISTATRANSFERENCIAXUSUARIOORIGEN
+            + ") ta\n", nativeQuery = true)
+    int findCountByOrigenUsuarioId(@Param("usuId") Integer usuId);
+    
+    
+    /**
+     * Obtiene los registros dde transferencias por usuario de origen, de acuerdo a la fila
+     * inicial y final.
+     *
+     * @param usuId Identificador del usuario
+     * @param inicio Número de registro inicial
+     * @param fin Numero de registro final
+     * @return Lista de bandejas de entrada.
+     */
+    @Query(value = ""
+            + "select ta.*\n"
+            + "from(\n"
+            + "     select ta.*, rownum num_lineas\n"
+            + "     from(\n"
+            + CONSULTALISTATRANSFERENCIAXUSUARIOORIGEN
+            + "     ORDER BY FECHA_CREACION desc\n"
+            + "     )ta\n"
+            + ") ta\n"
+            + "where ta.num_lineas >= :inicio and ta.num_lineas <= :fin\n", nativeQuery = true)
+    List<TransferenciaArchivo> findAllByOrigenUsuarioId(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin);
 }

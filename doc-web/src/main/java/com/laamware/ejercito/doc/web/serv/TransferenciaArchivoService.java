@@ -8,6 +8,7 @@ import com.aspose.words.Paragraph;
 import com.aspose.words.Row;
 import com.aspose.words.Run;
 import com.aspose.words.Table;
+import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
@@ -37,6 +38,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -955,11 +957,29 @@ public class TransferenciaArchivoService {
     } 
         
 
-    public int findCountByOrigenUsuarioId(Integer usuId){
-        return 0;
+    
+    /**
+     * Obtiene el numero de transferencias por usuario de origen
+     *
+     * @param usuId Identificador del usuario
+     * @return Número de registros
+     */
+    public int findCountByOrigenUsuarioId(Integer usuId) {
+        return transferenciaRepository.findCountByOrigenUsuarioId(usuId);
     }
     
-    public List<TransferenciaArchivo> findAllByOrigenUsuarioId(Integer usuId){
-        return transferenciaRepository.findAllByOrigenUsuarioId(usuId);
+    
+    /**
+     * Obtiene los registros de de transferencias por usuario de origen, de acuerdo
+     * a la fila inicial y final.
+     *
+     * @param usuId Identificador del usuario
+     * @param inicio Numero de registro inicial
+     * @param fin Numero de registro final
+     * @return Lista de documentos
+     */
+    public List<TransferenciaArchivo> findAllByOrigenUsuarioId(Integer usuId, int inicio, int fin) {
+        List<TransferenciaArchivo> transferenciaArchivos = transferenciaRepository.findAllByOrigenUsuarioId(usuId, inicio, fin);        
+        return transferenciaArchivos;
     }
 }

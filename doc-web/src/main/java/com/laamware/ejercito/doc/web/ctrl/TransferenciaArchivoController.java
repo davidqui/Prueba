@@ -3,6 +3,7 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.aspose.words.License;
 import static com.laamware.ejercito.doc.web.ctrl.ExpedienteController.PATH;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
+import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
@@ -26,9 +27,11 @@ import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
 import com.laamware.ejercito.doc.web.serv.TransferenciaEstadoService;
 import com.laamware.ejercito.doc.web.serv.TransferenciaTransicionService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
+import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -110,31 +113,30 @@ public class TransferenciaArchivoController extends UtilController {
     private TransferenciaArchivoDetalleService transferenciaArchivoDetalleService;
     
     
+    @RequestMapping(value = "/listar", method = RequestMethod.GET)
     public String listarTransferencias(Principal principal, Model model,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize){
         final Usuario origenUsuario = getUsuario(principal);
         
         
-////        List<TransferenciaArchivo> expedientes = new ArrayList<>();
-////        int count = expedienteService.obtenerCountExpedientesPorUsuario(usuSesion.getId(), filtro, all);
-////        int totalPages = 0;
-////        String labelInformacion = "";
-////
-////        if (count > 0) {
-////            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
-////            totalPages = paginacionDTO.getTotalPages();
-////            expedientes = expedienteService.obtenerExpedientesDTOPorUsuarioPaginado(usuSesion.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(), filtro, all);
-////            labelInformacion = paginacionDTO.getLabelInformacion();
-////        }
-//
-//        model.addAttribute("expedientes", expedientes);
-//        model.addAttribute("pageIndex", pageIndex);
-//        model.addAttribute("totalPages", totalPages);
-//        model.addAttribute("labelInformacion", labelInformacion);
-//        model.addAttribute("pageSize", pageSize);
-        List<TransferenciaArchivo> transferenciasRealizadas = transferenciaService.findAllByOrigenUsuarioId(origenUsuario.getId());
-        model.addAttribute("transferenciasRealizadas", transferenciasRealizadas);
+        List<TransferenciaArchivo> traArchivosRecibidos = new ArrayList<>();
+        int count = transferenciaService.findCountByOrigenUsuarioId(origenUsuario.getId());
+        int totalPages = 0;
+        String labelInformacion = "";
+
+        if (count > 0) {
+            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+            totalPages = paginacionDTO.getTotalPages();
+            traArchivosRecibidos = transferenciaService.findAllByOrigenUsuarioId(origenUsuario.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            labelInformacion = paginacionDTO.getLabelInformacion();
+        }
+
+        model.addAttribute("traArchivosRecibidos", traArchivosRecibidos);
+        model.addAttribute("pageIndex", pageIndex);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("labelInformacion", labelInformacion);
+        model.addAttribute("pageSize", pageSize);
         return "transferencia-archivo-listar";
     }
 
@@ -506,6 +508,19 @@ public class TransferenciaArchivoController extends UtilController {
         List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(usuarioSesion);
         model.addAttribute("expedientes", expedientes);
         return "transferencia-resumen";
+    }
+
+    /**
+     * Retorna los valores para la paginación
+     *
+     * @param model
+     * @return
+     */
+    @ModelAttribute("pageSizes")
+    public List<Integer> pageSizes(Model model) {
+        List<Integer> list = Arrays.asList(10, 30, 50);
+        model.addAttribute("pageSizes", list);
+        return list;
     }
     
     

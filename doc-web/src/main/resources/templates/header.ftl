@@ -193,7 +193,7 @@
                 -->
                 <li class="nav-item">
                     <!--#181 se agrega loader --> 
-                    <a href="/transferencia-archivo/crear" class="btn btn-warning btn-sm" onclick="loading(event);">
+                    <a href="/transferencia-archivo/listar" class="btn btn-warning btn-sm" onclick="loading(event);">
                         <span class="hidden-md-down">Transferencia de Archivo</span>
                         <span class="hidden-lg-up">TAR</span>
                         </a>
