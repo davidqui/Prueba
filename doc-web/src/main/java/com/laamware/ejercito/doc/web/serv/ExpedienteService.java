@@ -166,16 +166,7 @@ public class ExpedienteService {
 
         expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_ENVIADO_APROBAR), usuarioSesion, null, null);
-
-        Map<String, Object> model = new HashMap();
-        model.put("usuario", usuarioSesion);
-        model.put("expediente", expediente);
-
-        try {
-            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_POR_APROBAR, expediente.getDepId().getJefe());
-        } catch (Exception ex) {
-            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
     }
 
     /**
@@ -309,6 +300,8 @@ public class ExpedienteService {
         Map<String, Object> model = new HashMap();
         model.put("usuario", usuarioSesion);
         model.put("expediente", expediente);
+        model.put("jefe", expediente.getDepId().getJefe());
+        model.put("usuarioCreador", expediente.getUsuCreacion());
         model.put("estado", "APROBADO");
 
         try {
