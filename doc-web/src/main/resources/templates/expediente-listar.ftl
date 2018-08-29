@@ -44,10 +44,10 @@
         <thead>
             <tr>
                 <th></th>
+                <th>TRD principal</th>
                 <th>Nombre</th>
                 <th>Fecha</th>
                 <th>Dependencia</th>
-                <th>TRD principal</th>
                 <th>Acción</th>
                 </tr>
             </thead>
@@ -61,10 +61,10 @@
                         <td>
                             <img class="svg" src="/img/folder.svg" alt=""/>
                             </td>
+                        <td class="${vclasses}">${exp.trdNomIdPrincipal!""}</td>
                         <td class="${vclasses}"><a href="/expediente/listarDocumentos?expId=${exp.expId}">${exp.expNombre!""}</a></td>
                         <td class="${vclasses}">${exp.fecCreacion?string('yyyy-MM-dd')}</td>
                         <td class="${vclasses}">${exp.depNombre!""}</td>
-                        <td class="${vclasses}">${exp.trdNomIdPrincipal!""}</td>
                         <td>
                             <a title="Ver detalle" href="/expediente/administrarExpediente?expId=${exp.expId}">
                                 <img class="card-img-top" src="/img/eye.svg" alt="">
