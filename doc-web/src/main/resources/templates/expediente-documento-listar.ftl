@@ -16,6 +16,10 @@
                 <a  class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="modal" data-trigger="hover" data-placement="right" title="Indexar documento" data-content="Pulse para indexar documento" style="float:left;" data-target="#agregarDocumento">Indexar Documento</a>
             </span>
         </#if>
+            <span>
+                <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=P" onclick="loading(event);" class="<#if tipoVisualizacion == 'P'>btn btn-primary btn-sm<#else>btn btn-secondary btn-sm</#if>" id="btn-paginado" onclick="selectVisualizacion(1)" style="width: 150px; margin-left:10px;">Paginado</a>
+                <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S" onclick="loading(event);" class="<#if tipoVisualizacion == 'S'>btn btn-primary btn-sm<#else>btn btn-secondary btn-sm</#if>" id="btn-serie" onclick="selectVisualizacion(2)" style="width: 150px;">Serie</a>
+            </span>
         <span>
     <a title="Administrar expediente" href="/expediente/administrarExpediente?expId=${expediente.expId}" onclick="loading(event);" style="float:right;" class="btn btn-secondary">
         <img class="card-img-top" src="/img/settings.svg" alt="">
@@ -26,14 +30,7 @@
         </span></a>
         </span>
     </div>
-    </br>
-    </br>
-    <div>
-        <label for="trd">Modo de visualización:</label>
-        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=P" onclick="loading(event);" class="<#if tipoVisualizacion == 'P'>btn btn-primary<#else>btn btn-default</#if>" id="btn-paginado" onclick="selectVisualizacion(1)" style="width: 150px; margin-left:10px;">Paginado</a>
-        <a href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S" onclick="loading(event);" class="<#if tipoVisualizacion == 'S'>btn btn-primary<#else>btn btn-default</#if>" id="btn-serie" onclick="selectVisualizacion(2)" style="width: 150px;">Serie</a>
-    </div>
-    
+        
     <#if tipoVisualizacion == 'P'>
         <#if documentos?size = 0 >
             </br>
@@ -80,10 +77,9 @@
             </#if>
         </#if>
     <#else>
-        </br>
-        </br>
         <#if !documentosSerie??>
             <#if serie??>
+                </br>
                 <a class="btn btn-info btn-sm" href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S">Regresar</a>
                 <h5>Serie: ${serie.codigo}. ${serie.nombre}</h5>
             </#if>
