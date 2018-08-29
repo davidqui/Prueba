@@ -27,7 +27,7 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "       DEP_JEFE.DEP_ID, "
             + "       DEP_JEFE.DEP_NOMBRE, "
             + "       TRDPRINCIPAL.TRD_ID, "
-            + "       TRDPRINCIPAL.TRD_NOMBRE, "
+            + "       TRDPRINCIPAL.TRD_CODIGO||' '||TRDPRINCIPAL.TRD_NOMBRE, "
             + "       DECODE(DEP_JEFE.USU_ID_JEFE,:usuId,1,0) indjefedependencia, "
             + "       DECODE(EXP.USU_CREACION, :usuId, 1, 0) indusucreador, "
             + "       IND_APROBADO_INICIAL IND_APROBADO_INICIAL, "
