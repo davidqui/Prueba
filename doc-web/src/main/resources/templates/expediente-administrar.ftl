@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#assign pageTitle = ""/>
 <#include "loader.ftl">
 <#include "bandeja-header.ftl">
@@ -168,7 +169,7 @@
             </a>
             <#if expediente.expTipoId == 2>
                 <a href="/expediente/trds-expediente/${expediente.expId}" class="btn btn-warning" >
-                    Modificar Trds
+                    Modificar TRDS
                 </a>
             </#if>
         </#if>

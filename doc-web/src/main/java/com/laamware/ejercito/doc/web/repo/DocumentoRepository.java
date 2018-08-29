@@ -520,22 +520,34 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + " DOC.CUANDO DESC                                                                  ")
     List<Documento> findBandejaTramite(String name, Date fechaInicial, Date fechaFinal);
 
+    /*
+	 * 2018-08-29 edison.gonzalez@controltechcg.com Issue #181 (SICDI-Controltech)
+	 * feature-181: Se adiciona los permisos de acceso de los usuarios de los
+         * expedientes.
+     */
     @Query(value = ""
             + "select count(1) "
             + "from( "
-            + "    select usu_id "
-            + "    from S_INSTANCIA_USUARIO "
-            + "    where usu_id = :usuId "
-            + "     and pin_id = :pinId "
-            + "    union "
-            + "    select c.usu_id "
-            + "    from DOCUMENTO_DEPENDENCIA a, "
-            + "         DOCUMENTO b, "
-            + "         usuario c "
-            + "    where b.doc_id = a.doc_id "
-            + "    and b.pin_id = :pinId "
-            + "    and c.usu_id = a.quien"
-            + "    and c.usu_id = :usuId "
+            + "     select usu_id "
+            + "     from S_INSTANCIA_USUARIO "
+            + "     where usu_id = :usuId "
+            + "      and pin_id = :pinId "
+            + "     union "
+            + "     select c.usu_id "
+            + "     from DOCUMENTO_DEPENDENCIA a "
+            + "     join DOCUMENTO b ON (b.doc_id = a.doc_id) "
+            + "     join USUARIO c   ON (c.usu_id = a.quien) "
+            + "     where b.pin_id = :pinId "
+            + "     and c.usu_id   = :usuId "
+            + "     union "
+            + "     select 1 "
+            + "     from expediente c "
+            + "     join exp_documento a ON (c.exp_id = a.exp_id and a.activo   = 1) "
+            + "     join documento b ON (b.doc_id   = a.doc_id) "
+            + "     join dependencia d ON (d.dep_id   = c.dep_id) "
+            + "     left outer join exp_usuario e ON (e.exp_id = c.exp_id and e.ind_aprobado = 1 and e.activo = 1) "
+            + "     where b.pin_id   = :pinId "
+            + "     and (d.usu_id_jefe = :usuId or e.usu_id = :usuId or c.usu_creacion = :usuId)"
             + ")", nativeQuery = true)
     Integer verificaAccesoDocumento(@Param("usuId") Integer usuId, @Param("pinId") String pinId);
 
@@ -675,9 +687,8 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     public BigDecimal verificaAccesoDocumentoActa(@Param("usu_id") Integer usuarioID, @Param("pin_id") String procesoInstanciaID);
 
     /**
-     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
-     * Obtiene el numero de registros de los documentos por expediente y
-     * usuario.
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181 Obtiene el numero
+     * de registros de los documentos por expediente y usuario.
      *
      * @param usuId identificador del usuario
      * @param expId identificador del expediente
@@ -690,9 +701,9 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     int findDocumentosByUsuIdAndExpIdCount(@Param("usuId") Integer usuId, @Param("expId") Long expId);
 
     /**
-     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
-     * Obtiene los registros de los documentos por usuario y expediente, de
-     * acuerdo a la fila inicial y final.
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181 Obtiene los
+     * registros de los documentos por usuario y expediente, de acuerdo a la
+     * fila inicial y final.
      *
      * @param usuId identificador del usuario
      * @param expId identificador del expediente
@@ -713,9 +724,8 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     List<Object[]> findDocumentosByUsuIdAndExpIdPaginado(@Param("usuId") Integer usuId, @Param("expId") Long expId, @Param("inicio") int inicio, @Param("fin") int fin);
 
     /**
-     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
-     * Obtiene los registros de los documentos por usuario, expediente y
-     * subserie.
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181 Obtiene los
+     * registros de los documentos por usuario, expediente y subserie.
      *
      * @param usuId Identificador del usuario
      * @param expId Identificador del expediente
@@ -728,8 +738,9 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     List<Object[]> findDocumentosByUsuIdAndExpIdAndTrdId(@Param("usuId") Integer usuId, @Param("expId") Long expId, @Param("trdId") int trdId);
 
     /**
-     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
-     * Obtiene la fechas minima de un expediente.
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181 Obtiene la fechas
+     * minima de un expediente.
+     *
      * @param expId Identificador del expediente
      * @return Fecha minima del expediente
      */
@@ -769,8 +780,9 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
     Object encuentrafechaMinimaExpediente(@Param("expId") Long expId);
 
     /**
-     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
-     * Obtiene la fecha máxima de un expediente.
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181 Obtiene la fecha
+     * máxima de un expediente.
+     *
      * @param expId Identificador del expediente
      * @return Fecha máxima del expediente
      */

@@ -119,7 +119,7 @@ public class ExpedienteService {
             throw new BusinessLogicException("La construcción del nombre requiere todos los campos exceptuando el ultimo");
         }
 
-        String nombre = expediente.getTrdIdPrincipal().getCodigo() + "-" + parNombreExpediente.getParNombre() +"-"
+        String nombre = parNombreExpediente.getParNombre() +"-"
                 + String.format("%03d", Integer.parseInt(numeroExpediente)) + "-" + Calendar.getInstance().get(Calendar.YEAR);
 
         if (!opcionalNombre.trim().equals("")) {
@@ -166,16 +166,7 @@ public class ExpedienteService {
 
         expedienteTransicionService.crearTransicion(expediente,
                 expedienteEstadoService.findById(ESTADO_ENVIADO_APROBAR), usuarioSesion, null, null);
-
-        Map<String, Object> model = new HashMap();
-        model.put("usuario", usuarioSesion);
-        model.put("expediente", expediente);
-
-        try {
-            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_POR_APROBAR, expediente.getDepId().getJefe());
-        } catch (Exception ex) {
-            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
     }
 
     /**
@@ -309,6 +300,8 @@ public class ExpedienteService {
         Map<String, Object> model = new HashMap();
         model.put("usuario", usuarioSesion);
         model.put("expediente", expediente);
+        model.put("jefe", expediente.getDepId().getJefe());
+        model.put("usuarioCreador", expediente.getUsuCreacion());
         model.put("estado", "APROBADO");
 
         try {
@@ -514,11 +507,12 @@ public class ExpedienteService {
                 expedienteEstadoService.findById(ESTADO_EXPEDIENTE_CERRADO), usuarioSesion, null, null);
 
         Map<String, Object> model = new HashMap();
-        model.put("usuario", usuarioSesion);
+        model.put("usuarioCreador", expediente.getUsuCreacion());
+        model.put("jefe", expediente.getDepId().getJefe());
         model.put("expediente", expediente);
 
         try {
-            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_CERRADO, expediente.getDepId().getJefe());
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_CERRADO, expediente.getUsuCreacion());
         } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -539,11 +533,12 @@ public class ExpedienteService {
                 expedienteEstadoService.findById(ESTADO_EXPEDIENTE_REABIERTO), usuarioSesion, null, null);
 
         Map<String, Object> model = new HashMap();
-        model.put("usuario", usuarioSesion);
+        model.put("usuarioCreador", expediente.getUsuCreacion());
+        model.put("jefe", expediente.getDepId().getJefe());
         model.put("expediente", expediente);
 
         try {
-            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_REABIERTO, expediente.getDepId().getJefe());
+            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_REABIERTO, expediente.getUsuCreacion());
         } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }

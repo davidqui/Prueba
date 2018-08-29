@@ -1,3 +1,4 @@
+<#setting number_format="computer">
 <#assign pageTitle = "Expedientes"/>
 <#include "bandeja-header.ftl">
 <#include "gen-paginacion.ftl">
@@ -24,6 +25,7 @@
             <input type="hidden" name="all" value="true">
             </form>
         </div>
+        
         <#if all?? && all>
     <a class="btn btn-link" href="/expediente/listarExpedientes?all=false&filtro=${filtro!""}">No mostrar expedientes cerrados</a>
         <#else>
@@ -44,11 +46,10 @@
         <thead>
             <tr>
                 <th></th>
+                <th>TRD principal</th>
                 <th>Nombre</th>
                 <th>Fecha</th>
                 <th>Dependencia</th>
-                <th>Usuario Creador</th>
-                <th>TRD principal</th>
                 <th>Acción</th>
                 </tr>
             </thead>
@@ -62,11 +63,10 @@
                         <td>
                             <img class="svg" src="/img/folder.svg" alt=""/>
                             </td>
+                        <td class="${vclasses}">${exp.trdNomIdPrincipal!""}</td>
                         <td class="${vclasses}"><a href="/expediente/listarDocumentos?expId=${exp.expId}">${exp.expNombre!""}</a></td>
                         <td class="${vclasses}">${exp.fecCreacion?string('yyyy-MM-dd')}</td>
                         <td class="${vclasses}">${exp.depNombre!""}</td>
-                        <td class="${vclasses}">${exp.usuarioCreador!""}</td>
-                        <td class="${vclasses}">${exp.trdNomIdPrincipal!""}</td>
                         <td>
                             <a title="Ver detalle" href="/expediente/administrarExpediente?expId=${exp.expId}">
                                 <img class="card-img-top" src="/img/eye.svg" alt="">

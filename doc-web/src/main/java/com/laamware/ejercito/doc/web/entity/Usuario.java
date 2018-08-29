@@ -223,7 +223,7 @@ public class Usuario extends AuditActivoModifySupport {
      * feature-gogs-7: Estado del usuario activo para hacer operaciones y la razón si este essta inhabilitado
      */
     @Column(name = "USU_ACTIVO")
-    private Boolean usuActivo;
+    private Boolean usuActivo = true;
     
     @ManyToOne
     @JoinColumn(name = "RAZ_ID")

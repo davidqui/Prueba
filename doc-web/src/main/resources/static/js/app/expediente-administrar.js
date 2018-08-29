@@ -170,21 +170,10 @@ function desvinculaDocumento(expId, docId){
             },
             error: function (data) {
                 $(".div-loader").css({ display: "none" });
-                var dataJSON = jQuery.parseJSON(data.responseText);
-                var arrayLength = dataJSON.length;
-                if(arrayLength > 0){
-                    $('#title-modal').html("Advertencia");
-                    var content = "<h5> Para realizar esta acción el expediente solo debe tener documentos con una sola TRD. </br></br>Las siguientes TRDS se encuentran asociadas a documentos: </h5></br>";
-                    content = content +" <ul>";
-                    for (var i = 0; i < arrayLength; i++) {
-                        var trd = dataJSON[i];
-                        content = content + "<li> "+trd.codigo+" "+ trd.nombre+"</li>";
-                    }
-                    content = content + "</ul>";
-                    $('#modal-body-info').html(content);
-                    $('#info-modal').modal('show');
-                }
-
+                $('#info-modal').modal('show');
+                $('#title-modal').html("Advertencia");
+                $('#modal-body-info').html("<h5> Error desvinculnado el documento. Comuniquese con el administrador</h5>");
+                $('#info-modal').modal('show');
             }
         });
     }
@@ -227,14 +216,14 @@ function selectVisualizacion(value){
     var btn1 = document.getElementById("btn-paginado");
     var btn2 = document.getElementById("btn-serie");
     if (value === 1){
-        btn1.classList.remove('btn-default');
+        btn1.classList.remove('btn-secondary');
         btn1.classList.add('btn-primary');
         btn2.classList.remove('btn-primary');
-        btn2.classList.add('btn-default');
+        btn2.classList.add('btn-secondary');
     }else{
         btn1.classList.remove('btn-primary');
-        btn1.classList.add('btn-default');
-        btn2.classList.remove('btn-default');
+        btn1.classList.add('btn-secondary');
+        btn2.classList.remove('btn-secondary');
         btn2.classList.add('btn-primary');
     }
 }
