@@ -663,7 +663,8 @@ public class ExpedienteController extends UtilController {
         if (!expediente.getIndAprobadoInicial()) {
             return new ResponseEntity<>("El expediente no ha sido aprobado por el jefe de la dependencia.", HttpStatus.UNAUTHORIZED);
         }
-        if (expediente.getIndCerrado() || !((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) && (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) && !(documento.getInstancia().getEstado().getId().equals(153))) {
+                
+        if (expediente.getIndCerrado() || !(documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno() || documento.esDocumentoEnviadoExterno()) && !(documento.getInstancia().getEstado().getId().equals(153))) {
             return new ResponseEntity<>("El documento no se encuentra en la etapa necesaria para agregarlo al expediente", HttpStatus.BAD_REQUEST);
         }
         if (!expTrdService.validateTrdByExpediente(expediente, documento.getTrd())) {
