@@ -109,12 +109,15 @@
                     </tbody>
                 </table>
             <#else>
+                </br>
+                </br>
                 <div class="jumbotron">
                     <h1 class="display-1">No hay registros</h1>
                 </div>
             </#if>
         <#else>
             <#if subserie??>
+                </br>
                 <a class="btn btn-info btn-sm" href="/expediente/listarDocumentos?expId=${expId}&tipoVisualizacion=S&trdId=${subserie.serie}">Regresar</a>
                 <h5>Subserie: ${subserie.codigo}. ${subserie.nombre}</h5>
             </#if>
