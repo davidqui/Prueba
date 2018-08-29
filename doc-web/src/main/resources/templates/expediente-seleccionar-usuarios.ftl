@@ -19,15 +19,9 @@
 <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModal" style="float: left; margin-left: 25px;" onclick="limpiarModales()">
     Agregar usuario
 </button>
-<#if esJefeDependencia || expediente.usuarioAsignado == 1 || !tieneCambios>
-    <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;" onclick="loading(event);">
-        Regresar a Expediente
-    </a>
-<#else>
-    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#enviarJefeModal" style="float: right;">
-        Enviar para aprobar
-    </button>
-</#if>
+<a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" style="float: right;" onclick="loading(event);">
+    Regresar a Expediente
+</a>
 <div class="container-fluid">
 
     <div style="display: grid; grid-gap: 5px; grid-template-columns: repeat(auto-fit, 450px); grid-template-rows: repeat(2, 180px); width: 100%;">
