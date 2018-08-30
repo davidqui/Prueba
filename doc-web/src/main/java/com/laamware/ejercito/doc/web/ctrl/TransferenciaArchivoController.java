@@ -837,30 +837,34 @@ public class TransferenciaArchivoController extends UtilController {
             @RequestParam(value = "justificacion") String justificacion,
             Principal principal, Model model) {
 
-        final Usuario origenUsuario = getUsuario(principal);
-        model.addAttribute("origenUsuario", origenUsuario);
-        model.addAttribute("cargoOrigen", cargoOrigen);
-        model.addAttribute("dependencia", origenUsuario.getDependencia());
-        model.addAttribute("justificacion", justificacion);
-        
-        if (destinoUsuarioID == null) {
-            model.addAttribute(AppConstants.FLASH_ERROR,"Debe seleccionar un usuario destino de la transferencia.");
+        try {
+            final Usuario origenUsuario = getUsuario(principal);
+            model.addAttribute("origenUsuario", origenUsuario);
+            model.addAttribute("cargoOrigen", cargoOrigen);
+            model.addAttribute("dependencia", origenUsuario.getDependencia());
+            model.addAttribute("justificacion", justificacion);
+            
+            if (destinoUsuarioID == null) {
+                model.addAttribute(AppConstants.FLASH_ERROR,"Debe seleccionar un usuario destino de la transferencia.");
+                return "transferencia-gestion-crear";
+            }
+            
+            final Usuario destinoUsuario = usuarioService.findOne(destinoUsuarioID);
+            model.addAttribute("destinoUsuario", destinoUsuario);
+            
+            final TransferenciaArchivoValidacionDTO validacionDTO = transferenciaService.validarTransferenciaGestion(origenUsuario,cargoOrigen,destinoUsuario, justificacion);
+            if (!validacionDTO.isOK()) {
+                model.addAttribute(AppConstants.FLASH_ERROR,buildFlashErrorMessage(validacionDTO));
+                return "transferencia-gestion-crear";
+            }
+            
+            TransferenciaArchivo ta = transferenciaService.crearEncabezadoTransferenciaGestion(origenUsuario, cargoOrigen, destinoUsuario, justificacion);
+            model.addAttribute(AppConstants.FLASH_SUCCESS,"El encabezado de la transferencia del archivo ha sido creada satisfactoriamente.");
+            System.err.println("tranns= "+ta);
+            return String.format("redirect:%s/seleccionar-documentos/%s", PATH, ta.getId());
+        } catch (Exception ex) {
+            model.addAttribute(AppConstants.FLASH_ERROR,"Error creando la transferencia. Por favor comuniquese con el administrador del sistema.");
             return "transferencia-gestion-crear";
         }
-        
-        final Usuario destinoUsuario = usuarioService.findOne(destinoUsuarioID);
-        model.addAttribute("destinoUsuario", destinoUsuario);
-
-        final TransferenciaArchivoValidacionDTO validacionDTO = transferenciaService.validarTransferenciaGestion(origenUsuario,cargoOrigen,destinoUsuario, justificacion);
-        if (!validacionDTO.isOK()) {
-            model.addAttribute(AppConstants.FLASH_ERROR,buildFlashErrorMessage(validacionDTO));
-            return "transferencia-gestion-crear";
-        }
-        
-        transferenciaService.crearEncabezadoTransferenciaGestion(origenUsuario, cargoOrigen, destinoUsuario, justificacion);
-        model.addAttribute(AppConstants.FLASH_SUCCESS,"El encabezado de la transferencia del archivo ha sido creada satisfactoriamente.");
-        
-        //Redireccionar a la pantalla de documentos y expedientes
-        return "transferencia-gestion-crear";
     }
 }

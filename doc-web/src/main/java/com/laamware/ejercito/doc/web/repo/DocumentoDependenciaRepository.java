@@ -4,7 +4,6 @@ import com.laamware.ejercito.doc.web.entity.Documento;
 import java.util.List;
 
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
-import java.util.Date;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 

@@ -1235,7 +1235,7 @@ public class TransferenciaArchivoService {
         return validacionDTO;
     }
     
-    public TransferenciaArchivo crearEncabezadoTransferenciaGestion(final Usuario usuarioOrigen, final Integer cargoOrigen, final Usuario destinoUsuario, final String justificacion){
+    public TransferenciaArchivo crearEncabezadoTransferenciaGestion(final Usuario usuarioOrigen, final Integer cargoOrigen, final Usuario destinoUsuario, final String justificacion) throws  Exception{
         
         TransferenciaArchivo ta = new TransferenciaArchivo();
         ta.setActivo(Boolean.TRUE);
@@ -1262,6 +1262,7 @@ public class TransferenciaArchivoService {
         ta.setJustificacion(justificacion);
         ta.setUsuarioAsignado(0);
         ta.setIndAprobado(0);
-        return ta;
+        
+        return transferenciaRepository.saveAndFlush(ta);
     }
 }
