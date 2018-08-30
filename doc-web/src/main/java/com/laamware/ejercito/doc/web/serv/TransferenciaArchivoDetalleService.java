@@ -28,6 +28,12 @@ public class TransferenciaArchivoDetalleService {
     @Autowired
     private TransferenciaArchivoDetalleRepository transferenciaArchivoDetalleRepository;
     
+    /**
+     * Servicio para documentos dependencia.
+     */
+    @Autowired
+    private DocumentoDependenciaService documentoDependenciaService;
+    
     
     public void guardarDocumentoTransferencia(TransferenciaArchivo transferenciaArchivo, 
         DocumentoDependencia documentoDependencia, Usuario usuario){
@@ -59,5 +65,14 @@ public class TransferenciaArchivoDetalleService {
         return transferenciaArchivoDetalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
     }
     
-    
+    public void transferirDocumentos(TransferenciaArchivo transferenciaArchivo){
+        List<TransferenciaArchivoDetalle> buscarDocumentosTransferencia = buscarDocumentosTransferencia(transferenciaArchivo);
+        for (TransferenciaArchivoDetalle transferenciaArchivoDetalle : buscarDocumentosTransferencia) {
+            transferenciaArchivoDetalle.setIndRealizado(0);
+            documentoDependenciaService.completarTransferencia(transferenciaArchivoDetalle.getDocumentoDependencia(), 
+                    transferenciaArchivoDetalle.getNuevoUsuario(), transferenciaArchivoDetalle.getNuevoDependencia(),
+                    transferenciaArchivo.getUsuDestinoCargo());
+        }
+    }
+
 }
