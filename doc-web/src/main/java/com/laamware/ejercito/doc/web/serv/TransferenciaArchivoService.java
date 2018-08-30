@@ -982,4 +982,29 @@ public class TransferenciaArchivoService {
         List<TransferenciaArchivo> transferenciaArchivos = transferenciaRepository.findAllByOrigenUsuarioId(usuId, inicio, fin);        
         return transferenciaArchivos;
     }
+    
+    
+    /**
+     * Obtiene el numero de transferencias por usuario destino
+     *
+     * @param usuId Identificador del usuario
+     * @return Número de registros
+     */
+    public int findCountByDestinoUsuarioId(Integer usuId) {
+        return transferenciaRepository.findCountByDestinoUsuarioId(usuId);
+    }
+    
+    /**
+     * Obtiene los registros de de transferencias por usuario destino, de acuerdo
+     * a la fila inicial y final.
+     *
+     * @param usuId Identificador del usuario
+     * @param inicio Numero de registro inicial
+     * @param fin Numero de registro final
+     * @return Lista de documentos
+     */
+    public List<TransferenciaArchivo> findAllByDestinoUsuarioId(Integer usuId, int inicio, int fin) {
+        List<TransferenciaArchivo> transferenciaArchivos = transferenciaRepository.findAllByDestinoUsuarioId(usuId, inicio, fin);        
+        return transferenciaArchivos;
+    }
 }
