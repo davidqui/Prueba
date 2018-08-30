@@ -1,6 +1,6 @@
 <#setting number_format="computer">
 
-<#assign pageTitle = "Selección de expediente" />
+<#assign pageTitle = "Resumen de Transferencia" />
 <#assign deferredJS = "" />
 
 <#import "spring.ftl" as spring />
@@ -10,7 +10,7 @@
 <#assign removeAllText = "Retirar todos" />
 <style>
     i {
-        border: solid red;
+        border: solid #2e73a1;
         border-width: 0 10px 10px 0;
         display: inline-block;
         padding: 10px;
@@ -45,10 +45,41 @@
     p{
         text-align: justify;
     }
+    
+    .card{
+        margin:0px;
+    }
+    
+    .modal-header{
+        background-color: #2e73a1;
+        color: white;
+    }
+    
+    .span-badge{
+        font-size: 14px;
+        padding: 4px 6px;
+        background-color: white;
+        color: #0275d8;
+        margin-left: 10px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    
+    @media only screen and (max-width: 800px) {
+        .col-sm-4{
+            width: 100%;
+        }
+        
+        .card{
+            margin: 20px 0px;
+        }
+    }
+    
+}
 </style>
 <div class="container-fluid">
 <h4>${pageTitle}</h4>
-<div class="row">
+<div class="row" style="padding-bottom: 70px;">
   <div class="col-xs-6 col-sm-4">
    <div class="card">
     <div class="card-header">
@@ -66,10 +97,12 @@
         <div class="card-block-scroll" style="height: 538px;">
             <table class="table">
                 <tbody>
-                    <#if documentos??>
-                        <#list documentos as doc>
-                            <td >${doc.asunto!"&lt;Sin asunto&gt;"}</td>
-                            <td nowrap name="radicado">${doc.radicado!"&lt;Sin radicado&gt;"}</td>
+                    <#if documentosXTransferenciaArchivo??>
+                        <#list documentosXTransferenciaArchivo as doc>
+                            <tr>
+                                <td nowrap name="radicado">${doc.documentoDependencia.documento.radicado!"&lt;Sin radicado&gt;"}</td>
+                                <td >${doc.documentoDependencia.documento.asunto!"&lt;Sin asunto&gt;"}</td>
+                            <tr>
                         </#list>
                     </#if>
                 </tbody>
@@ -77,6 +110,16 @@
         </div>
     </div>
   </div>
+  <#if transferenciaArchivo.usuarioAsignado = 0 && transferenciaArchivo.origenUsuario.id == usuario.id>
+    <a class="btn btn-primary" style="
+      width:  100%;
+      border-bottom-left-radius: 100px;
+      border-bottom-right-radius: 100px;
+    "
+     href="/transferencia-archivo/seleccionar-documentos/${(transferenciaArchivo.id)!""}">
+      Editar Documentos
+     </a>
+  </#if>
  </div>
 <div class="col-xs-6 col-sm-4">
     <div class="card">
@@ -95,11 +138,11 @@
             <div class="card-block-scroll" style="height: 538px;">
                 <table class="table">
                     <tbody>
-                        <#if expedientes??>
-                            <#list expedientes as exp>
+                        <#if expedientesSeleccionados??>
+                            <#list expedientesSeleccionados as exp>
                                 <tr>
-                                    <td>${exp.expNombre!"&lt;Sin asunto&gt;"}</td>
-                                    <td>${exp.depId.nombre}</td>
+                                    <td>${exp.expId.expNombre!"&lt;Sin asunto&gt;"}</td>
+                                    <td>${exp.expId.depId.nombre}</td>
                                 </tr>
                             </#list>
                         </#if>
@@ -108,82 +151,155 @@
           </div>
         </div>
     </div>
+    <#if transferenciaArchivo.usuarioAsignado = 0 && transferenciaArchivo.origenUsuario.id == usuario.id>
+        <a class="btn btn-primary" style="
+        width:  100%;
+        border-bottom-left-radius: 100px;
+        border-bottom-right-radius: 100px;
+        "
+        href="/transferencia-archivo/seleccionar-expediente/${(transferenciaArchivo.id)!""}">
+            Editar Expedientes
+        </a>
+    </#if>
 </div>
 <div class="col-xs-6 col-sm-4">
      <div class="card">
         <div class="card-header" style="text-align: center; padding: 16px; background-color: #f5f5f5; border-bottom: 1px solid #e5e5e5;">
-            <h4><b>MY. Robinson Gomez</b></h4>
+            <h4 style="margin:0;"><b>${(transferenciaArchivo.origenUsuario.usuGrado.id)!""} ${(transferenciaArchivo.origenUsuario.nombre)!""}</b></h4>
+            <span>${(transferenciaArchivo.origenDependencia.nombre)!""}</span>
             <p style="position:relative; margin-top: 25px; margin-bottom: 35px;"><i class="down object"></i></p>
-            <h4><b>CP. Alejando Herrera</b></h4>
+            <h4 style="margin:0;"><b>${(transferenciaArchivo.destinoUsuario.usuGrado.id)!""} ${(transferenciaArchivo.destinoUsuario.nombre)!""}</b></h4>
+            <span>${(transferenciaArchivo.destinoDependencia.nombre)!""}</span>
         </div>
-        <div class="card-block card-block-scroll" style="height: 500px;">
+        <div class="card-block card-block-scroll">
         <div>
-            <div><span>Número de documentos <b>7</b></span> <span style="float:right;">Número de expedientes <b>7</b></span></div>
+            <div><span>Número de documentos <b>${(documentosXTransferenciaArchivo?size)?string}</b></span> <span style="float:right;">Número de expedientes <b>${(expedientesSeleccionados?size)?string}</b></span></div>
         </div>
         </br>
-        <p><b>Fecha:</b> 24/08/2018</p>
-        <p><b>Estado:</b> Por Aprobar</p>
-        <p><b>Justificación:</b> This rather long paragraph consists of exactly 4,000 characters. Spaces, punctuation marks and carriage returns do count. With regard to those spaces, note that if you typically type a double-space at the end of a sentence as I do before beginning a new sentence in the same paragraph, the second space will be deleted automatically, i.e., all but the first space will be ignored. The total number of words in this paragraph is 733 and the average word length is 4.4 characters. The average number of words per sentence is 22. At the end of this paragraph is simply the alphabet starting with the letter A and ending with the letter H, in bold, to make it come out to exactly 4,000 characters and so you'll know when to stop scrolling down in order to see how big 4,000 character is if you want to add a message to the guestbook. Whew. This paragraph begins to repeat at this point, so you can stop reading now if you want to, which I would suggest, or you can choose to read it all again. This rather long paragraph consists of exactly 4,000 characters. Spaces, punctuation marks and carriage returns do count. With regard to those spaces, note that if you typically type a double-space at the end of a sentence as I do before beginning a new sentence in the same paragraph, the second space will be deleted automatically, i.e., all but the first space will be ignored. The total number of words in this paragraph is 733 and the average word length is 4.4 characters. The average number of words per sentence is 22. At the end of this paragraph is simply the alphabet starting with the letter A and ending with the letter H, in bold, to make it come out to exactly 4,000 characters and so you'll know when to stop scrolling down in order to see how big 4,000 character is if you want to add a message to the guestbook. Whew. This paragraph begins to repeat at this point, so you can stop reading now if you want to, which I would suggest, or you can choose to read it all again. This rather long paragraph consists of exactly 4,000 characters. Spaces, punctuation marks and carriage returns do count. With regard to those spaces, note that if you typically type a double-space at the end of a sentence as I do before beginning a new sentence in the same paragraph, the second space will be deleted automatically, i.e., all but the first space will be ignored. The total number of words in this paragraph is 733 and the average word length is 4.4 characters. The average number of words per sentence is 22. At the end of this paragraph is simply the alphabet starting with the letter A and ending with the letter H, in bold, to make it come out to exactly 4,000 characters and so you'll know when to stop scrolling down in order to see how big 4,000 character is if you want to add a message to the guestbook. Whew. This paragraph begins to repeat at this point, so you can stop reading now if you want to, which I would suggest, or you can choose to read it all again. This rather long paragraph consists of exactly 4,000 characters. Spaces, punctuation marks and carriage returns do count. With regard to those spaces, note that if you typically type a double-space at the end of a sentence as I do before beginning a new sentence in the same paragraph, the second space will be deleted automatically, i.e., all but the first space will be ignored. The total number of words in this paragraph is 733 and the average word length is 4.4 characters. The average number of words per sentence is 22. At the end of this paragraph is simply the alphabet starting with the letter A and ending with the letter H, in bold, to make it come out to exactly 4,000 characters and so you'll know when to stop scrolling down in order to see how big 4,000 character is if you want to add a message to the guestbook. Whew. This paragraph begins to repeat at this point, so you can stop reading now if you want to, which I would suggest, or you can choose to read it all again. ABCDEFGH</p>
+        <p><b>Fecha Creación:</b> ${(transferenciaArchivo.fechaCreacion?string('dd/MM/yyyy HH:mm'))!""}</p>
+        <p><b>Justificación:</b> ${(transferenciaArchivo.justificacion)!""}</p>
+      </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+          Transiciones
         </div>
+        <#if (transiciones??) && (transiciones?size > 0) >
+        <ul class="list-group list-group-flush" style="max-height: 165px;overflow: hidden;overflow-y: auto;">
+            <#list transiciones as tr>
+            <li class="list-group-item">
+                <strong>${(tr.traEstId.traEstNombre)!""}</strong>
+                <br/>
+                <small>${(tr.fecCreacion?string('dd/MM/yyyy HH:mm'))!""}</small>
+                <br/>
+                <ul>
+                    <li><b>Realizó</b>: ${(tr.usuCreacion.usuGrado.id)!""} ${(tr.usuCreacion.nombre)!""}</li>
+                </ul>
+            </li>
+            </#list>
+        </ul>
+        </#if>
+    </div>
+        <div class="card">
+        <div class="card-header">
+          Observaciones
+        </div>
+        <#if (observaciones??) && (observaciones?size > 0) >
+        <ul class="list-group list-group-flush" style="max-height: 165px;overflow: hidden;overflow-y: auto;">
+            <#list observaciones as observacion>
+            <li class="list-group-item">
+                <strong>${(observacion.usuId.usuGrado.id)!""}${(observacion.usuId.nombre)!""}</strong> --
+                <small>${(observacion.fecCreacion?string('dd/MM/yyyy HH:mm'))!""}</small>
+                <br/>
+                <p>${(observacion.traObservacion)!""}</p>
+            </li>
+            </#list>
+        </ul>
+        </#if>
     </div>
 </div>
     
 <div class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
-    <button type="submit" class="btn btn-primary">
-      Aprobar
-    </button>
+    <#if transferenciaArchivo.usuarioAsignado = 1 && transferenciaArchivo.destinoUsuario.id == usuario.id>
+        <button class="btn btn-primary" onclick="modalDestinatario(${(usuario.id)!""}, '${(usuario.nombre)!""}')" data-toggle="modal"  data-target="#destinatarioRecibir">
+          Recibir
+        </button>
+    </#if>
+    <#if transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id>
+        <button href="/transferencia-archivo/aprobar/${(transferenciaArchivo.id)!""}" class="btn btn-primary" data-toggle="modal"  data-target="#destinatarioRecibir">
+          Aprobar
+        </button>
+    </#if>
+    <#if transferenciaArchivo.usuarioAsignado = 0 && transferenciaArchivo.origenUsuario.id == usuario.id>
+        <#if (documentosXTransferenciaArchivo?size > 0 || expedientesSeleccionados?size > 0) >
+            <a href="/transferencia-archivo/enviar/${(transferenciaArchivo.id)!""}" class="btn btn-primary">
+              Transferir <span class="span-badge" id="counterExp">${(documentosXTransferenciaArchivo?size)?string} Documentos</span> <span class="span-badge" id="counterExp">${(expedientesSeleccionados?size)?string} expedientes</span>
+            </a>
+        </#if>
+        <a href="/transferencia-archivo/anular/${(transferenciaArchivo.id)!""}" class="btn btn-danger" data-toggle="modal"  data-target="#rechazar-modal">
+          Anular
+        </a>
+    </#if>
+    <#if (transferenciaArchivo.usuarioAsignado = 1 && transferenciaArchivo.destinoUsuario.id == usuario.id) || 
+(transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id)>
+        <button class="btn btn-danger" data-toggle="modal"  data-target="#rechazar-modal">
+          Rechazar
+        </button>
+    </#if>
 </div>
-<script>
-    function selectAllExpedientes(form, button){
-        var currentState = $("#selected-all-expedientes").val() === 'true';
 
-        $("[id='table-tr']").each(function(){
-            if ($(this).css('display') != 'none') {
-                $(this).find("[name='expedientes']").prop('checked', !currentState);
-            }
-        });
+<#-- Modal de aceptar por destinatario. -->
+<div class="modal fade" id="destinatarioRecibir" tabindex="-1" role="dialog" aria-labelledby="destinatarioRecibir" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Recibir Transferencia</h5>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body">                                        
+                        <div class="form-group">
+                            <label for="usuarioAsignado">Usuario (*)</label>
+                            <div class="input-group" style="width: 100%;">
+                                <input type="text" id="destinoUsuario_visible2" name="destinoUsuario_visible" class="form-control" value="" disabled />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="cargoAsignado2">Cargo (*)</label>
+                            <select class="form-control" id="cargoAsignado2" name="cargoAsignado">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="recibirDestinatario(${(transferenciaArchivo.id)!""})">Recibir</button>                                
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        if(currentState){
-            $("#selected-all-expedientes").val('false');
-            $(button).html('${selectAllText}');  
-        } else {
-            $("#selected-all-expedientes").val('true');                
-            $(button).html('${removeAllText}');
-        }
-        onSelectCounter(false);
-    }
-        
-    function onSelectCounter(changes){
-        var aux = $("[name='expedientes']:checked").length;
-        var aux2 = 0;
-        var aux3 = 0;
-        
-        if(changes){
-            $("[id='table-tr']").each(function(){
-                if ($(this).css('display') != 'none') {
-                    aux2 = $(this).find("[name='expedientes']").length;
-                    aux3 = $(this).find("[name='expedientes']:checked").length;
-                }
-            });
-            if(aux2 !== aux3 && changes){
-                $("#selected-all-expedientes").val('false');
-                $("#select-all-exp").html('${selectAllText}');
-            } else {
-                $("#selected-all-expedientes").val('true');                
-                $("#select-all-exp").html('${removeAllText}');
-            }
-        }
-        $("#counterExp").html(aux+" expedientes");
-    }
-        
-    $(document).ready(function(){
-        $("#expediente-buscar").on("keyup", function(){
-          var value = $(this).val().toLowerCase();
-          $("#table_expediente tr").filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-          });
-          onSelectCounter(true);
-        });
-    });   
-</script>
+<!-- Modal Rechazar -->
+<div class="modal fade" id="rechazar-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" style="overflow-y: auto;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="title-modal">Rechazar Transferencia</h5>
+      </div>
+      <div class="modal-body" id="modal-body-info">
+          <div class="form-group">
+            <label for="expDescripcion">Observación:</label>
+            <textarea class="form-control" rows="3" id="observacion" name="observacion" maxlength="1000"></textarea>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-danger" onclick="rechazarTransferencia(${(transferenciaArchivo.id)!""})">Rechazar</a>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+    
+<script src="/js/app/transferencia-resumen.js"></script>
 <#include "footer.ftl" />

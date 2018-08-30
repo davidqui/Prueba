@@ -19,6 +19,7 @@ import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.entity.PlantillaTransferenciaArchivo;
+import com.laamware.ejercito.doc.web.entity.TransExpedienteDetalle;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Trd;
@@ -104,7 +105,14 @@ public class TransferenciaArchivoService {
      * Separador de línea de mando.
      */
     private static final String LINEA_MANDO_SEPARATOR = "-";
-
+    
+    private static final Long TRANSFERENCIA_ESTADO_APROBADO = new Long(40);
+    private static final Long TRANSFERENCIA_ESTADO_PEDIENTE_AUTORIZACION = new Long(30);
+    private static final Long TRANSFERENCIA_ESTADO_RECHAZADO = new Long(50);
+    private static final Long TRANSFERENCIA_ESTADO_EN_CONSTRUCCION = new Long(10);
+    private static final Long TRANSFERENCIA_ESTADO_ANULADO = new Long(70);
+    private static final Long TRANSFERENCIA_ESTADO_TRANSFERIDO = new Long(60);
+    private static final Long TRANSFERENCIA_ESTADO_PEDIENTE_ACEPTACION = new Long(60);
     /**
      * Datasource del sistema.
      */
@@ -190,6 +198,30 @@ public class TransferenciaArchivoService {
     private ExpedienteService expedienteService;
 
 
+    /**
+     * Servicio para transiciones de transferencia de archivo
+     */
+    @Autowired
+    private TransferenciaTransicionService transferenciaTransicionService;
+    
+    /**
+     * Servicio de observaciones de transferencia de archivo
+     */
+    @Autowired
+    private TransferenciaObservacionService transferenciaObservacionService;
+    
+    /**
+     * servicio de expediente de una transferencia
+     */
+    @Autowired
+    private TransExpedienteDetalleService transExpedienteDetalleService;
+    
+    /**
+     *  servicio de transferencia archivo detalle
+     */
+    @Autowired
+    private TransferenciaArchivoDetalleService transferenciaArchivoDetalleService;
+    
     /**
      * Busca un registro de transferencia de archivo.
      *
@@ -953,8 +985,8 @@ public class TransferenciaArchivoService {
     /**
      * Permiso para editar una transferecia segun un usuario
      * @param transferenciaArchivo transferencia 
-     * @param usuario
-     * @return 
+     * @param usuario usuario para validar el permiso
+     * @return true si tiene permiso false de lo contrario
      */
     public boolean permisoEditarTransferencia( final TransferenciaArchivo transferenciaArchivo, final Usuario usuario){
         return transferenciaArchivo != null && usuario != null && 
@@ -962,8 +994,58 @@ public class TransferenciaArchivoService {
                 transferenciaArchivo.getIndAprobado() == 0 && 
                 transferenciaArchivo.getCreadorUsuario().getId().equals(usuario.getId());
     } 
-        
-
+    
+    /**
+     * Permiso para ver una transferecia segun un usuario
+     * @param transferenciaArchivo transferencia 
+     * @param usuario usuario para validar el permiso
+     * @return true si tiene permiso false de lo contrario
+     */
+    public boolean permisoVerTransferencia(final TransferenciaArchivo transferenciaArchivo, final Usuario usuario){
+        return transferenciaArchivo != null && usuario != null &&
+                ((transferenciaArchivo.getDestinoUsuario().getId().equals(usuario.getId()) && transferenciaArchivo.getUsuarioAsignado() >= 1) ||
+                transferenciaArchivo.getOrigenDependencia().getJefe().getId().equals(usuario.getId()) || 
+                  transferenciaArchivo.getOrigenUsuario().getId().equals(usuario.getId()));
+    }
+    
+    /**
+     * Permiso para aprobar una transgferencia destinatario segun un usuario
+     * @param transferenciaArchivo transferencia 
+     * @param usuario usuario para validar el permiso
+     * @return true si tiene permiso false de lo contrario
+     */
+    public boolean permisoAprobarDestinatario(final TransferenciaArchivo transferenciaArchivo, final Usuario usuario){
+        return transferenciaArchivo != null && usuario != null &&
+                transferenciaArchivo.getUsuarioAsignado() == 1 &&
+                transferenciaArchivo.getIndAprobado() == 0 && 
+                transferenciaArchivo.getDestinoUsuario().getId().equals(usuario.getId());
+    }
+    
+    /**
+     * Permiso para rechazar una transferecia segun un usuario
+     * @param transferenciaArchivo transferencia 
+     * @param usuario usuario para validar el permiso
+     * @return true si tiene permiso false de lo contrario
+     */
+    public boolean permisoRechazar(final TransferenciaArchivo transferenciaArchivo, final Usuario usuario){
+        return transferenciaArchivo != null && usuario != null && 
+                ((transferenciaArchivo.getUsuarioAsignado() == 1 && transferenciaArchivo.getDestinoUsuario().getId().equals(usuario.getId())) || 
+                (transferenciaArchivo.getUsuarioAsignado() == 2 && transferenciaArchivo.getOrigenDependencia().getJefe().getId().equals(usuario.getId())) ) && 
+                transferenciaArchivo.getIndAprobado() == 0;
+    }
+    
+    /**
+     * Permiso para aprobar una transferencia
+     * @param transferenciaArchivo transferencia 
+     * @param usuario usuario para validar el permiso
+     * @return true si tiene permiso false de lo contrario
+     */
+    public boolean permisoAprobarJefe(final TransferenciaArchivo transferenciaArchivo, final Usuario usuario){
+        return transferenciaArchivo != null && usuario != null &&
+                transferenciaArchivo.getUsuarioAsignado() == 2 && transferenciaArchivo.getOrigenDependencia().getJefe().getId().equals(usuario.getId()) &&
+                transferenciaArchivo.getIndAprobado() == 0;
+    }
+    
     
     /**
      * Obtiene el numero de transferencias por usuario de origen
@@ -988,6 +1070,76 @@ public class TransferenciaArchivoService {
     public List<TransferenciaArchivo> findAllByOrigenUsuarioId(Integer usuId, int inicio, int fin) {
         List<TransferenciaArchivo> transferenciaArchivos = transferenciaRepository.findAllByOrigenUsuarioId(usuId, inicio, fin);        
         return transferenciaArchivos;
+    }
+    
+    /**
+     * Aprueba una transferencia archivo, actualiza las transiciones.
+     * @param transferenciaArchivo transferencia
+     * @param cargo cargo con el que se aprueba
+     * @param usuario usuario que aprueba
+     */
+    public void aprobarDestinatario(TransferenciaArchivo transferenciaArchivo, Cargo cargo, Usuario usuario){
+        transferenciaArchivo.setUsuarioAsignado(2);
+        transferenciaArchivo.setUsuDestinoCargo(cargo);
+        transferenciaRepository.save(transferenciaArchivo);
+        transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_APROBADO);
+        transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_PEDIENTE_AUTORIZACION);
+    }
+    
+    /***
+     * Método para rechazar una transferencia 
+     * @param transferenciaArchivo transferencia a rechazar
+     * @param Observacion observación realizada
+     * @param usuario usuario que realiza la acción
+     */
+    public void rechazarTransferencia(TransferenciaArchivo transferenciaArchivo, String Observacion, Usuario usuario){
+        transferenciaArchivo.setUsuarioAsignado(0);
+        transferenciaArchivo.setUsuDestinoCargo(null);
+        transferenciaRepository.save(transferenciaArchivo);
+        if (Observacion != null && Observacion.trim().length() > 0) {
+            transferenciaObservacionService.crearObservacon(transferenciaArchivo, Observacion, usuario);
+        }
+        transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_RECHAZADO);
+        transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_EN_CONSTRUCCION);
+    }
+    
+    /***
+     * Método para enviar una transferencia 
+     * @param transferenciaArchivo transferencia a rechazar
+     * @param usuario usuario que realiza la acción
+     */
+    public void enviarTransferencia(TransferenciaArchivo transferenciaArchivo, Usuario usuario){
+        transferenciaArchivo.setUsuarioAsignado(1);
+        transferenciaRepository.save(transferenciaArchivo);
+        transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_PEDIENTE_ACEPTACION);
+    }
+    
+    /***
+     * Método para anular una transferencia 
+     * @param transferenciaArchivo transferencia a rechazar
+     * @param usuario usuario que realiza la acción
+     */
+    public void anularTransferencia(TransferenciaArchivo transferenciaArchivo, Usuario usuario){
+        transferenciaArchivo.setActivo(false);
+        transferenciaArchivo.setEstado("C");
+        transExpedienteDetalleService.eliminarExpedientesTransferencia(transferenciaArchivo);
+        transferenciaArchivoDetalleService.eliminarDocumentosTransferencia(transferenciaArchivo);
+        transferenciaRepository.save(transferenciaArchivo);
+        transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_ANULADO);
+    }
+    
+    /***
+     * Método para aprobar una transferencia 
+     * @param transferenciaArchivo transferencia a rechazar
+     * @param usuario usuario que realiza la acción
+     */
+    public void aprobarTransferencia(TransferenciaArchivo transferenciaArchivo, Usuario usuario){
+        transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_APROBADO);
+        transferenciaArchivoDetalleService.transferirDocumentos(transferenciaArchivo);
+        transExpedienteDetalleService.transferirExpedientes(transferenciaArchivo, usuario);
+        transferenciaArchivo.setIndAprobado(1);
+        transferenciaRepository.save(transferenciaArchivo);
+        transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_TRANSFERIDO);
     }
     
     

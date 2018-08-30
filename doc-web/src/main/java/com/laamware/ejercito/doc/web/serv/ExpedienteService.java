@@ -652,7 +652,11 @@ public class ExpedienteService {
         return null;
     }
     
-    
+    /**
+     * Lista los expedientes dados por un usuario creador
+     * @param usuario
+     * @return 
+     */
     public List<Expediente> getExpedientesXusuarioCreador(Usuario usuario){
         return expedienteRepository.getByUsuCreacion(usuario);
     }

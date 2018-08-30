@@ -65,9 +65,26 @@
             <#if !exp.indCerrado?? || exp.indCerrado == true >
                 <#assign vclasses = "text-danger" />
             </#if>
-             <tr id="table-tr">
+             <tr 
+                id="table-tr"
+                <#if controller.hasExpediente(exp.expId, expedientesEnOtrasTransferencias)>
+                 class="bd-popover"
+                 style="background-color: #00000047; cursor: not-allowed;"
+                 data-toggle="popover" data-trigger="hover" data-placement="top" title="Expediente en Transferencia" data-content="Este expediente ya se encuentra asociado a una transferencia, desasócielo para poder agregarlo a este."
+               </#if>
+            >
                 <td>
-                    <input type="checkbox" name="expedientes" onclick="onSelectCounter(true);" value="${exp.expId}">
+                    <input 
+                        type="checkbox"  
+                        onclick="onSelectCounter(true);" 
+                        value="${exp.expId}"
+                        <#if controller.hasExpediente(exp.expId, expedientesSeleccionados)>checked="checked"</#if>
+                        <#if controller.hasExpediente(exp.expId, expedientesEnOtrasTransferencias)>
+                            disabled
+                        <#else>
+                            name="expedientes"
+                        </#if>
+                        />
                 </td>
                 <td class="${vclasses}"><a href="/expediente/listarDocumentos?expId=${exp.expId}" target="_blank">${exp.expNombre!""}</a></td>
                 <td class="${vclasses}">${exp.fecCreacion?string('yyyy-MM-dd')}</td>
@@ -136,5 +153,8 @@
           onSelectCounter(true);
         });
     });   
+    $( document ).ready(function() {
+        onSelectCounter();
+    });
 </script>
 <#include "footer.ftl" />
