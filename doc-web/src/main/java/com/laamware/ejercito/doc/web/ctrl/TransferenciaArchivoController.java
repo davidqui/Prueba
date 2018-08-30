@@ -1,7 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.aspose.words.License;
-import static com.laamware.ejercito.doc.web.ctrl.ExpedienteController.PATH;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
@@ -9,15 +8,12 @@ import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
-import com.laamware.ejercito.doc.web.entity.ExpTrd;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.TransferenciaTransicion;
-import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
-import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteService;
@@ -64,7 +60,10 @@ public class TransferenciaArchivoController extends UtilController {
             = Logger.getLogger(TransferenciaArchivoController.class.getName());
 
     public static final Long ESTADO_RECHAZADO = new Long(50);
-
+    private static final String TRANSFERENCIASREALIZADAS = "ORIGEN";
+    private static final String TRANSFERENCIASRECIBIDAS = "DESTINO";
+    
+    
     /**
      * Ruta raíz del controlador.
      */
@@ -112,9 +111,26 @@ public class TransferenciaArchivoController extends UtilController {
     @Autowired
     private TransferenciaArchivoDetalleService transferenciaArchivoDetalleService;
 
-    private static final String TRANSFERENCIASREALIZADAS = "ORIGEN";
-    private static final String TRANSFERENCIASRECIBIDAS = "DESTINO";
+    /**
+     * servicio de transiciones de transferencia
+     */
+    @Autowired
+    private TransferenciaTransicionService transferenciaTransicionService;
 
+    /**
+     * *
+     * servicio de estado de una transferencia
+     */
+    @Autowired
+    private TransferenciaEstadoService transferenciaEstadoService;
+
+    /**
+     * servicio de expediente de una transferencia
+     */
+    @Autowired
+    private TransExpedienteDetalleService transExpedienteDetalleService;
+
+    
     @RequestMapping(value = "/listar", method = RequestMethod.GET)
     public String listarTransferencias(Principal principal, Model model,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
@@ -156,26 +172,8 @@ public class TransferenciaArchivoController extends UtilController {
         
         return "transferencia-archivo-listar";
     }
-
-    /**
-     * servicio de transiciones de transferencia
-     */
-    @Autowired
-    private TransferenciaTransicionService transferenciaTransicionService;
-
-    /**
-     * *
-     * servicio de estado de una transferencia
-     */
-    @Autowired
-    private TransferenciaEstadoService transferenciaEstadoService;
-
-    /**
-     * servicio de expediente de una transferencia
-     */
-    @Autowired
-    private TransExpedienteDetalleService transExpedienteDetalleService;
-
+    
+    
     /**
      * Presenta el formulario de creación para el proceso de transferencia de
      * archivo.
