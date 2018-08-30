@@ -197,11 +197,11 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
             + "select count(distinct b.doc_id)\n"
             + "from DOCUMENTO_DEPENDENCIA a,\n"
             + "     DOCUMENTO b,\n"
-            + "     TRD c"
+            + "     TRD c\n"
             + "where c.trd_id = b.trd_id\n"
             + "and b.doc_id   = a.doc_id\n"
             + "and a.activo = 1\n"
-            + "and trunc(b.DOC_FEC_RADICADO) >= nvl(add_months(trunc(sysdate), -12*c.TRD_RET_ARCHIVO_GENERAL), trunc(b.DOC_FEC_RADICADO))"
+            + "and trunc(b.DOC_FEC_RADICADO) >= nvl(add_months(trunc(sysdate), -12*c.TRD_RET_ARCHIVO_GENERAL), trunc(b.DOC_FEC_RADICADO))\n"
             + "and a.quien    = :usuId\n"
             + "and a.cargo_id = :cargoId\n"
             + "and not exists(\n"
@@ -211,7 +211,6 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
             + "    and activo = 1\n"
             + "    and b.ind_realizado = 0\n"
             + "    and b.doc_id = a.doc_id\n"
-            + ")", nativeQuery = true
-    )
+            + ")", nativeQuery = true)
     int cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(@Param("usuId") Integer usuID, @Param("cargoId") Integer cargoId);
 }
