@@ -656,4 +656,14 @@ public class ExpedienteService {
     public List<Expediente> getExpedientesXusuarioCreador(Usuario usuario){
         return expedienteRepository.getByUsuCreacion(usuario);
     }
+    
+    /**
+     * Retorna la cantidad de expedientes posibles que tiene un usuario, 
+     * cuyos expedientes no se encuentren en proceso de transferencia.
+     * @param usuID Identificador del usuario
+     * @return Número de documentos
+     */
+    public int cantidadExpedientesPosibleTransferenciaXusuId(Integer usuID){
+        return expedienteRepository.cantidadExpedientesPosibleTransferenciaXusuId(usuID);
+    }
 }

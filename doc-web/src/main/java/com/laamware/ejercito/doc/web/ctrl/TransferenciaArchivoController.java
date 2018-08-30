@@ -9,6 +9,7 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Expediente;
+import com.laamware.ejercito.doc.web.entity.TransJustificacionDefecto;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.TransferenciaTransicion;
@@ -18,6 +19,7 @@ import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteService;
 import com.laamware.ejercito.doc.web.serv.TransExpedienteDetalleService;
+import com.laamware.ejercito.doc.web.serv.TransJustificacionDefectoService;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoDetalleService;
 import com.laamware.ejercito.doc.web.serv.TransferenciaArchivoService;
 import com.laamware.ejercito.doc.web.serv.TransferenciaEstadoService;
@@ -129,6 +131,9 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @Autowired
     private TransExpedienteDetalleService transExpedienteDetalleService;
+    
+    @Autowired
+    private TransJustificacionDefectoService transJustificacionDefectoService;
 
     
     @RequestMapping(value = "/listar", method = RequestMethod.GET)
@@ -173,7 +178,6 @@ public class TransferenciaArchivoController extends UtilController {
         return "transferencia-archivo-listar";
     }
     
-    
     /**
      * Presenta el formulario de creación para el proceso de transferencia de
      * archivo.
@@ -185,8 +189,12 @@ public class TransferenciaArchivoController extends UtilController {
     @RequestMapping(value = "/crear", method = RequestMethod.GET)
     public String presentarFormularioCreacionGET(Principal principal, Model model) {
         final Usuario origenUsuario = getUsuario(principal);
+        model.addAttribute("origenUsuario", origenUsuario);
 
-        final List<TransferenciaArchivo> transferenciasRecibidas = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
+        model.addAttribute("cargoOrigen", origenUsuario.getUsuCargoPrincipalId().getId());
+
+        final List<TransferenciaArchivo> transferenciasRecibidas
+                = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
 
         final Integer numArchivosRegistrosTotal = transferenciaService.countAllArchivoActivoByUsuario(origenUsuario.getId());
@@ -300,7 +308,8 @@ public class TransferenciaArchivoController extends UtilController {
         model.addAttribute("nombreCargoDestino", cDestino.getCarNombre());
 
         return "transferencia-archivo-confirmar";
-    }
+    }   
+    
 
     /*
         2018-03-12 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech) 
@@ -582,4 +591,92 @@ public class TransferenciaArchivoController extends UtilController {
         return false;
     }
 
+    
+    /**
+     * Lista las observaciones por defecto activas, ordenadas por texto.
+     *
+     * @return Lista de observaciones por defecto activas.
+     */
+    /*
+     * 2018-05-24 jgarcia@controltechcg.com Issue #172 (SICDI-Controltech)
+     * feature-172: Lista de observaciones por defecto para el modelo de UI.
+     */
+    @ModelAttribute("justificacionesDefecto")
+    public List<TransJustificacionDefecto> listarJustificacionesPorDefectoActivas() {
+        return transJustificacionDefectoService.listarActivas();
+    }
+    
+    /**
+     * Presenta el formulario de creación para el proceso de transferencia de
+     * archivo en gestion.
+     *
+     * @param principal Objeto principal de A&A.
+     * @param model Modelo de UI.
+     * @return Nombre del template Freemarker del formulario.
+     */
+    @RequestMapping(value = "/crearTransferenciaGestion", method = RequestMethod.GET)
+    public String crearFormularioTransferenciaGestionGET(Principal principal, Model model) {
+        final Usuario origenUsuario = getUsuario(principal);
+        
+        model.addAttribute("origenUsuario", origenUsuario);
+        model.addAttribute("dependencia", origenUsuario.getDependencia());
+
+        if(origenUsuario.getUsuCargoPrincipalId()== null){
+            model.addAttribute(AppConstants.FLASH_ERROR,"ATENCIÓN: El usuario en sesión no tiene cargo principal en el sistema.");
+        }
+        
+        if (!transferenciaService.hayPlantillaActiva()) {
+            model.addAttribute(AppConstants.FLASH_ERROR,"ATENCIÓN: No hay plantilla activa para la generación del acta de transferencia de archivo.");
+        }
+
+        return "transferencia-gestion-crear";
+    }
+
+    /**
+     * Valida el formulario de creación de la transferencia. En caso exitoso,
+     * redirecciona al formulario de confirmación; de lo contrario, redirecciona
+     * al formulario de creación, indicando los errores en la operación.
+     *
+     * @param origenUsuarioID ID del usuario de origen de la transferencia.
+     * @param destinoUsuarioID ID del usuario de destino de la transferencia.
+     * @param justificacion
+     * @param cargoOrigen
+     * @param principal Objeto principal de A&A.
+     * @param model Modelo de UI.
+     * @return Nombre del template Freemarker redirigido.
+     */
+    @RequestMapping(value = "/crearTransferenciaGestion", method = RequestMethod.POST)
+    public String crearFormularioTransferenciaGestionPOST(
+            @RequestParam("origenUsuario") Integer origenUsuarioID,
+            @RequestParam("destinoUsuario") Integer destinoUsuarioID,
+            @RequestParam(value = "cargoOrigen") Integer cargoOrigen,
+            @RequestParam(value = "justificacion") String justificacion,
+            Principal principal, Model model) {
+
+        final Usuario origenUsuario = getUsuario(principal);
+        model.addAttribute("origenUsuario", origenUsuario);
+        model.addAttribute("cargoOrigen", cargoOrigen);
+        model.addAttribute("dependencia", origenUsuario.getDependencia());
+        model.addAttribute("justificacion", justificacion);
+        
+        if (destinoUsuarioID == null) {
+            model.addAttribute(AppConstants.FLASH_ERROR,"Debe seleccionar un usuario destino de la transferencia.");
+            return "transferencia-gestion-crear";
+        }
+        
+        final Usuario destinoUsuario = usuarioService.findOne(destinoUsuarioID);
+        model.addAttribute("destinoUsuario", destinoUsuario);
+
+        final TransferenciaArchivoValidacionDTO validacionDTO = transferenciaService.validarTransferenciaGestion(origenUsuario,cargoOrigen,destinoUsuario, justificacion);
+        if (!validacionDTO.isOK()) {
+            model.addAttribute(AppConstants.FLASH_ERROR,buildFlashErrorMessage(validacionDTO));
+            return "transferencia-gestion-crear";
+        }
+        
+        transferenciaService.crearEncabezadoTransferenciaGestion(origenUsuario, cargoOrigen, destinoUsuario, justificacion);
+        model.addAttribute(AppConstants.FLASH_SUCCESS,"El encabezado de la transferencia del archivo ha sido creada satisfactoriamente.");
+        
+        //Redireccionar a la pantalla de documentos y expedientes
+        return "transferencia-gestion-crear";
+    }
 }

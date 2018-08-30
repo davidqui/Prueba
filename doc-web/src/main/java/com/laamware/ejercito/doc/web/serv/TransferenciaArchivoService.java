@@ -33,6 +33,7 @@ import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepositor
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
+import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.NumeroVersionComparator;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -181,6 +182,12 @@ public class TransferenciaArchivoService {
      */
     @Autowired
     CargosRepository cargosRepository;
+    
+    @Autowired
+    private DocumentoDependenciaService documentoDependenciaService;
+    
+    @Autowired
+    private ExpedienteService expedienteService;
 
 
     /**
@@ -1006,5 +1013,103 @@ public class TransferenciaArchivoService {
     public List<TransferenciaArchivo> findAllByDestinoUsuarioId(Integer usuId, int inicio, int fin) {
         List<TransferenciaArchivo> transferenciaArchivos = transferenciaRepository.findAllByDestinoUsuarioId(usuId, inicio, fin);        
         return transferenciaArchivos;
+    }
+    
+    /**
+     * Valida los parámetros de entrada el proceso de transferencia.
+     *
+     * @param origenUsuario Usuario origen de la transferencia.
+     * @param cargoOrigen
+     * @param destinoUsuario Usuario destino de la transferencia.
+     * @param justificacion Justificacion de la transferencia
+     * @return DTO con los resultados de la validación.
+     */
+    public TransferenciaArchivoValidacionDTO validarTransferenciaGestion(
+            final Usuario origenUsuario, final Integer cargoOrigen, final Usuario destinoUsuario, final String justificacion) {
+        final TransferenciaArchivoValidacionDTO validacionDTO = new TransferenciaArchivoValidacionDTO();
+
+        final PlantillaTransferenciaArchivo plantilla = plantillaRepository.findByActivoTrue();
+        if (plantilla == null) {
+            validacionDTO.addError("ATENCIÓN: No hay plantilla activa para la generación del acta de transferencia de archivo.");
+        }
+
+        if (origenUsuario == null) {
+            validacionDTO.addError("Debe seleccionar un usuario origen de la transferencia.");
+        } else {
+            if (origenUsuario.getClasificacion() == null) {
+                validacionDTO.addError("El usuario origen "+ getUsuarioDescripcion(origenUsuario, false) + " no tiene una clasificación configurada en el sistema.");
+            } else if (!origenUsuario.getClasificacion().getActivo()) {
+                validacionDTO.addError("El usuario origen "+ getUsuarioDescripcion(origenUsuario, false) + " no tiene una clasificación activa en el sistema ["+ origenUsuario.getClasificacion().getNombre()+ "].");
+            }
+        }
+
+        if (destinoUsuario == null) {
+            validacionDTO.addError("Debe seleccionar un usuario destino de la transferencia.");
+        } else if (!destinoUsuario.getActivo()) {
+            validacionDTO.addError("El usuario destino "+ getUsuarioDescripcion(destinoUsuario, false) + " no se encuentra activo en el sistema.");
+        } else {
+            if (destinoUsuario.getClasificacion() == null) {
+                validacionDTO.addError("El usuario destino "+ getUsuarioDescripcion(destinoUsuario, false) + " no tiene una clasificación configurada en el sistema.");
+            } else if (!destinoUsuario.getClasificacion().getActivo()) {
+                validacionDTO.addError("El usuario destino "+ getUsuarioDescripcion(destinoUsuario, false) + " no tiene una clasificación activa en el sistema ["+ destinoUsuario.getClasificacion().getNombre()+ "].");
+            }
+        }
+
+        if (origenUsuario != null && destinoUsuario != null) {
+            if (destinoUsuario.getId().equals(origenUsuario.getId())) {
+                validacionDTO.addError("Debe seleccionar un usuario destino diferente al usuario origen.");
+            } else {
+                if (origenUsuario.getClasificacion() != null && destinoUsuario.getClasificacion() != null && destinoUsuario.getClasificacion().getOrden().compareTo(origenUsuario.getClasificacion().getOrden()) < 0) {
+                    validacionDTO.addError("El usuario destino "+ getUsuarioDescripcion(destinoUsuario, true) + " tiene una clasificación menor que la clasificación del usuario origen "+ getUsuarioDescripcion(origenUsuario, true) + ".");
+                }
+            }
+        }
+        
+        if(justificacion == null || justificacion.trim().length() == 0){
+            validacionDTO.addError("La justificación es obligatoria.");
+        }
+        
+        if(cargoOrigen == null){
+            validacionDTO.addError("El cargo del usuario emisor es obligatorio.");
+        }
+        
+        final int numDocumentosPosibles = documentoDependenciaService.cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(origenUsuario.getId(), cargoOrigen);
+        final int numExpedientesPosibles = expedienteService.cantidadExpedientesPosibleTransferenciaXusuId(cargoOrigen);
+        
+        if( numDocumentosPosibles == 0 && numExpedientesPosibles == 0){
+            validacionDTO.addError("El usuario emisor no tiene documentos ni expedientes para realizar una transferencia.");
+        }
+
+        return validacionDTO;
+    }
+    
+    public TransferenciaArchivo crearEncabezadoTransferenciaGestion(final Usuario usuarioOrigen, final Integer cargoOrigen, final Usuario destinoUsuario, final String justificacion){
+        
+        TransferenciaArchivo ta = new TransferenciaArchivo();
+        ta.setActivo(Boolean.TRUE);
+        ta.setEstado(TransferenciaArchivo.CREADA_ESTADO);
+        ta.setCreadorUsuario(usuarioOrigen);
+        ta.setCreadorDependencia(usuarioOrigen.getDependencia());
+        ta.setCreadorGrado(usuarioOrigen.getUsuGrado());
+        ta.setUsuCreadorCargo(cargosRepository.getOne(cargoOrigen));
+        ta.setFechaCreacion(new Date());
+        ta.setOrigenUsuario(usuarioOrigen);
+        ta.setOrigenDependencia(usuarioOrigen.getDependencia());
+        ta.setOrigenClasificacion(usuarioOrigen.getClasificacion());
+        ta.setOrigenGrado(usuarioOrigen.getUsuGrado());
+        ta.setUsuOrigenCargo(cargosRepository.getOne(cargoOrigen));
+        ta.setOrigenUsuario(usuarioOrigen);
+        ta.setOrigenDependencia(usuarioOrigen.getDependencia());
+        ta.setOrigenClasificacion(usuarioOrigen.getClasificacion());
+        ta.setOrigenGrado(usuarioOrigen.getUsuGrado());
+        ta.setUsuOrigenCargo(cargosRepository.getOne(cargoOrigen));
+        ta.setDestinoUsuario(usuarioOrigen);
+        ta.setDestinoDependencia(usuarioOrigen.getDependencia());
+        ta.setDestinoClasificacion(usuarioOrigen.getClasificacion());
+        ta.setDestinoGrado(usuarioOrigen.getUsuGrado());
+        ta.setJustificacion(justificacion);
+        ta.setUsuarioAsignado(0);
+        ta.setIndAprobado(0);
+        return ta;
     }
 }

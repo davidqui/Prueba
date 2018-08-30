@@ -163,22 +163,54 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * feature-162.
      */
     DocumentoDependencia findOneByDocumentoAndQuienAndActivoTrue(Documento documento, Integer quien);
-    
-    
-    /***
+
+    /**
+     * *
      * Trae todos los documentos dependencia por un usuario.
+     *
      * @param usuID
-     * @return 
+     * @return
      */
     @Query(value = ""
             + "SELECT DISTINCT DOCD.* FROM DOCUMENTO_DEPENDENCIA DOCD LEFT JOIN DOCUMENTO DOC ON (DOC.DOC_ID = DOCD.DOC_ID) WHERE DOCD.QUIEN = :usuID", nativeQuery = true)
     List<DocumentoDependencia> documentosDependenciaXUsuario(@Param("usuID") Integer usuID);
-    
-    @Query(value = "" +
-        "SELECT DISTINCT DOCD.* \n" +
-        "FROM DOCUMENTO_DEPENDENCIA DOCD \n" +
-        "LEFT JOIN DOCUMENTO DOC ON (DOC.DOC_ID = DOCD.DOC_ID) \n" +
-        "LEFT JOIN TRANSfERENCIA_ARCHIVO_DETALLE TAD ON (TAD.DCDP_ID = DOCD.DCDP_ID) \n" +
-        "WHERE DOCD.QUIEN = :usuID AND TAD.TAR_ID != :tarId AND TAD.ACTIVO = 1 AND TAD.IND_REALIZADO = 0", nativeQuery = true)
+
+    @Query(value = ""
+            + "SELECT DISTINCT DOCD.* \n"
+            + "FROM DOCUMENTO_DEPENDENCIA DOCD \n"
+            + "LEFT JOIN DOCUMENTO DOC ON (DOC.DOC_ID = DOCD.DOC_ID) \n"
+            + "LEFT JOIN TRANSfERENCIA_ARCHIVO_DETALLE TAD ON (TAD.DCDP_ID = DOCD.DCDP_ID) \n"
+            + "WHERE DOCD.QUIEN = :usuID AND TAD.TAR_ID != :tarId AND TAD.ACTIVO = 1 AND TAD.IND_REALIZADO = 0", nativeQuery = true)
     List<DocumentoDependencia> documentosDependenciaXUsuarioxNotTransferencia(@Param("usuID") Integer usuID, @Param("tarId") Integer tarId);
+
+    /**
+     *
+     * Consulta que permite identificar el numero de documentos que tiene un
+     * usuario y un cargo, que no estan siendo utlizados en una transferencia
+     *
+     * @param usuID
+     * @param cargoId
+     * @return Número de documentos
+     */
+    @Query(value = ""
+            + "select count(distinct b.doc_id)\n"
+            + "from DOCUMENTO_DEPENDENCIA a,\n"
+            + "     DOCUMENTO b,\n"
+            + "     TRD c"
+            + "where c.trd_id = b.trd_id\n"
+            + "and b.doc_id   = a.doc_id\n"
+            + "and a.activo = 1\n"
+            + "and trunc(b.DOC_FEC_RADICADO) >= nvl(add_months(trunc(sysdate), -12*c.TRD_RET_ARCHIVO_GENERAL), trunc(b.DOC_FEC_RADICADO))"
+            + "and a.quien    = :usuId\n"
+            + "and a.cargo_id = :cargoId\n"
+            + "and not exists(\n"
+            + "    select 1\n"
+            + "    from TRANSFERENCIA_ARCHIVO_DETALLE b\n"
+            + "    where b.anterior_quien  = a.quien\n"
+            + "    and activo = 1\n"
+            + "    and b.ind_realizado = 0\n"
+            + "    and b.doc_id = a.doc_id\n"
+            + ")", nativeQuery = true
+    )
+    int cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(@Param("usuId") Integer usuID, @Param("cargoId") Integer cargoId);
 }

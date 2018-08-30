@@ -183,4 +183,16 @@ public class DocumentoDependenciaService {
     public List<DocumentoDependencia> listarDocumentosOtrasTransferencias(Usuario usuario, TransferenciaArchivo transferenciaArchivo){
         return documentoDependenciaRepository.documentosDependenciaXUsuarioxNotTransferencia(usuario.getId(), transferenciaArchivo.getId());
     }
+    
+    
+    /**
+     * Retorna la cantidad de documentos posibles que tiene un usuario y un cargo
+     * de su archivo, cuyos documentos no se encuentren en proceso de transferencia.
+     * @param usuID Identificador del usuario
+     * @param cargoId Identificador del cargo
+     * @return Número de documentos
+     */
+    public int cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(Integer usuID,Integer cargoId){
+        return documentoDependenciaRepository.cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(usuID, cargoId);
+    }
 }
