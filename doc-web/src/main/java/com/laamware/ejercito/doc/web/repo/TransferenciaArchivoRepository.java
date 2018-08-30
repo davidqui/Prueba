@@ -49,6 +49,16 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
             + "and num_documentos > 0";
     
     /**
+     * Consulta que se encarga de listar las transferencias por un usuario destino
+     */
+    String CONSULTALISTATRANSFERENCIAXUSUARIODESTINO = ""
+            + "SELECT * "
+            + "from TRANSFERENCIA_ARCHIVO "
+            + "WHERE DESTINO_USU_ID = :usuId "
+            + "and num_documentos > 0";
+    
+    
+    /**
      * Obtiene el numero de registros de transferencias por usuario de origen.
      *
      * @param usuId Identificador del Usuario
@@ -81,4 +91,39 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
             + ") ta\n"
             + "where ta.num_lineas >= :inicio and ta.num_lineas <= :fin\n", nativeQuery = true)
     List<TransferenciaArchivo> findAllByOrigenUsuarioId(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin);
+    
+    
+    /**
+     * Obtiene el numero de registros de transferencias por usuario destino.
+     *
+     * @param usuId Identificador del Usuario
+     * @return Numero de registros.
+     */
+    @Query(value = "select count(1)\n"
+            + "from(\n"
+            + CONSULTALISTATRANSFERENCIAXUSUARIODESTINO
+            + ") ta\n", nativeQuery = true)
+    int findCountByDestinoUsuarioId(@Param("usuId") Integer usuId);
+    
+    
+    /**
+     * Obtiene los registros dde transferencias por usuario destino, de acuerdo a la fila
+     * inicial y final.
+     *
+     * @param usuId Identificador del usuario
+     * @param inicio Número de registro inicial
+     * @param fin Numero de registro final
+     * @return Lista de bandejas de entrada.
+     */
+    @Query(value = ""
+            + "select ta.*\n"
+            + "from(\n"
+            + "     select ta.*, rownum num_lineas\n"
+            + "     from(\n"
+            + CONSULTALISTATRANSFERENCIAXUSUARIODESTINO
+            + "     ORDER BY FECHA_CREACION desc\n"
+            + "     )ta\n"
+            + ") ta\n"
+            + "where ta.num_lineas >= :inicio and ta.num_lineas <= :fin\n", nativeQuery = true)
+    List<TransferenciaArchivo> findAllByDestinoUsuarioId(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin);
 }

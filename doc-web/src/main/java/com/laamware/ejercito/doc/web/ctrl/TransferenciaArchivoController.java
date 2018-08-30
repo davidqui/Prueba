@@ -1,7 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.aspose.words.License;
-import static com.laamware.ejercito.doc.web.ctrl.ExpedienteController.PATH;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
@@ -9,17 +8,14 @@ import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
-import com.laamware.ejercito.doc.web.entity.ExpTrd;
 import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.TransExpedienteDetalle;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.TransferenciaObservacion;
 import com.laamware.ejercito.doc.web.entity.TransferenciaTransicion;
-import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
-import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteService;
@@ -71,6 +67,9 @@ public class TransferenciaArchivoController extends UtilController {
             = Logger.getLogger(TransferenciaArchivoController.class.getName());
 
     public static final Long ESTADO_RECHAZADO = new Long(50);
+    private static final String TRANSFERENCIASREALIZADAS = "ORIGEN";
+    private static final String TRANSFERENCIASRECIBIDAS = "DESTINO";
+    
     
     /**
      * Ruta raíz del controlador.
@@ -88,13 +87,13 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @Autowired
     private UsuarioService usuarioService;
-    
+
     /**
      * Servicio de documentos.
      */
-    @Autowired    
+    @Autowired
     private DocumentoService documentoService;
-    
+
     /**
      * Servicio de expediente
      */
@@ -106,18 +105,38 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @Autowired
     CargosRepository cargosRepository;
-    
+
     /**
      * Servicio de documentos dependencia
      */
     @Autowired
     private DocumentoDependenciaService documentoDependenciaService;
-    
+
     /**
      *  servicio de transferencia archivo detalle
      */
     @Autowired
     private TransferenciaArchivoDetalleService transferenciaArchivoDetalleService;
+
+    /**
+     * servicio de transiciones de transferencia
+     */
+    @Autowired
+    private TransferenciaTransicionService transferenciaTransicionService;
+
+    /**
+     * *
+     * servicio de estado de una transferencia
+     */
+    @Autowired
+    private TransferenciaEstadoService transferenciaEstadoService;
+
+    /**
+     * servicio de expediente de una transferencia
+     */
+    @Autowired
+    private TransExpedienteDetalleService transExpedienteDetalleService;
+
     
     /**
      * servicio de las observaciones de transferencia.
@@ -128,47 +147,45 @@ public class TransferenciaArchivoController extends UtilController {
     @RequestMapping(value = "/listar", method = RequestMethod.GET)
     public String listarTransferencias(Principal principal, Model model,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
-            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize){
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "tipoTransferencia", required = true, defaultValue = TRANSFERENCIASREALIZADAS) String tipoTransferencia) {
         final Usuario origenUsuario = getUsuario(principal);
-        
-        
-        List<TransferenciaArchivo> traArchivosRecibidos = new ArrayList<>();
-        int count = transferenciaService.findCountByOrigenUsuarioId(origenUsuario.getId());
+
+        List<TransferenciaArchivo> transferencias = new ArrayList<>();
+        int count;
         int totalPages = 0;
         String labelInformacion = "";
 
-        if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
-            totalPages = paginacionDTO.getTotalPages();
-            traArchivosRecibidos = transferenciaService.findAllByOrigenUsuarioId(origenUsuario.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
-            labelInformacion = paginacionDTO.getLabelInformacion();
+        if (tipoTransferencia.equals(TRANSFERENCIASREALIZADAS)) {
+            count = transferenciaService.findCountByOrigenUsuarioId(origenUsuario.getId());
+            if (count > 0) {
+                PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+                totalPages = paginacionDTO.getTotalPages();
+                transferencias = transferenciaService.findAllByOrigenUsuarioId(origenUsuario.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+                labelInformacion = paginacionDTO.getLabelInformacion();
+            }
+        }
+        
+        if (tipoTransferencia.equals(TRANSFERENCIASRECIBIDAS)) {
+            count = transferenciaService.findCountByDestinoUsuarioId(origenUsuario.getId());
+            if (count > 0) {
+                PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+                totalPages = paginacionDTO.getTotalPages();
+                transferencias = transferenciaService.findAllByDestinoUsuarioId(origenUsuario.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+                labelInformacion = paginacionDTO.getLabelInformacion();
+            }
         }
 
-        model.addAttribute("traArchivosRecibidos", traArchivosRecibidos);
+        model.addAttribute("transferencias", transferencias);
         model.addAttribute("pageIndex", pageIndex);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("labelInformacion", labelInformacion);
         model.addAttribute("pageSize", pageSize);
+        model.addAttribute("tipoTransferencia", tipoTransferencia);
+        
         return "transferencia-archivo-listar";
     }
-
-    /**
-     * servicio de transiciones de transferencia
-     */
-    @Autowired
-    private TransferenciaTransicionService transferenciaTransicionService;
     
-    /***
-     * servicio de estado de una transferencia
-     */
-    @Autowired
-    private TransferenciaEstadoService transferenciaEstadoService;
-    
-    /**
-     * servicio de expediente de una transferencia
-     */
-    @Autowired
-    private TransExpedienteDetalleService transExpedienteDetalleService;
     
     /**
      * Presenta el formulario de creación para el proceso de transferencia de
@@ -181,7 +198,7 @@ public class TransferenciaArchivoController extends UtilController {
     @RequestMapping(value = "/crear", method = RequestMethod.GET)
     public String presentarFormularioCreacionGET(Principal principal, Model model) {
         final Usuario origenUsuario = getUsuario(principal);
-        
+
         final List<TransferenciaArchivo> transferenciasRecibidas = transferenciaService.findAllRecibidasActivasByDestinoUsuario(origenUsuario.getId());
         model.addAttribute("transferenciasRecibidas", transferenciasRecibidas);
 
@@ -417,9 +434,11 @@ public class TransferenciaArchivoController extends UtilController {
         }
         return cargoDTOs;
     }
-    
+
     /**
-     * Método que retorna la pagina para seleccionar los documentos que van a estar en la transferencia de archivo
+     * Método que retorna la pagina para seleccionar los documentos que van a
+     * estar en la transferencia de archivo
+     *
      * @param transId Identificador de la transferencia
      * @param principal usuario en sesión
      * @param model modelo del template
@@ -430,20 +449,23 @@ public class TransferenciaArchivoController extends UtilController {
         
         Usuario usuarioSesion = getUsuario(principal);
         TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
-        if(! transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion))
+        if (!transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion)) {
             return "security-denied";
         List<TrdDTO> documentoXtrdDadoUsuario = documentoDependenciaService.documentoXtrdDadoUsuario(usuarioSesion, transferenciaArchivo.getUsuOrigenCargo().getId());
         List<DocumentoDependencia> documentosEnTransferencia = documentoDependenciaService.listarDocumentosOtrasTransferencias(usuarioSesion, transferenciaArchivo);
         List<TransferenciaArchivoDetalle> documentosXTransferenciaArchivo = transferenciaArchivoDetalleService.buscarDocumentosTransferencia(transferenciaArchivo);
-        
+
         model.addAttribute("trds", documentoXtrdDadoUsuario);
         model.addAttribute("documentosXTransferenciaArchivo", documentosXTransferenciaArchivo);
-                model.addAttribute("documentosEnTransferencia", documentosEnTransferencia);
+        model.addAttribute("documentosEnTransferencia", documentosEnTransferencia);
         return "transferencia-seleccionar-documentos";
     }
-    
-    /***
-     * Método que recive los documentos seleccionados y los registra en el sistema.
+
+    /**
+     * *
+     * Método que recive los documentos seleccionados y los registra en el
+     * sistema.
+     *
      * @param transId Identificador de la transferencia
      * @param documentos Identificadores de los documentos a asignar
      * @param principal usuario en sesión
@@ -452,15 +474,16 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @RequestMapping(value = "/seleccionar-documentos/{trans}", method = RequestMethod.POST)
     public String asignarDocumentos(@PathVariable("trans") Integer transId, @RequestParam(value = "documentos", required = false) Integer[] documentos,
-            Principal principal, Model model){
-        
+            Principal principal, Model model) {
+
         Usuario usuarioSesion = getUsuario(principal);
         TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
         List<DocumentoDependencia> documentosEnTransferencia = documentoDependenciaService.listarDocumentosOtrasTransferencias(usuarioSesion, transferenciaArchivo);
 
         if(! transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion))
             return "security-denied";
-        
+        }
+
         transferenciaArchivoDetalleService.eliminarDocumentosTransferencia(transferenciaArchivo);
         if (documentos != null) {
             for (Integer documento : documentos) {
@@ -486,18 +509,20 @@ public class TransferenciaArchivoController extends UtilController {
         }
         return "redirect:" + PATH + "/seleccionar-expediente/" + transId;
     }
-    
-    /***
+
+    /**
+     * *
      * Método que retorna la página para seleccionar los expedientes.
+     *
      * @param principal usuario en sesión
      * @param model modelo del template
-     * @return pagína para seleccionar los expedientes. 
+     * @return pagína para seleccionar los expedientes.
      */
     @RequestMapping(value = "/seleccionar-expediente/{trans}", method = RequestMethod.GET)
-    public String seleccionarExpedientes(@PathVariable("trans") Integer transId, Principal principal, Model model){
+    public String seleccionarExpedientes(@PathVariable("trans") Integer transId, Principal principal, Model model) {
         Usuario usuarioSesion = getUsuario(principal);
         TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
-        if(! transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion))
+        if (!transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion)) {
             return "security-denied";
         List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(usuarioSesion);
         List<TransExpedienteDetalle> expedientesSeleccionados = transExpedienteDetalleService.buscarXTransferenciaArchivo(transferenciaArchivo);
@@ -508,6 +533,7 @@ public class TransferenciaArchivoController extends UtilController {
         
         return "transferencia-seleccionar-expedientes";
     }
+
     
     /***
      * Método para seleccionar los expedientes
@@ -519,11 +545,12 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @RequestMapping(value = "/seleccionar-expediente/{trans}", method = RequestMethod.POST)
     public String asignarExpedientes(@PathVariable("trans") Integer transId, Principal principal, Model model,
-            @RequestParam(value = "expedientes", required = false) Long[] expedientes){
+            @RequestParam(value = "expedientes", required = false) Long[] expedientes) {
         Usuario usuarioSesion = getUsuario(principal);
         TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
-        if(! transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion))
+        if (!transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion)) {
             return "security-denied";
+        }
         transExpedienteDetalleService.eliminarExpedientesTransferencia(transferenciaArchivo);
         if (expedientes != null) {
             for (Long expediente : expedientes) {
@@ -534,9 +561,11 @@ public class TransferenciaArchivoController extends UtilController {
         }
         return "redirect:" + PATH + "/resumen/" + transId;
     }
-    
-    /***
+
+    /**
+     * *
      * Método que retorna la página para ver el resumen de la transferencia.
+     *
      * @param principal usuario en sesión
      * @param model modelo del template
      * @return pagína para ver el resumen del expediente.
@@ -677,8 +706,7 @@ public class TransferenciaArchivoController extends UtilController {
         model.addAttribute("pageSizes", list);
         return list;
     }
-    
-    
+
     /**
      * Agrega el controlador
      *
@@ -697,7 +725,7 @@ public class TransferenciaArchivoController extends UtilController {
      */
     public boolean hasDocumento(Integer id, List<TransferenciaArchivoDetalle> preseleccion){
         for (TransferenciaArchivoDetalle pr : preseleccion) {
-            if(pr.getDocumentoDependencia().getId().equals(id)){
+            if (pr.getDocumentoDependencia().getId().equals(id)) {
                 return true;
             }
         }
@@ -712,7 +740,7 @@ public class TransferenciaArchivoController extends UtilController {
      */
     public boolean hasDocumentoEnTransferencia(Integer id, List<DocumentoDependencia> preseleccion){
         for (DocumentoDependencia pr : preseleccion) {
-            if(pr.getId().equals(id)){
+            if (pr.getId().equals(id)) {
                 return true;
             }
         }
