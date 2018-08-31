@@ -12,7 +12,7 @@
     </div>
     <div>
         <span>
-            <a href="/transferencia-archivo/crearTransferenciaGestion" class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="popover" data-trigger="hover" data-placement="right" title="crear" data-content="Pulse para crear una nueva transferencia" style="float:left;">Nueva Transferencia de Archivos y Expedientes en Gestión</a>
+            <a href="/transferencia-archivo/crearTransferenciaGestion" onclick="loading(event);" class="btn btn-success btn-sm bd-popover float-right" role="button" data-toggle="popover" data-trigger="hover" data-placement="right" title="crear" data-content="Pulse para crear una nueva transferencia" style="float:left;">Nueva Transferencia de Archivos y Expedientes en Gestión</a>
             <a href="/transferencia-archivo/listar?tipoTransferencia=PROCESO" onclick="loading(event);" class="<#if tipoTransferencia == 'PROCESO'>btn btn-primary btn-sm<#else>btn btn-secondary btn-sm</#if>" id="btn-proceso" style="width: 150px; margin-left:10px;">En proceso</a>
             <a href="/transferencia-archivo/listar?tipoTransferencia=ORIGEN" onclick="loading(event);" class="<#if tipoTransferencia == 'ORIGEN'>btn btn-primary btn-sm<#else>btn btn-secondary btn-sm</#if>" id="btn-realizado" style="width: 150px;">Realizadas</a>
             <a href="/transferencia-archivo/listar?tipoTransferencia=DESTINO" onclick="loading(event);" class="<#if tipoTransferencia == 'DESTINO'>btn btn-primary btn-sm<#else>btn btn-secondary btn-sm</#if>" id="btn-recibido" style="width: 150px;">Recibidas</a>
@@ -41,10 +41,11 @@
                     <th>Justificación</th>
                     <th>Numero de documentos</th>
                     <th>Numero de expedientes</th>
-                    <th>Ultimo estado</th>
                     <#if tipoTransferencia == "PROCESO">
-                        <th></th>
+                        <th>Ultimo estado</th>
                     </#if>
+                    <th></th>
+                    
                 </tr>
             </thead>
             <tbody>
@@ -62,12 +63,12 @@
                         <td>${ta.numExpedientes!"0"}</td>
                         <#if tipoTransferencia == "PROCESO">
                             <td>${ta.ultEstado!"0"}</td>
-                            <td>
-                                <a title="Ver Resumen" href="/transferencia-archivo/resumen/${ta.tarId}">
-                                    <img class="card-img-top" src="/img/eye.svg" alt="">
-                                </a>
-                            </td>
                         </#if>
+                        <td>
+                            <a title="Ver Resumen" href="/transferencia-archivo/resumen/${ta.tarId}">
+                                <img class="card-img-top" src="/img/eye.svg" alt="">
+                            </a>
+                        </td>
                     </tr>
                 </#list>
             </tbody>

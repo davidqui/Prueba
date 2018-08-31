@@ -231,10 +231,10 @@
           Recibir
         </button>
     </#if>
-    <#if transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id>
-        <button href="/transferencia-archivo/aprobar/${(transferenciaArchivo.id)!""}" class="btn btn-primary" data-toggle="modal"  data-target="#destinatarioRecibir">
+    <#if transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id && transferenciaArchivo.indAprobado = 0>
+        <a href="/transferencia-archivo/aprobar/${(transferenciaArchivo.id)!""}" class="btn btn-primary" onclick="loading(event);">
           Aprobar
-        </button>
+        </a>
     </#if>
     <#if transferenciaArchivo.usuarioAsignado = 0 && transferenciaArchivo.origenUsuario.id == usuario.id>
         <#if (documentosXTransferenciaArchivo?size > 0 || expedientesSeleccionados?size > 0) >
@@ -242,12 +242,12 @@
               Transferir <span class="span-badge" id="counterExp">${(documentosXTransferenciaArchivo?size)?string} Documentos</span> <span class="span-badge" id="counterExp">${(expedientesSeleccionados?size)?string} expedientes</span>
             </a>
         </#if>
-        <a href="/transferencia-archivo/anular/${(transferenciaArchivo.id)!""}" class="btn btn-danger" data-toggle="modal"  data-target="#rechazar-modal">
+        <a href="/transferencia-archivo/anular/${(transferenciaArchivo.id)!""}" class="btn btn-danger" onclick="loading(event);">
           Anular
         </a>
     </#if>
     <#if (transferenciaArchivo.usuarioAsignado = 1 && transferenciaArchivo.destinoUsuario.id == usuario.id) || 
-(transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id)>
+(transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id) && transferenciaArchivo.indAprobado = 0>
         <button class="btn btn-danger" data-toggle="modal"  data-target="#rechazar-modal">
           Rechazar
         </button>

@@ -202,11 +202,13 @@ public class DocumentoDependenciaService {
     
     
     public void completarTransferencia(DocumentoDependencia documentoDependencia, Usuario usuario, Dependencia dependencia, Cargo cargo){
-        documentoDependencia.setQuien(usuario.getId());
+        documentoDependencia.setQuien(141);
         documentoDependencia.setCargo(cargo);
         documentoDependencia.setDependencia(dependencia);
         documentoDependencia.setCuando(new Date());
+        System.err.println("Guardando la transferencia");
         documentoDependenciaRepository.save(documentoDependencia);
+        System.err.println("transferencia guardada");
     }
     
     
