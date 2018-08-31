@@ -84,9 +84,15 @@
                 
                 <#--
                     2018-08-16 samuel.delgado@controltechcg.com Issue #7 (SICDI-Controltech) feature-gogs-7:
-                    Enlace para la opción de notificaciones.
+                    Enlace para la opción de razon de inhabilitar usuario.
                 -->
                 <@link_admin  "ADMIN_RAZON_INHABILITAR" "/admin/razon-inhabilitar" 'razones-inhabilitar' 'Razones Inhabilitar Usuario'/>
+                
+                <#--
+                    2018-08-31 samuel.delgado@controltechcg.com Issue #10 (SICDI-Controltech) feature-gogs-10:
+                    Enlace para la opción de destino externo.
+                -->
+                <@link_admin  "ADMIN_DESTINO_EXTERNO" "/admin/destino-externo" 'destinos-externos' 'Destinos Externos'/>
                 </ul>
             </div>
         </div>
