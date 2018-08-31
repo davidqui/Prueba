@@ -34,6 +34,22 @@
         border-radius: 20px;
         font-weight: bold;
     }
+    
+    .range-picker{
+        width: 450px;
+        float: right;
+        font-size: 22px;
+    }
+    
+    .range{
+        display: flex;
+    }
+    
+    @media only screen and (max-width: 600px) {
+        .range-picker{
+            width: 100%;
+        }
+    }
 </style>
 <div class="container-fluid" style="padding-bottom: 100px;">
 <h4>${pageTitle}</h4>
@@ -46,6 +62,20 @@
         ${selectAllText}
     </#if>
   </button>
+  <div class="range-picker">
+    <label for="fechaInicio"  class="col-form-label" style="font-size: 16px;">Filtrar por fecha</label>
+    <div class="form-group range">
+      <div class="form-inline input-group">
+        <input onchange="finderDocument()" type="text" id="fechaInicio" name="fechaInicio" class="form-control datepicker" autocomplete="off" readonly/>
+        <div onclick="document.getElementById(&quot;fechaInicio&quot;).value = &quot;&quot;; finderDocument()" class="input-group-addon btn">Limpiar</div>
+      </div>
+      <span style="padding: 0px 5px;">a</span>
+      <div class="form-inline input-group">
+        <input onchange="finderDocument()" type="text" id="fechafin" name="fechafin" class="form-control datepicker" autocomplete="off" readonly/>
+        <div onclick="document.getElementById(&quot;fechafin&quot;).value = &quot;&quot;; finderDocument()" class="input-group-addon btn">Limpiar</div>
+      </div>
+    </div>
+  </div>
   <input id="selected-all-documentos" name="selected-all-documentos" type="hidden" value="true" />
 <input class="form-control" type="text" id="documentos-buscar" onkeyup="finderDocument()" placeholder="Buscar por nombre o número de radicación" title="Buscar" style="margin-top: 30px;">
 <form method="POST" id="formDocumentos">
@@ -85,7 +115,7 @@
                                           <th></th>
                                           <th>Radicado</th>
                                           <th>Asunto</th>
-                                          <th>Fecha Creación</th>
+                                          <th>Fecha Radicación</th>
                                           <th>Cargo</th>
                                       </tr>
                                   </thead>
@@ -113,7 +143,7 @@
                                                          ></td>
                                               <td nowrap name="radicado">${doc.documento.radicado!"&lt;Sin radicado&gt;"}</td>
                                               <td name="asunto">${doc.documento.asunto!"&lt;Sin asunto&gt;"}</td>
-                                              <td nowrap>${(doc.documento.cuando?string('yyyy-MM-dd hh:mm aa'))!""}</td>
+                                              <td name="fecha" nowrap>${(doc.documento.docFecRadicado?string('yyyy-MM-dd'))!""}</td>
                                               <td nowrap>${(doc.documento.cargoIdElabora.carNombre)!""}</td>
                                           </tr>
                                       </#list>
