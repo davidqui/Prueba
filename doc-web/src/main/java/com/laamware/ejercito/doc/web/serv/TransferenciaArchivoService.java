@@ -8,7 +8,6 @@ import com.aspose.words.Paragraph;
 import com.aspose.words.Row;
 import com.aspose.words.Run;
 import com.aspose.words.Table;
-import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
@@ -19,7 +18,6 @@ import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.entity.PlantillaTransferenciaArchivo;
-import com.laamware.ejercito.doc.web.entity.TransExpedienteDetalle;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Trd;
@@ -34,18 +32,18 @@ import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepositor
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
-import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.NumeroVersionComparator;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -106,6 +104,9 @@ public class TransferenciaArchivoService {
      */
     private static final String LINEA_MANDO_SEPARATOR = "-";
     
+    /**
+     * Estados de la transferencia
+     */
     private static final Long TRANSFERENCIA_ESTADO_APROBADO = new Long(40);
     private static final Long TRANSFERENCIA_ESTADO_PEDIENTE_AUTORIZACION = new Long(30);
     private static final Long TRANSFERENCIA_ESTADO_RECHAZADO = new Long(50);
@@ -113,6 +114,16 @@ public class TransferenciaArchivoService {
     private static final Long TRANSFERENCIA_ESTADO_ANULADO = new Long(70);
     private static final Long TRANSFERENCIA_ESTADO_TRANSFERIDO = new Long(60);
     private static final Long TRANSFERENCIA_ESTADO_PEDIENTE_ACEPTACION = new Long(60);
+    
+    /**
+     * Notificaciones de la transferencia
+     */
+    private static final Integer NOTIFICACION_TRANSFERENCIA_USUARIO_DESTINO_ACEPTADO = 400;
+    private static final Integer NOTIFICACION_TRANSFERENCIA_RECHAZADA = 401;
+    private static final Integer NOTIFICACION_TRANSFERENCIA_POR_AUTORIZAR = 402;
+    private static final Integer NOTIFICACION_TRANSFERENCIA_AUTORIZADA = 403;
+
+    
     /**
      * Datasource del sistema.
      */
@@ -221,6 +232,13 @@ public class TransferenciaArchivoService {
      */
     @Autowired
     private TransferenciaArchivoDetalleService transferenciaArchivoDetalleService;
+    
+    
+    /**
+     *  Servicio de notificaciones
+     */
+    @Autowired
+    private NotificacionService notificacionService; 
     
     /**
      * Busca un registro de transferencia de archivo.
@@ -1084,6 +1102,19 @@ public class TransferenciaArchivoService {
         transferenciaRepository.save(transferenciaArchivo);
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_APROBADO);
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_PEDIENTE_AUTORIZACION);
+        
+        Map<String, Object> model = new HashMap();
+        model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
+        model.put("usuDestino", transferenciaArchivo.getDestinoUsuario());
+        model.put("jefeOrigen", transferenciaArchivo.getOrigenDependencia().getJefe());
+        model.put("transferencia", transferenciaArchivo);
+
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_USUARIO_DESTINO_ACEPTADO, transferenciaArchivo.getOrigenUsuario());
+            notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_POR_AUTORIZAR, transferenciaArchivo.getOrigenDependencia().getJefe());
+        } catch (Exception ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /***
@@ -1101,6 +1132,20 @@ public class TransferenciaArchivoService {
         }
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_RECHAZADO);
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_EN_CONSTRUCCION);
+    
+        Map<String, Object> model = new HashMap();
+        model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
+        model.put("usuDestino", transferenciaArchivo.getDestinoUsuario());
+        model.put("jefeOrigen", transferenciaArchivo.getOrigenDependencia().getJefe());
+        model.put("transferencia", transferenciaArchivo);
+
+        try {
+            notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_RECHAZADA, transferenciaArchivo.getOrigenUsuario());
+            if (!transferenciaArchivo.getDestinoUsuario().getId().equals(usuario.getId()))
+                notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_RECHAZADA, transferenciaArchivo.getOrigenUsuario());
+        } catch (Exception ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /***
@@ -1140,6 +1185,20 @@ public class TransferenciaArchivoService {
         transferenciaArchivo.setIndAprobado(1);
         transferenciaRepository.save(transferenciaArchivo);
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_TRANSFERIDO);
+        
+        Map<String, Object> model = new HashMap();
+        model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
+        model.put("usuDestino", transferenciaArchivo.getDestinoUsuario());
+        model.put("jefeOrigen", transferenciaArchivo.getOrigenDependencia().getJefe());
+        model.put("transferencia", transferenciaArchivo);
+
+        try {
+            if (!transferenciaArchivo.getOrigenUsuario().getId().equals(usuario.getId()))
+                notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_USUARIO_DESTINO_ACEPTADO, transferenciaArchivo.getOrigenUsuario());
+            notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_USUARIO_DESTINO_ACEPTADO, transferenciaArchivo.getDestinoUsuario());
+        } catch (Exception ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     

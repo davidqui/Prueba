@@ -50,10 +50,8 @@ function finderDocument(){
     var criterio = $("#documentos-buscar").val();
     var dMin = $("#fechaInicio").val();
     var dMax = $("#fechafin").val();
-    console.log(dMin," --- ", dMax);
     if (dMin == ""){ dMin = null; }else{ dMin = new Date(dMin); }
     if (dMax == ""){ dMax = null; }else{ dMax = new Date(dMax); }
-    console.log(dMin," --- ", dMax);
     $('.trdPadre').hide();
     $('.trdPadre').each(function(){
         console.log("TRD "+this);
@@ -68,7 +66,6 @@ function finderDocument(){
                 
                 var parts = $(this).find("[name='fecha']").text().split('-');
                 var fecha = new Date(parts[0], parts[1] - 1, parts[2]); 
-                console.log("TEST== ", dMin, dMax, fecha, dMin <= fecha, dMax >= fecha)
                 if (($(asunto).text().toUpperCase().indexOf(criterio.toUpperCase()) != -1 || 
                         $(radicado).text().toUpperCase().indexOf(criterio.toUpperCase()) != -1)
                         && ((dMin == null || dMin <= fecha) && (dMax == null || dMax >= fecha))) {
