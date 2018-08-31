@@ -45,8 +45,7 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
     String CONSULTALISTATRANSFERENCIAXUSUARIOORIGEN = ""
             + "SELECT * "
             + "from TRANSFERENCIA_ARCHIVO "
-            + "WHERE ORIGEN_USU_ID = :usuId "
-            + "and num_documentos > 0";
+            + "WHERE ORIGEN_USU_ID = :usuId ";
     
     /**
      * Consulta que se encarga de listar las transferencias por un usuario destino
@@ -54,8 +53,7 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
     String CONSULTALISTATRANSFERENCIAXUSUARIODESTINO = ""
             + "SELECT * "
             + "from TRANSFERENCIA_ARCHIVO "
-            + "WHERE DESTINO_USU_ID = :usuId "
-            + "and num_documentos > 0";
+            + "WHERE DESTINO_USU_ID = :usuId ";
     
     
     /**

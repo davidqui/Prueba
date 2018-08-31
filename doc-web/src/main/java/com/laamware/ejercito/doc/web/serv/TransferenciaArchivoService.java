@@ -10,6 +10,7 @@ import com.aspose.words.Run;
 import com.aspose.words.Table;
 import com.laamware.ejercito.doc.web.dto.ExpedienteDTO;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
+import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
@@ -39,6 +40,7 @@ import com.laamware.ejercito.doc.web.util.NumeroVersionComparator;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1121,7 +1123,7 @@ public class TransferenciaArchivoService {
      */
     public void anularTransferencia(TransferenciaArchivo transferenciaArchivo, Usuario usuario){
         transferenciaArchivo.setActivo(false);
-        transferenciaArchivo.setEstado("C");
+        transferenciaArchivo.setEstado(TransferenciaArchivo.ANULADA_ESTADO);
         transExpedienteDetalleService.eliminarExpedientesTransferencia(transferenciaArchivo);
         transferenciaArchivoDetalleService.eliminarDocumentosTransferencia(transferenciaArchivo);
         transferenciaRepository.save(transferenciaArchivo);
@@ -1255,14 +1257,52 @@ public class TransferenciaArchivoService {
         ta.setOrigenClasificacion(usuarioOrigen.getClasificacion());
         ta.setOrigenGrado(usuarioOrigen.getUsuGrado());
         ta.setUsuOrigenCargo(cargosRepository.getOne(cargoOrigen));
-        ta.setDestinoUsuario(usuarioOrigen);
-        ta.setDestinoDependencia(usuarioOrigen.getDependencia());
-        ta.setDestinoClasificacion(usuarioOrigen.getClasificacion());
-        ta.setDestinoGrado(usuarioOrigen.getUsuGrado());
+        ta.setDestinoUsuario(destinoUsuario);
+        ta.setDestinoDependencia(destinoUsuario.getDependencia());
+        ta.setDestinoClasificacion(destinoUsuario.getClasificacion());
+        ta.setDestinoGrado(destinoUsuario.getUsuGrado());
         ta.setJustificacion(justificacion);
         ta.setUsuarioAsignado(0);
         ta.setIndAprobado(0);
         
-        return transferenciaRepository.saveAndFlush(ta);
+        TransferenciaArchivo taNew = transferenciaRepository.saveAndFlush(ta);
+        transferenciaTransicionService.crearTransicion(taNew, usuarioOrigen, TRANSFERENCIA_ESTADO_EN_CONSTRUCCION);
+        
+        return taNew;
+    }
+    
+    
+    /**
+     * Retorna el objeto con los datos parámetricos de la transferencia
+     *
+     * @param object Objeto de la consulta
+     * @return Datos de la transferencia
+     */
+    private TransferenciaArchivoDTO retornaTransferenciaArchivoDTO(Object[] object) {
+        TransferenciaArchivoDTO dTO = new TransferenciaArchivoDTO();
+        dTO.setTarId(object[0] != null ? ((BigDecimal) object[0]).intValue() : null);
+        dTO.setActivo(object[1] != null ? ((String) object[1]) : "");
+        dTO.setEstado(object[2] != null ? ((String) object[2]) : null);
+        dTO.setFechaCreacion(object[3] != null ? (Date) object[3] : null);
+        dTO.setUsuIdOrigen(object[4] != null ? ((BigDecimal) object[4]).intValue() : null);
+        dTO.setUsuNomOrigen(object[5] != null ? ((String) object[5]) : "");
+        dTO.setCarIdOrigen(object[6] != null ? ((BigDecimal) object[6]).intValue() : null);
+        dTO.setCarNomOrigen(object[7] != null ? ((String) object[7]) : "");
+        dTO.setUsuIdDestino(object[8] != null ? ((BigDecimal) object[8]).intValue() : null);
+        dTO.setUsuNomDestino(object[9] != null ? ((String) object[9]) : "");
+        dTO.setCarIdDestino(object[10] != null ? ((BigDecimal) object[10]).intValue() : null);
+        dTO.setCarNomDestino(object[11] != null ? (String) object[11] : "");
+        dTO.setDepId(object[12] != null ? ((BigDecimal) object[12]).intValue() : null);
+        dTO.setUsuIdJefe(object[13] != null ? ((BigDecimal) object[13]).intValue() : null);
+        dTO.setJustificacion(object[14] != null ? (String) object[14] : "");
+        dTO.setUsuarioAsignado(object[15] != null ? ((BigDecimal) object[15]).intValue() : null);
+        dTO.setIndAprobado(object[16] != null ? ((BigDecimal) object[16]).equals(BigDecimal.ONE) : false);
+        dTO.setNumDocumentos(object[17] != null ? ((BigDecimal) object[17]).intValue() : null);
+        dTO.setNumExpedientes(object[18] != null ? ((BigDecimal) object[18]).intValue() : null);
+        dTO.setUltEstado(object[19] != null ? ((String) object[19]) : "");
+        dTO.setEsUsuarioOrigen(object[20] != null ? ((BigDecimal) object[20]).equals(BigDecimal.ONE) : false);
+        dTO.setEsJefe(object[21] != null ? ((BigDecimal) object[21]).equals(BigDecimal.ONE) : false);
+        dTO.setEsUsuarioDestino(object[22] != null ? ((BigDecimal) object[22]).equals(BigDecimal.ONE) : false);
+        return dTO;
     }
 }

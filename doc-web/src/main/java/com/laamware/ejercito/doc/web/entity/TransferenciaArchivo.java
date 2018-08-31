@@ -47,7 +47,12 @@ public class TransferenciaArchivo implements Serializable {
     /**
      * Estado de transferencia creada.
      */
-    public static final String CREADA_ESTADO = "C";
+    public static final String CREADA_ESTADO = "I";
+    
+    /**
+     * Estado de transferencia anulada.
+     */
+    public static final String ANULADA_ESTADO = "C";
 
     /**
      * Estado de transferencia aprobada.
