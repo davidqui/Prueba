@@ -78,6 +78,12 @@
 }
 </style>
 <div class="container-fluid">
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/transferencia-archivo/listar?">Inicio</a></li>
+            <li class="active">Resumen</li>
+        </ol>
+    </div>
 <h4>${pageTitle}</h4>
 <div class="row" style="padding-bottom: 70px;">
   <div class="col-xs-6 col-sm-4">

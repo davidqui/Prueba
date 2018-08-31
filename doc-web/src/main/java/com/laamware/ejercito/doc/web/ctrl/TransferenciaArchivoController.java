@@ -3,6 +3,7 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.aspose.words.License;
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
 import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
+import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
@@ -69,8 +70,10 @@ public class TransferenciaArchivoController extends UtilController {
             = Logger.getLogger(TransferenciaArchivoController.class.getName());
 
     public static final Long ESTADO_RECHAZADO = new Long(50);
+    private static final String TRANSFERENCIASPROCESO = "PROCESO";
     private static final String TRANSFERENCIASREALIZADAS = "ORIGEN";
     private static final String TRANSFERENCIASRECIBIDAS = "DESTINO";
+    
     
     
     /**
@@ -153,30 +156,40 @@ public class TransferenciaArchivoController extends UtilController {
     public String listarTransferencias(Principal principal, Model model,
             @RequestParam(value = "pageIndex", required = false, defaultValue = "1") Integer pageIndex,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(value = "tipoTransferencia", required = true, defaultValue = TRANSFERENCIASREALIZADAS) String tipoTransferencia) {
+            @RequestParam(value = "tipoTransferencia", required = true, defaultValue = TRANSFERENCIASPROCESO) String tipoTransferencia) {
         final Usuario origenUsuario = getUsuario(principal);
 
-        List<TransferenciaArchivo> transferencias = new ArrayList<>();
+        List<TransferenciaArchivoDTO> transferencias = new ArrayList<>();
         int count;
         int totalPages = 0;
         String labelInformacion = "";
 
-        if (tipoTransferencia.equals(TRANSFERENCIASREALIZADAS)) {
-            count = transferenciaService.findCountByOrigenUsuarioId(origenUsuario.getId());
+        if (tipoTransferencia.equals(TRANSFERENCIASPROCESO)) {
+            count = transferenciaService.findCountProcesoByUsuarioId(origenUsuario.getId());
             if (count > 0) {
                 PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
                 totalPages = paginacionDTO.getTotalPages();
-                transferencias = transferenciaService.findAllByOrigenUsuarioId(origenUsuario.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+                transferencias = transferenciaService.findAllProcesoByUsuarioId(origenUsuario.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+                labelInformacion = paginacionDTO.getLabelInformacion();
+            }
+        }
+        
+        if (tipoTransferencia.equals(TRANSFERENCIASREALIZADAS)) {
+            count = transferenciaService.findCountRealizadasByUsuarioId(origenUsuario.getId());
+            if (count > 0) {
+                PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
+                totalPages = paginacionDTO.getTotalPages();
+                transferencias = transferenciaService.findAllRealizadasByUsuarioId(origenUsuario.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
                 labelInformacion = paginacionDTO.getLabelInformacion();
             }
         }
         
         if (tipoTransferencia.equals(TRANSFERENCIASRECIBIDAS)) {
-            count = transferenciaService.findCountByDestinoUsuarioId(origenUsuario.getId());
+            count = transferenciaService.findCountRecibidasByUsuarioId(origenUsuario.getId());
             if (count > 0) {
                 PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
                 totalPages = paginacionDTO.getTotalPages();
-                transferencias = transferenciaService.findAllByDestinoUsuarioId(origenUsuario.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+                transferencias = transferenciaService.findAllRecibidasByUsuarioId(origenUsuario.getId(), paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
                 labelInformacion = paginacionDTO.getLabelInformacion();
             }
         }
@@ -466,6 +479,7 @@ public class TransferenciaArchivoController extends UtilController {
         List<DocumentoDependencia> documentosEnTransferencia = documentoDependenciaService.listarDocumentosOtrasTransferencias(usuarioSesion, transferenciaArchivo);
         List<TransferenciaArchivoDetalle> documentosXTransferenciaArchivo = transferenciaArchivoDetalleService.buscarDocumentosTransferencia(transferenciaArchivo);
 
+        model.addAttribute("transId", transId);
         model.addAttribute("trds", documentoXtrdDadoUsuario);
         model.addAttribute("documentosXTransferenciaArchivo", documentosXTransferenciaArchivo);
         model.addAttribute("documentosEnTransferencia", documentosEnTransferencia);
@@ -540,6 +554,7 @@ public class TransferenciaArchivoController extends UtilController {
         List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(usuarioSesion);
         List<TransExpedienteDetalle> expedientesSeleccionados = transExpedienteDetalleService.buscarXTransferenciaArchivo(transferenciaArchivo);
         List<TransExpedienteDetalle> expedientesEnOtrasTransferencias = transExpedienteDetalleService.buscarOtrosExpedientesEnTranseferencia(usuarioSesion, transferenciaArchivo);
+        model.addAttribute("transId", transId);
         model.addAttribute("expedientes", expedientes);
         model.addAttribute("expedientesSeleccionados", expedientesSeleccionados);
         model.addAttribute("expedientesEnOtrasTransferencias", expedientesEnOtrasTransferencias);

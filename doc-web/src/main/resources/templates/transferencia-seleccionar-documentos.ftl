@@ -52,6 +52,15 @@
     }
 </style>
 <div class="container-fluid" style="padding-bottom: 100px;">
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/transferencia-archivo/listar?">Inicio</a></li>
+            <li><a href="/transferencia-archivo/resumen/${transId}">Resumen</a></li>
+            <li class="active">Selección de documentos</li>
+            
+        </ol>
+    </div>
+    
 <h4>${pageTitle}</h4>
 <div id="accordion">
   <#assign hasAllSelected = false />            

@@ -16,7 +16,7 @@ public class TransferenciaArchivoDTO implements Serializable{
     private static final long serialVersionUID = -9074865635471580820L;
     
     private Integer tarId;
-    private String activo;
+    private Boolean activo;
     private String estado;
     private Date fechaCreacion;
     private Integer usuIdOrigen;
@@ -47,11 +47,11 @@ public class TransferenciaArchivoDTO implements Serializable{
         this.tarId = tarId;
     }
 
-    public String getActivo() {
+    public Boolean getActivo() {
         return activo;
     }
 
-    public void setActivo(String activo) {
+    public void setActivo(Boolean activo) {
         this.activo = activo;
     }
 

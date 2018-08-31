@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -109,13 +110,14 @@ public class TransferenciaArchivoService {
     /**
      * Estados de la transferencia
      */
-    private static final Long TRANSFERENCIA_ESTADO_APROBADO = new Long(40);
-    private static final Long TRANSFERENCIA_ESTADO_PEDIENTE_AUTORIZACION = new Long(30);
-    private static final Long TRANSFERENCIA_ESTADO_RECHAZADO = new Long(50);
     private static final Long TRANSFERENCIA_ESTADO_EN_CONSTRUCCION = new Long(10);
-    private static final Long TRANSFERENCIA_ESTADO_ANULADO = new Long(70);
+    private static final Long TRANSFERENCIA_ESTADO_PEDIENTE_ACEPTACION = new Long(20);
+    private static final Long TRANSFERENCIA_ESTADO_PEDIENTE_AUTORIZACION = new Long(30);
+    private static final Long TRANSFERENCIA_ESTADO_APROBADO = new Long(40);
+    private static final Long TRANSFERENCIA_ESTADO_RECHAZADO = new Long(50);
     private static final Long TRANSFERENCIA_ESTADO_TRANSFERIDO = new Long(60);
-    private static final Long TRANSFERENCIA_ESTADO_PEDIENTE_ACEPTACION = new Long(60);
+    private static final Long TRANSFERENCIA_ESTADO_ANULADO = new Long(70);
+    
     
     /**
      * Notificaciones de la transferencia
@@ -1066,32 +1068,6 @@ public class TransferenciaArchivoService {
                 transferenciaArchivo.getIndAprobado() == 0;
     }
     
-    
-    /**
-     * Obtiene el numero de transferencias por usuario de origen
-     *
-     * @param usuId Identificador del usuario
-     * @return Número de registros
-     */
-    public int findCountByOrigenUsuarioId(Integer usuId) {
-        return transferenciaRepository.findCountByOrigenUsuarioId(usuId);
-    }
-    
-    
-    /**
-     * Obtiene los registros de de transferencias por usuario de origen, de acuerdo
-     * a la fila inicial y final.
-     *
-     * @param usuId Identificador del usuario
-     * @param inicio Numero de registro inicial
-     * @param fin Numero de registro final
-     * @return Lista de documentos
-     */
-    public List<TransferenciaArchivo> findAllByOrigenUsuarioId(Integer usuId, int inicio, int fin) {
-        List<TransferenciaArchivo> transferenciaArchivos = transferenciaRepository.findAllByOrigenUsuarioId(usuId, inicio, fin);        
-        return transferenciaArchivos;
-    }
-    
     /**
      * Aprueba una transferencia archivo, actualiza las transiciones.
      * @param transferenciaArchivo transferencia
@@ -1133,7 +1109,6 @@ public class TransferenciaArchivoService {
             transferenciaObservacionService.crearObservacon(transferenciaArchivo, Observacion, usuario);
         }
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_RECHAZADO);
-        transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_EN_CONSTRUCCION);
     
         Map<String, Object> model = new HashMap();
         model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
@@ -1201,31 +1176,6 @@ public class TransferenciaArchivoService {
         } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-    
-    
-    /**
-     * Obtiene el numero de transferencias por usuario destino
-     *
-     * @param usuId Identificador del usuario
-     * @return Número de registros
-     */
-    public int findCountByDestinoUsuarioId(Integer usuId) {
-        return transferenciaRepository.findCountByDestinoUsuarioId(usuId);
-    }
-    
-    /**
-     * Obtiene los registros de de transferencias por usuario destino, de acuerdo
-     * a la fila inicial y final.
-     *
-     * @param usuId Identificador del usuario
-     * @param inicio Numero de registro inicial
-     * @param fin Numero de registro final
-     * @return Lista de documentos
-     */
-    public List<TransferenciaArchivo> findAllByDestinoUsuarioId(Integer usuId, int inicio, int fin) {
-        List<TransferenciaArchivo> transferenciaArchivos = transferenciaRepository.findAllByDestinoUsuarioId(usuId, inicio, fin);        
-        return transferenciaArchivos;
     }
     
     /**
@@ -1297,7 +1247,6 @@ public class TransferenciaArchivoService {
     }
     
     public TransferenciaArchivo crearEncabezadoTransferenciaGestion(final Usuario usuarioOrigen, final Integer cargoOrigen, final Usuario destinoUsuario, final String justificacion) throws  Exception{
-        
         TransferenciaArchivo ta = new TransferenciaArchivo();
         ta.setActivo(Boolean.TRUE);
         ta.setEstado(TransferenciaArchivo.CREADA_ESTADO);
@@ -1330,6 +1279,103 @@ public class TransferenciaArchivoService {
         return taNew;
     }
     
+    /**
+     * Obtiene el numero de transferencias en proceso por usuario
+     *
+     * @param usuId Identificador del usuario
+     * @return Número de registros
+     */
+    public int findCountProcesoByUsuarioId(Integer usuId) {
+        return transferenciaRepository.findCountProcesoByUsuarioId(usuId);
+    }
+    
+    
+    /**
+     * Obtiene los registros de de transferencias en proceso por usuario, de acuerdo
+     * a la fila inicial y final.
+     *
+     * @param usuId Identificador del usuario
+     * @param inicio Numero de registro inicial
+     * @param fin Numero de registro final
+     * @return Lista de documentos
+     */
+    public List<TransferenciaArchivoDTO> findAllProcesoByUsuarioId(Integer usuId, int inicio, int fin) {
+        List<TransferenciaArchivoDTO> transferenciaArchivos = new ArrayList<>();
+        List<Object[]> result = transferenciaRepository.findAllProcesoByUsuarioId(usuId, inicio, fin);        
+        
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                TransferenciaArchivoDTO dTO = retornaTransferenciaArchivoDTO(object);
+                transferenciaArchivos.add(dTO);
+            }
+        }
+        return transferenciaArchivos;
+    }
+    
+    /**
+     * Obtiene el numero de transferencias realizadas por usuario
+     *
+     * @param usuId Identificador del usuario
+     * @return Número de registros
+     */
+    public int findCountRealizadasByUsuarioId(Integer usuId) {
+        return transferenciaRepository.findCountRealizadasByUsuarioId(usuId);
+    }
+    
+    /**
+     * Obtiene los registros de de transferencias realizadas por usuario, de acuerdo
+     * a la fila inicial y final.
+     *
+     * @param usuId Identificador del usuario
+     * @param inicio Numero de registro inicial
+     * @param fin Numero de registro final
+     * @return Lista de documentos
+     */
+    public List<TransferenciaArchivoDTO> findAllRealizadasByUsuarioId(Integer usuId, int inicio, int fin) {
+        List<TransferenciaArchivoDTO> transferenciaArchivos = new ArrayList<>();
+        List<Object[]> result = transferenciaRepository.findAllRealizadasByUsuarioId(usuId, inicio, fin);  
+        
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                TransferenciaArchivoDTO dTO = retornaTransferenciaArchivoDTO(object);
+                transferenciaArchivos.add(dTO);
+            }
+        }
+        return transferenciaArchivos;
+    }
+    
+    /**
+     * Obtiene el numero de transferencias recibidas por usuario
+     *
+     * @param usuId Identificador del usuario
+     * @return Número de registros
+     */
+    public int findCountRecibidasByUsuarioId(Integer usuId) {
+        return transferenciaRepository.findCountRecibidasByUsuarioId(usuId);
+    }
+    
+    /**
+     * Obtiene los registros de de transferencias recibidas por usuario, de acuerdo
+     * a la fila inicial y final.
+     *
+     * @param usuId Identificador del usuario
+     * @param inicio Numero de registro inicial
+     * @param fin Numero de registro final
+     * @return Lista de documentos
+     */
+    public List<TransferenciaArchivoDTO> findAllRecibidasByUsuarioId(Integer usuId, int inicio, int fin) {
+        List<TransferenciaArchivoDTO> transferenciaArchivos = new ArrayList<>();
+        List<Object[]> result = transferenciaRepository.findAllRecibidasByUsuarioId(usuId, inicio, fin);  
+        
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                TransferenciaArchivoDTO dTO = retornaTransferenciaArchivoDTO(object);
+                transferenciaArchivos.add(dTO);
+            }
+        }
+        return transferenciaArchivos;
+    }
+    
     
     /**
      * Retorna el objeto con los datos parámetricos de la transferencia
@@ -1340,7 +1386,7 @@ public class TransferenciaArchivoService {
     private TransferenciaArchivoDTO retornaTransferenciaArchivoDTO(Object[] object) {
         TransferenciaArchivoDTO dTO = new TransferenciaArchivoDTO();
         dTO.setTarId(object[0] != null ? ((BigDecimal) object[0]).intValue() : null);
-        dTO.setActivo(object[1] != null ? ((String) object[1]) : "");
+        dTO.setActivo(object[1] != null ? ((BigDecimal) object[1]).equals(BigDecimal.ONE) : false);
         dTO.setEstado(object[2] != null ? ((String) object[2]) : null);
         dTO.setFechaCreacion(object[3] != null ? (Date) object[3] : null);
         dTO.setUsuIdOrigen(object[4] != null ? ((BigDecimal) object[4]).intValue() : null);
