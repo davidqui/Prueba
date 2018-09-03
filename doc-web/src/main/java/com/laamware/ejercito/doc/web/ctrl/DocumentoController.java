@@ -68,6 +68,7 @@ import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.DependenciaCopiaMultidestino;
+import com.laamware.ejercito.doc.web.entity.DestinoExterno;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependenciaDestino;
@@ -118,6 +119,7 @@ import com.laamware.ejercito.doc.web.serv.ArchivoAutomaticoService;
 import com.laamware.ejercito.doc.web.serv.CacheService;
 import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
+import com.laamware.ejercito.doc.web.serv.DestinoExternoService;
 import com.laamware.ejercito.doc.web.serv.DocumentoEnConsultaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoObservacionDefectoService;
 import com.laamware.ejercito.doc.web.serv.UsuSelFavoritosService;
@@ -313,6 +315,9 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     TRDService tRDService;
+    
+    @Autowired
+    DestinoExternoService destinoExternoService;
 
 
     /*
@@ -1183,8 +1188,6 @@ public class DocumentoController extends UtilController {
                         }
                     }
 
-                    System.out.println("NOMBRE PLANTILLA = " + nombrePlantilla + " Version = " + versionPlantilla);
-
                     if (nombrePlantilla == null || versionPlantilla == null) {
                         doc.setMode(mode);
                         plantillas(model);
@@ -1248,7 +1251,9 @@ public class DocumentoController extends UtilController {
         // las propiedades editables al objeto que se extrajo de la base de
         // datos y luego se guarda para que se realicen los cambios.
         try {
-
+            System.out.println("TEST PRUEBA HOY! "+doc.getDestinoExterno());
+            System.out.println("TEST PRUEBA HOY! "+old.getDestinoExterno());
+            
             mode.transferirEditables(doc, old);
 
             if (fileSaveRequestGet && fileId != null) {
@@ -5039,6 +5044,17 @@ public class DocumentoController extends UtilController {
     @ModelAttribute("clasificaciones")
     public List<Clasificacion> clasificaciones() {
         return clasificacionRepository.findByActivo(true, new Sort(Direction.ASC, "orden"));
+    }
+    
+    /**
+     * 2018-09-03 samuel.delgado@controltechcg.com Issue gogs #10
+     * Carga el listado de destinos externos
+     *
+     * @return
+     */
+    @ModelAttribute("destinosExternos")
+    public List<DestinoExterno> destinosExternos() {
+        return destinoExternoService.findActive(new Sort(Direction.ASC, "nombre"));
     }
 
     /**

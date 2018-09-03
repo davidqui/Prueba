@@ -316,6 +316,14 @@ public class Documento extends AuditModifySupport {
     @Size(max = 2000)
     @Column(name = "ACTA_DESCRIPCION")
     private String actaDescripcion;
+    
+    /*
+     * 2018-09-03 samuel.delgado@controltechcg.com Issue gogs #10 (SICDI-Controltech)
+     * feature-gogs-10: Campo para el campo administrable de destino externo
+     */
+    @ManyToOne
+    @JoinColumn (name = "ADE_ID", referencedColumnName = "ADE_ID")
+    private DestinoExterno destinoExterno;
 
     @Transient
     private List<UsuarioVistoBuenoDTO> vistosBuenos = new ArrayList<UsuarioVistoBuenoDTO>();
@@ -597,6 +605,14 @@ public class Documento extends AuditModifySupport {
         this.destinatarioNombre = destinatarioNombre;
     }
 
+    public DestinoExterno getDestinoExterno() {
+        return destinoExterno;
+    }
+
+    public void setDestinoExterno(DestinoExterno destinoExterno) {
+        this.destinoExterno = destinoExterno;
+    }
+    
     public String getSemaforo() {
         if (plazo != null) {
             long diff = plazo.getTime() - new Date().getTime();
