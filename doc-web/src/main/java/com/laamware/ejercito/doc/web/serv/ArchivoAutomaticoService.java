@@ -96,15 +96,13 @@ public class ArchivoAutomaticoService {
 
         DocumentoDependencia documentoDependenciaArchivar = new DocumentoDependencia();
         documentoDependenciaArchivar.setDependencia(usuarioArchivador.getDependencia());
+        documentoDependenciaArchivar.setQuien(usuarioArchivador.getId());
         documentoDependenciaArchivar.setDocumento(documento);
         documentoDependenciaArchivar.setTrd(documento.getTrd());
         documentoDependenciaArchivar.setCargo(cargoArchivador);
+        documentoDependenciaArchivar.setActivo(Boolean.TRUE);
+        documentoDependenciaArchivar.setCuando(new Date());
         documentoDependenciaRepository.save(documentoDependenciaArchivar);
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        String sql = "UPDATE DOCUMENTO_DEPENDENCIA SET DOCUMENTO_DEPENDENCIA.QUIEN = ? WHERE DOCUMENTO_DEPENDENCIA.DCDP_ID = ?";
-        Object[] params = {usuarioArchivador.getId(), documentoDependenciaArchivar.getId()};
-        jdbcTemplate.update(sql, params);
     }
 
     /**
