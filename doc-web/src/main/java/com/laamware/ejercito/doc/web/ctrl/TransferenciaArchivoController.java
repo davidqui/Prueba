@@ -18,6 +18,7 @@ import com.laamware.ejercito.doc.web.entity.TransferenciaObservacion;
 import com.laamware.ejercito.doc.web.entity.TransferenciaTransicion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
+import com.laamware.ejercito.doc.web.serv.DocumentoActaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoDependenciaService;
 import com.laamware.ejercito.doc.web.serv.DocumentoService;
 import com.laamware.ejercito.doc.web.serv.ExpedienteService;
@@ -151,6 +152,9 @@ public class TransferenciaArchivoController extends UtilController {
      */
     @Autowired
     private TransferenciaObservacionService transferenciaObservacionService;
+    
+    @Autowired
+    private DocumentoActaService documentoActaService;
     
     @RequestMapping(value = "/listar", method = RequestMethod.GET)
     public String listarTransferencias(Principal principal, Model model,
@@ -827,6 +831,9 @@ public class TransferenciaArchivoController extends UtilController {
         if (!transferenciaService.hayPlantillaActiva()) {
             model.addAttribute(AppConstants.FLASH_ERROR,"ATENCIÓN: No hay plantilla activa para la generación del acta de transferencia de archivo.");
         }
+        
+        TransferenciaArchivo archivo = transferenciaService.findOneTransferenciaArchivo(454);
+        documentoActaService.crearActaTransferencia(archivo);
 
         return "transferencia-gestion-crear";
     }

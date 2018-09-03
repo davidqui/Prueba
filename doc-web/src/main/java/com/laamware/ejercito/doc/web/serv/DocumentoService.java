@@ -45,14 +45,16 @@ public class DocumentoService {
      * @return Nuevo documento con estado {@link Documento#ESTADO_TEMPORAL}.
      */
     public Documento crearDocumento(Instancia procesoInstancia, final Usuario usuarioCreador) {
+        System.err.println("Creando documento");
         final Documento documento = Documento.create();
-
+        System.err.println("Creando documento id= "+documento.getId());
         documento.setInstancia(procesoInstancia);
         documento.setEstadoTemporal(Documento.ESTADO_TEMPORAL);
 
         documento.setElabora(usuarioCreador);
         documento.setUsuarioUltimaAccion(usuarioCreador);
 
+        System.err.println("Seteando variable= "+documento.getId());
         procesoInstancia.setVariable(Documento.DOC_ID, documento.getId());
         instanciaRepository.save(procesoInstancia);
 

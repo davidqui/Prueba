@@ -11,6 +11,7 @@ import com.laamware.ejercito.doc.web.entity.HProcesoInstancia;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Radicacion;
+import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.entity.UsuarioXDocumentoActa;
@@ -19,6 +20,7 @@ import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaMode;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaUsuarioSeleccion;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
+import com.laamware.ejercito.doc.web.repo.ProcesoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
@@ -39,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +99,8 @@ public class DocumentoActaService {
     private final Integer[] subseriesActasUsuario_1_1;
 
     private final Integer[] subseriesActasUsuario_0_0;
+    
+    private final Integer subserieActaTransferencia;
 
     @Autowired
     private UsuarioService usuarioService;
@@ -138,6 +143,9 @@ public class DocumentoActaService {
     
     @Autowired
     VariableRepository variableRepository;
+    
+    @Autowired
+    ProcesoRepository procesoRepository;
 
     /**
      * Constructor.
@@ -153,6 +161,8 @@ public class DocumentoActaService {
      * con selección de mínimo y máximo 1 usuario.
      * @param subseriesActasUsuario_0_0 Arreglo de ID de subseries TRD de actas
      * con selección de mínimo y máximo 0 usuarios.
+     * @param subserieActaTransferencia Identifica la subserie utilizada en la 
+     * creacion del acta de transferencia de archivo
      */
     @Autowired
     public DocumentoActaService(
@@ -160,13 +170,15 @@ public class DocumentoActaService {
             @Value("${com.mil.imi.sicdi.documento.acta.limite.fecha-elaboracion.dias}") Integer diasLimiteFechaElaboracion,
             @Value("${com.mil.imi.sicdi.documento.acta.limite.fecha-plazo.dias}") Integer diasLimiteFechaPlazo,
             @Value("${com.mil.imi.sicdi.trd.subseries.actas.usuario-1-1}") Integer[] subseriesActasUsuario_1_1,
-            @Value("${com.mil.imi.sicdi.trd.subseries.actas.usuario-0-0}") Integer[] subseriesActasUsuario_0_0
+            @Value("${com.mil.imi.sicdi.trd.subseries.actas.usuario-0-0}") Integer[] subseriesActasUsuario_0_0,
+            @Value("${com.mil.imi.sicdi.trd.subseries.actas.transferencia}") Integer subserieActaTransferencia
     ) {
         this.serieActasID = serieActasID;
         this.diasLimiteFechaElaboracion = diasLimiteFechaElaboracion;
         this.diasLimiteFechaPlazo = diasLimiteFechaPlazo;
         this.subseriesActasUsuario_1_1 = subseriesActasUsuario_1_1;
         this.subseriesActasUsuario_0_0 = subseriesActasUsuario_0_0;
+        this.subserieActaTransferencia = subserieActaTransferencia;
     }
 
     /**
@@ -784,6 +796,52 @@ public class DocumentoActaService {
             variable = new Variable(DocumentoActaController.VARIABLE_STICKER, "true", procesoInstancia);
             procesoInstancia.getVariables().add(variable);
             variableRepository.save(variable);
+        }
+    }
+    
+    public void crearActaTransferencia(TransferenciaArchivo transferenciaArchivo){
+        try {
+            final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
+            final Usuario usuarioEmisor = transferenciaArchivo.getOrigenUsuario();
+            final Usuario usuarioReceptor = transferenciaArchivo.getDestinoUsuario();
+            
+            System.err.println("Parametrizando la instancia");
+            Instancia instancia = new Instancia();
+            instancia.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+            instancia.setProceso(procesoRepository.getOne(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS));
+            
+            instancia.setAsignado(jefeDependencia);
+            Instancia instanciaNueva = instanciaRepository.saveAndFlush(instancia);
+            System.err.println("Creando la instancia");
+            
+            crearDocumento(instanciaNueva, jefeDependencia);
+            System.err.println("Creando el documento");
+            
+            final String descripcionUsuarioOrigen = usuarioEmisor+" "+ transferenciaArchivo.getUsuOrigenCargo().getCarNombre();
+            final String descripcionUsuarioReceptor = usuarioReceptor+" "+ transferenciaArchivo.getUsuDestinoCargo().getCarNombre();
+            
+            final String asunto = "TRATA DE LA TRANSFERENCIA DEL ARCHIVO DOCUMENTAL ELECTRÓNICO EN GESTION, ELABORADO EN LA PLATAFORMA DEL SISTEMA "
+                    + "INTEGRADO DE CLASIFICACIÓN DE DOCUMENTOS DE INTELIGENCIA MILITAR (SICDI) QUE  HACE  EL SEÑOR(A) "+ descripcionUsuarioOrigen.toUpperCase()
+                    + " AL SEÑOR(A) "+descripcionUsuarioReceptor.toUpperCase()+"  DEL "+usuarioReceptor.getDependencia().getNombre().toUpperCase()+" POR MOTIVO "
+                    + "DE "+transferenciaArchivo.getJustificacion().toUpperCase()+" DE ACUERDO   A  LO ESTABLECIDO  POR  LEY  594 DE 2000.";
+            
+            final String actaLugar = usuarioReceptor.getDependencia().getCiudad();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            
+            DocumentoActaDTO documentoActaDTO = new DocumentoActaDTO();
+            documentoActaDTO.setAsunto(asunto);
+            documentoActaDTO.setActaLugar(actaLugar);
+            documentoActaDTO.setActaFechaElaboracion(dateFormat.format(new Date()));
+            documentoActaDTO.setClasificacion(transferenciaArchivo.getOrigenClasificacion().getId().toString());
+            documentoActaDTO.setTrd(trdService.findOne(subserieActaTransferencia).getId().toString());
+            documentoActaDTO.setNumeroFolios("0");
+            documentoActaDTO.setCargoElabora(jefeDependencia.getUsuCargoPrincipalId().getId().toString());
+            documentoActaDTO.setActaDescripcion(asunto);
+            
+            guardarRegistroDatos(documentoActaDTO, jefeDependencia);
+            System.err.println("Guardando registros de actas");
+        } catch (ParseException ex) {
+            Logger.getLogger(DocumentoActaService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
