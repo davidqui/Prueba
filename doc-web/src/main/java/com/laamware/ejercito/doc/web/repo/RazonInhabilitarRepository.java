@@ -29,4 +29,10 @@ public interface RazonInhabilitarRepository extends JpaRepository<RazonInhabilit
      */
     public List<RazonInhabilitar> findAllByActivoTrueOrderByTextoRazonAsc();
 
+    /***
+     * Trae una razón de inhabilitar por el texto
+     * @param texto texto
+     * @return razon inhabilitar
+     */
+    public RazonInhabilitar getOneByActivoTrueAndTextoRazon(String texto);
 }
