@@ -173,7 +173,7 @@ public class NotificacionService {
      */
     public void eliminarNotifiacion(Notificacion notificacion, Usuario usuario) {
         notificacion.setQuien(usuario);
-        notificacion.setCuando(new Date());
+        notificacion.setCuandoMod(new Date());
         notificacion.setActivo(Boolean.FALSE);
         notificacionRepository.saveAndFlush(notificacion);
     }

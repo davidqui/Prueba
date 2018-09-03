@@ -81,6 +81,11 @@ public class RazonInhabilitarService {
         if (textoRazon.trim().length() > textoRazonColumnLength) {
             throw new BusinessLogicException("El texto de la razón permite máximo " + textoRazonColumnLength + " caracteres.");
         }
+        
+        RazonInhabilitar anterior = razonInhabilitarRepository.getOneByActivoTrueAndTextoRazon(textoRazon);
+        if (anterior != null) {
+            throw new BusinessLogicException("Este nombre ya existe.");
+        }
 
         razonInhabilitar.setQuien(usuario);
         razonInhabilitar.setCuando(new Date());
@@ -110,6 +115,11 @@ public class RazonInhabilitarService {
             if (textoRazon.trim().length() > textoRazonColumnLength) {
                 throw new BusinessLogicException("El texto de la razón permite máximo " + textoRazonColumnLength + " caracteres.");
             }
+            
+            RazonInhabilitar anterior = razonInhabilitarRepository.getOneByActivoTrueAndTextoRazon(textoRazon);
+            if (anterior != null && !anterior.getId().equals(anterior.getId())) {
+                throw new BusinessLogicException("Este nombre ya existe.");
+            }
 
             RazonInhabilitar razonInhabilitarAnterior
                     = findOne(razonInhabilitar.getId());
@@ -132,8 +142,8 @@ public class RazonInhabilitarService {
      */
     public void eliminarRazonInhabilitar(RazonInhabilitar razonInhabilitar,
             Usuario usuario) {
-        razonInhabilitar.setQuien(usuario);
-        razonInhabilitar.setCuando(new Date());
+        razonInhabilitar.setQuienMod(usuario);
+        razonInhabilitar.setCuandoMod(new Date());
         razonInhabilitar.setActivo(Boolean.FALSE);
         razonInhabilitarRepository.saveAndFlush(razonInhabilitar);
     }
