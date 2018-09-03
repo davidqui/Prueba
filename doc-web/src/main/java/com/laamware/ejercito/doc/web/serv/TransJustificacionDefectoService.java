@@ -130,9 +130,9 @@ public class TransJustificacionDefectoService {
      * @param usuario Usuario que aplico el cambio
      */
     public void eliminarTransJustificacionDefecto(TransJustificacionDefecto transJustificacionDefecto,
-            Usuario usuario) {
-        transJustificacionDefecto.setQuien(usuario);
-        transJustificacionDefecto.setCuando(new Date());
+        Usuario usuario) {
+        transJustificacionDefecto.setQuienMod(usuario);
+        transJustificacionDefecto.setCuandoMod(new Date());
         transJustificacionDefecto.setActivo(Boolean.FALSE);
         transJustificacionDefectoRepository.saveAndFlush(transJustificacionDefecto);
     }
