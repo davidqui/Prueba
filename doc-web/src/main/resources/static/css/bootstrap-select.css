@@ -85,7 +85,7 @@ select.selectpicker {
   width: auto !important;
 }
 .bootstrap-select:not([class*="col-"]):not([class*="form-control"]):not(.input-group-btn) {
-  width: 400px;
+  width: 100%;
 }
 .bootstrap-select .dropdown-toggle:focus {
   outline: thin dotted #333333 !important;
@@ -188,6 +188,21 @@ select.selectpicker {
 .bootstrap-select .dropdown-toggle .filter-option-inner-inner {
   overflow: hidden;
 }
+
+.bootstrap-select div.inner.open{
+    width: 100%;
+}
+
+
+.bootstrap-select .dropdown-menu a{
+    width: 100%;
+    display: inline-block;
+}
+
+.bootstrap-select .dropdown-menu li:hover{
+    background-color: #dddddd;
+}
+
 .bootstrap-select .dropdown-toggle .caret {
   position: absolute;
   top: 50%;
