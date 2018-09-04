@@ -144,7 +144,7 @@ public class TematicaController extends UtilController {
 
         try {
             tematicaService.editarTematica(tematica, usuarioSesion);
-            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
+            redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro modificado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
