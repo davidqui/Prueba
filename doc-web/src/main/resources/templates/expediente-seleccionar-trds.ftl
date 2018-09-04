@@ -39,8 +39,9 @@
         <div id="accordion">
             <#list trds as trdP >
                 <h4>
+                    <img class="card-img-top" src="/img/corner-down-right.svg" alt=""/>
                     <button class="btn btn-link" data-toggle="collapse" data-target="#collapse_${(trdP.id)!""}" aria-expanded="true" aria-controls="collapseOne">
-                    ${trdP.nombre}
+                        ${trdP.nombre}
                     </button>
                     <#assign hasAllSelectedPadre = controller.hasAllSubseriesSelectedByPadre(trdsPreseleccionadas, trds, trdP.id) />            
                 </h4>
