@@ -13,6 +13,7 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+import org.springframework.data.domain.Sort;
 
 /**
  * Servicio para las operaciones de los recursos multimedia.
@@ -30,7 +31,7 @@ public class RecursoMultimediaService {
      * Repositorio de recurso multimedia.
      */
     @Autowired
-    private TematicaRepository tematicaRepository;
+//    private TematicaRepository tematicaRepository;
     private RecursoMultimediaRepository recursoMultimediaRepository;
 
     /**
@@ -38,9 +39,9 @@ public class RecursoMultimediaService {
      * 
      * @return 
      */
-    public List<RecursoMultimedia> findAll() {
-        return recursoMultimediaRepository.findAll();
-    }
+//    public List<RecursoMultimedia> findAll() {
+//        return recursoMultimediaRepository.findAll();
+//    }
 
     /**
      * Busca un registro de recurso multimedia por Id.
@@ -85,7 +86,7 @@ public class RecursoMultimediaService {
             throw new BusinessLogicException("El texto de la fuente permite máximo " + textoFuenteColumnLength + " caracteres.");
         }
         
-        RecursoMultimedia nombreRecursoMultimedia = recursoMultimediaRepository.findOneByNombre(nombre);
+        RecursoMultimedia nombreRecursoMultimedia = recursoMultimediaRepository.findOneByNombreAndActivoTrue(nombre);
         if (nombreRecursoMultimedia != null) {
             throw new BusinessLogicException("El nombre del recurso multimedia que desea crear ya existe.");
         }
@@ -93,7 +94,6 @@ public class RecursoMultimediaService {
         recursoMultimedia.setNombre(nombre.toUpperCase());
         recursoMultimedia.setDescripcion(descripcion);
         recursoMultimedia.setFuente(fuente);
-        recursoMultimedia.setPesoOrden(pesoOrden);
         recursoMultimedia.setPesoOrden(pesoOrden);
         recursoMultimedia.setTipo("validar contenType");
         recursoMultimedia.setUbicacion("validar el directorio donde se guardaria el archivo");
@@ -139,7 +139,7 @@ public class RecursoMultimediaService {
             throw new BusinessLogicException("El texto de la fuente permite máximo " + textoFuenteColumnLength + " caracteres.");
         }
         
-        RecursoMultimedia recursoMultimediaNombre = recursoMultimediaRepository.findOneByNombre(nombre);
+        RecursoMultimedia recursoMultimediaNombre = recursoMultimediaRepository.findOneByNombreAndActivoTrue(nombre);
         if (recursoMultimediaNombre != null && !recursoMultimediaNombre.getId().equals(recursoMultimedia.getId())&& recursoMultimediaNombre != null) {
             throw new BusinessLogicException("Este nombre ya existe.");
         }
@@ -181,6 +181,27 @@ public class RecursoMultimediaService {
         recursoMultimedia.setCuandoMod(new Date());
         recursoMultimedia.setActivo(Boolean.TRUE);
         recursoMultimediaRepository.saveAndFlush(recursoMultimedia);
+    }
+    /**
+     * Lista todas los recursos activos
+     * 
+     * @param sort
+     * @return 
+     */
+
+    public List<RecursoMultimedia> findActive(Sort sort) {
+        return recursoMultimediaRepository.getByActivoTrue(sort);
+    }
+    
+    /**
+     * Lista todos los recurso
+     * 
+     * @param sort
+     * @return 
+     */
+
+    public List<RecursoMultimedia> findAll(Sort sort) {
+        return recursoMultimediaRepository.findAll(sort);
     }
 
 }
