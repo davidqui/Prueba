@@ -30,7 +30,7 @@ import org.hibernate.annotations.Parameter;
  */
 @Entity
 @Table(name = "TEMATICA")
-@LaamLabel("Tematica")
+@LaamLabel("Temática")
 //@NamedQueries({
 //    @NamedQuery(name = "Tematica.findAll", query = "SELECT t FROM Tematica t")})
 public class Tematica implements Serializable {

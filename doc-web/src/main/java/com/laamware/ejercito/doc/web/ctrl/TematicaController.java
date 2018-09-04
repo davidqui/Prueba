@@ -66,7 +66,13 @@ public class TematicaController extends UtilController {
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         
-        List<Tematica> list = tematicaService.findAll();
+         List<Tematica> list;
+        if (!all) {
+            list = tematicaService.findActive(sort);
+        } else {
+            list = tematicaService.findAll(sort);
+        }
+        
         model.addAttribute("list", list);
         model.addAttribute("all", all);
         return LIST_TEMPLATE;

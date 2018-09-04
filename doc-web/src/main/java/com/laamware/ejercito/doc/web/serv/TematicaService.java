@@ -11,6 +11,7 @@ import com.laamware.ejercito.doc.web.util.ReflectionUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+import org.springframework.data.domain.Sort;
 
 /**
  * Servicio para las operaciones para tematicas.
@@ -35,9 +36,9 @@ public class TematicaService {
      * 
      * @return 
      */
-    public List<Tematica> findAll() {
-        return tematicaRepository.findAll();
-    }
+//    public List<Tematica> findAll() {
+//        return tematicaRepository.findAll();
+//    }
 
     /**
      * Busca un registro de tematica especifico por su Id.
@@ -132,5 +133,25 @@ public class TematicaService {
         tematica.setActivo(Boolean.FALSE);
         tematicaRepository.saveAndFlush(tematica);
     }
+    /**
+     * Lista todas las Tematicas activos
+     * 
+     * @param sort
+     * @return 
+     */
+
+    public List<Tematica> findActive(Sort sort) {
+        return tematicaRepository.getByActivoTrue(sort);
+    }
     
+    /**
+     * Lista todos las tematicas
+     * 
+     * @param sort
+     * @return 
+     */
+
+    public List<Tematica> findAll(Sort sort) {
+        return tematicaRepository.findAll(sort);
+    }
 }
