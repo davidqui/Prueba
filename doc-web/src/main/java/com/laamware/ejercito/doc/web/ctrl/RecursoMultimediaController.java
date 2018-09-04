@@ -66,9 +66,22 @@ public class RecursoMultimediaController extends UtilController {
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         
-        List<RecursoMultimedia> list = recursoMultimediaService.findAll();
+//        List<RecursoMultimedia> list = recursoMultimediaService.findAll();
+//        model.addAttribute("list", list);
+//        model.addAttribute("all", all);
+//        return LIST_TEMPLATE;
+
+
+        List<RecursoMultimedia> list;
+        if (!all) {
+            list = recursoMultimediaService.findActive(sort);
+        } else {
+            list = recursoMultimediaService.findAll(sort);
+        }
+        
         model.addAttribute("list", list);
         model.addAttribute("all", all);
+
         return LIST_TEMPLATE;
     }
 
