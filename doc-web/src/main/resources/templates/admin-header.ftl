@@ -87,6 +87,19 @@
                     Enlace para la opción de notificaciones.
                 -->
                 <@link_admin  "ADMIN_RAZON_INHABILITAR" "/admin/razon-inhabilitar" 'razones-inhabilitar' 'Razones Inhabilitar Usuario'/>
+                
+                <#--
+                    2018-09-03 @author jcespedeso@imi.mil.co @author dquijanor@imi.mil.co @author aherreram@imi.mil.co feature_9 (SICDI-GETDE)
+                    Issue #9 (SICDI-Controltech) feature-gogs-9: Enlace para la opción de Tematica.
+                -->
+                <@link_admin  "ADMIN_TEMATICA" "/admin/tematica" 'tematica' 'Tematica Manual'/>
+              
+                <#--
+                    2018-09-03 @author jcespedeso@imi.mil.co @author dquijanor@imi.mil.co @author aherreram@imi.mil.co feature_9 (SICDI-GETDE)
+                    Issue #9 (SICDI-Controltech) feature-gogs-9: Enlace para la opción de recursoMultimedia.
+                -->
+                <@link_admin  "ADMIN_RECURSO_MULTIMEDIA" "/admin/recursoMultimedia" 'recursoMultimedia' 'Recursos Multimedia'/>
+                
                 </ul>
             </div>
         </div>

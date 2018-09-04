@@ -203,6 +203,18 @@ public class AppConstants {
     public static final String PATH_ADMIN_PAR_NOMBRE_EXPEDIENTE = "/admin/parnombrexpediente";
 
     /**
+     * Rol de administración de tematica
+     */
+    public static final String ADMIN_TEMATICA = "ADMIN_TEMATICA";
+    public static final String PATH_ADMIN_TEMATICA = "/admin/tematica";
+    
+    /**
+     * Rol de administración de Recursos Multimedia
+     */
+    public static final String ADMIN_RECURSO_MULTIMEDIA = "ADMIN_RECURSO_MULTIMEDIA";
+    public static final String PATH_ADMIN_RECURSO_MULTIMEDIA = "/admin/recursoMultimedia";
+
+    /**
      * Rol para búsqueda de documentos por firma/envío UUID.
      */
     /*
