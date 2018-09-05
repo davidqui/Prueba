@@ -820,4 +820,29 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "    and expdoc.exp_id = :expId\n"
             + ")", nativeQuery = true)
     Object encuentrafechaMaximaExpediente(@Param("expId") Long expId);
+    
+    /**
+     * Trae la fecha minima para mostrar las observaciones
+     * @param pinID pindId de la instancia del documento.
+     * @return Date fecha minima
+     */
+    /*
+     * 2018-09-05 samuel.delgado@controltechcg.com hotfix gogs #11 (SICDI-Controltech)
+     * hotfix-gogs-11.
+     */
+    @Query(value = "" +
+        "select min(cuando_mod) cuando_mod\n" +
+        "from(\n" +
+        "select min(cuando_mod) cuando_mod\n" +
+        "from proceso_instancia\n" +
+        "where ((pro_id = 8 and pes_id = 49) or (pro_id = 9 and pes_id = 46)) \n" +
+        "and pin_id = :pinID \n" +
+        "union\n" +
+        "select min(cuando_mod) cuando_mod\n" +
+        "from h_proceso_instancia\n" +
+        "where ((pro_id = 8 and pes_id = 49) or (pro_id = 9 and pes_id = 46)) \n" +
+        "and pin_id = :pinID)", nativeQuery = true)
+    Date fechaMinObservaciones(@Param("pinID") String pinID);
+    
+    
 }
