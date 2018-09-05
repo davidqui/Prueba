@@ -281,8 +281,6 @@ COMMIT;
 -- -----------------------------------------------------------------------------
 
 ALTER TABLE DOCUMENTO ADD DOC_FEC_RADICADO TIMESTAMP;
-
-ALTER TABLE DOCUMENTO MODIFY DOC_ASUNTO VARCHAR2(4000);
 ALTER TABLE DOCUMENTO MODIFY ACTA_DESCRIPCION VARCHAR2(4000);
 
 COMMENT ON COLUMN DOCUMENTO.DOC_FEC_RADICADO    IS 'Permite identificar la fecha en que se realizó la radicación de un documento, independientemente del proceso.';
