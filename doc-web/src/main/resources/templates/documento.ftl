@@ -932,18 +932,28 @@
         Observaciones
     -->
     <div class="card m-y">                           		        
-    <#if (!((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
-            && (usuariologueado.id == documento.instancia.asignado.id))) >
         <#if (documento.observaciones)??>
         <h5 class="card-title" style="padding: 16px;margin: 0;">Observaciones</h5>
         <div class="card-body" id="obsDiv" style="padding: 0 16px;max-height: 373px;overflow: hidden;overflow-y: auto;">
-	                    <#list documento.observaciones as obs>
-            <hr/>
-            <strong>${utilController.nombre(obs.quien)}</strong>, <em> ${obs.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
-            <p>${obs.texto}</p>
-	                    </#list>
+            <#list documento.observaciones as obs>
+                <!--
+                    2018-09-05 samuel.delgado@controltechcg.com hotfix gogs #11 (SICDI-Controltech)
+                    hotfix-gogs-11.
+                -->
+                <#if (((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+                && (usuariologueado.id == documento.instancia.asignado.id))) >
+                    <#if (obs.cuando >= fechaMinObservaciones)>
+                    <hr/>
+                    <strong>${utilController.nombre(obs.quien)}</strong>, <em> ${obs.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
+                    <p>${obs.texto}</p>
+                    </#if>
+                <#else>
+                    <hr/>
+                    <strong>${utilController.nombre(obs.quien)}</strong>, <em> ${obs.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
+                    <p>${obs.texto}</p>
+                </#if>
+	    </#list>
             </div>
-	        	</#if>
             <#if mode.observaciones_edit>
         <div class="card-block cus-gray-bg">
             <form method="post" id="obsForm" >
