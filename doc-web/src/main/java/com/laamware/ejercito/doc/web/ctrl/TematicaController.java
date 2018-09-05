@@ -62,7 +62,7 @@ public class TematicaController extends UtilController {
      * @return 
      */
      
-    @RequestMapping(value = {""}, method = RequestMethod.GET)
+    @RequestMapping(value = {" "}, method = RequestMethod.GET)
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         

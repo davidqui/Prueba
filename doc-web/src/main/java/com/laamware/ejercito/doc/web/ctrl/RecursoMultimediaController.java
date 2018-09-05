@@ -5,6 +5,7 @@ import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.RecursoMultimedia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.RecursoMultimediaService;
+import com.laamware.ejercito.doc.web.serv.TematicaService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.ReflectionException;
 import java.security.Principal;
@@ -28,12 +29,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * Controlador para {@link RecursoMultimedia}.
  *
- * @author jcespedeso@imi.mil.co 
- * @author dquijanor@imi.mil.co 
+ * @author jcespedeso@imi.mil.co
+ * @author dquijanor@imi.mil.co
  * @author aherreram@imi.mil.co
  * @since Septiembre 3, 2018 _feature_9 (SICDI-GETDE)
  */
-
 @Controller
 @PreAuthorize(value = "hasRole('ADMIN_RECURSO_MULTIMEDIA')")
 @RequestMapping(RecursoMultimediaController.PATH)
@@ -54,31 +54,26 @@ public class RecursoMultimediaController extends UtilController {
     @Autowired
     private RecursoMultimediaService recursoMultimediaService;
 
+    @Autowired
+    private TematicaService tematicaService;
+
     /**
-     *  Permite listar todos los recursos multimedia.
-     * 
+     * Permite listar todos los recursos multimedia.
+     *
      * @param all
      * @param model
-     * @return 
+     * @return
      */
-     
     @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
-        
-//        List<RecursoMultimedia> list = recursoMultimediaService.findAll();
-//        model.addAttribute("list", list);
-//        model.addAttribute("all", all);
-//        return LIST_TEMPLATE;
-
-
         List<RecursoMultimedia> list;
         if (!all) {
             list = recursoMultimediaService.findActive(sort);
         } else {
             list = recursoMultimediaService.findAll(sort);
         }
-        
+
         model.addAttribute("list", list);
         model.addAttribute("all", all);
 
@@ -87,7 +82,10 @@ public class RecursoMultimediaController extends UtilController {
 
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(Model model) {
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+        
         RecursoMultimedia recursoMultimedia = new RecursoMultimedia();
+        model.addAttribute("tematicas", tematicaService.findActive(sort));
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
         return CREATE_TEMPLATE;
     }
@@ -96,10 +94,10 @@ public class RecursoMultimediaController extends UtilController {
      * Permite visualizar el formulario de edición de un recurso multimedia.
      *
      * @param model
-     * @param req  conjunto de data recibida por intermedio del request a traves del formulario. 
+     * @param req conjunto de data recibida por intermedio del request a traves
+     * del formulario.
      * @return Pagina que edita un nombre de expediente.
      */
-    
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
         Integer id = Integer.parseInt(req.getParameter("id"));
@@ -122,7 +120,7 @@ public class RecursoMultimediaController extends UtilController {
      */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
     public String crear(RecursoMultimedia recursoMultimedia, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
-        MultipartFile archivo, Principal principal) {
+            MultipartFile archivo, Principal principal) {
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
         final Usuario usuarioSesion = getUsuario(principal);
 
@@ -181,7 +179,7 @@ public class RecursoMultimediaController extends UtilController {
 
         return "redirect:" + PATH;
     }
-    
+
     @ModelAttribute("descriptor")
     GenDescriptor getDescriptor() {
         return GenDescriptor.find(RecursoMultimedia.class);
