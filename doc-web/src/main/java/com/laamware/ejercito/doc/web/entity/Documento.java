@@ -154,6 +154,7 @@ public class Documento extends AuditModifySupport {
 
     @OneToMany
     @JoinColumn(name = "DOC_ID")
+    @OrderBy("CUANDO DESC")
     private List<DocumentoObservacion> observaciones;
 
     @ManyToOne
@@ -1062,6 +1063,28 @@ public class Documento extends AuditModifySupport {
 
         final Integer estadoID = getInstancia().getEstado().getId();
         return (estadoID == Estado.REVISIÓN_JEFE_JEFATURA);
+    }
+    
+    /**
+     * Indica si el documento se encuentra en estado enviado para el proceso de
+     * generación de documentos externos.
+     *
+      * @return {@code true} si el documento se encuentra en estado enviado para
+     * el proceso de generación de documentos externos; de lo contrario,
+     * {@code false}.
+     * @see
+     * Proceso#ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS
+     * @see Estado#ENVIADO
+     * 
+    **/
+    public boolean esDocumentoEnviadoExterno() {
+        final Integer procesoID = getInstancia().getProceso().getId();
+        if (procesoID != Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS) {
+            return false;
+        }
+
+        final Integer estadoID = getInstancia().getEstado().getId();
+        return (estadoID == Estado.ENVIADO);
     }
 
     public String mostrarPreview() {

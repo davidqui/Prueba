@@ -149,6 +149,6 @@
         </div>
     </div>
 
-    <script src="/js/app/transferencia-archivo-crear.js"></script>
+    <script src="/js/app/buscar-usuario.js"></script>
 
 <#include "footer.ftl" />

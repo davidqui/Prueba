@@ -56,7 +56,8 @@
             </tbody>
         </table>
         <div class="m-y">
-             <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
+            <!--#181 se agrega loader --> 
+             <button id="btnGuardar" type="submit" class="btn btn-primary" onclick="loading(event);">Guardar</button>
         </div>
         <script type="text/javascript">
             function selectAllTrd(form, button){

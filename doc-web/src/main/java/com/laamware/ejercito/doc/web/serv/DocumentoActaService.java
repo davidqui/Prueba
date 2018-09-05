@@ -192,7 +192,13 @@ public class DocumentoActaService {
      * contrario, {@code false}.
      */
     public boolean verificaAccesoDocumentoActa(final Usuario usuario, final String procesoInstanciaID) {
-        return usuarioService.verificaAccesoDocumentoActa(usuario, procesoInstanciaID);
+        /*
+	 * 2018-08-29 edison.gonzalez@controltechcg.com Issue #181 (SICDI-Controltech)
+	 * feature-181: Se adiciona los permisos de acceso de los usuarios de los
+         * expedientes y se centraliza un solo metodo para la verificación de acceso.
+        */
+        return usuarioService.verificaAccesoDocumento(usuario.getId(), procesoInstanciaID);
+//        return usuarioService.verificaAccesoDocumentoActa(usuario, procesoInstanciaID);
     }
 
     /**

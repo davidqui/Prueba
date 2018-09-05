@@ -18,6 +18,9 @@ import org.hibernate.annotations.Parameter;
 
 import com.laamware.ejercito.doc.web.ctrl.UsuarioMode;
 import com.laamware.ejercito.doc.web.dto.UsuarioHistorialFirmaDTO;
+import javax.persistence.CascadeType;
+import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * @author rafar
@@ -213,6 +216,19 @@ public class Usuario extends AuditActivoModifySupport {
     @ManyToOne
     @JoinColumn(name = "DOM_CODIGO", referencedColumnName = "DOM_CODIGO")
     private Dominio dominio;
+    
+    
+    /*
+     * 2018-08-15 samuel.delgado@controltechcg.com Issue #7 (SICDI-Controltech)
+     * feature-gogs-7: Estado del usuario activo para hacer operaciones y la razón si este essta inhabilitado
+     */
+    @Column(name = "USU_ACTIVO")
+    private Boolean usuActivo = true;
+    
+    @ManyToOne
+    @JoinColumn(name = "RAZ_ID")
+    private RazonInhabilitar razonInhabilitar;
+
 
     @Transient
     private List<UsuarioHistorialFirmaDTO> historialUsuarios = new ArrayList<UsuarioHistorialFirmaDTO>();
@@ -222,6 +238,11 @@ public class Usuario extends AuditActivoModifySupport {
 
     @Transient
     private boolean restriccionDocumentoNivelAcceso;
+    
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuId")
+    private List<UsuSelFavoritos> usuSelFavoritosList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuFav")
+    private List<UsuSelFavoritos> usuSelFavoritosList1;
 
     public Usuario(Integer id) {
         this.id = id;
@@ -391,6 +412,22 @@ public class Usuario extends AuditActivoModifySupport {
         this.restriccionDocumentoNivelAcceso = restriccionDocumentoNivelAcceso;
     }
 
+    public Boolean getUsuActivo() {
+        return usuActivo;
+    }
+
+    public void setUsuActivo(Boolean usuActivo) {
+        this.usuActivo = usuActivo;
+    }
+
+    public RazonInhabilitar getRazonInhabilitar() {
+        return razonInhabilitar;
+    }
+
+    public void setRazonInhabilitar(RazonInhabilitar razonInhabilitar) {
+        this.razonInhabilitar = razonInhabilitar;
+    }
+    
     @Transient
     private String idString;
 
@@ -511,4 +548,22 @@ public class Usuario extends AuditActivoModifySupport {
         this.dominio = dominio;
     }
 
+    @XmlTransient
+    public List<UsuSelFavoritos> getUsuSelFavoritosList() {
+        return usuSelFavoritosList;
+    }
+
+    public void setUsuSelFavoritosList(List<UsuSelFavoritos> usuSelFavoritosList) {
+        this.usuSelFavoritosList = usuSelFavoritosList;
+    }
+
+    @XmlTransient
+    public List<UsuSelFavoritos> getUsuSelFavoritosList1() {
+        return usuSelFavoritosList1;
+    }
+
+    public void setUsuSelFavoritosList1(List<UsuSelFavoritos> usuSelFavoritosList1) {
+        this.usuSelFavoritosList1 = usuSelFavoritosList1;
+    }
+    
 }

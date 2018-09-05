@@ -27,7 +27,7 @@
        		<input type="file" class="form-control" name="archivo" id="archivo"/>
             <#break>
         <#case "select">
-            <select class="form-control" name="${propd.name}" id="${propd.name}">
+            <select class="selectpicker" name="${propd.name}" id="${propd.name}" data-live-search="true">
                 <#assign vlist = lists.get(propd.widgetList) >
                 <option value=""></option>
                 <#list vlist as vitem>
@@ -73,7 +73,7 @@
        		<input type="file" class="form-control" name="archivo" id="archivo"/>
             <#break>
         <#case "select">
-            <select class="form-control" name="${propd.name}" id="${propd.name}">
+            <select class="selectpicker" name="${propd.name}" id="${propd.name}" data-live-search="true">
                 <#assign vlist = lists.get(propd.widgetList) >
                 <#assign vvalue = (propd.id(obj)!"")?string >
                 <option value=""></option>
@@ -154,6 +154,7 @@
         <#assign epath = epath + p.name + "=" + p.prop.valueSelect(obj) />
         <#assign first = 0 />
     </#list>
-    <a href="${epath}" class="btn btn-link btn-sm">${accion.label}</a>
+    <!--#181 se agrega loader --> 
+    <a href="${epath}" class="btn btn-link btn-sm" onclick="loading(event);">${accion.label}</a>
 </#macro>
 

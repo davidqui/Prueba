@@ -1,7 +1,10 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.TrdArchivoDocumentosDTO;
+import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
+import com.laamware.ejercito.doc.web.entity.Dependencia;
+import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +16,7 @@ import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificable;
 import com.laamware.ejercito.doc.web.util.NumeroVersionIdentificableComparator;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -362,5 +366,83 @@ public class TRDService {
             fillTrdsHierarchy(subserie, usuario);
         }
     }
+    
+    /***
+     * Lista de trds de un dependencia
+     * @param dependencias
+     * @return 
+     */
+    /*
+     * 2018-05-02 edison.gonzalez@controltechcg.com Issue #181
+     * (SICDI-Controltech) feature-181
+     */
+    public List<Trd> findByDependencia(Dependencia dependencia){
+        return trdRepository.findSeriesByDependencia(dependencia.getId());
+    }
 
+    
+        
+    /***
+     * Lista las trds que posee el expediente segun sus documentos.
+     * @param expediente
+     * @return 
+     */
+    public List<Trd> getTrdExpedienteDocumentos(final Expediente expediente){
+        return trdRepository.getTrdsByExpedienteDocumentos(expediente.getExpId());
+    }
+    
+    /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
+     * Obtiene los registros de las series por expediente y usuario.
+     *
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
+     * @return Lista de series.
+     */
+    public List<TrdDTO> getSeriesByExpedienteAndUsuario(Integer usuId, Long expId){
+        List<TrdDTO> expedientes = new ArrayList<>();
+        List<Object[]> result = trdRepository.getSeriesByExpedienteAndUsuario(expId, usuId);
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                TrdDTO dTO = retornaTrdDTO(object);
+                expedientes.add(dTO);
+            }
+        }
+        return expedientes;
+    }
+    
+    /**
+     * 2018-18-13 edison.gonzalez@controltechcg.com Issue #181
+     * Obtiene los registros de las subseries por expediente, usuario y serie.
+     *
+     * @param usuId Identificador del usuario
+     * @param expId Identificador del expediente
+     * @param trdId Identificador de la serie
+     * @return Lista de subseries.
+     */
+    public List<TrdDTO> getSubSeriesByExpedienteAndUsuario(Integer usuId, Long expId, Integer trdId){
+        List<TrdDTO> expedientes = new ArrayList<>();
+        List<Object[]> result = trdRepository.getSubSerieByExpedienteAndUsuarioAndSerie(expId, usuId, trdId);
+        if (result != null && !result.isEmpty()) {
+            for (Object[] object : result) {
+                TrdDTO dTO = retornaTrdDTO(object);
+                expedientes.add(dTO);
+            }
+        }
+        return expedientes;
+    }
+    
+    /**
+     * Metodo que se encarga de crear el objeto TrdDTO.
+     * @param object 
+     * @return TrdDTO
+     */
+    private TrdDTO retornaTrdDTO(Object[] object) {
+        TrdDTO dTO = new TrdDTO();
+        dTO.setTrdId(object[0] != null ? ((BigDecimal) object[0]).intValue() : null);
+        dTO.setTrdNombre(object[1] != null ? (String) object[1] : "");
+        dTO.setTrdCodigo(object[2] != null ? (String) object[2] : "");
+        dTO.setCantidad(object[5] != null ? ((BigDecimal) object[5]).intValue() : null);
+        return dTO;
+    }
 }

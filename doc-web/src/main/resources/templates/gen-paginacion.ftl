@@ -24,10 +24,10 @@
             </div>
             <div class="col-sm-3">
                 <ul class="dataTables_paginate">
-
+                    <!--#181 se agrega loader --> 
                     <#if pageIndex gt 1>
-                        <li class="page-item"><a href="javascript: myFunction(1);" class="page-link"><<</a></li>
-                        <li class="page-item"><a href="javascript: myFunction(${pageIndex - 1});" class="page-link"><</a></li>
+                        <li class="page-item"><a href="javascript: myFunction(1);" class="page-link" onclick="loading(event);"><<</a></li>
+                        <li class="page-item"><a href="javascript: myFunction(${pageIndex - 1});" class="page-link" onclick="loading(event);"><</a></li>
                     <#else>
                         <li class="page-item disabled"><a class="page-link"><<</a></li>
                         <li class="page-item disabled"><a class="page-link"><</a></li>
@@ -35,22 +35,22 @@
                     
                     <#list 1..totalPages as i>
                         <#if ((pageIndex - 2 == i && pageIndex - 2 gt 0 ) || (pageIndex - 1 == i && pageIndex - 1 gt 0))>
-                            <li class="page-item" ><a href="javascript: myFunction(${i});" class="page-link">${i}</a></li>
+                            <li class="page-item" ><a href="javascript: myFunction(${i});" class="page-link" onclick="loading(event);">${i}</a></li>
                         </#if>
                         <#if pageIndex == i>
                             <li class="page-item" ><a href="javascript: myFunction(${i});" class="page-link" style="background-color: gray; color:white; font-weight: bold;">${i}</a></li>
                         </#if>
                         <#if ((pageIndex + 2 == i && pageIndex + 2 lt totalPages+1 ) || (pageIndex + 1 == i && pageIndex + 1 lt totalPages+1))>
-                            <li class="page-item" ><a href="javascript: myFunction(${i});" class="page-link">${i}</a></li>
+                            <li class="page-item" ><a href="javascript: myFunction(${i});" class="page-link" onclick="loading(event);">${i}</a></li>
                         </#if>
                         <#if pageIndex + 2 lt totalPages && i == totalPages>
-                            <li class="page-item" ><a href="javascript: myFunction(${i});" class="page-link">${i}</a></li>
+                            <li class="page-item" ><a href="javascript: myFunction(${i});" class="page-link" onclick="loading(event);">${i}</a></li>
                         </#if>
                     </#list>
 
                     <#if pageIndex lt (totalPages)>
-                        <li class="page-item"><a href="javascript: myFunction(${pageIndex + 1});" class="page-link">></a></li>
-                        <li class="page-item"><a href="javascript: myFunction(${totalPages});" class="page-link">>></a></li>
+                        <li class="page-item"><a href="javascript: myFunction(${pageIndex + 1});" class="page-link" onclick="loading(event);">></a></li>
+                        <li class="page-item"><a href="javascript: myFunction(${totalPages});" class="page-link" onclick="loading(event);">>></a></li>
                     <#else>
                         <li class="page-item disabled"><a class="page-link">></a></li>
                         <li class="page-item disabled"><a class="page-link">>></a></li>
@@ -84,6 +84,8 @@
     <script type="text/javascript">
         $("#pageSize").change(function() {
             $("#pageIndex").val(1);
+            <!-- #181 se agrega loader --> 
+            loading(event);
             $(this).parents("form").submit();
         });
             

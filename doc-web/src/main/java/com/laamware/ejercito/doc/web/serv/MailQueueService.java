@@ -53,9 +53,8 @@ public class MailQueueService {
         
         List<String> correosAutorizados = new ArrayList<>(); 
         correosAutorizados.add("jcespedeso@imi.mil.co"); 
-        correosAutorizados.add("mmendozar@imi.mil.co"); 
+        correosAutorizados.add("mmendozar@imi.mil.co");
         correosAutorizados.add("aherreram@imi.mil.co"); 
-        correosAutorizados.add("rgomezg@imi.mil.co"); 
         correosAutorizados.add("egonzalezm@imi.mil.co"); 
         correosAutorizados.add("mrianom@imi.mil.co"); 
         correosAutorizados.add("cmartinezcas@imi.mil.co"); 
@@ -65,7 +64,7 @@ public class MailQueueService {
         String destino = emailDTO.getDestino();
         
         if (mailTest) {
-            destino = "aherreram@imi.mil.co"; 
+            destino = "jcespedeso@imi.mil.co"; 
             if (correosAutorizados.contains(emailDTO.getDestino())) { 
                 destino = emailDTO.getDestino(); 
             } 

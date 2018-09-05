@@ -18,6 +18,8 @@ import java.util.logging.Logger;
  * @since Feb 6, 2017
  */
 public final class DateUtil {
+    
+    public static SimpleDateFormat dateFormatObservacion = new SimpleDateFormat("yyyy-MM-dd hh:mm a:ss"); 
 
     /**
      * Permite establecer la hora inicial o la hora final del día a una fecha.

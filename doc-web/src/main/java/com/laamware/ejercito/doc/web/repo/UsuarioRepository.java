@@ -124,4 +124,12 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      */
     @Query(value = "select t from Usuario t where t.activo = 1 and t.dependencia.id = :depId order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
     List<Usuario> findByDependenciaAndActivoTrueOrderByGradoDesc(@Param(value = "depId") Integer dep);
+    
+    /**
+     * Bbtiene las veces que el usuario se ha inactivado en una semana.
+     * @param usuId Identificador del usuario.
+     * @return numero de veces que se ha inactivado
+     */
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM H_USUARIO_ACTIVO WHERE to_number(to_char(CUANDO,'WW')) = to_number(to_char(SYSDATE,'WW')) AND USU_ID = :usuId AND USU_ACTIVO = 0")
+    Integer getCountUsuarioCambiosActivoSemana(@Param(value = "usuId") Integer usuId);
 }

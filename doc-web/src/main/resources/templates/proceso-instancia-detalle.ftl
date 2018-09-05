@@ -14,7 +14,8 @@
       <div class="card-block">
           <ul class="nav nav-pills nav-stacked">
               <#list transiciones as t>
-              <li class="nav-item"><a href="${t.replace(t.definicion, instancia)}" class="nav-link">${t.nombre}</a></li>
+              <!--#181 se agrega loader --> 
+              <li class="nav-item"><a href="${t.replace(t.definicion, instancia)}" class="nav-link" onclick="loading(event);">${t.nombre}</a></li>
               </#list>
           </ul>
       </div>
@@ -44,7 +45,7 @@
     <#-- <#assign hinstancias = instancia.historia() /> -->
     <#assign hinstancias = historiasTransiciones />
     <#if (hinstancias??) && (hinstancias?size > 0) >
-    <ul class="list-group list-group-flush">
+    <ul class="list-group list-group-flush" style="max-height: 400px;overflow: hidden;overflow-y: auto;">
         <#list hinstancias as h>
         <li class="list-group-item">
         	<#-- 2017-03-24 jgarcia@controltechcg.com Issue #19 (SIGDI-Incidencias01): Modificación para la presentación 
@@ -62,7 +63,32 @@
     </ul>
     </#if>
   </div>
+  <#if (expedienteTransiciones??) && (expedienteTransiciones?size > 0) >
+        <div class="card">
+        <div class="card-header">
+          Expediente
+        </div>
+        <#--
+            *  2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SIGDI-Controltech):
+            *  se agregan transiciones del expediente.
+        -->
+        <ul class="list-group list-group-flush" style="max-height: 400px;overflow: hidden;overflow-y: auto;">
+            <#list expedienteTransiciones as hx>
+            <li class="list-group-item">
+                <strong>${hx.expEstId.estNombre} -- ${hx.expId.expNombre}</strong>
+                <br/>
+                <small>${hx.fecCreacion}</small>
+                <br/>
+                <ul>
+                    <li><i><b>Realizó</b></i>: ${hx.usuCreacion.nombre}</li>
+                </ul>
+            </li>
+            </#list>
+        </ul>
+      </div>
+  </#if>
 </div>
+
 <div class="col-md-8 col-lg-9">
 	<h1 class="cus-h1-page-title">Detalle de instancia</h1>
 	<p>

@@ -33,7 +33,7 @@
     </#if>
     <table class="table table-sm">    	
         <#if mode.expediente_view && documento.expediente?? >
-        <tr><th>Expediente</th><td>${documento.expediente.nombre}</td></tr>
+        <tr><th>Expediente</th><td>${documento.expediente.expNombre}</td></tr>
         </#if> 
         <#if mode.radicado_view && documento.radicado?? >
         <tr><th>Radicado</th><td>${documento.radicado}</td></tr>
@@ -643,32 +643,7 @@
                 </div>
             </fieldset>
         </#if>
-        <!--
 
-
-            Expediente
-        -->
-        <#if mode.expediente_edit >
-        <fieldset class="form-group">
-            <label for="expediente">Expediente</label>
-                <@spring.bind "documento.expediente" />
-            <select class="form-control" id="expediente" name="${spring.status.expression}">
-                    <#if expedientes??>
-                <option value=""></option>
-                        <#list expedientes as exp>
-                        <#if spring.status.value?? && exp == spring.status.value >
-                <option value="${exp.id}" selected="selected">${exp.nombre}</option>
-                        <#else>
-                <option value="${exp.id}">${exp.nombre}</option>
-                        </#if>
-                        </#list>
-                    </#if>
-                </select>
-            <div class="error">
-                    <@spring.showErrors "<br>"/>
-                </div>
-            </fieldset>
-        </#if>
         
         <!--
             Contenido
@@ -787,8 +762,9 @@
         		    		Corrección para activar el botón de la acción "Guardar" únicamente cuando se encuentre
         		    		en sesión el usuario asignado al documento. 
         		    	-->
-        		    	<#if (usuariologueado.id == documento.instancia.asignado.id)>		        				        				        		
-                <button id="guardar-doc-btn" type="submit" class="btn ${btnGuardarStyle} btn-sm">Guardar</button>
+        		    	<#if (usuariologueado.id == documento.instancia.asignado.id)>
+                <!--#181 se agrega loader --> 
+                <button id="guardar-doc-btn" type="submit" class="btn ${btnGuardarStyle} btn-sm" onclick="loading(event);">Guardar</button>
 
                 <script type="text/javascript">
                     $(document).ready(function () {
@@ -885,12 +861,13 @@
                                                                                 Se realiza la modificación de los componentes que controlan la transición de los documentos
                                                                                 del tag <a> por el tag <button>.
                                                                                 -->
+                                                                                <!--#181 se agrega loader --> 
                                                                                 <#if (mode.cargoIdFirma_edit && cambiarIdCargoFirma!false) && isTransicionFirmar(transicion)>
-                                                                                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                    <button id="trx_${transicion.id}" class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="loading(event); processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
                                                                                         ${transicion.nombre}
                                                                                     </button>
                                                                                 <#else>
-                                                                                    <button class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
+                                                                                    <button class="btn ${getTransicionStyle(transicion)} btn-sm" type="button" onclick="loading(event); processTransition(this, '${transicion.replace(instancia)}&cargoIdFirma=${cargosXusuario?first.id}')">
                                                                                         ${transicion.nombre}
                                                                                     </button>
                                                                                 </#if>
@@ -935,20 +912,31 @@
                     Reasignar
                     </a> 
 			                </#if>
-			            </#if>
+                
+			            </#if>     
+                                    <#-- 2018-08-02 samuel.delgado@controltechcg.com Issue #181 (SIGDI-Controltech): 
+                                        Botón para enviar a expediente un documento ya finalizado -->
+                                    <#if expedientesValidos?? && ((((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+			            		&& (usuariologueado.id == documento.instancia.asignado.id))) || (documento.aprueba?? && usuariologueado.id == documento.elabora.id)) && !documento.expediente??>
+                                        <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-enviar-expediente">
+                                            Asignar Expediente
+                                        </a>
+                                    </#if>
 	                </#if>
 	            </#if>
                 </div>
             </nav>
         </form>
 
-<!--
+    <!--
         Observaciones
-    -->       	
+    -->
     <div class="card m-y">                           		        
-	            <#if (documento.observaciones)??>
-        <div class="card-block" id="obsDiv">
-            <h5>Observaciones</h5>
+    <#if (!((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+            && (usuariologueado.id == documento.instancia.asignado.id))) >
+        <#if (documento.observaciones)??>
+        <h5 class="card-title" style="padding: 16px;margin: 0;">Observaciones</h5>
+        <div class="card-body" id="obsDiv" style="padding: 0 16px;max-height: 373px;overflow: hidden;overflow-y: auto;">
 	                    <#list documento.observaciones as obs>
             <hr/>
             <strong>${utilController.nombre(obs.quien)}</strong>, <em> ${obs.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
@@ -980,10 +968,10 @@
                     </div>
                 </div>
             </form>
+        </#if>
         </div>
                 <#assign deferredJSObs>
         <script type="text/javascript">
-            <!--
             $("#obsButton").click(function(event){
             event.preventDefault();
 
@@ -1000,23 +988,23 @@
             url: "/documento/observacion?doc=${documento.id}",
             data: $("#obsForm").serialize(),
             success: function(data) {
-            var hr = $("<hr/>");
-            hr.appendTo("#obsDiv");
-            var strong = $("<strong/>");
-            strong.text(data.quien + ", ");
-            strong.appendTo("#obsDiv");
-            var em = $("<em/>");
-            em.text(data.cuando);
-            em.appendTo("#obsDiv");
             var p = $("<p/>");
             p.html(data.texto);
-            p.appendTo("#obsDiv");
+            $("#obsDiv").prepend(p);
             $("#observacion").val('');
+            var em = $("<em/>");
+            em.text(data.cuando);
+            $("#obsDiv").prepend(em);
+            var strong = $("<strong/>");
+            strong.text(data.quien + ", ");
+            $("#obsDiv").prepend(strong);
+            var hr = $("<hr/>");
+            $("#obsDiv").prepend(hr);
+            
             }
             });
             }
             });
-            -->
             </script>
                 </#assign>
                 <#assign deferredJS = deferredJS + deferredJSObs />
@@ -1027,7 +1015,8 @@
 <div class="col-md-4">
     <div class="card">
         <div class="card-header">
-            <a href="/proceso/instancia/detalle?pin=${instancia.id}">Proceso</a>
+            <!--#181 se agrega loader --> 
+            <a href="/proceso/instancia/detalle?pin=${instancia.id}" onclick="loading(event);">Proceso</a>
             </div>
         <div class="card-block">
 
@@ -1333,6 +1322,56 @@
         </div><!-- /.modal-dialog -->
       </div><!-- /.modal -->
 
+
+<!-- modal seleccionar expediente -->
+<div class="modal fade bd-example-modal-lg" id="modal-enviar-expediente" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Seleccionar Expediente</h5>
+      </div>
+      <div class="modal-body" style="max-height: 650px; overflow: hidden; overflow-y: auto;">
+        <#if expedientesValidos?? && expedientesValidos?size != 0>
+            <input class="form-control" type="text" id="buscardor-expediente" onkeyup="buscarEnLista()" placeholder="buscar" title="Esctriba el nombre del expediente" style="margin-bottom: 10px;">
+            <div class="list-group" id="lista-expedientes">
+                <input type="hidden" id="expedienteDestino" name="expedienteDestino" value="" />
+                <#list expedientesValidos as pExpediente>
+                    <button id="expediente-${(pExpediente.expId)!""}" onclick="seleccionarExpediente(${(pExpediente.expId)!""})"
+                            class="list-group-item list-group-item-action flex-column align-items-start expediente-list">
+                        <div class="d-flex w-100 justify-content-between">
+                          <h5 class="mb-1">${(pExpediente.expNombre)!""}</h5>
+                          <small>${(pExpediente.fecCreacion)!""}</small>
+                        </div>
+                        <p class="mb-1">
+                            <#if pExpediente.expDescripcion?length &lt; 255>
+                            ${pExpediente.expDescripcion}
+                            <#else>
+                            ${pExpediente.expDescripcion?substring(0,249)} ...
+                            </#if>
+                        </p>
+                        <small>${(pExpediente.depId.nombre)!""}</small>
+                    </button>
+                </#list>
+            </div>
+        <#else>
+           <p>No tiene expedientes validos para este documento.</p>
+        </#if>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" id="submit-button"
+        class="btn btn-primary" 
+        onclick="submitSeleccionarExpediente('${instancia.id}')"
+        style="display:none;"
+        >
+        Enviar a expediente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script type="text/javascript">
     <!--
     function visualizar(url) {
@@ -1468,6 +1507,12 @@
         feature-162: Separación del selector de observaciones por defecto.
     -->
     <script src="/js/app/documento-observaciones.js"></script>
+    <#--
+        2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
+        feature-162: js para enviar documento a expediente.
+    -->
+    <script src="/js/app/enviar-expediente-documento.js"></script>
+    
 </#assign>
 <#assign deferredJS = deferredJS + " " + deferredJSDependencias>
 <#include "bandeja-footer.ftl" />

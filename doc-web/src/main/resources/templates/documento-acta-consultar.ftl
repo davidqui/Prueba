@@ -24,10 +24,66 @@
 
 <div class="col-md-4">
     <@presentarInformacionProcesoInstancia procesoInstancia documento />
-
+    <#-- Agregar a expediente -->    
+    <#if expedientesValidos??>
+        <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-enviar-expediente" style="width: 100%;margin: 10px 0;">
+            Asignar Expediente
+        </a>
+    </#if>
+    
     <#-- Adjuntos -->    
     <@presentarCargaAdjuntos documento procesoInstancia utilController estadoModo "EDICION_INFORMACION" tipologias "archivo" />
     <br />
 </div>
+
+<!-- modal seleccionar expediente -->
+<div class="modal fade bd-example-modal-lg" id="modal-enviar-expediente" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Seleccionar Expediente</h5>
+      </div>
+      <div class="modal-body" style="max-height: 650px; overflow: hidden; overflow-y: auto;">
+        <#if expedientesValidos?? && expedientesValidos?size != 0>
+            <input class="form-control" type="text" id="buscardor-expediente" onkeyup="buscarEnLista()" placeholder="buscar" title="Esctriba el nombre del expediente" style="margin-bottom: 10px;">
+            <div class="list-group" id="lista-expedientes">
+                <input type="hidden" id="expedienteDestino" name="expedienteDestino" value="" />
+                <#list expedientesValidos as pExpediente>
+                    <button id="expediente-${(pExpediente.expId)!""}" onclick="seleccionarExpediente(${(pExpediente.expId)!""})"
+                            class="list-group-item list-group-item-action flex-column align-items-start expediente-list">
+                        <div class="d-flex w-100 justify-content-between">
+                          <h5 class="mb-1">${(pExpediente.expNombre)!""}</h5>
+                          <small>${(pExpediente.fecCreacion)!""}</small>
+                        </div>
+                        <p class="mb-1">
+                            <#if pExpediente.expDescripcion?length &lt; 255>
+                            ${pExpediente.expDescripcion}
+                            <#else>
+                            ${pExpediente.expDescripcion?substring(0,249)} ...
+                            </#if>
+                        </p>
+                        <small>${(pExpediente.depId.nombre)!""}</small>
+                    </button>
+                </#list>
+            </div>
+        <#else>
+           <p>No tiene expedientes validos para este documento.</p>
+        </#if>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" id="submit-button"
+        class="btn btn-primary" 
+        onclick="submitSeleccionarExpediente('${procesoInstancia.id}')"
+        style="display:none;"
+        >
+        Enviar a expediente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app/enviar-expediente-documento.js"></script>
 
 <#include "bandeja-footer.ftl" />

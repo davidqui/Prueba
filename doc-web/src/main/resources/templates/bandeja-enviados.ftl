@@ -74,7 +74,8 @@
                         ${x.cuandoMod?string('yyyy-MM-dd hh:mm a')}
                     </td>
                     <td style="text-align: center; vertical-align: middle;middle; word-wrap: break-word;">
-                        <strong><a href="/proceso/instancia?pin=${x.instancia.id}">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
+                        <!-- #181 se agrega loader --> 
+                        <strong><a href="/proceso/instancia?pin=${x.instancia.id}" onclick="loading(event);">${(x.asunto)!"&lt;Sin asunto&gt;"}</a></strong>
                     </td>
                     <td style="text-align: center; vertical-align: middle; width : 10%">
                         <#if (x.radicado)??>
