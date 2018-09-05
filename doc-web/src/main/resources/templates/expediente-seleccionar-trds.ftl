@@ -36,48 +36,56 @@
             <input id="selected-all-trd" name="selected-all-trd" type="hidden" value="${hasAllSelected?c}" />
         </div>
         </br>
-        
-        <#list trds as trdP >
-            <h4>${trdP.nombre} 
-                <#assign hasAllSelectedPadre = controller.hasAllSubseriesSelectedByPadre(trdsPreseleccionadas, trds, trdP.id) />            
+        <div id="accordion">
+            <#list trds as trdP >
+                <h4>
+                    <img class="card-img-top" src="/img/corner-down-right.svg" alt=""/>
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapse_${(trdP.id)!""}" aria-expanded="true" aria-controls="collapseOne">
+                        ${trdP.nombre}
+                    </button>
+                    <#assign hasAllSelectedPadre = controller.hasAllSubseriesSelectedByPadre(trdsPreseleccionadas, trds, trdP.id) />            
+                </h4>
+                <input id="selected-all-trd-${trdP.id}" name="selected-all-trd" type="hidden" value="${hasAllSelectedPadre?c}" />
+                <div id="collapse_${(trdP.id)!""}" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
                 <button id="select-all-trd" name="select-all-trd" type="button" class="btn btn-default btn-sm slAllTrd" onclick="return selectAllTrdPadre(this.form, this, ${trdP.id});">
                 <#if hasAllSelectedPadre >
                     ${removeAllText}
                 <#else>
                     ${selectAllText}
                 </#if>
-            </h4>
-            <input id="selected-all-trd-${trdP.id}" name="selected-all-trd" type="hidden" value="${hasAllSelectedPadre?c}" />
-            <#assign trdCount = 0 />
-            <table class="table table-bordered">
-                <tbody>
-                    <#list trdP.subs as trd >
-                        <#if (trdCount % numeroColumnas) == 0 >
-                        <tr>
-                        </#if>
-                            <td>
-                                <div class="checkbox">
-                                    <label class="checkbox-inline" <#if controller.hasInDocument(trd.id, trdDocumentos)> style="color:red; font-weight:bold"</#if>>
-                                        <input type="checkbox" value="${trd.id}" 
-                                            <#if controller.has(trd.id, trdsPreseleccionadas)>checked="checked"</#if> 
-                                            <#if controller.hasInDocument(trd.id, trdDocumentos)>
-                                                style="outline: 2px solid #c00; margin-right:5px;" disabled
-                                            <#else>
-                                                name="trd"
-                                                class="trd-${trdP.id}"
-                                                style="margin-right:5px;" 
-                                            </#if>>${trd.nombre}</input>                    
-                                    </label>
-                                </div>
-                            </td>
-                        <#assign trdCount = trdCount + 1 />
-                        <#if (trdCount % numeroColumnas) == 0 >
-                        </tr>
-                        </#if>
-                    </#list>
-                </tbody>
-            </table>
-        </#list>
+                </button>
+                <#assign trdCount = 0 />
+                    <table class="table table-bordered">
+                        <tbody>
+                            <#list trdP.subs as trd >
+                                <#if (trdCount % numeroColumnas) == 0 >
+                                <tr>
+                                </#if>
+                                    <td>
+                                        <div class="checkbox">
+                                            <label class="checkbox-inline" <#if controller.hasInDocument(trd.id, trdDocumentos)> style="color:red; font-weight:bold"</#if>>
+                                                <input type="checkbox" value="${trd.id}" 
+                                                    <#if controller.has(trd.id, trdsPreseleccionadas)>checked="checked"</#if> 
+                                                    <#if controller.hasInDocument(trd.id, trdDocumentos)>
+                                                        style="outline: 2px solid #c00; margin-right:5px;" disabled
+                                                    <#else>
+                                                        name="trd"
+                                                        class="trd-${trdP.id}"
+                                                        style="margin-right:5px;" 
+                                                    </#if>>${trd.nombre}</input>                    
+                                            </label>
+                                        </div>
+                                    </td>
+                                <#assign trdCount = trdCount + 1 />
+                                <#if (trdCount % numeroColumnas) == 0 >
+                                </tr>
+                                </#if>
+                            </#list>
+                        </tbody>
+                    </table>
+                </div>   
+            </#list>
+        </div>
         <br /><br />
         
         <nav class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
