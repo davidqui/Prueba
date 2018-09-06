@@ -36,9 +36,9 @@ public class TematicaService {
      * 
      * @return 
      */
-//    public List<Tematica> findAll() {
-//        return tematicaRepository.findAll();
-//    }
+    public List<Tematica> findAllFull() {
+        return tematicaRepository.findAll();
+    }
 
     /**
      * Busca un registro de tematica especifico por su Id.

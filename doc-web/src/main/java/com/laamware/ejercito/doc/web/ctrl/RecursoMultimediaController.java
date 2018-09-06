@@ -5,10 +5,10 @@ import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.RecursoMultimedia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.RecursoMultimediaService;
+import com.laamware.ejercito.doc.web.serv.TematicaService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.ReflectionException;
 import java.security.Principal;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +40,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @PreAuthorize(value = "hasRole('ADMIN_RECURSO_MULTIMEDIA')")
 @RequestMapping(RecursoMultimediaController.PATH)
 public class RecursoMultimediaController extends UtilController {
-
+    
     private static final Logger LOG = Logger.getLogger(RecursoMultimediaController.class.getName());
 
     static final String PATH = "/admin/recursoMultimedia";
@@ -53,6 +55,12 @@ public class RecursoMultimediaController extends UtilController {
 
     @Autowired
     private RecursoMultimediaService recursoMultimediaService;
+    
+    @Autowired
+    private TematicaService tematicaService;
+    
+    @Value("${com.mil.imi.sicdi.archivomultimedia.root}")
+    private String directorioRoot;
 
     /**
      *  Permite listar todos los recursos multimedia.
@@ -61,34 +69,32 @@ public class RecursoMultimediaController extends UtilController {
      * @param model
      * @return 
      */
-     
     @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
-        
-//        List<RecursoMultimedia> list = recursoMultimediaService.findAll();
-//        model.addAttribute("list", list);
-//        model.addAttribute("all", all);
-//        return LIST_TEMPLATE;
-
-
         List<RecursoMultimedia> list;
         if (!all) {
             list = recursoMultimediaService.findActive(sort);
         } else {
             list = recursoMultimediaService.findAll(sort);
         }
-        
         model.addAttribute("list", list);
         model.addAttribute("all", all);
 
         return LIST_TEMPLATE;
     }
-
+    
+    /**
+     * Carga el formulario para crear un recurso multimedia.
+     * 
+     * @param model
+     * @return Template de creacion.
+     */
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(Model model) {
         RecursoMultimedia recursoMultimedia = new RecursoMultimedia();
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
+        model.addAttribute("tematicas", tematicaService.findAllFull());
         return CREATE_TEMPLATE;
     }
 
@@ -99,7 +105,6 @@ public class RecursoMultimediaController extends UtilController {
      * @param req  conjunto de data recibida por intermedio del request a traves del formulario. 
      * @return Pagina que edita un nombre de expediente.
      */
-    
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
         Integer id = Integer.parseInt(req.getParameter("id"));
@@ -108,26 +113,27 @@ public class RecursoMultimediaController extends UtilController {
         return EDIT_TEMPLATE;
     }
 
+    
     /**
-     * Permite crear el recurso multimedia.
-     *
+     * 
      * @param recursoMultimedia
      * @param req
      * @param eResult
      * @param model
      * @param redirect
-     * @param archivo
+     * @param files
      * @param principal
-     * @return Pagina para crear un nombre de expediente.
+     * @return 
      */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
     public String crear(RecursoMultimedia recursoMultimedia, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
-        MultipartFile archivo, Principal principal) {
+            @RequestParam("archivo") MultipartFile files, Principal principal) {
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
         final Usuario usuarioSesion = getUsuario(principal);
+        String subDirectorioTematica = "Multimedia";
 
         try {
-            recursoMultimediaService.crearRecursoMultimedia(recursoMultimedia, usuarioSesion);
+            recursoMultimediaService.crearRecursoMultimedia(recursoMultimedia, usuarioSesion, directorioRoot, subDirectorioTematica, files);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
         } catch (BusinessLogicException | ReflectionException ex) {
@@ -136,7 +142,7 @@ public class RecursoMultimediaController extends UtilController {
             return CREATE_TEMPLATE;
         }
     }
-
+        
     /**
      * Permite actualizar un recurso multimedia.
      *
@@ -165,7 +171,16 @@ public class RecursoMultimediaController extends UtilController {
             return EDIT_TEMPLATE;
         }
     }
-
+    
+    /**
+     * Permite eliminar logicamente un registro de recurso multimedia
+     * 
+     * @param model
+     * @param req
+     * @param redirect
+     * @param principal
+     * @return 
+     */
     @RequestMapping(value = {"/delete"}, method = RequestMethod.GET)
     public String delete(Model model, HttpServletRequest req, RedirectAttributes redirect, Principal principal) {
         try {

@@ -230,10 +230,7 @@ public class Tematica implements Serializable {
 
     @Override
     public String toString() {
-        return "Tematica{" + "id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", activo=" + activo + ", cuando=" + cuando + ", quien=" + quien + ", quienMod=" + quienMod + ", cuandoMod=" + cuandoMod + ", recursoMultimediaCollection=" + recursoMultimediaCollection + '}';
+        return "Tematica{" + "id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", activo=" + activo + ", cuando=" + cuando + ", quien=" + quien + ", quienMod=" + quienMod + ", cuandoMod=" + cuandoMod + '}';
     }
-
-    
-    
     
 }

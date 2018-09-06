@@ -304,8 +304,9 @@ public class RecursoMultimedia implements Serializable {
 
     @Override
     public String toString() {
-        return "RecursoMultimedia{" + "id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", activo=" + activo + ", fuente=" + fuente + ", pesoOrden=" + pesoOrden + ", tipo=" + tipo + ", ubicacion=" + ubicacion + ", quien=" + quien + ", cuando=" + cuando + ", quienMod=" + quienMod + ", cuandoMod=" + cuandoMod + ", tematica=" + tematica + '}';
+        return "RecursoMultimedia{" + "id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", activo=" + activo + ", fuente=" + fuente + ", pesoOrden=" + pesoOrden + ", tipo=" + tipo + ", ubicacion=" + ubicacion + ", quien=" + quien + ", cuando=" + cuando + ", quienMod=" + quienMod + ", cuandoMod=" + cuandoMod + '}';
     }
+
     
 
 }
