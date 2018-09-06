@@ -30,12 +30,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * Controlador para {@link RecursoMultimedia}.
  *
- * @author jcespedeso@imi.mil.co 
- * @author dquijanor@imi.mil.co 
+ * @author jcespedeso@imi.mil.co
+ * @author dquijanor@imi.mil.co
  * @author aherreram@imi.mil.co
  * @since Septiembre 3, 2018 _feature_9 (SICDI-GETDE)
  */
-
 @Controller
 @PreAuthorize(value = "hasRole('ADMIN_RECURSO_MULTIMEDIA')")
 @RequestMapping(RecursoMultimediaController.PATH)
@@ -62,12 +61,15 @@ public class RecursoMultimediaController extends UtilController {
     @Value("${com.mil.imi.sicdi.archivomultimedia.root}")
     private String directorioRoot;
 
+    @Autowired
+    private TematicaService tematicaService;
+
     /**
-     *  Permite listar todos los recursos multimedia.
-     * 
+     * Permite listar todos los recursos multimedia.
+     *
      * @param all
      * @param model
-     * @return 
+     * @return
      */
     @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
@@ -92,7 +94,10 @@ public class RecursoMultimediaController extends UtilController {
      */
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(Model model) {
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+        
         RecursoMultimedia recursoMultimedia = new RecursoMultimedia();
+        model.addAttribute("tematicas", tematicaService.findActive(sort));
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
         model.addAttribute("tematicas", tematicaService.findAllFull());
         return CREATE_TEMPLATE;
@@ -102,7 +107,8 @@ public class RecursoMultimediaController extends UtilController {
      * Permite visualizar el formulario de edición de un recurso multimedia.
      *
      * @param model
-     * @param req  conjunto de data recibida por intermedio del request a traves del formulario. 
+     * @param req conjunto de data recibida por intermedio del request a traves
+     * del formulario.
      * @return Pagina que edita un nombre de expediente.
      */
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
@@ -196,7 +202,7 @@ public class RecursoMultimediaController extends UtilController {
 
         return "redirect:" + PATH;
     }
-    
+
     @ModelAttribute("descriptor")
     GenDescriptor getDescriptor() {
         return GenDescriptor.find(RecursoMultimedia.class);

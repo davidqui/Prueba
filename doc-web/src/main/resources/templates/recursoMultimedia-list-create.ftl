@@ -26,6 +26,24 @@
                 <label for="fuente">Cargar Archivo</label>
                 <input type="file"  name="archivo" class="form-control-file" id="files">
                 </fieldset>
+            
+            <fieldset class="form-group">
+            <@spring.bind "recursoMultimedia.tematica" />
+                <label for="${spring.status.expression}">Temática</label><br>
+                <select class="selectpicker" id="${spring.status.expression}" name="${spring.status.expression}" data-live-search="true">
+                <#if tematicas??>
+                    <option value=""></option>
+                    <#list tematicas as temat>
+	            <#if temat.id?string == ((recursoMultimedia.tematica.id)!"")?string >
+                    <option value="${temat.id}" selected="selected">${temat.nombre}</option>
+	            <#else>
+                    <option value="${temat.id}">${temat.nombre}</option>
+	            </#if>
+                    </#list>
+                     </#if>
+                    </select>
+                </fieldset>
+            
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
                 <a href="/admin/recursoMultimedia" class="btn btn-secondary">Cancelar</a>

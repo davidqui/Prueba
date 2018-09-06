@@ -70,13 +70,15 @@
                             <#if x.activo?? && x.activo == true >
                                 <a href=${"/admin/tematica/edit?id="+x.id} class="btn btn-sm btn-warning" title="Modificar">M</a>
                                 <a href=${"/admin/tematica/delete?id="+x.id} class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro que desea eliminar el registro?');">E</a>
+                                
                             </#if>
                         <#if x.cuando?? >
                             <#if x.cuandoMod?? >
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien!"Sistema"} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}, Modificado por: ${x.quienMod!"Nadie"} el día ${x.cuandoMod?string('dd.MM.yyyy HH:mm:ss')!"Ninguno"}">H</a>
-                            <#else>
+                                <#else>
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}">H</a>
                             </#if>
+                                <a href=${"/admin/recursoMultimedia"} class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Ir a Recurso Multimedia" >B</a>
                         </#if>
                                </td>
                 </tr>
