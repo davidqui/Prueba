@@ -37,6 +37,7 @@
                 <#list descriptor.listProperties() as p>
                     <th>${p.label}</th>
                 </#list>
+                    <th>Archivo</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -66,6 +67,7 @@
                         <#assign first = false />
                     </td>
                 </#list>
+                        <td nowrap="nowrap">----</td>
                 	<td nowrap="nowrap">
                             <#if x.activo?? && x.activo == true >
                                 <a href=${"/admin/recursoMultimedia/edit?id="+x.id} class="btn btn-sm btn-warning" title="Modificar">M</a>

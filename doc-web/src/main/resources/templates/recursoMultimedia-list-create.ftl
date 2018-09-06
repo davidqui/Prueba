@@ -11,37 +11,33 @@
         <h1 class="cus-h1-page-title">Crear ${pageTitle}</h1>
         <form action="/admin/recursoMultimedia/crear" method="POST" enctype="multipart/form-data" >
             <fieldset class="form-group">
-                <label for="nombre">Tematica</label>
-                <select class="form-control" id="tematica" name="tematica" value="" required/>
-                <#list tematicas as tematica>
-                         <option value="${tematica.id}">${tematica.nombre}</option>
-                        </#list>
-                    </select>
                 <label for="nombre">Nombre</label>
                 <input type="text" class="form-control" id="nombre" name="nombre" value="${(recursoMultimedia.nombre)!""}" style="text-transform:uppercase"/>
                 <label for="descripcion">Descripcion</label>
                 <input type="text" class="form-control" id="descripcion" name="descripcion" value="${(recursoMultimedia.descripcion)!""}" style="text-transform:uppercase"/>
                 <label for="fuente">Fuente</label>
                 <input type="text" class="form-control" id="fuente" name="fuente" value="${(recursoMultimedia.fuente)!""}" style="text-transform:uppercase"/>
-                <label for="fuente">Cargar Archivo</label>
-                <input type="file"  name="archivo" class="form-control-file" id="files">
-                </fieldset>
-            
-            <fieldset class="form-group">
-            <@spring.bind "recursoMultimedia.tematica" />
-                <label for="${spring.status.expression}">Temática</label><br>
-                <select class="selectpicker" id="${spring.status.expression}" name="${spring.status.expression}" data-live-search="true">
+                <label for="pesoOrden">Peso Orden</label>
+                <input type="num" class="form-control" id="pesoOrden" name="pesoOrden" value="${(recursoMultimedia.pesoOrden)!""}"/>
+                <fieldset class="form-group">          
+                <@spring.bind "recursoMultimedia.tematica" />
+                    <label for="${spring.status.expression}">Temática</label><br>
+                    <select class="selectpicker" id="${spring.status.expression}" name="${spring.status.expression}" data-live-search="true">
                 <#if tematicas??>
-                    <option value=""></option>
+                        <option value=""></option>
                     <#list tematicas as temat>
 	            <#if temat.id?string == ((recursoMultimedia.tematica.id)!"")?string >
-                    <option value="${temat.id}" selected="selected">${temat.nombre}</option>
-	            <#else>
-                    <option value="${temat.id}">${temat.nombre}</option>
+                        <option value="${temat.id}" selected="selected">${temat.nombre}</option>
+                    <#else>
+                        <option value="${temat.id}">${temat.nombre}</option>
 	            </#if>
                     </#list>
                      </#if>
-                    </select>
+                        </select>
+                    </fieldset>
+                <label for="fuente">Cargar Archivo</label>
+                <input type="file"  name="archivo" class="form-control-file" id="files">
+                
                 </fieldset>
             
             <div class="m-y">

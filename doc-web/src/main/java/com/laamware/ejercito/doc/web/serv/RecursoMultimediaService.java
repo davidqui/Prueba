@@ -151,8 +151,10 @@ public class RecursoMultimediaService {
         recursoMultimedia.setNombre(nombre.toUpperCase());
         recursoMultimedia.setDescripcion(descripcion.toUpperCase());
         recursoMultimedia.setFuente(fuente.toUpperCase());
-        recursoMultimedia.setPesoOrden(pesoOrden);
         RecursoMultimedia nombreRecursoAnterior = findOne(recursoMultimedia.getId());
+        recursoMultimedia.setPesoOrden(nombreRecursoAnterior.getPesoOrden());
+        recursoMultimedia.setTematica(nombreRecursoAnterior.getTematica());
+        recursoMultimedia.setTipo(nombreRecursoAnterior.getTipo());
         recursoMultimedia.setUbicacion(nombreRecursoAnterior.getUbicacion());
         recursoMultimedia.setQuien(nombreRecursoAnterior.getQuien());
         recursoMultimedia.setCuando(nombreRecursoAnterior.getCuando());

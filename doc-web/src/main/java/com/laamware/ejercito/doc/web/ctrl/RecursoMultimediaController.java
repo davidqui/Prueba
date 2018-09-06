@@ -61,9 +61,6 @@ public class RecursoMultimediaController extends UtilController {
     @Value("${com.mil.imi.sicdi.archivomultimedia.root}")
     private String directorioRoot;
 
-    @Autowired
-    private TematicaService tematicaService;
-
     /**
      * Permite listar todos los recursos multimedia.
      *
@@ -97,9 +94,8 @@ public class RecursoMultimediaController extends UtilController {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         
         RecursoMultimedia recursoMultimedia = new RecursoMultimedia();
-        model.addAttribute("tematicas", tematicaService.findActive(sort));
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
-        model.addAttribute("tematicas", tematicaService.findAllFull());
+        model.addAttribute("tematicas", tematicaService.findActive(sort));
         return CREATE_TEMPLATE;
     }
 
@@ -109,7 +105,7 @@ public class RecursoMultimediaController extends UtilController {
      * @param model
      * @param req conjunto de data recibida por intermedio del request a traves
      * del formulario.
-     * @return Pagina que edita un nombre de expediente.
+     * @return Pagina que permite editar un recurso multimedia.
      */
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
@@ -159,7 +155,7 @@ public class RecursoMultimediaController extends UtilController {
      * @param redirect
      * @param archivo
      * @param principal
-     * @return Pagina que edita un nombre de expediente.
+     * @return Pagina que edita un nombre del recurso multimedia.
      */
     @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
     public String actualizar(RecursoMultimedia recursoMultimedia, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,

@@ -1,5 +1,5 @@
 <#setting number_format="computer">
-<#assign pageTitle = "Nombre de la Tematica" />
+<#assign pageTitle = "Editar Tematica" />
 <#-- <#assign mode = nombreExpediente.mode!"" /> -->
 <#assign deferredJS = "" />
 <#import "spring.ftl" as spring />

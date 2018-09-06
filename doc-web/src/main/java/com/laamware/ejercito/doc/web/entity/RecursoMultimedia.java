@@ -70,6 +70,9 @@ public class RecursoMultimedia implements Serializable {
     @LaamCreate(order = 10)
     @Column(name = "FUENTE")
     private String fuente;
+    @LaamLabel("Orden")
+    @LaamListColumn(order = 10)
+    @LaamCreate(order = 10)
     @Column(name = "PESO_ORDEN")
     private BigInteger pesoOrden;
     @Basic(optional = false)
