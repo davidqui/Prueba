@@ -246,10 +246,12 @@ public class ConsultaController extends UtilController {
             return "consulta-parametros";
         }
         
-        List<DocumentoDTO> documentos = null;
+        List<DocumentoDTO> documentos = null, documentos2 = null;
         // Issue #177 se agrega parametro tipoProceso
         int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
                 dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso, permisoAdministradorArchivo && buscarTodo);
+        int count2 = consultaService.retornaCountConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && buscarTodo, sameValue);
+        System.out.println("ESTE ES EL SEGUNDO CONTADOR "+count2+" vs el primero "+count);
         LOG.log(Level.INFO, "verificando count ]= {0}", count);
         int totalPages = 0;
         String labelInformacion = "";
@@ -261,12 +263,13 @@ public class ConsultaController extends UtilController {
             documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
                     dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(),
                     tipoProceso, permisoAdministradorArchivo && buscarTodo);
+            documentos2 = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && buscarTodo, sameValue, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
             LOG.log(Level.INFO, "consulta completa");
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 
         model.addAttribute("totalResultados", documentos != null ? documentos.size() : 0);
-        model.addAttribute("documentos", documentos);
+        model.addAttribute("documentos", documentos2);
         model.addAttribute("pageIndex", pageIndex);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("labelInformacion", labelInformacion);

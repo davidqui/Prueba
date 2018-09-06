@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoDTO;
+import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Estado;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaEstado;
@@ -167,10 +168,10 @@ public class ConsultaService {
         LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen,
                 sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso, permisoAdministradorArchivo);
 
-//        LOG.info("##################################################");
-//        LOG.info("sql = " + sql);
-//        LOG.info("parameters = " + parameters);
-//        LOG.info("##################################################");
+        LOG.info("##################################################");
+        LOG.info("sql = " + sql);
+        LOG.info("parameters = " + parameters);
+        LOG.info("##################################################");
         String consulta = ""
                 + "select *\n"
                 + "from(\n"
@@ -191,7 +192,7 @@ public class ConsultaService {
                 DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), rs.getDate("cuandoMod"), rs.getString("nombreProceso"),
                         rs.getString("nombreEstado"), rs.getString("nombreUsuarioAsignado"), rs.getString("nombreUsuarioEnviado"), rs.getString("nombreUsuarioElabora"),
                         rs.getString("nombreUsuarioReviso"), rs.getString("nombreUsuarioVbueno"), rs.getString("nombreUsuarioFirma"), rs.getString("nombreClasificacion"),
-                        rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"), rs.getBoolean("indPertenece"));
+                        rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"), false);
                 return c;
             }
         });
@@ -239,19 +240,19 @@ public class ConsultaService {
         * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
         * La nueva consulta requiere de estos parametros.
         */
-        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
-        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
-        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
-        parameters.add(usuarioID);
-        parameters.add(usuarioID);
-        parameters.add(usuarioID);
-        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
-        parameters.add(usuarioID);
-        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
-        parameters.add(usuarioID);
-        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
-        parameters.add(usuarioID);
-        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+//        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
+//        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
+//        parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
+//        parameters.add(usuarioID);
+//        parameters.add(usuarioID);
+//        parameters.add(usuarioID);
+//        parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
+//        parameters.add(usuarioID);
+//        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+//        parameters.add(usuarioID);
+//        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+//        parameters.add(usuarioID);
+//        parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
 
         
         /*
@@ -553,12 +554,12 @@ public class ConsultaService {
                 + "      CLASIFICACION.CLA_NOMBRE                                                                                \"nombreClasificacion\", \n"
                 + "      DOC.DOC_RADICADO                                                                                        \"numeroRadicado\", \n"
                 + "      DEP_ORIGEN.DEP_ORI_NOMBRE                                                                               \"unidadOrigen\", \n"
-                + "      DEP_DESTINO.DEP_DES_NOMBRE                                                                              \"unidadDestino\", \n"
-                + "       nvl((select 1\n" 
-                + "            from dual\n" 
-                + "            where (PROCESO.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)"
-                + "                    OR ((PROCESO.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?)"
-                + "                    OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ?)))))),0)                 \"indPertenece\""
+                + "      DEP_DESTINO.DEP_DES_NOMBRE                                                                              \"unidadDestino\" \n"
+//                + "       nvl((select 1\n" 
+//                + "            from dual\n" 
+//                + "            where (PROCESO.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)"
+//                + "                    OR ((PROCESO.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?)"
+//                + "                    OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ?)))))),0)                 \"indPertenece\""
                 + " FROM DOCUMENTO DOC \n"
                 + " LEFT JOIN USUARIO USU_ULT_ACCION         ON (DOC.USU_ID_ULTIMA_ACCION	= USU_ULT_ACCION.USU_ID) \n"
                 + " LEFT JOIN DEPENDENCIA DEP                ON (DOC.DEP_ID_DES 		= DEP.DEP_ID) \n"
@@ -583,6 +584,228 @@ public class ConsultaService {
                 + "");
     }
     
+    
+    
+    
+    private StringBuilder retornarNuevaConsulta(){
+        return new StringBuilder(" "+
+        "SELECT DISTINCT       \n" +
+        "      DOC.DOC_ID       ,\n" +
+        "      DOC.CUANDO_MOD  \n"+        
+        " FROM DOCUMENTO DOC \n" +
+        " LEFT JOIN DEPENDENCIA DEP                ON (DOC.DEP_ID_DES 		      = DEP.DEP_ID) \n" +
+        " LEFT JOIN PROCESO_INSTANCIA INSTANCIA    ON (DOC.PIN_ID 			      = INSTANCIA.PIN_ID) \n" +
+        " LEFT JOIN S_INSTANCIA_USUARIO HPIN       ON (DOC.PIN_ID                  = HPIN.PIN_ID) \n" +
+        " LEFT JOIN USUARIO_X_DOCUMENTO_ACTA       ON (USUARIO_X_DOCUMENTO_ACTA.DOC_ID  = DOC.DOC_ID AND USUARIO_X_DOCUMENTO_ACTA.ACTIVO = 1)\n" +
+        " LEFT JOIN DOCUMENTO_DEPENDENCIA          ON (DOCUMENTO_DEPENDENCIA.DOC_ID  = DOC.DOC_ID AND DOCUMENTO_DEPENDENCIA.ACTIVO = 1)\n" +
+        "");
+    }
+    
+    
+     public LinkedList<Object> armaConsultaNueva(final StringBuilder sql, final String asunto, final String fechaInicio,
+            final String fechaFin, final String radicado, final Integer dependenciaDestino,
+            final Integer dependenciaOrigen, final Integer usuarioID, final Integer[] cargosIDs,
+            final boolean sameValue, final boolean permisoAdministradorArchivo){
+         
+        if (dependenciaOrigen != null) {
+            sql.append(" LEFT JOIN USUARIO USU_ELABORA ON (DOC.USU_ID_ELABORA = USU_ELABORA.USU_ID) \n");
+            sql.append(" LEFT JOIN DEPENDENCIA DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ELABORA.DEP_ID) \n");
+        }
+        
+        sql.append(" WHERE 1 = 1 \n");
+         
+        SentenceOperator operator = (sameValue) ? SentenceOperator.OR : SentenceOperator.AND;
+        LinkedList<Object> parameters = new LinkedList<>();
+        boolean hasConditions = false;
+        
+        final Integer[] estadosNoAplican = {Estado.ANULADO, Estado.ANULADO_NEW, DocumentoActaEstado.ANULADO.getId()};
+        sql.append("AND INSTANCIA.PES_ID NOT IN (");
+        for (int index = 0; index < estadosNoAplican.length; index++) {
+            final Integer estadoID = estadosNoAplican[index];
+            sql.append("?").append((index < estadosNoAplican.length - 1) ? ", " : "");
+            parameters.add(estadoID);
+        }
+        sql.append(")\n");
+        
+        if (!permisoAdministradorArchivo) {
+            sql.append(" AND ((INSTANCIA.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR HPIN.USU_ID = ?)) \n");
+            sql.append(" OR ((INSTANCIA.PRO_ID IN (?) AND ((HPIN.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?) OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ? \n");
+            parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
+            parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
+            parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
+            parameters.add(usuarioID);
+            parameters.add(usuarioID);
+            parameters.add(usuarioID);
+            parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
+            parameters.add(usuarioID);
+            parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+            parameters.add(usuarioID);
+            parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+            parameters.add(usuarioID);
+            parameters.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+            
+            if (cargosIDs != null && cargosIDs.length > 0) {
+                sql.append(" AND USUARIO_X_DOCUMENTO_ACTA.CAR_ID IN (");
+                for (int index = 0; index < cargosIDs.length; index++) {
+                    final Integer cargoID = cargosIDs[index];
+                    sql.append("?").append((index < cargosIDs.length - 1) ? ", " : "");
+                    parameters.add(cargoID);
+                }
+                sql.append(")");
+            }
+            sql.append("))))) \n");
+        }
+        sql.append(" AND (");
+        if (StringUtils.isNotBlank(radicado)) {
+            sql.append(hasConditions ? operator.name() : "").append(" LOWER(DOC.DOC_RADICADO) LIKE LOWER( ? ) \n");
+            parameters.add("%" + radicado.trim() + "%");
+            hasConditions = true;
+        }
+        
+        if (StringUtils.isNotBlank(asunto)) {
+            sql.append(hasConditions ? operator.name() : "").append(" LOWER(DOC.DOC_ASUNTO) LIKE LOWER( ? ) \n");
+            parameters.add("%" + asunto.trim() + "%");
+            hasConditions = true;
+        }
+        
+        Date fInicio = null;
+        if (StringUtils.isNotBlank(fechaInicio)) {
+            fInicio = parseFilterDate(fechaInicio, DateUtil.SetTimeType.START_TIME);
+        }
+
+        Date fFin = null;
+        if (StringUtils.isNotBlank(fechaFin)) {
+            fFin = parseFilterDate(fechaFin, DateUtil.SetTimeType.END_TIME);
+        }
+        
+        if (fInicio != null) {
+            sql.append(hasConditions ? operator.name() : "").append(" DOC.CUANDO >= ? \n");
+            parameters.add(fInicio);
+            hasConditions = true;
+        }
+        
+        if (fFin != null) {
+            if (fInicio == null) {
+                sql.append((hasConditions ? operator.name() : ""));
+            } else {
+                sql.append(SentenceOperator.AND.name());
+            }
+            sql.append(" DOCFIRMA.CUANDO <= ? \n");
+            parameters.add(fFin);
+            hasConditions = true;
+        }
+        
+        if (dependenciaDestino != null) {
+            sql.append(hasConditions ? operator.name() : "").append(" DOC.DEP_ID_DES = ? \n");
+            parameters.add(dependenciaDestino);
+            hasConditions = true;
+        }
+
+        if (dependenciaOrigen != null) {
+            sql.append(hasConditions ? operator.name() : "").append(" DEP_ORIGEN.DEP_ID = ? \n");
+            parameters.add(dependenciaOrigen);
+            hasConditions = true;
+        }
+        
+        sql.append(" ) \n");
+        
+        return parameters;
+     }
+     
+     
+     
+     public List<DocumentoDTO> retornaConsultaMotorBusquedaNuevo(final String asunto, final String fechaInicio, 
+             final String fechaFin,  final String radicado, final Integer dependenciaDestino, 
+             final Integer dependenciaOrigen, final Integer usuarioID, final Integer[] cargosIDs, final boolean permisoAdministradorArchivo, final boolean sameValue,
+             final int inicio, final int fin){
+         
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        StringBuilder sql = retornarNuevaConsulta();
+        LinkedList<Object> parameters = armaConsultaNueva(sql, asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, sameValue, permisoAdministradorArchivo);
+        LOG.info("##################################################");
+        LOG.info("sql = " + sql);
+        LOG.info("parameters = " + parameters);
+        LOG.info("##################################################");
+        String consulta = ""
+                + "select DOC_ID \n"
+                + "from(\n"
+                + "     select a.DOC_ID, rownum num_lineas\n"
+                + "     from(\n"
+                + sql.toString()
+                + "     ORDER BY DOC.CUANDO_MOD DESC\n"
+                + "     ) a\n"
+                + ") \n"
+                + "where num_lineas >= ? and num_lineas <= ?\n";
+        
+        parameters.add(inicio);
+        parameters.add(fin);
+        
+        List<String> ids = jdbcTemplate.query(consulta, parameters.toArray(), new RowMapper<String>() {
+            @Override
+            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getString("DOC_ID");
+            }
+        });
+        
+         if (!ids.isEmpty()) {
+            String consulta2 = ""
+            + retornaConsultaPrincipal()
+            + " AND DOC.DOC_ID IN (\n";
+            for (int i = 0; i < ids.size()-1; i++) {
+               consulta2 += "'"+ids.get(i)+"',";
+            }
+            consulta2 += "'"+ids.get(ids.size()-1)+"' ) \n";
+             System.out.println("AQUI MIRAR ");
+             System.out.println(consulta2);
+            return jdbcTemplate.query(consulta2, new RowMapper<DocumentoDTO>() {
+                @Override
+                public DocumentoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), rs.getDate("cuandoMod"), rs.getString("nombreProceso"),
+                            rs.getString("nombreEstado"), rs.getString("nombreUsuarioAsignado"), rs.getString("nombreUsuarioEnviado"), rs.getString("nombreUsuarioElabora"),
+                            rs.getString("nombreUsuarioReviso"), rs.getString("nombreUsuarioVbueno"), rs.getString("nombreUsuarioFirma"), rs.getString("nombreClasificacion"),
+                            rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"), false);
+                    return c;
+                }
+            });
+         }
+        
+         return null;
+        
+     }
+    
+     
+      public int retornaCountConsultaMotorBusquedaNuevo(final String asunto, final String fechaInicio, 
+            final String fechaFin,  final String radicado, final Integer dependenciaDestino, 
+            final Integer dependenciaOrigen, final Integer usuarioID, final Integer[] cargosIDs, final boolean permisoAdministradorArchivo, final boolean sameValue){
+          
+            StringBuilder sql = retornarNuevaConsulta();
+            LinkedList<Object> parameters = armaConsultaNueva(sql, asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, sameValue, permisoAdministradorArchivo);
+        
+            LOG.info("**************************************************");
+            LOG.info("sql = " + sql);
+            LOG.info("parameters = " + parameters);
+            LOG.info("**************************************************");
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+            String count = ""
+                    + "select count(1)\n"
+                    + "from(\n"
+                    + sql.toString()
+                    + ")\n";
+
+            LOG.log(Level.FINEST, sql.toString());
+
+            int i = 0;
+            try {
+                i = jdbcTemplate.queryForObject(count, parameters.toArray(), Integer.class);
+            } catch (DataAccessException e) {
+            }
+            LOG.log(Level.FINEST, "retorna count");
+            return i;
+      }
+      
+      
+     
     /***
      * Método que retorna si un usuario posee un rol
      * @param roles roles del usuario.

@@ -147,7 +147,7 @@
                                 <div class="form-control" id="dependenciaDestinoNombre">Por favor seleccione una dependencia destino...</div>
                                 <span class="input-group-btn">
                                     <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#dependenciaDestinoModal">
-                                        <span class="hidden-md-down">Seleccionar</span>
+                                        <span class="hidden-md-down">Seleccionar</span><span class="hidden-lg-up">S</span>
                                         </button>
                                     <button class="btn" type="button" id="dependenciaDestinoLimpiar" >
                                         <span >Limpiar</span>
