@@ -833,7 +833,7 @@ public class TransferenciaArchivoController extends UtilController {
         }
         
         TransferenciaArchivo archivo = transferenciaService.findOneTransferenciaArchivo(454);
-        documentoActaService.crearActaTransferencia(archivo);
+        documentoActaService.crearActaDeTransferencia(archivo);
 
         return "transferencia-gestion-crear";
     }

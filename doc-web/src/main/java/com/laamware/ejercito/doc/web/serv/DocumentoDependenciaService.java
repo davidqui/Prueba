@@ -202,7 +202,7 @@ public class DocumentoDependenciaService {
     
     
     public void completarTransferencia(DocumentoDependencia documentoDependencia, Usuario usuario, Dependencia dependencia, Cargo cargo){
-        documentoDependencia.setQuien(141);
+        documentoDependencia.setQuien(usuario.getId());
         documentoDependencia.setCargo(cargo);
         documentoDependencia.setDependencia(dependencia);
         documentoDependencia.setCuando(new Date());

@@ -53,8 +53,6 @@ public class DocumentoService {
 
         documento.setElabora(usuarioCreador);
         documento.setUsuarioUltimaAccion(usuarioCreador);
-
-        System.err.println("Seteando variable= "+documento.getId());
         procesoInstancia.setVariable(Documento.DOC_ID, documento.getId());
         instanciaRepository.save(procesoInstancia);
 

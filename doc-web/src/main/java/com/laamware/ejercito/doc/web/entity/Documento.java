@@ -313,7 +313,7 @@ public class Documento extends AuditModifySupport {
     @JoinColumn(name = "DOC_ID_ORIGINAL")
     private List<DependenciaCopiaMultidestino> dependenciaCopiaMultidestinos = new ArrayList<DependenciaCopiaMultidestino>();
     
-    @Size(max = 2000)
+    @Size(max = 4000)
     @Column(name = "ACTA_DESCRIPCION")
     private String actaDescripcion;
     

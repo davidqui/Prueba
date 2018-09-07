@@ -35,7 +35,7 @@
   </div>
   <div class="card">
     <div class="card-header">
-      Transiciones
+      Transiciones dsdsds
     </div>
     <#--
     	Se modifica el proceso de presentación del histórico de la instancia
