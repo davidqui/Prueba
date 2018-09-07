@@ -60,9 +60,9 @@
                 <#list documentos as x>
             <tr>
                 <td style="text-align: center; vertical-align: middle;">
-                            ${x.cuandoMod?string('yyyy-MM-dd')}
+                            ${(x.cuandoMod?string('yyyy-MM-dd'))!""}
                     <br>
-                            ${x.cuandoMod?string('hh:mm a')} 
+                            ${(x.cuandoMod?string('hh:mm a'))!""} 
                     </td>
                 <td style="text-align: center; vertical-align: middle;word-wrap:break-word;">
                     <#if x.perteneceDocumento>
