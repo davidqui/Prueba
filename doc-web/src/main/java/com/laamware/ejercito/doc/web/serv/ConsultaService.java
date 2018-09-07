@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoDTO;
+import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Estado;
 import com.laamware.ejercito.doc.web.entity.Proceso;
@@ -12,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,9 @@ public class ConsultaService {
 
     @Autowired
     private DataSource dataSource;
+    
+    @Autowired
+    private DependenciaService dependenciaService;
     
     /*
      * 2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160.
@@ -690,7 +695,7 @@ public class ConsultaService {
             } else {
                 sql.append(SentenceOperator.AND.name());
             }
-            sql.append(" DOCFIRMA.CUANDO <= ? \n");
+            sql.append(" DOC.CUANDO <= ? \n");
             parameters.add(fFin);
             hasConditions = true;
         }
@@ -702,8 +707,10 @@ public class ConsultaService {
         }
 
         if (dependenciaOrigen != null) {
-            sql.append(hasConditions ? operator.name() : "").append(" DEP_ORIGEN.DEP_ID = ? \n");
-            parameters.add(dependenciaOrigen);
+            List<Integer> dependencias = subDepsList(dependenciaOrigen);
+            String strDependencias = dependencias.toString();
+            System.out.println("DEPENDENCIAS IDS "+strDependencias);
+            sql.append(hasConditions ? operator.name() : "").append(" DEP_ORIGEN.DEP_ID IN ("+strDependencias.substring(1, strDependencias.length()-1)+") \n");
             hasConditions = true;
         }
         
@@ -714,7 +721,7 @@ public class ConsultaService {
      
      
      
-     public List<DocumentoDTO> retornaConsultaMotorBusquedaNuevo(final String asunto, final String fechaInicio, 
+     public Object[] retornaConsultaMotorBusquedaNuevo(final String asunto, final String fechaInicio, 
              final String fechaFin,  final String radicado, final Integer dependenciaDestino, 
              final Integer dependenciaOrigen, final Integer usuarioID, final Integer[] cargosIDs, final boolean permisoAdministradorArchivo, final boolean sameValue,
              final int inicio, final int fin){
@@ -727,37 +734,44 @@ public class ConsultaService {
         LOG.info("parameters = " + parameters);
         LOG.info("##################################################");
         String consulta = ""
-                + "select DOC_ID \n"
+                + "select DOC_ID, RESULT_COUNT \n"
                 + "from(\n"
-                + "     select a.DOC_ID, rownum num_lineas\n"
+                + "     select a.DOC_ID, ROWNUM RNUM, COUNT(*) OVER () RESULT_COUNT\n"
                 + "     from(\n"
                 + sql.toString()
                 + "     ORDER BY DOC.CUANDO_MOD DESC\n"
                 + "     ) a\n"
                 + ") \n"
-                + "where num_lineas >= ? and num_lineas <= ?\n";
+                + "where RNUM between ? and ? \n";
         
         parameters.add(inicio);
         parameters.add(fin);
-        
-        List<String> ids = jdbcTemplate.query(consulta, parameters.toArray(), new RowMapper<String>() {
+        int counter = 0;
+        List<DocumentoDTO> ids = jdbcTemplate.query(consulta, parameters.toArray(), new RowMapper<DocumentoDTO>() {
             @Override
-            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return rs.getString("DOC_ID");
+            public DocumentoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+                DocumentoDTO c = new DocumentoDTO();
+                c.setId(rs.getString("DOC_ID"));
+                c.setNumDocumentos(Integer.parseInt(rs.getString("RESULT_COUNT")));
+                return c;
             }
         });
-        
+        Object[] asw = new Object[2];
+        asw[0] = 0;
          if (!ids.isEmpty()) {
             String consulta2 = ""
             + retornaConsultaPrincipal()
             + " AND DOC.DOC_ID IN (\n";
             for (int i = 0; i < ids.size()-1; i++) {
-               consulta2 += "'"+ids.get(i)+"',";
+                counter = ids.get(i).getNumDocumentos();
+               consulta2 += "'"+ids.get(i).getId()+"',";
             }
-            consulta2 += "'"+ids.get(ids.size()-1)+"' ) \n";
+            consulta2 += "'"+ids.get(ids.size()-1).getId()+"' ) \n";
              System.out.println("AQUI MIRAR ");
              System.out.println(consulta2);
-            return jdbcTemplate.query(consulta2, new RowMapper<DocumentoDTO>() {
+            
+            asw[0] = counter;
+            asw[1] = jdbcTemplate.query(consulta2, new RowMapper<DocumentoDTO>() {
                 @Override
                 public DocumentoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
                     DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), rs.getDate("cuandoMod"), rs.getString("nombreProceso"),
@@ -768,9 +782,7 @@ public class ConsultaService {
                 }
             });
          }
-        
-         return null;
-        
+         return asw;
      }
     
      
@@ -820,4 +832,42 @@ public class ConsultaService {
         }
         return false;
     }
+    
+    
+    public List<Integer> subDepsList(Integer depId){
+        List<Integer> list =  new ArrayList<>();
+        List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
+        for (Dependencia dependencia : listaDependencias) {
+            if (dependencia.getId().equals(depId)) {
+                subDepsIds(dependencia, list);
+            }else{
+                subDepsListRecur(dependencia, depId, list);
+            }
+        }
+        return list;
+    }
+    
+    public List<Integer> subDepsListRecur(Dependencia d, Integer depId, List<Integer> listIds){
+        for (Dependencia dependencia : d.getSubs()) {
+            if (dependencia.getId().equals(depId)) {
+                subDepsIds(dependencia, listIds);
+            }else{
+                subDepsListRecur(dependencia, depId, listIds);
+            }
+        }
+        return listIds;
+    }
+    
+    
+    public List<Integer> subDepsIds(Dependencia d, List<Integer> listIds){
+        listIds.add(d.getId());
+        if (d.getSubs() == null || d.getSubs().isEmpty()) 
+            return listIds;
+        for (Dependencia dep : d.getSubs()) {
+            subDepsIds(dep, listIds);
+        }
+        return listIds;
+    }
+    
+   
 }

@@ -32,6 +32,7 @@ import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.RolRepository;
 import com.laamware.ejercito.doc.web.serv.ConsultaService;
+import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.util.Arrays;
@@ -72,6 +73,9 @@ public class ConsultaController extends UtilController {
     @Autowired
     DependenciaRepository dependenciaRepository;
     
+    @Autowired
+    DependenciaService dependenciaService;
+    
     /*
      * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
      * Repository para roles
@@ -93,7 +97,7 @@ public class ConsultaController extends UtilController {
     public String consulta(@RequestParam(value = "term") String term, Model model, Principal principal) {
 
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+        List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
 
         if (StringUtils.isBlank(term)) {
@@ -182,8 +186,8 @@ public class ConsultaController extends UtilController {
         
         boolean sameValue = term != null && term.trim().length() > 0;
 
-        // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+//         2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
+        List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
 
         /*
@@ -246,12 +250,12 @@ public class ConsultaController extends UtilController {
             return "consulta-parametros";
         }
         
-        List<DocumentoDTO> documentos = null, documentos2 = null;
+        List<DocumentoDTO> documentos = null;
         // Issue #177 se agrega parametro tipoProceso
-        int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
-                dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso, permisoAdministradorArchivo && buscarTodo);
-        int count2 = consultaService.retornaCountConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && buscarTodo, sameValue);
-        System.out.println("ESTE ES EL SEGUNDO CONTADOR "+count2+" vs el primero "+count);
+        PaginacionDTO prePaginacionDTO = PaginacionUtil.retornaParametros(0, pageIndex, pageSize);
+        Object[] asw = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && buscarTodo, sameValue, prePaginacionDTO.getRegistroInicio(), prePaginacionDTO.getRegistroFin());
+        int count = (int) asw[0];
+        System.out.println("ESTE ES EL  CONTADOR "+count);
         LOG.log(Level.INFO, "verificando count ]= {0}", count);
         int totalPages = 0;
         String labelInformacion = "";
@@ -260,16 +264,13 @@ public class ConsultaController extends UtilController {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
             // Issue #177 se agrega parametro tipoProceso
-            documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
-                    dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(),
-                    tipoProceso, permisoAdministradorArchivo && buscarTodo);
-            documentos2 = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && buscarTodo, sameValue, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin());
+            documentos = (List<DocumentoDTO>) asw[1];
             LOG.log(Level.INFO, "consulta completa");
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
 
         model.addAttribute("totalResultados", documentos != null ? documentos.size() : 0);
-        model.addAttribute("documentos", documentos2);
+        model.addAttribute("documentos", documentos);
         model.addAttribute("pageIndex", pageIndex);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("labelInformacion", labelInformacion);
@@ -315,24 +316,6 @@ public class ConsultaController extends UtilController {
         List<Integer> list = Arrays.asList(10, 30, 50);
         model.addAttribute("pageSizes", list);
         return list;
-    }
-
-    private List<Dependencia> depsHierarchy() {
-        List<Dependencia> root = dependenciaRepository.findByActivoAndPadreIsNull(true,
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        for (Dependencia d : root) {
-            depsHierarchy(d);
-        }
-        return root;
-    }
-
-    private void depsHierarchy(Dependencia d) {
-        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        d.setSubs(subs);
-        for (Dependencia x : subs) {
-            depsHierarchy(x);
-        }
     }
 
     /**

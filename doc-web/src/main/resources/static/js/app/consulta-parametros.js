@@ -73,3 +73,25 @@ $('#arbol_list_dependenciasj').on("select_node.jstree", function (e, data) {
     $("#dependenciaDestinoNombre").text(data.node.text);
     $("#dependenciaDestinoModal").modal('hide');
 }).jstree();
+
+
+function selected(select) {
+    $("#container-1").attr("class","container-1-dissapper");
+
+    if (select == 0) {
+        $("#con-externo").css("display","none"); 
+        $("#con-interno").css("display","block");
+        $("#toggle-1").css("background-color", "#f0f0f0");
+        $("#toggle-2").css("background-color", "#dddddd");
+    }else{
+        $("#con-interno").css("display","none"); 
+        $("#con-externo").css("display","block");
+        $("#toggle-2").css("background-color", "#f0f0f0");
+        $("#toggle-1").css("background-color", "#dddddd");
+    }
+
+    setTimeout(function(){
+        $("#container-1").css("display","none"); 
+        $("#container-2").css("display","block");
+    }, 300);
+}
