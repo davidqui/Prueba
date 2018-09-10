@@ -62,7 +62,7 @@ public class AdminDestinoExternoController extends UtilController{
      */
     @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
-        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.ASC, "nombre"));
         List<DestinoExterno> list;
         if (!all) {
             list = destinoExternoService.findActive(sort);

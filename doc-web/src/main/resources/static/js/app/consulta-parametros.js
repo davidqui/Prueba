@@ -77,7 +77,7 @@ $('#arbol_list_dependenciasj').on("select_node.jstree", function (e, data) {
 
 function selected(select) {
     $("#container-1").attr("class","container-1-dissapper");
-
+    $("#tipoBusqueda").val(select);
     if (select == 0) {
         $("#con-externo").css("display","none"); 
         $("#con-interno").css("display","block");
@@ -95,3 +95,16 @@ function selected(select) {
         $("#container-2").css("display","block");
     }, 300);
 }
+
+
+function changeToggleBuscarTodos(){
+    if (!$('#buscarTodo').is(":checked")) {
+        $('#buscartodo-si').css("color", "#606060");
+        $('#buscartodo-no').css("color", "#cccccc");
+    }else{
+        $('#buscartodo-si').css("color", "#cccccc");
+        $('#buscartodo-no').css("color", "#606060");
+    }
+}
+
+changeToggleBuscarTodos();

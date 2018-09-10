@@ -559,19 +559,19 @@ public class ConsultaService {
                 + "      CLASIFICACION.CLA_NOMBRE                                                                                \"nombreClasificacion\", \n"
                 + "      DOC.DOC_RADICADO                                                                                        \"numeroRadicado\", \n"
                 + "      DEP_ORIGEN.DEP_ORI_NOMBRE                                                                               \"unidadOrigen\", \n"
-                + "      DEP_DESTINO.DEP_DES_NOMBRE                                                                              \"unidadDestino\" \n"
-//                + "       nvl((select 1\n" 
-//                + "            from dual\n" 
-//                + "            where (PROCESO.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)"
-//                + "                    OR ((PROCESO.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?)"
-//                + "                    OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ?)))))),0)                 \"indPertenece\""
+                + "      DEP_DESTINO.DEP_DES_NOMBRE                                                                              \"unidadDestino\", \n"
+                + "       nvl((select 1\n" 
+                + "            from dual\n" 
+                + "            where (INSTANCIA.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)"
+                + "                    OR ((INSTANCIA.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?)"
+                + "                    OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ?)))))),0)                 \"indPertenece\" \n"
                 + " FROM DOCUMENTO DOC \n"
                 + " LEFT JOIN USUARIO USU_ULT_ACCION         ON (DOC.USU_ID_ULTIMA_ACCION	= USU_ULT_ACCION.USU_ID) \n"
                 + " LEFT JOIN DEPENDENCIA DEP                ON (DOC.DEP_ID_DES 		= DEP.DEP_ID) \n"
                 + " LEFT JOIN USUARIO USU_DEP_JEFE           ON (DEP.USU_ID_JEFE 		= USU_DEP_JEFE.USU_ID) \n"
                 + " LEFT JOIN PROCESO_INSTANCIA INSTANCIA    ON (DOC.PIN_ID 			= INSTANCIA.PIN_ID) \n"
                 + " LEFT JOIN DOCUMENTO_USU_FIRMA DOCFIRMA   ON (DOC.DOC_ID 			= DOCFIRMA.DOC_ID ) \n"
-                + " LEFT JOIN S_INSTANCIA_USUARIO HPIN       ON (DOC.PIN_ID                  = HPIN.PIN_ID) \n"
+                + " LEFT JOIN S_INSTANCIA_USUARIO HPIN       ON (DOC.PIN_ID                  = HPIN.PIN_ID AND HPIN.USU_ID = ?) \n"
                 + " LEFT JOIN USUARIO USU                    ON (HPIN.USU_ID                 = USU.USU_ID) \n"
                 + " LEFT JOIN PROCESO_ESTADO EST             ON (EST.PES_ID                  = INSTANCIA.PES_ID) \n"
                 + " LEFT JOIN PROCESO PROCESO                ON (INSTANCIA.PRO_ID            = PROCESO.PRO_ID) \n"
@@ -583,7 +583,7 @@ public class ConsultaService {
                 + " LEFT JOIN CLASIFICACION                  ON (DOC.CLA_ID                  = CLASIFICACION.CLA_ID) \n"
                 + " LEFT JOIN (SELECT DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_ORI_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_ORI_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID) DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ELABORA.DEP_ID)\n"
                 + " LEFT JOIN (SELECT DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_DES_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_DES_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_DES_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID) DEP_DESTINO ON (DEP_DESTINO.DEP_ID = DOC.DEP_ID_DES)\n"
-                + " LEFT JOIN USUARIO_X_DOCUMENTO_ACTA       ON (USUARIO_X_DOCUMENTO_ACTA.DOC_ID  = DOC.DOC_ID AND USUARIO_X_DOCUMENTO_ACTA.ACTIVO = 1)\n"
+                + " LEFT JOIN USUARIO_X_DOCUMENTO_ACTA       ON (USUARIO_X_DOCUMENTO_ACTA.DOC_ID  = DOC.DOC_ID AND USUARIO_X_DOCUMENTO_ACTA.ACTIVO = 1 AND USUARIO_X_DOCUMENTO_ACTA.USU_ID = ?)\n"
                 + " LEFT JOIN DOCUMENTO_DEPENDENCIA          ON (DOCUMENTO_DEPENDENCIA.DOC_ID  = DOC.DOC_ID AND DOCUMENTO_DEPENDENCIA.ACTIVO = 1)\n"
                 + " WHERE 1 = 1 \n"
                 + "");
@@ -607,10 +607,12 @@ public class ConsultaService {
     }
     
     
-     public LinkedList<Object> armaConsultaNueva(final StringBuilder sql, final String asunto, final String fechaInicio,
+    
+    public LinkedList<Object> armaConsultaNueva(final StringBuilder sql, final String asunto, final String fechaInicio,
             final String fechaFin, final String radicado, final Integer dependenciaDestino,
             final Integer dependenciaOrigen, final Integer usuarioID, final Integer[] cargosIDs,
-            final boolean sameValue, final boolean permisoAdministradorArchivo){
+            final boolean sameValue, final boolean permisoAdministradorArchivo, final Integer tipoBusqueda,
+            final Integer destinoExterno){
          
         if (dependenciaOrigen != null) {
             sql.append(" LEFT JOIN USUARIO USU_ELABORA ON (DOC.USU_ID_ELABORA = USU_ELABORA.USU_ID) \n");
@@ -716,6 +718,23 @@ public class ConsultaService {
         
         sql.append(" ) \n");
         
+         if (tipoBusqueda != null ) {
+             if (tipoBusqueda.equals(0)) {
+                sql.append(hasConditions ? operator.name() : "").append(" INSTANCIA.PRO_ID IN (?, ?, ?) \n");
+                parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
+                parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
+                parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
+             }
+             if(tipoBusqueda.equals(1)){
+                sql.append(hasConditions ? operator.name() : "").append(" INSTANCIA.PRO_ID = ? \n");
+                parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
+                 if (destinoExterno != null) {
+                     sql.append(hasConditions ? operator.name() : "").append(" DOC.ADE_ID = ? \n");
+                     parameters.add(destinoExterno);
+                 }
+             }
+         }
+        
         return parameters;
      }
      
@@ -724,11 +743,11 @@ public class ConsultaService {
      public Object[] retornaConsultaMotorBusquedaNuevo(final String asunto, final String fechaInicio, 
              final String fechaFin,  final String radicado, final Integer dependenciaDestino, 
              final Integer dependenciaOrigen, final Integer usuarioID, final Integer[] cargosIDs, final boolean permisoAdministradorArchivo, final boolean sameValue,
-             final int inicio, final int fin){
+             final int inicio, final int fin, final Integer tipoBusqueda, final Integer destinoExterno){
          
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         StringBuilder sql = retornarNuevaConsulta();
-        LinkedList<Object> parameters = armaConsultaNueva(sql, asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, sameValue, permisoAdministradorArchivo);
+        LinkedList<Object> parameters = armaConsultaNueva(sql, asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, sameValue, permisoAdministradorArchivo, tipoBusqueda, destinoExterno);
         LOG.info("##################################################");
         LOG.info("sql = " + sql);
         LOG.info("parameters = " + parameters);
@@ -762,62 +781,51 @@ public class ConsultaService {
             String consulta2 = ""
             + retornaConsultaPrincipal()
             + " AND DOC.DOC_ID IN (\n";
+            String parametrosConsulta2 = "";
             for (int i = 0; i < ids.size()-1; i++) {
                 counter = ids.get(i).getNumDocumentos();
-               consulta2 += "'"+ids.get(i).getId()+"',";
+               parametrosConsulta2 += "'"+ids.get(i).getId()+"',";
             }
-            consulta2 += "'"+ids.get(ids.size()-1).getId()+"' ) \n";
+            parametrosConsulta2 += "'"+ids.get(ids.size()-1).getId()+"'";
+            consulta2 += parametrosConsulta2+" ) \n";
              System.out.println("AQUI MIRAR ");
              System.out.println(consulta2);
-            
+             
+            LinkedList<Object> parameters3 = new LinkedList<>();
+            parameters3.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
+            parameters3.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
+            parameters3.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
+            parameters3.add(usuarioID);
+            parameters3.add(usuarioID);
+            parameters3.add(usuarioID);
+            parameters3.add(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
+            parameters3.add(usuarioID);
+            parameters3.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+            parameters3.add(usuarioID);
+            parameters3.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+            parameters3.add(usuarioID);
+            parameters3.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
+            parameters3.add(usuarioID);
+            parameters3.add(usuarioID);
+            System.out.println(parameters3);
             asw[0] = counter;
-            asw[1] = jdbcTemplate.query(consulta2, new RowMapper<DocumentoDTO>() {
-                @Override
-                public DocumentoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            List<DocumentoDTO> documentos;
+            documentos = jdbcTemplate.query(consulta2, parameters3.toArray(), new RowMapper<DocumentoDTO>() {
+            @Override
+            public DocumentoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
                     DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), rs.getDate("cuandoMod"), rs.getString("nombreProceso"),
                             rs.getString("nombreEstado"), rs.getString("nombreUsuarioAsignado"), rs.getString("nombreUsuarioEnviado"), rs.getString("nombreUsuarioElabora"),
                             rs.getString("nombreUsuarioReviso"), rs.getString("nombreUsuarioVbueno"), rs.getString("nombreUsuarioFirma"), rs.getString("nombreClasificacion"),
-                            rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"), false);
+                            rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"), rs.getBoolean("indPertenece"));
                     return c;
                 }
             });
+             
+             asw[1] = documentos;
          }
          return asw;
      }
     
-     
-      public int retornaCountConsultaMotorBusquedaNuevo(final String asunto, final String fechaInicio, 
-            final String fechaFin,  final String radicado, final Integer dependenciaDestino, 
-            final Integer dependenciaOrigen, final Integer usuarioID, final Integer[] cargosIDs, final boolean permisoAdministradorArchivo, final boolean sameValue){
-          
-            StringBuilder sql = retornarNuevaConsulta();
-            LinkedList<Object> parameters = armaConsultaNueva(sql, asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, sameValue, permisoAdministradorArchivo);
-        
-            LOG.info("**************************************************");
-            LOG.info("sql = " + sql);
-            LOG.info("parameters = " + parameters);
-            LOG.info("**************************************************");
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-            String count = ""
-                    + "select count(1)\n"
-                    + "from(\n"
-                    + sql.toString()
-                    + ")\n";
-
-            LOG.log(Level.FINEST, sql.toString());
-
-            int i = 0;
-            try {
-                i = jdbcTemplate.queryForObject(count, parameters.toArray(), Integer.class);
-            } catch (DataAccessException e) {
-            }
-            LOG.log(Level.FINEST, "retorna count");
-            return i;
-      }
-      
-      
-     
     /***
      * Método que retorna si un usuario posee un rol
      * @param roles roles del usuario.
@@ -869,5 +877,15 @@ public class ConsultaService {
         return listIds;
     }
     
-   
+    public List<DocumentoDTO> setPermisosDocumentos(List<DocumentoDTO> documentoDTOs, List<DocumentoDTO> permisos){
+        for (int i = 0; i < documentoDTOs.size(); i++) {
+            for (int j = 0; j < permisos.size(); j++) {
+                if (documentoDTOs.get(i).getId().equals(permisos.get(j).getId())) {
+                    documentoDTOs.get(i).setPerteneceDocumento(permisos.get(j).getPerteneceDocumento());
+                }
+            }
+        }
+        return documentoDTOs;
+    }
+     
 }

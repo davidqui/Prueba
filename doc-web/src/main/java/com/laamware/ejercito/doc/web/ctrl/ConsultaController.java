@@ -23,6 +23,7 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
+import com.laamware.ejercito.doc.web.entity.DestinoExterno;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Rol;
 import com.laamware.ejercito.doc.web.entity.Usuario;
@@ -33,7 +34,9 @@ import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.RolRepository;
 import com.laamware.ejercito.doc.web.serv.ConsultaService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
+import com.laamware.ejercito.doc.web.serv.DestinoExternoService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
+import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -83,6 +86,13 @@ public class ConsultaController extends UtilController {
     @Autowired
     private RolRepository rolRepository;
 
+    /*
+     * 2018-09-10 samuel.delgado@controltechcg.com Issue gogs #10 (SICDI-Controltech) feature-gogs-10.
+     * servicio destinos externos.
+     */
+    @Autowired
+    private DestinoExternoService destinoExternoService;
+    
     /**
      * Ejecuta la búsqueda de documentos cuyo asunto o contenido contenga el
      * texto ingresado como términos de búsqueda
@@ -114,7 +124,7 @@ public class ConsultaController extends UtilController {
          * feature-160: se agrega variable al método buscar para saber si busca en
          * el archivo del usuario o en todo sicdi.
          */
-        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null, term, null, false);
+        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null, term, null, false, null, null);
     }
 
     /**
@@ -161,6 +171,9 @@ public class ConsultaController extends UtilController {
      * 2018-08-17 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
      * feature-160: se agrega variable al método buscar para saber si busca en
      * el archivo del usuario o en todo sicdi.
+     * 
+     * 2018-09-10 samuel.delgado@controltechcg.com Issue gogs #10 (SICDI-Controltech)
+     * feature-gogs-10: se cambia el modelo de petición de consulta.
      */
     @RequestMapping(value = "/parametros", method = {RequestMethod.GET, RequestMethod.POST})
     public String buscar(Model model, @RequestParam(value = "asignado", required = false) String asignado,
@@ -181,7 +194,10 @@ public class ConsultaController extends UtilController {
             @RequestParam(value = "dependenciaOrigenDescripcion", required = false) String dependenciaOrigenDescripcion,
             @RequestParam(value = "firmaUUID", required = false) String firmaUUID,
             @RequestParam(value = "tipoProceso", required = false) Integer tipoProceso,
-            @RequestParam(value = "buscarTodo", required = false, defaultValue = "false") Boolean buscarTodo) {
+            @RequestParam(value = "buscarTodo", required = false, defaultValue = "false") Boolean buscarTodo,
+            @RequestParam(value = "tipoBusqueda", required = false) Integer tipoBusqueda,
+            @RequestParam(value = "destinoExterno", required = false) Integer destinoExterno
+            ) {
 
         
         boolean sameValue = term != null && term.trim().length() > 0;
@@ -207,7 +223,7 @@ public class ConsultaController extends UtilController {
         }
 
         // Issue #105, Issue #128, Issue #160, Issue #177 
-        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID, tipoProceso};
+        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID, tipoProceso, buscarTodo, destinoExterno, tipoBusqueda};
 
         boolean parametrosVacios = true;
         for (Object arg : args) {
@@ -246,6 +262,7 @@ public class ConsultaController extends UtilController {
         boolean permisoAdministradorArchivo = consultaService.hasPermision(usuarioRoles, ROL_ADMINISTRADOR_ARCHIVO);
         
         model.addAttribute("permisoAdministradorArchivo", permisoAdministradorArchivo);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
         if (parametrosVacios) {
             return "consulta-parametros";
         }
@@ -253,7 +270,9 @@ public class ConsultaController extends UtilController {
         List<DocumentoDTO> documentos = null;
         // Issue #177 se agrega parametro tipoProceso
         PaginacionDTO prePaginacionDTO = PaginacionUtil.retornaParametros(0, pageIndex, pageSize);
-        Object[] asw = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && buscarTodo, sameValue, prePaginacionDTO.getRegistroInicio(), prePaginacionDTO.getRegistroFin());
+        Object[] asw = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino,
+                dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && !buscarTodo, sameValue, prePaginacionDTO.getRegistroInicio(),
+                prePaginacionDTO.getRegistroFin(), tipoBusqueda, destinoExterno);
         int count = (int) asw[0];
         System.out.println("ESTE ES EL  CONTADOR "+count);
         LOG.log(Level.INFO, "verificando count ]= {0}", count);
@@ -275,7 +294,9 @@ public class ConsultaController extends UtilController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("labelInformacion", labelInformacion);
         model.addAttribute("pageSize", pageSize);
-
+        model.addAttribute("buscarTodo", buscarTodo);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
+        
         if (!sameValue) {
             model.addAttribute("asignado", asignado);
             model.addAttribute("asunto", asunto);
@@ -291,9 +312,9 @@ public class ConsultaController extends UtilController {
             model.addAttribute("dependenciaOrigenDescripcion", dependenciaOrigenDescripcion);
             model.addAttribute("firmaUUID", firmaUUID);
             model.addAttribute("tipoProceso", tipoProceso);
-            model.addAttribute("buscarTodo", buscarTodo);
+            model.addAttribute("destinoExterno", destinoExterno);
         }
-
+        
         model.addAttribute("term", term);
 
         return "consulta-parametros";
@@ -430,4 +451,14 @@ public class ConsultaController extends UtilController {
         return procesoService.getProcesosAutorizados();
     }
 
+    /*
+    * 2018-09-10 samuel.delgado@controltechcg.com Issue gogs #10: se agregan los datos  
+    * para el selector de destino externo
+    */
+    @ModelAttribute("destinosExternos")
+    public List<DestinoExterno> destinosExternos() {
+        return destinoExternoService.findActive(new Sort(new Sort.Order(Sort.Direction.ASC, "nombre")));
+    }
+    
+   
 }
