@@ -223,7 +223,7 @@ public class ConsultaController extends UtilController {
         }
 
         // Issue #105, Issue #128, Issue #160, Issue #177 
-        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID, tipoProceso, buscarTodo, destinoExterno, tipoBusqueda};
+        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID, tipoProceso, destinoExterno, tipoBusqueda};
 
         boolean parametrosVacios = true;
         for (Object arg : args) {
