@@ -40,7 +40,7 @@
                         <input type="text" name="fechaFin" id="fechaFin" class="form-control datepicker" value="${fechaFin}"/>
                     </div>
                 </div>
-                <input type="hidden" name="tipoBusqueda" id="tipoBusqueda" value="${(busqueda)!""}">
+                <input type="hidden" name="tipoBusqueda" id="tipoBusqueda" value="${(tipoBusqueda)!""}">
                 <div class="form-group row">
                     <label for="origen" class="col-sm-1 col-form-label text-xs-right">Dependencia origen</label>
                     <input type="hidden" name="dependenciaOrigen" id="dependenciaOrigen" value="${dependenciaOrigen}"/>
