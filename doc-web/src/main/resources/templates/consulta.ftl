@@ -120,7 +120,7 @@
                 "term":term,"clasificacionNombre":clasificacionNombre,
                 "dependenciaOrigenDescripcion":dependenciaOrigenDescripcion,
                 "dependenciaDestinoDescripcion":dependenciaDestinoDescripcion, 
-                "tipoProceso":tipoProceso, "buscarTodo":(buscarTodo?string("false","true"))!"",
+                "tipoProceso":tipoProceso, "buscarTodo":(buscarTodo?string("true","false"))!"",
                 "destinoExterno":destinoExterno, "tipoBusqueda":tipoBusqueda }metodo="post"/>
         </#if>
     </div>
