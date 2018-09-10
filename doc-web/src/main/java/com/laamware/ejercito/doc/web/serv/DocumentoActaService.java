@@ -255,13 +255,12 @@ public class DocumentoActaService {
      */
     @Autowired
     private TransferenciaArchivoDetalleRepository detalleRepository;
-    
+
     @Autowired
     private TransferenciaArchivoDetalleService transferenciaArchivoDetalleService;
-    
+
     @Autowired
     private TransExpedienteDetalleService transExpedienteDetalleService;
-    
 
     /**
      * Constructor.
@@ -964,7 +963,7 @@ public class DocumentoActaService {
 
             /*APROBAR_ARCHIVAR*/
             digitalizarYArchivarActa(documento, procesoInstancia, jefeDependencia, DocumentoActaTransicionTransferencia.APROBAR_ARCHIVAR.getId());
-            
+
             crearActa(transferenciaArchivo, plantilla, asposeLicense, documento);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1041,29 +1040,56 @@ public class DocumentoActaService {
         asposeDocument.getMailMerge().execute(asposeMap.getNombres(), asposeMap.getValues());
 
         final List<TransferenciaArchivoDetalle> detalles = detalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
-        ordenarDetalles(detalles);
+        if (detalles.size() > 0) {
+            ordenarDetalles(detalles);
+        }
+
 //
 //        // TODO: Formato de tabla (Negrita para títulos, etc...)
 //        // Ver forma de mantener las celdas iniciales cuando cambie de página.
         final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 2, true);
         if (table != null) {
-//            Row headersRow = table.getRows().get(0);
-//            table.removeAllChildren();
-//
-//            Row headersRow = new Row(asposeDocument);
-//            fillTableRow(asposeDocument, headersRow, "RADICADO", "CÓDIGO", "ASUNTO", "FECHA FINAL", "ELABORÓ", "UNIDAD DEST.");
-//            table.appendChild(headersRow);
-//
-            int indice = 1;
-            for (TransferenciaArchivoDetalle detalle : detalles) {
-                final String[] cellValues = buildCellValues(detalle, indice);
-                indice = indice++;
-
-                Row row = new Row(asposeDocument);
-                fillTableRow(asposeDocument, row, cellValues);
-                table.appendChild(row);
+            
+            if (detalles.size() == 0) {
+                System.err.println("documento text "+table.getFirstRow().getCells().get(5).getText());
+                table.removeAllChildren();
+            } else {
+                int indice = 1;
+                for (TransferenciaArchivoDetalle detalle : detalles) {
+                    final String[] cellValues = buildCellValuesDocumento(detalle, indice);
+                    Row row = new Row(asposeDocument);
+                    fillTableRow(asposeDocument, row, cellValues);
+                    table.appendChild(row);
+                    indice++;
+                }
             }
         }
+        
+        final List<TransExpedienteDetalle> transferenciaExpediente = transExpedienteDetalleService.buscarXTransferenciaArchivo(transferenciaArchivo);
+        if (transferenciaExpediente.size() > 0) {
+            ordenarDetallesExpediente(transferenciaExpediente);
+        }
+
+//
+//        // TODO: Formato de tabla (Negrita para títulos, etc...)
+//        // Ver forma de mantener las celdas iniciales cuando cambie de página.
+        final Table tableExpediente = (Table) asposeDocument.getChild(NodeType.TABLE, 3, true);
+        if (tableExpediente != null) {
+            if (transferenciaExpediente.size() == 0) {
+                System.err.println("Expediente text "+tableExpediente.getFirstRow().getCells().get(5).getText());
+                tableExpediente.removeAllChildren();
+            } else {
+                int indice = 1;
+                for (TransExpedienteDetalle detalle : transferenciaExpediente) {
+                    final String[] cellValues = buildCellValuesExpediente(detalle, indice);
+                    Row row = new Row(asposeDocument);
+                    fillTableRow(asposeDocument, row, cellValues);
+                    tableExpediente.appendChild(row);
+                    indice++;
+                }
+            }
+        }
+        
 
         // TODO: Preguntar que hacemos si la dependencia destino no tiene sigla.
         final String siglaDependenciaDestino = Objects.toString(transferenciaArchivo.getDestinoDependencia().getSigla(), "");
@@ -1071,13 +1097,13 @@ public class DocumentoActaService {
 
         final File tmpFile = File.createTempFile("_sigdi_temp_", ".pdf");
         asposeDocument.save(tmpFile.getPath());
-        
+
         int numFolios = 0;
         try (InputStream iS = new FileInputStream(tmpFile)) {
             PdfReader pdfReader = new PdfReader(iS);
             numFolios = pdfReader.getNumberOfPages();
         }
-        
+
         final OFSEntry ofsEntry = ofs.readPDFAspose(tmpFile);
         final String codigoActaOFS = ofs.save(ofsEntry.getContent(),
                 AppConstants.MIME_TYPE_PDF);
@@ -1113,56 +1139,56 @@ public class DocumentoActaService {
         final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
 
         final KeysValuesAsposeDocxDTO map = new KeysValuesAsposeDocxDTO();
-        
+
         final Clasificacion minClasificacion = clasificacionRepository.findMinOrderActivo();
         map.put("N_CLASIFICACION", minClasificacion.getNombre());
-        
+
         final byte[] barcodeBytes = buildBarcodeBytes(documento.getRadicado().replaceAll("-", ""));
         map.put("COD_BARRA", barcodeBytes);
-        
+
         final Integer unidadID = dependenciaRepository.findUnidadID(transferenciaArchivo.getOrigenDependencia().getId());
         final Dependencia origenUnidadDependencia = dependenciaRepository.findOne(unidadID);
         map.put("ELABORA_DEP_SPADRE", origenUnidadDependencia.getNombre());
-        
+
         final String lineaMando = buildLineaMando(transferenciaArchivo);
         map.put("LINEA_MANDO2", lineaMando);
-        
+
         map.put("N_RADICADO", documento.getRadicado());
-        
+
         final String elaboraCiudad = transferenciaArchivo.getOrigenDependencia().getCiudad();
         map.put("DEPENDENCIA_CIUDAD_ELABORA", elaboraCiudad == null ? "" : elaboraCiudad);
-        
+
         final String fechaDocumento = documentDateFormatter.format(new Date());
         map.put("FECHA_DOC", fechaDocumento);
-        
+
         map.put("ORIGEN_DEPENDENCIA_JEFE_GRADO_ID", jefeDependencia.getUsuGrado().getId());
         map.put("ORIGEN_DEPENDENCIA_JEFE_NOMBRE", jefeDependencia.getNombre());
         map.put("ORIGEN_DEPENDENCIA_JEFE_CARGO", jefeDependencia.getUsuCargoPrincipalId().getCarNombre());
-        
+
         map.put("ORIGEN_GRADO_ID", transferenciaArchivo.getOrigenGrado().getId());
         map.put("ORIGEN_NOMBRE", transferenciaArchivo.getOrigenUsuario().getNombre());
         map.put("ORIGEN_CARGO", transferenciaArchivo.getUsuOrigenCargo().getCarNombre());
         map.put("ORIGEN_DEPENDENCIA_NOMBRE", transferenciaArchivo.getOrigenDependencia().getNombre());
         map.put("ORIGEN_CLASIFICACION", transferenciaArchivo.getOrigenClasificacion().getNombre());
-        
+
         map.put("DESTINO_GRADO_ID", transferenciaArchivo.getDestinoGrado().getId());
         map.put("DESTINO_NOMBRE", transferenciaArchivo.getDestinoUsuario().getNombre());
         map.put("DESTINO_CARGO", transferenciaArchivo.getUsuDestinoCargo().getCarNombre());
         map.put("DESTINO_DEPENDENCIA_NOMBRE", transferenciaArchivo.getDestinoDependencia().getNombre());
         map.put("DESTINO_CLASIFICACION", transferenciaArchivo.getDestinoClasificacion().getNombre());
-        
-        map.put("JUSTIFICACION", transferenciaArchivo.getDestinoClasificacion().getNombre());
-        
+
+        map.put("JUSTIFICACION", transferenciaArchivo.getJustificacion());
+
         List<TransferenciaArchivoDetalle> detalle = transferenciaArchivoDetalleService.buscarDocumentosTransferencia(transferenciaArchivo);
         map.put("NUMERO_DOCUMENTOS", detalle.size());
-        
+
         List<TransExpedienteDetalle> transferenciaExpediente = transExpedienteDetalleService.buscarXTransferenciaArchivo(transferenciaArchivo);
         map.put("NUMERO_EXPEDIENTES", transferenciaExpediente.size());
-        
+
         map.put("elabora_dep_dir", transferenciaArchivo.getOrigenUsuario().getDependencia().getDireccion());
         map.put("firma_telefono", jefeDependencia.getTelefono());
         map.put("firma_email", jefeDependencia.getEmail());
-      
+
         final File creadorFirma = getImagenFirma(transferenciaArchivo.getOrigenUsuario());
         if (creadorFirma != null) {
             try {
@@ -1171,7 +1197,7 @@ public class DocumentoActaService {
                 LOG.log(Level.SEVERE, "img_firma_emisor", ex);
             }
         }
-        
+
         final File destinoFirma = getImagenFirma(transferenciaArchivo.getDestinoUsuario());
         if (destinoFirma != null) {
             try {
@@ -1287,6 +1313,24 @@ public class DocumentoActaService {
      *
      * @param detalles Lista de detalles de transferencia.
      */
+    private void ordenarDetallesExpediente(List<TransExpedienteDetalle> detalles) {
+        Collections.sort(detalles, new Comparator<TransExpedienteDetalle>() {
+            final NumeroVersionComparator versionComparator = new NumeroVersionComparator();
+
+            @Override
+            public int compare(TransExpedienteDetalle detalle1, TransExpedienteDetalle detalle2) {
+                final String codigo1 = detalle1.getExpId().getTrdIdPrincipal().getCodigo();
+                final String codigo2 = detalle1.getExpId().getTrdIdPrincipal().getCodigo();
+                return versionComparator.compare(codigo1, codigo2);
+            }
+        });
+    }
+    
+    /**
+     * Ordena la lista de detalles según el código de la TRD asociada.
+     *
+     * @param detalles Lista de detalles de transferencia.
+     */
     private void ordenarDetalles(List<TransferenciaArchivoDetalle> detalles) {
         Collections.sort(detalles, new Comparator<TransferenciaArchivoDetalle>() {
             final NumeroVersionComparator versionComparator = new NumeroVersionComparator();
@@ -1310,6 +1354,8 @@ public class DocumentoActaService {
     private void fillTableRow(final Document asposeDocument, final Row row, final String... cellValues) {
         for (String cellValue : cellValues) {
             Paragraph paragraph = new Paragraph(asposeDocument);
+            paragraph.getParagraphFormat().getStyle().getFont().setSize(8);
+            paragraph.getParagraphFormat().getStyle().getFont().setName("Arial");
             paragraph.appendChild(new Run(asposeDocument, cellValue));
 
             Cell cell = new Cell(asposeDocument);
@@ -1325,7 +1371,7 @@ public class DocumentoActaService {
      * @param detalle Registro de detalle de transferencia.
      * @return Arreglo de valores del detalle de transferencia.
      */
-    private String[] buildCellValues(TransferenciaArchivoDetalle detalle, int indice) {
+    private String[] buildCellValuesDocumento(TransferenciaArchivoDetalle detalle, int indice) {
         final DocumentoDependencia documentoDependencia = detalle.getDocumentoDependencia();
         final Documento documento = documentoDependencia.getDocumento();
         final String radicado = documento.getRadicado();
@@ -1334,24 +1380,54 @@ public class DocumentoActaService {
 
         final Integer quien = documento.getQuien();
         final Usuario documentoQuien = usuarioRepository.findOne(quien);
-        
+
         String documentoFirmo = "";
-        
-        if(documento.getFirma()!= null){
+
+        if (documento.getFirma() != null) {
             documentoFirmo = (Objects.toString(documento.getFirma().getUsuGrado().getId(), "") + " " + documento.getFirma().getNombre()).trim();
         }
-        
+
         final String documentoElaboro = (Objects.toString(documentoQuien.getUsuGrado().getId(), "") + " " + documentoQuien.getNombre()).trim();
 
-
         final Dependencia dependenciaOrigen = documentoQuien.getDependencia();
-        final String siglaDependenciaOrigen;
+        final String siglaUnidadOrigen;
         if (dependenciaOrigen == null) {
-            siglaDependenciaOrigen = "";
+            siglaUnidadOrigen = "";
         } else {
-            siglaDependenciaOrigen = Objects.toString(dependenciaOrigen.getSigla(), "");
-        }       
+            Dependencia unidadOrigen = dependenciaRepository.getOne(dependenciaRepository.findUnidadID(dependenciaOrigen.getId()));
+            siglaUnidadOrigen = Objects.toString(unidadOrigen.getSigla(), "");
+        }
 
-        return new String[]{String.valueOf(indice) , radicado, asunto, siglaDependenciaOrigen, documentoElaboro, documentoFirmo ,nivelClasificacion };
+        return new String[]{String.valueOf(indice), radicado, asunto, siglaUnidadOrigen, documentoElaboro, documentoFirmo, nivelClasificacion};
+    }
+
+    /**
+     * Construye los valores para las celdas de una fila de la tabla de
+     * expedientes transferidos.
+     *
+     * @param detalle Registro de detalle de transferencia.
+     * @return Arreglo de valores del detalle de transferencia.
+     */
+    private String[] buildCellValuesExpediente(TransExpedienteDetalle detalle, int indice) {
+        final String trdPrincipal = detalle.getExpId().getTrdIdPrincipal().getCodigo() + " " + detalle.getExpId().getTrdIdPrincipal().getNombre();
+        final String nombreExpediente = detalle.getExpId().getExpNombre();
+
+        final Dependencia dependenciaOrigen = detalle.getExpId().getUsuCreacion().getDependencia();
+        final String siglaUnidadOrigen;
+        if (dependenciaOrigen == null) {
+            siglaUnidadOrigen = "";
+        } else {
+            Dependencia unidadOrigen = dependenciaRepository.getOne(dependenciaRepository.findUnidadID(dependenciaOrigen.getId()));
+            siglaUnidadOrigen = Objects.toString(unidadOrigen.getSigla(), "");
+        }
+
+        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(DETALLE_DOCUMENTO_FIRMA_DATE_FORMAT_PATTERN, LOCALE_ES_CO);
+        final String fecCreacion = documentDateFormatter.format(detalle.getExpId().getFecCreacion());
+
+        final String tipo = (detalle.getExpId().getExpTipo() == 1) ? "Expediente simple" : "Expediente complejo";
+        
+        final String estado = detalle.getExpId().getIndCerrado() ? "Cerrado" : "Abierto";
+
+        return new String[]{String.valueOf(indice), trdPrincipal, nombreExpediente, siglaUnidadOrigen, fecCreacion, tipo, estado};
     }
 }

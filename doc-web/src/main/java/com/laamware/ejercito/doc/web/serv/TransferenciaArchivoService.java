@@ -244,6 +244,9 @@ public class TransferenciaArchivoService {
     @Autowired
     private NotificacionService notificacionService; 
     
+    @Autowired
+    private DocumentoActaService documentoActaService;
+    
     /**
      * Busca un registro de transferencia de archivo.
      *
@@ -1162,6 +1165,8 @@ public class TransferenciaArchivoService {
         transferenciaArchivo.setIndAprobado(1);
         transferenciaRepository.save(transferenciaArchivo);
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_TRANSFERIDO);
+        
+        documentoActaService.crearActaDeTransferencia(transferenciaArchivo);
         
         Map<String, Object> model = new HashMap();
         model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
