@@ -6,8 +6,8 @@
 -- -----------------------------------------------------------------------------
 -- TABLA: USU_SEL_FAVORITOS
 -- -----------------------------------------------------------------------------
-
-CREATE SEQUENCE seq_USU_SEL_FAVORITOS;
+SET DEFINE OFF
+CREATE SEQUENCE seq_USU_SEL_FAVORITOS MINVALUE 0 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1;
 CREATE TABLE USU_SEL_FAVORITOS(
     USU_SEL_ID  NUMBER NOT NULL,
     USU_ID      NUMBER NOT NULL,

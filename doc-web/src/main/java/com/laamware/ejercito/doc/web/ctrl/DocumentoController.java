@@ -828,6 +828,12 @@ public class DocumentoController extends UtilController {
                 model.addAttribute("expedientesValidos", expedientesValidos);
             }
         }
+        /*
+        * 2018-09-05 samuel.delgado@controltechcg.com hotfix gogs #11 (SICDI-Controltech)
+        * hotfix-gogs-11.
+        */
+        Date fechaMinObservaciones = documentRepository.fechaMinObservaciones(pin);
+        model.addAttribute("fechaMinObservaciones", fechaMinObservaciones);
         
         return "documento";
     }
