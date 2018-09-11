@@ -1044,25 +1044,16 @@ public class DocumentoActaService {
             ordenarDetalles(detalles);
         }
 
-//
-//        // TODO: Formato de tabla (Negrita para títulos, etc...)
-//        // Ver forma de mantener las celdas iniciales cuando cambie de página.
         final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 2, true);
         if (table != null) {
             
             if (detalles.isEmpty()) {
-                System.err.println("documento text "+table.getFirstRow().getCells().get(5).getText());
                 table.removeAllChildren();
             } else {
                 int indice = 1;
-                Row header = table.getFirstRow();
-                header.setRowAttr(0, table);
-                header.getRowFormat().setHeadingFormat(true);
                 for (TransferenciaArchivoDetalle detalle : detalles) {
                     final String[] cellValues = buildCellValuesDocumento(detalle, indice);
                     Row row = new Row(asposeDocument);
-                    row.getRowFormat().setHeadingFormat(false);
-                    row.getRowFormat().setAllowBreakAcrossPages(false);
                     fillTableRow(asposeDocument, row, cellValues);
                     table.appendChild(row);
                     indice++;
@@ -1075,18 +1066,12 @@ public class DocumentoActaService {
             ordenarDetallesExpediente(transferenciaExpediente);
         }
 
-//
-//        // TODO: Formato de tabla (Negrita para títulos, etc...)
-//        // Ver forma de mantener las celdas iniciales cuando cambie de página.
         final Table tableExpediente = (Table) asposeDocument.getChild(NodeType.TABLE, 3, true);
         if (tableExpediente != null) {
             if (transferenciaExpediente.isEmpty()) {
-                System.err.println("Expediente text "+tableExpediente.getFirstRow().getCells().get(5).getText());
                 tableExpediente.removeAllChildren();
             } else {
                 int indice = 1;
-                Row header = tableExpediente.getFirstRow();
-                header.getRowFormat().setHeadingFormat(true);
                 for (TransExpedienteDetalle detalle : transferenciaExpediente) {
                     final String[] cellValues = buildCellValuesExpediente(detalle, indice);
                     Row row = new Row(asposeDocument);

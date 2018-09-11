@@ -832,9 +832,6 @@ public class TransferenciaArchivoController extends UtilController {
             model.addAttribute(AppConstants.FLASH_ERROR,"ATENCIÓN: No hay plantilla activa para la generación del acta de transferencia de archivo.");
         }
         
-        TransferenciaArchivo archivo = transferenciaService.findOneTransferenciaArchivo(461);
-        documentoActaService.crearActaDeTransferencia(archivo);
-
         return "transferencia-gestion-crear";
     }
 
