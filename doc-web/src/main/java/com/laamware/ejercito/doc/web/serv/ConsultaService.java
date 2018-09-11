@@ -98,6 +98,7 @@ public class ConsultaService {
      * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
      * feature-162: Arreglo de IDs de cargos del usuario en sesión (cargosIDs).
      */
+    @Deprecated
     public int retornaCountConsultaMotorBusqueda(final String asignado, final String asunto, final String fechaInicio, final String fechaFin,
             final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino, final Integer dependenciaOrigen,
             final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer[] cargosIDs, 
@@ -163,6 +164,7 @@ public class ConsultaService {
      * 2018-07-09 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech)
      * feature-160: Parámetro tipoProceso
      */
+    @Deprecated
     public List<DocumentoDTO> retornaConsultaMotorBusqueda(final String asignado, final String asunto, final String fechaInicio, final String fechaFin,
             final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino, final Integer dependenciaOrigen,
             final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID, final Integer[] cargosIDs,
@@ -232,6 +234,7 @@ public class ConsultaService {
      * 2018-06-05 jgarcia@controltechcg.com Issue #162 (SICDI-Controltech)
      * feature-162: Arreglo de IDs de cargos del usuario en sesión (cargosIDs).
      */
+    @Deprecated
     public LinkedList<Object> armaConsulta(final StringBuilder sql, final String asignado, final String asunto, final String fechaInicio,
             final String fechaFin, final String radicado, final String destinatario, final Integer clasificacion, final Integer dependenciaDestino,
             final Integer dependenciaOrigen, final boolean sameValue, final Integer usuarioID, final String firmaUUID, final boolean puedeBuscarXDocFirmaEnvioUUID,
@@ -591,7 +594,10 @@ public class ConsultaService {
     
     
     
-    
+    /**
+     * Nueva consulta simplificada.
+     * @return StringBuilder
+     */
     private StringBuilder retornarNuevaConsulta(){
         return new StringBuilder(" "+
         "SELECT DISTINCT       \n" +
@@ -607,7 +613,23 @@ public class ConsultaService {
     }
     
     
-    
+    /***
+     * Metodo que reduce los campos a buscar.
+     * @param sql
+     * @param asunto
+     * @param fechaInicio
+     * @param fechaFin
+     * @param radicado
+     * @param dependenciaDestino
+     * @param dependenciaOrigen
+     * @param usuarioID
+     * @param cargosIDs
+     * @param sameValue
+     * @param permisoAdministradorArchivo
+     * @param tipoBusqueda
+     * @param destinoExterno
+     * @return 
+     */
     public LinkedList<Object> armaConsultaNueva(final StringBuilder sql, final String asunto, final String fechaInicio,
             final String fechaFin, final String radicado, final Integer dependenciaDestino,
             final Integer dependenciaOrigen, final Integer usuarioID, final Integer[] cargosIDs,
@@ -739,7 +761,24 @@ public class ConsultaService {
      }
      
      
-     
+     /***
+      * Motor nuevo que simplifica las consultas
+      * @param asunto
+      * @param fechaInicio
+      * @param fechaFin
+      * @param radicado
+      * @param dependenciaDestino
+      * @param dependenciaOrigen
+      * @param usuarioID
+      * @param cargosIDs
+      * @param permisoAdministradorArchivo
+      * @param sameValue
+      * @param inicio
+      * @param fin
+      * @param tipoBusqueda
+      * @param destinoExterno
+      * @return 
+      */
      public Object[] retornaConsultaMotorBusquedaNuevo(final String asunto, final String fechaInicio, 
              final String fechaFin,  final String radicado, final Integer dependenciaDestino, 
              final Integer dependenciaOrigen, final Integer usuarioID, final Integer[] cargosIDs, final boolean permisoAdministradorArchivo, final boolean sameValue,
@@ -842,7 +881,11 @@ public class ConsultaService {
         return false;
     }
     
-    
+    /***
+     * Da la lista de identificadores de las subdependencia de un identificador de una dependencia
+     * @param depId identificador de la dependencia
+     * @return  lista de identificadores sub dependencias 
+     */
     public List<Integer> subDepsList(Integer depId){
         List<Integer> list =  new ArrayList<>();
         List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
@@ -856,6 +899,13 @@ public class ConsultaService {
         return list;
     }
     
+    /**
+     * Recorsión para buscar en el arbol las sub dependencias
+     * @param d dependencia a consultar sus subdependencias
+     * @param depId identificador de la subdependencia
+     * @param listIds lista de identificadores de la dependencia
+     * @return 
+     */
     public List<Integer> subDepsListRecur(Dependencia d, Integer depId, List<Integer> listIds){
         for (Dependencia dependencia : d.getSubs()) {
             if (dependencia.getId().equals(depId)) {
@@ -867,7 +917,12 @@ public class ConsultaService {
         return listIds;
     }
     
-    
+    /**
+     * sub busca en el arbol de dependenica  
+     * @param d dependencia a buscar
+     * @param listIds lista de identificadores de la dependencia
+     * @return 
+     */
     public List<Integer> subDepsIds(Dependencia d, List<Integer> listIds){
         listIds.add(d.getId());
         if (d.getSubs() == null || d.getSubs().isEmpty()) 
@@ -878,15 +933,5 @@ public class ConsultaService {
         return listIds;
     }
     
-    public List<DocumentoDTO> setPermisosDocumentos(List<DocumentoDTO> documentoDTOs, List<DocumentoDTO> permisos){
-        for (int i = 0; i < documentoDTOs.size(); i++) {
-            for (int j = 0; j < permisos.size(); j++) {
-                if (documentoDTOs.get(i).getId().equals(permisos.get(j).getId())) {
-                    documentoDTOs.get(i).setPerteneceDocumento(permisos.get(j).getPerteneceDocumento());
-                }
-            }
-        }
-        return documentoDTOs;
-    }
      
 }

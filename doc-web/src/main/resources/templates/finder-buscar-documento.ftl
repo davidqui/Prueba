@@ -31,6 +31,9 @@ Administrables
         <link href='/fonts/roboto.css' rel='stylesheet' type='text/css'>
         <link href='/fonts/lobster.css' rel='stylesheet' type='text/css'>
         <link href='/fonts/raleway.css' rel='stylesheet' type='text/css'>
+        
+        <!-- favicon -->
+        <link rel="icon" type="image/ico" href="/img/favicon.ico" />
 
     <!-- Custom -->
         <link href='/css/custom.css' rel='stylesheet' type='text/css'>

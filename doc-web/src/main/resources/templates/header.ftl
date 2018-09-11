@@ -21,7 +21,9 @@
         <link href='/css/vis.min.css' rel='stylesheet' type='text/css'>
 
         <link rel="stylesheet" href="/css/cdnjscloudfire.style.min.css" />
-
+        
+        <!-- favicon -->
+        <link rel="icon" type="image/ico" href="/img/favicon.ico" />
         
         <link rel="stylesheet" href="/css/jquery-ui.css">
         <script src="/jquery/jquery.min.js"></script>

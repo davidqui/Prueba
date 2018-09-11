@@ -71,6 +71,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/css/**").permitAll()
                 // Permite el acceso a js
                 .antMatchers("/js/**").permitAll()
+                // permite
+                .antMatchers("/img/**").permitAll()
                 // Permite el acceso a fonts
                 .antMatchers("/fonts/**").permitAll()
                 // Permite el acceso a java
