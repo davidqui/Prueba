@@ -12,11 +12,11 @@
         <form action="/admin/destino-externo/crear" method="POST" enctype="multipart/form-data" >
             <fieldset class="form-group">
                 <label for="textoObservacion">Texto</label>
-                <input type="text" class="form-control" id="nombre" name="nombre" value="${(destinoExterno.nombre)!""}"/>
+                <input type="text" class="form-control" id="nombre" name="nombre" value="${(destinoExterno.nombre)!""}" style="text-transform: uppercase;"/>
             </fieldset>
             <fieldset class="form-group">
                 <label for="textoObservacion">Sigla</label>
-                <input type="text" class="form-control" id="sigla" name="sigla" value="${(destinoExterno.sigla)!""}" />
+                <input type="text" class="form-control" id="sigla" name="sigla" value="${(destinoExterno.sigla)!""}" style="text-transform: uppercase;"/>
             </fieldset>
             
             <div class="m-y">
