@@ -121,7 +121,7 @@
                 "dependenciaOrigenDescripcion":dependenciaOrigenDescripcion,
                 "dependenciaDestinoDescripcion":dependenciaDestinoDescripcion, 
                 "tipoProceso":tipoProceso, "buscarTodo":(buscarTodo?string("true","false"))!"",
-                "destinoExterno":destinoExterno, "tipoBusqueda":tipoBusqueda }metodo="post"/>
+                "destinoExterno":destinoExterno, "tipoBusqueda":tipoBusqueda!"" }metodo="post"/>
         </#if>
     </div>
 </#if>

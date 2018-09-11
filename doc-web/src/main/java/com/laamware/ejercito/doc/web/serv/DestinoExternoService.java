@@ -72,8 +72,8 @@ public class DestinoExternoService {
      * que se presenten errores con funciones de relection.
      */
     public void crear(DestinoExterno destinoExterno, Usuario usuario) throws BusinessLogicException, ReflectionException {
-        final String textoDestinoExterno = destinoExterno.getNombre();
-        final String siglaDestinoExterno = destinoExterno.getSigla();
+        final String textoDestinoExterno = destinoExterno.getNombre().toUpperCase();
+        final String siglaDestinoExterno = destinoExterno.getSigla().toUpperCase();
         
         if (textoDestinoExterno == null || textoDestinoExterno.trim().length() == 0) {
             throw new BusinessLogicException("El nombre del destino externo es obligatorio.");
@@ -92,7 +92,17 @@ public class DestinoExternoService {
         if (siglaDestinoExterno.trim().length() > textoSiglaColumnLength) {
             throw new BusinessLogicException("la sigla del destino externo permite máximo " + textoDestinoExternoColumnLength + " caracteres.");
         }
-
+        
+        DestinoExterno destinoSigla = destinoExternoRepository.findOneBySiglaAndActivoTrue(siglaDestinoExterno);
+        if (destinoSigla != null ) {
+            throw new BusinessLogicException("ya existe un destino externo con esta sigla.");
+        }
+        
+        
+        destinoExterno.setNombre(textoDestinoExterno);
+        destinoExterno.setSigla(siglaDestinoExterno);
+        
+        
         destinoExterno.setQuien(usuario.getId());
         destinoExterno.setCuando(new Date());
         destinoExterno.setActivo(Boolean.TRUE);
@@ -132,7 +142,15 @@ public class DestinoExternoService {
             if (siglaDestinoExterno.trim().length() > textoSiglaColumnLength) {
                 throw new BusinessLogicException("la sigla del destino externo permite máximo " + textoDestinoExternoColumnLength + " caracteres.");
             }
-
+            
+            
+            DestinoExterno destinoSigla = destinoExternoRepository.findOneBySiglaAndActivoTrue(siglaDestinoExterno);
+            if (destinoSigla != null && !destinoExterno.getId().equals(destinoSigla.getId())) {
+                throw new BusinessLogicException("ya existe un destino externo con esta sigla.");
+            }
+        
+            destinoExterno.setNombre(textoDestinoExterno);
+            destinoExterno.setSigla(siglaDestinoExterno);
 
             DestinoExterno documentoDestinoExternoAnterior
                     = findOne(destinoExterno.getId());

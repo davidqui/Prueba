@@ -25,5 +25,12 @@ public interface DestinoExternoRepository extends JpaRepository<DestinoExterno, 
      * @return lista de destinos externos
      */
     public List<DestinoExterno> findAllByActivoTrueOrderByNombreAsc();
+    
+    /***
+     * Busca un destino externo por sigla
+     * @param sigla
+     * @return 
+     */
+    public DestinoExterno findOneBySiglaAndActivoTrue(String sigla);
 
 }

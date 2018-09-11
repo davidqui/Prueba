@@ -783,13 +783,14 @@ public class ConsultaService {
             + " AND DOC.DOC_ID IN (\n";
             String parametrosConsulta2 = "";
             for (int i = 0; i < ids.size()-1; i++) {
-                counter = ids.get(i).getNumDocumentos();
+               counter = ids.get(i).getNumDocumentos();
                parametrosConsulta2 += "'"+ids.get(i).getId()+"',";
             }
             parametrosConsulta2 += "'"+ids.get(ids.size()-1).getId()+"'";
+            counter = ids.get(ids.size()-1).getNumDocumentos();
             consulta2 += parametrosConsulta2+" ) \n";
-             System.out.println("AQUI MIRAR ");
-             System.out.println(consulta2);
+            System.out.println("AQUI MIRAR ");
+            System.out.println(consulta2);
              
             LinkedList<Object> parameters3 = new LinkedList<>();
             parameters3.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
@@ -821,7 +822,7 @@ public class ConsultaService {
                 }
             });
              
-             asw[1] = documentos;
+            asw[1] = documentos;
          }
          return asw;
      }

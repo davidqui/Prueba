@@ -45,9 +45,6 @@
 <#if !tipoProceso??>
     <#assign tipoProceso = "" />
 </#if>
-<#if !tipoBusqueda??>
-    <#assign tipoBusqueda = 0 />
-</#if>
 <#if !destinoExterno??>
     <#assign destinoExterno = "" />
 </#if>

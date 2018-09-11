@@ -38,6 +38,8 @@ import com.laamware.ejercito.doc.web.serv.DestinoExternoService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
+import java.time.LocalDate;
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -264,6 +266,11 @@ public class ConsultaController extends UtilController {
         model.addAttribute("permisoAdministradorArchivo", permisoAdministradorArchivo);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
         if (parametrosVacios) {
+            LocalDate now = LocalDate.now();
+            LocalDate firstDay = now.with(firstDayOfYear());
+            model.addAttribute("fechaInicio", firstDay);
+            model.addAttribute("fechaFin", now);
+            model.addAttribute("", tipoBusqueda);
             return "consulta-parametros";
         }
         
@@ -271,7 +278,7 @@ public class ConsultaController extends UtilController {
         // Issue #177 se agrega parametro tipoProceso
         PaginacionDTO prePaginacionDTO = PaginacionUtil.retornaParametros(0, pageIndex, pageSize);
         Object[] asw = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino,
-                dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && !buscarTodo, sameValue, prePaginacionDTO.getRegistroInicio(),
+                dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && !buscarTodo && !sameValue, sameValue, prePaginacionDTO.getRegistroInicio(),
                 prePaginacionDTO.getRegistroFin(), tipoBusqueda, destinoExterno);
         int count = (int) asw[0];
         System.out.println("ESTE ES EL  CONTADOR "+count);
@@ -313,10 +320,11 @@ public class ConsultaController extends UtilController {
             model.addAttribute("firmaUUID", firmaUUID);
             model.addAttribute("tipoProceso", tipoProceso);
             model.addAttribute("destinoExterno", destinoExterno);
+        }else{
+            model.addAttribute("term", term);
         }
-        
-        model.addAttribute("term", term);
 
+        
         return "consulta-parametros";
     }
 

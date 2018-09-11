@@ -280,9 +280,9 @@
                 <option value=""></option>
                         <#list destinosExternos as dte>
                         <#if dte.id?string == ((documento.destinoExterno.id)!"")?string >
-                <option value="${dte.id}" selected="selected">${dte.nombre}</option>
+                <option value="${dte.id}" selected="selected">${dte.sigla} - ${dte.nombre}</option>
                         <#else>
-                <option value="${dte.id}">${dte.nombre}</option>
+                <option value="${dte.id}">${dte.sigla} - ${dte.nombre}</option>
                         </#if>
                         </#list>
                     </#if>

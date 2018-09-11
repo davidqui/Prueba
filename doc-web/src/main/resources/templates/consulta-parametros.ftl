@@ -10,8 +10,11 @@
 <link href='/css/consulta-parametros.css' rel='stylesheet' type='text/css'>
 
 <div class="container-fluid">
-
+    <#if !term?has_content>
     <h4>Consulta de documentos ${(destinoExterno)!""}</h4>
+    <#if !tipoBusqueda??>
+        <#assign tipoBusqueda = 0 />
+    </#if>
     <div class="container-fluid">
         <div id="container-2" class="form-group row fade-in container-form" style="position: relative; margin-top: 70px;">
             <div style="position: absolute; top: -36px;">
@@ -34,10 +37,12 @@
                     <label for="fechaInicio"  class="col-sm-1 col-form-label text-xs-right">Fecha Inicial</label>
                     <div class="form-inline col-sm-2 input-group">
                         <input type="text" id="fechaInicio" name="fechaInicio" class="form-control datepicker" value="${fechaInicio}"/>
+                        <div onclick="document.getElementById(&quot;fechaInicio&quot;).value = &quot;&quot;" class="input-group-addon btn">Limpiar</div>
                     </div>
                     <label for="fechaFin" class="col-sm-1 col-form-label text-xs-right">Fecha Final</label>
                     <div class="form-inline col-sm-2 input-group">
                         <input type="text" name="fechaFin" id="fechaFin" class="form-control datepicker" value="${fechaFin}"/>
+                        <div onclick="document.getElementById(&quot;fechaFin&quot;).value = &quot;&quot;" class="input-group-addon btn">Limpiar</div>
                     </div>
                 </div>
                 <input type="hidden" name="tipoBusqueda" id="tipoBusqueda" value="${(tipoBusqueda)!""}">
@@ -67,9 +72,9 @@
                                 <option value=""></option>
                                         <#list destinosExternos as dte>
                                         <#if dte.id?string == ((destinoExterno)!"")?string >
-                                <option value="${dte.id}" selected="selected">${dte.nombre}</option>
+                                <option value="${dte.id}" selected="selected">${dte.sigla} - ${dte.nombre}</option>
                                         <#else>
-                                <option value="${dte.id}">${dte.nombre}</option>
+                                <option value="${dte.id}">${dte.sigla} - ${dte.nombre}</option>
                                         </#if>
                                         </#list>
                                     </#if>
@@ -124,8 +129,9 @@
                     <button type="submit" class="btn btn-primary btn-lg" onclick="loading(event);">Buscar</button>
                 </div>
                 </div>
-            </form>
+            </form> 
     </form>
+</#if>
 
 <!-- dependenciaDestinoModal -->            
     <div class="modal fade" id="dependenciaDestinoModal" tabindex="-1" role="dialog" aria-labelledby="dependenciaDestinoModalLabel" aria-hidden="true">
