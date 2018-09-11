@@ -86,7 +86,7 @@ public class TransExpedienteDetalleService {
         List<TransExpedienteDetalle> buscarXTransferenciaArchivo = buscarXTransferenciaArchivo(transferenciaArchivo);
         for (TransExpedienteDetalle transExpedienteDetalle : buscarXTransferenciaArchivo) {
             transExpedienteDetalle.setIndRealizado(1);
-            expedienteService.cambiarUsuarioCreador(transExpedienteDetalle.getExpId(), transExpedienteDetalle.getAnteriorQuien(), transExpedienteDetalle.getAnteriorQuien());
+            expedienteService.cambiarUsuarioCreador(transExpedienteDetalle.getExpId(), transExpedienteDetalle.getNuevoQuien(), transExpedienteDetalle.getAnteriorQuien());
             transExpedienteDetalleRepository.save(transExpedienteDetalle);
         }
     }
