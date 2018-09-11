@@ -37,13 +37,11 @@ import com.laamware.ejercito.doc.web.enums.DocumentoActaTransicionTransferencia;
 import com.laamware.ejercito.doc.web.enums.DocumentoActaUsuarioSeleccion;
 import com.laamware.ejercito.doc.web.repo.ClasificacionRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
-import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.ProcesoEstadoRepository;
 import com.laamware.ejercito.doc.web.repo.ProcesoRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
-import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
@@ -68,10 +66,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -83,7 +79,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -103,8 +98,6 @@ public class DocumentoActaService {
     private static final Logger LOG = Logger.getLogger(DocumentoActaService.class.getName());
 
     private String imagesRoot;
-
-    private final SimpleDateFormat sdf = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy hh:mm a", new Locale("es", "CO"));
 
     static {
         final Map<DocumentoActaEstado, DocumentoActaMode> baseMap = new LinkedHashMap<>();
@@ -126,27 +119,7 @@ public class DocumentoActaService {
 
         ESTADO_MODE_MAP_FOR_UI = Collections.unmodifiableMap(forUIMap);
     }
-
-    /**
-     * Locale para Colombia.
-     */
-    private static final Locale LOCALE_ES_CO = new Locale("es", "CO");
-
-    /**
-     * Formato de fecha completa.
-     */
-    private static final String FULL_DATE_FORMAT_PATTERN = "dd 'de' MMMM 'de' yyyy hh:mm a";
-
-    /**
-     * Formato de fecha para presentar en el acta.
-     */
-    private static final String DOCUMENT_DATE_FORMAT_PATTERN = "dd 'de' MMMM 'de' yyyy";
-
-    /**
-     * Formato de fecha de firma de documento transferido.
-     */
-    private static final String DETALLE_DOCUMENTO_FIRMA_DATE_FORMAT_PATTERN = "yyyy-MM-dd";
-
+   
     /**
      * Prefijo de línea de mando.
      */
@@ -220,39 +193,15 @@ public class DocumentoActaService {
     @Autowired
     private PlantillaTransferenciaArchivoRepository plantillaRepository;
 
-    /**
-     * Repositorio de clasificaciones.
-     */
     @Autowired
     private ClasificacionRepository clasificacionRepository;
 
-    /**
-     * Repositorio de dependencias.
-     */
     @Autowired
     private DependenciaRepository dependenciaRepository;
 
-    /**
-     * Repositorio de maestro de transferencia.
-     */
-    @Autowired
-    private TransferenciaArchivoRepository transferenciaRepository;
-
-    /**
-     * Repositorio de usuario.
-     */
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    /**
-     * Repositorio de documentos.
-     */
-    @Autowired
-    private DocumentoRepository documentoRepository;
-
-    /**
-     * Repositorio de detalle de transferencia.
-     */
     @Autowired
     private TransferenciaArchivoDetalleRepository detalleRepository;
 
@@ -551,9 +500,8 @@ public class DocumentoActaService {
      */
     private String generaSticker(Documento doc) {
         try {
-            System.err.println("Genera sticker");
-            Map<String, Object> params = new HashMap<String, Object>();
-            // params.put("P_DOCUMENTO", doc);
+            final SimpleDateFormat sdf = new SimpleDateFormat(Global.STICKER_DATE_FORMAT_PATTERN, Global.COLOMBIA);
+            Map<String, Object> params = new HashMap<>();
             params.put("radicado", doc.getRadicado() == null ? "" : doc.getRadicado());
             params.put("asunto", doc.getAsunto() == null ? "" : doc.getAsunto());
             params.put("cuando", sdf.format(doc.getActaFechaElaboracion()));
@@ -914,6 +862,10 @@ public class DocumentoActaService {
         }
     }
 
+    /**
+     * Metodo que permite crear el proceso del acta de transferencia.
+     * @param transferenciaArchivo 
+     */
     public void crearActaDeTransferencia(TransferenciaArchivo transferenciaArchivo) {
         try {
             final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
@@ -944,27 +896,21 @@ public class DocumentoActaService {
             /*Usuario registro*/
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.ENVIAR_REGISTRO.getId());
-//            
-//            /*Sticker*/
+            
+            /*Sticker*/
             procesoInstancia.setCuandoMod(new Date());
             generaVariableSticker(procesoInstancia);
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.GENERAR_STICKER.getId());
-//            
+            
             /*Validar*/
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.VALIDAR.getId());
-            final PlantillaTransferenciaArchivo plantilla = plantillaRepository.findByActivoTrue();
-            License asposeLicense = null;
-            try {
-                asposeLicense = getAsposeLicence();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-            /*APROBAR_ARCHIVAR*/
+            
+            /*Aprobar_archivar*/
             digitalizarYArchivarActa(documento, procesoInstancia, jefeDependencia, DocumentoActaTransicionTransferencia.APROBAR_ARCHIVAR.getId());
 
-            crearActa(transferenciaArchivo, plantilla, asposeLicense, documento);
+            /*Creación del documento del acta*/
+            crearActaPdf(transferenciaArchivo, documento);
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger.getLogger(DocumentoActaService.class.getName()).log(Level.SEVERE, null, ex);
@@ -984,13 +930,13 @@ public class DocumentoActaService {
             final String asunto = "Transferencia de archivos y expedientes en gestión de " + usuarioEmisor.getLogin() + " a " + usuarioReceptor.getLogin();;
 
             final String actaLugar = usuarioEmisor.getDependencia().getCiudad();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(Global.DATE_FORMAT, Global.COLOMBIA);
 
             DocumentoActaDTO documentoActaDTO = new DocumentoActaDTO();
             documentoActaDTO.setDocId(documento.getId());
             documentoActaDTO.setAsunto(asunto);
             documentoActaDTO.setActaLugar(actaLugar);
-            documentoActaDTO.setActaFechaElaboracion(dateFormat.format(new Date()));
+            documentoActaDTO.setActaFechaElaboracion(documentDateFormatter.format(new Date()));
             documentoActaDTO.setClasificacion(transferenciaArchivo.getOrigenClasificacion().getId().toString());
             documentoActaDTO.setTrd(trdService.findOne(subserieActaTransferencia).getId().toString());
             documentoActaDTO.setNumeroFolios("0");
@@ -1005,19 +951,6 @@ public class DocumentoActaService {
     }
 
     /**
-     * Obtiene la referencia de la licencia de Aspose.
-     *
-     * @return Licencia de Aspose.
-     * @throws Exception
-     */
-    private License getAsposeLicence() throws Exception {
-        final License asposeLicense = new License();
-        final Resource resource = new ClassPathResource("Aspose.Words.lic");
-        asposeLicense.setLicense(resource.getInputStream());
-        return asposeLicense;
-    }
-
-    /**
      * Crea el acta para la transferencia de archivo.
      *
      * @param transferenciaArchivo Transferencia de archivo.
@@ -1026,15 +959,15 @@ public class DocumentoActaService {
      * @throws Exception Si ocurre algún error durante la creación del documento
      * Aspose.
      */
-    private void crearActa(final TransferenciaArchivo transferenciaArchivo,
-            final PlantillaTransferenciaArchivo plantilla, final License asposeLicense, final Documento documento) throws Exception {
+    private void crearActaPdf(final TransferenciaArchivo transferenciaArchivo, final Documento documento) throws Exception {
 
-        if (!asposeLicense.getIsLicensed()) {
-            LOG.severe("ASPOSE no Licenciado!");
-        }
-
+        final PlantillaTransferenciaArchivo plantilla = plantillaRepository.findByActivoTrue();
         final KeysValuesAsposeDocxDTO asposeMap = crearMapaAspose(transferenciaArchivo, documento);
         final String plantillaPath = ofs.getPath(plantilla.getCodigoOFS());
+        final License asposeLicense = new License();
+        final Resource resource = new ClassPathResource("Aspose.Words.lic");
+        asposeLicense.setLicense(resource.getInputStream());
+        
         final Document asposeDocument = new Document(plantillaPath);
 
         asposeDocument.getMailMerge().execute(asposeMap.getNombres(), asposeMap.getValues());
@@ -1127,7 +1060,7 @@ public class DocumentoActaService {
      * @return Mapa de campos/valor.
      */
     private KeysValuesAsposeDocxDTO crearMapaAspose(final TransferenciaArchivo transferenciaArchivo, Documento documento) {
-        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(DOCUMENT_DATE_FORMAT_PATTERN, LOCALE_ES_CO);
+        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(Global.DOCUMENT_DATE_FORMAT_PATTERN, Global.COLOMBIA);
         final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
 
         final KeysValuesAsposeDocxDTO map = new KeysValuesAsposeDocxDTO();
@@ -1210,6 +1143,11 @@ public class DocumentoActaService {
         return map;
     }
 
+    /**
+     * Retorna el archivo de la firma del usuario
+     * @param usuario
+     * @return Archivo de firma
+     */
     private File getImagenFirma(final Usuario usuario) {
         final String imagenFirma = usuario.getImagenFirma();
         if (imagenFirma == null) {
@@ -1413,7 +1351,7 @@ public class DocumentoActaService {
             siglaUnidadOrigen = Objects.toString(unidadOrigen.getSigla(), "");
         }
 
-        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(DETALLE_DOCUMENTO_FIRMA_DATE_FORMAT_PATTERN, LOCALE_ES_CO);
+        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(Global.DATE_FORMAT, Global.COLOMBIA);
         final String fecCreacion = documentDateFormatter.format(detalle.getExpId().getFecCreacion());
 
         final String tipo = (detalle.getExpId().getExpTipo() == 1) ? "Expediente simple" : "Expediente complejo";

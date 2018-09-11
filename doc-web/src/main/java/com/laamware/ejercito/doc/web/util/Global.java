@@ -36,6 +36,16 @@ public final class Global {
      * Formato de fecha.
      */
     public static final String DATE_FORMAT = "yyyy-MM-dd";
+    
+    /**
+     * Formato de fecha para presentar en el acta.
+     */
+    public static final String DOCUMENT_DATE_FORMAT_PATTERN = "dd 'de' MMMM 'de' yyyy";
+    
+    /**
+     * Formato de fecha para presentar en el acta.
+     */
+    public static final String STICKER_DATE_FORMAT_PATTERN = "dd 'de' MMMM 'de' yyyy hh:mm a";
 
     /**
      * Construcor privado.
