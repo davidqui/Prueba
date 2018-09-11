@@ -405,11 +405,10 @@ public class ConsultaController extends UtilController {
         final boolean puedeBuscarXDocFirmaEnvioUUID = isAuthorizedRol(AppConstants.BUSCAR_X_DOC_FIRMA_ENVIO_UUID);
         uiModel.addAttribute("puedeBuscarXDocFirmaEnvioUUID", puedeBuscarXDocFirmaEnvioUUID);
         
-        String asignado = null;
+
         String asunto = criteria;
         String radicado = criteria;
-        String destinatario = null;
-        String firmaUUID = null;
+
         
         final Usuario usuarioSesion = getUsuario(principal);
         final Integer usuarioID = usuarioSesion.getId();
@@ -423,8 +422,18 @@ public class ConsultaController extends UtilController {
 
         List<DocumentoDTO> documentos = null;
         // Issue #177 se agrega parametro tipoProceso
-        int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, null, null, radicado, destinatario, null, null,
-                null, true, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, null, false);
+        if(criteria == null || criteria.trim().length() < 1){
+            uiModel.addAttribute("pageIndex", 0);
+            uiModel.addAttribute("totalPages", 0);
+            return "finder-buscar-documento";
+        }
+        
+        PaginacionDTO prePaginacionDTO = PaginacionUtil.retornaParametros(0, pageIndex, pageSize);
+        Object[] asw = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, null, null, radicado, null,
+                null, usuarioID, cargosIDs, false, true, prePaginacionDTO.getRegistroInicio(),
+                prePaginacionDTO.getRegistroFin(), null, null);
+        
+        int count = (int) asw[0];
         LOG.log(Level.INFO, "verificando count ]= {0}", count);
         int totalPages = 0;
         String labelInformacion = "";
@@ -433,8 +442,7 @@ public class ConsultaController extends UtilController {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
             // Issue #177 se agrega parametro tipoProceso
-            documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, null, null, radicado, destinatario, null, null,
-                    null, true, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(), null, false);
+            documentos = (List<DocumentoDTO>) asw[1];
             LOG.log(Level.INFO, "consulta completa");
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
