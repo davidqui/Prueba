@@ -21,29 +21,26 @@
             <fieldset class="form-group">
                 <label for="tipo">Tipo:</label>
                 <div style="padding-left: 20px;">
-                    <label for="tipo">Fuerza publica:</label>
-                    <div style="padding-left: 20px;">
-                        <div class="radio">
-                            <label><input type="radio" name="tipo" value="5" <#if destinoExterno.tipo?? && destinoExterno.tipo == 5>checked</#if>>Ejercito</label>
-                         </div>
-                        <div class="radio">
-                          <label><input type="radio" name="tipo" value="3" <#if destinoExterno.tipo?? && destinoExterno.tipo == 3>checked</#if>>Fuerza aérea</label>
-                        </div>
-                        <div class="radio">
-                          <label><input type="radio" name="tipo" value="4" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 4>checked</#if>>Armada</label>
-                        </div>
-                        <div class="radio">
-                          <label><input type="radio" name="tipo" value="6" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 6>checked</#if>>Policía Nacional</label>
-                        </div>
+                    <div class="radio">
+                        <label><input type="radio" name="tipo" value="5" <#if destinoExterno.tipo?? && destinoExterno.tipo == 5>checked</#if>>Ejercito</label>
+                     </div>
+                    <div class="radio">
+                      <label><input type="radio" name="tipo" value="3" <#if destinoExterno.tipo?? && destinoExterno.tipo == 3>checked</#if>>Fuerza aérea</label>
                     </div>
-                    <label for="tipo">Otro:</label>
-                    <div style="padding-left: 20px;">
-                        <div class="radio">
-                          <label><input type="radio" name="tipo" value="1" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 1>checked</#if>>Estatal</label>
-                        </div>
-                        <div class="radio">
-                          <label><input type="radio" name="tipo" value="2" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 2>checked</#if>>Privada</label>
-                        </div>
+                    <div class="radio">
+                      <label><input type="radio" name="tipo" value="4" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 4>checked</#if>>Armada</label>
+                    </div>
+                    <div class="radio">
+                      <label><input type="radio" name="tipo" value="6" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 6>checked</#if>>Policía Nacional</label>
+                    </div>
+                    <div class="radio">
+                      <label><input type="radio" name="tipo" value="1" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 1>checked</#if>>Estatal</label>
+                    </div>
+                    <div class="radio">
+                      <label><input type="radio" name="tipo" value="2" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 2>checked</#if>>Privada</label>
+                    </div>
+                    <div class="radio">
+                      <label><input type="radio" name="tipo" value="7" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 7>checked</#if>>Otros</label>
                     </div>
                 </div>
             </fieldset>
