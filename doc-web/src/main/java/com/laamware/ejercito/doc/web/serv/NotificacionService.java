@@ -172,8 +172,8 @@ public class NotificacionService {
      * @param usuario Usuario que elimino
      */
     public void eliminarNotifiacion(Notificacion notificacion, Usuario usuario) {
-        notificacion.setQuien(usuario);
-        notificacion.setCuando(new Date());
+        notificacion.setQuienMod(usuario);
+        notificacion.setCuandoMod(new Date());
         notificacion.setActivo(Boolean.FALSE);
         notificacionRepository.saveAndFlush(notificacion);
     }

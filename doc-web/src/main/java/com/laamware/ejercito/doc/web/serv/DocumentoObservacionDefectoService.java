@@ -82,7 +82,12 @@ public class DocumentoObservacionDefectoService {
         if (textoObservacion.trim().length() > textoObservacionColumnLength) {
             throw new BusinessLogicException("El texto de la observación permite máximo " + textoObservacionColumnLength + " caracteres.");
         }
-
+        
+        final DocumentoObservacionDefecto anterior = documentoObservacionDefectoRepository.getOneByActivoTrueAndTextoObservacion(textoObservacion);
+        if (anterior != null) {
+            throw new BusinessLogicException("Este nombre ya existe.");
+        }
+        
         documentoObservacionDefecto.setQuien(usuario);
         documentoObservacionDefecto.setCuando(new Date());
         documentoObservacionDefecto.setActivo(Boolean.TRUE);
@@ -112,6 +117,11 @@ public class DocumentoObservacionDefectoService {
                 throw new BusinessLogicException("El texto de la observación permite máximo " + textoObservacionColumnLength + " caracteres.");
             }
 
+            final DocumentoObservacionDefecto anterior = documentoObservacionDefectoRepository.getOneByActivoTrueAndTextoObservacion(textoObservacion);
+            if (anterior != null && !anterior.getId().equals(documentoObservacionDefecto.getId())) {
+                throw new BusinessLogicException("Este nombre ya existe.");
+            }
+        
             DocumentoObservacionDefecto documentoObservacionAnterior
                     = findOne(documentoObservacionDefecto.getId());
 
@@ -133,8 +143,8 @@ public class DocumentoObservacionDefectoService {
      */
     public void eliminarObservacionDefecto(DocumentoObservacionDefecto documentoObservacionDefecto,
             Usuario usuario) {
-        documentoObservacionDefecto.setQuien(usuario);
-        documentoObservacionDefecto.setCuando(new Date());
+        documentoObservacionDefecto.setQuienMod(usuario);
+        documentoObservacionDefecto.setCuandoMod(new Date());
         documentoObservacionDefecto.setActivo(Boolean.FALSE);
         documentoObservacionDefectoRepository.saveAndFlush(documentoObservacionDefecto);
     }
