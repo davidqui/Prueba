@@ -355,4 +355,44 @@ BEGIN
 END;
 /
 
+-- -----------------------------------------------------------------------------
+-- TABLA: PLANTILLA_FUID_GESTION
+-- -----------------------------------------------------------------------------
 
+CREATE TABLE DOC.PLANTILLA_FUID_GESTION (
+    PFG_ID          NUMBER(*,0)         NOT NULL,
+    ACTIVO          NUMBER(1,0)         NOT NULL,
+    NOMBRE_ARCHIVO  VARCHAR2(512 CHAR)  NOT NULL,
+    TAMANYO_ARCHIVO NUMBER(*,0)         NOT NULL,
+    FIRMA_MD5       VARCHAR2(32 CHAR)   NOT NULL,
+    CODIGO_OFS      VARCHAR2(32 CHAR)   NOT NULL,
+    QUIEN           NUMBER(*,0)         NOT NULL,
+    CUANDO          DATE                NOT NULL,
+    PRIMARY KEY (PFG_ID)
+);
+
+ALTER TABLE DOC.PLANTILLA_FUID_GESTION ADD CONSTRAINT PFG_QUIEN_FK FOREIGN KEY (QUIEN) REFERENCES DOC.USUARIO (USU_ID);
+
+CREATE SEQUENCE DOC.PLANTILLA_FUID_GESTION;
+
+-- -----------------------------------------------------------------------------
+-- CAMBIOS A DATOS EXISTENTES
+-- -----------------------------------------------------------------------------
+
+INSERT INTO DOC.ROL (
+    ROL_ID,
+    QUIEN,
+    CUANDO,
+    QUIEN_MOD,
+    CUANDO_MOD,
+    ACTIVO,
+    ROL_NOMBRE
+) VALUES (
+    'ADMIN_FUID_GESTION',
+    3390,
+    SYSDATE,
+    3390,
+    SYSDATE,
+    1,
+    'Plantilla Fuid de gestión'
+);

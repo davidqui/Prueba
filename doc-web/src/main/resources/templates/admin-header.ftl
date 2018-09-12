@@ -67,6 +67,8 @@
                 <@link_admin  "ADMIN_LOG" "/admin/logs" 'logs' 'Logs'/>
 
                 <@link_admin  "ADMIN_PLANTILLA_TRANSF_ARCHIVO" "/admin/plantilla-transf-archivo" 'plantilla-transf-archivo' 'Plantilla Transf. Archivo'/>
+                
+                <@link_admin  "ADMIN_FUID_GESTION" "/admin/plantilla-fuid" 'plantilla-fuid' 'Plantilla FUID Gestión'/>
 
                 <#--
                     2018-05-09 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
