@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Controller
 @PreAuthorize("hasRole('ADMIN_FUID_GESTION')")
-@RequestMapping(PlantillaTransferenciaArchivoController.PATH)
+@RequestMapping(PlantillaFuidGestionController.PATH)
 public class PlantillaFuidGestionController extends UtilController {
 
     /**
