@@ -738,7 +738,6 @@ public class ConsultaService {
             hasConditions = true;
         }
         
-        sql.append(" ) \n");
         
          if (tipoBusqueda != null ) {
              if (tipoBusqueda.equals(0)) {
@@ -756,6 +755,8 @@ public class ConsultaService {
                  }
              }
          }
+         
+        sql.append(" ) \n");
         
         return parameters;
      }

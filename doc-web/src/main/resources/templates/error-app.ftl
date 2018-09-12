@@ -48,12 +48,7 @@
 					</p>
 					<#if statusMessage??>
 					<p>${statusMessage}</p>
-					</#if>
-					
-					<#if exceptionMessage??>
-					<p style="font-size:small">Mensaje generado por la aplicación: ${exceptionMessage}</p>
-					</#if>
-					
+					</#if>	
 				</div>
 			</div>
 		</div>
