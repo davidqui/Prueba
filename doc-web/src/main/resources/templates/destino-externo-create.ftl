@@ -18,7 +18,35 @@
                 <label for="textoObservacion">Sigla</label>
                 <input type="text" class="form-control" id="sigla" name="sigla" value="${(destinoExterno.sigla)!""}" style="text-transform: uppercase;"/>
             </fieldset>
-            
+            <fieldset class="form-group">
+                <label for="tipo">Tipo:</label>
+                <div style="padding-left: 20px;">
+                    <label for="tipo">Fuerza publica:</label>
+                    <div style="padding-left: 20px;">
+                        <div class="radio">
+                            <label><input type="radio" name="tipo" value="5" <#if destinoExterno.tipo?? && destinoExterno.tipo == 5>checked</#if>>Ejercito</label>
+                         </div>
+                        <div class="radio">
+                          <label><input type="radio" name="tipo" value="3" <#if destinoExterno.tipo?? && destinoExterno.tipo == 3>checked</#if>>Fuerza aérea</label>
+                        </div>
+                        <div class="radio">
+                          <label><input type="radio" name="tipo" value="4" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 4>checked</#if>>Armada</label>
+                        </div>
+                        <div class="radio">
+                          <label><input type="radio" name="tipo" value="6" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 6>checked</#if>>Policía Nacional</label>
+                        </div>
+                    </div>
+                    <label for="tipo">Otro:</label>
+                    <div style="padding-left: 20px;">
+                        <div class="radio">
+                          <label><input type="radio" name="tipo" value="1" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 1>checked</#if>>Estatal</label>
+                        </div>
+                        <div class="radio">
+                          <label><input type="radio" name="tipo" value="2" <#if  destinoExterno.tipo?? && destinoExterno.tipo == 2>checked</#if>>Privada</label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
                 <a href="/admin/destino-externo" class="btn btn-secondary">Cancelar</a>

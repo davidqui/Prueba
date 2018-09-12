@@ -49,6 +49,10 @@ public class DestinoExterno extends AuditModifySupport implements Serializable{
     @Basic(optional = false)
     @Column(name = "ACTIVO")
     private Boolean activo;
+    
+    @Basic(optional = false)
+    @Column(name = "TIPO")
+    private Integer tipo;
 
     public Integer getId() {
         return id;
@@ -82,6 +86,14 @@ public class DestinoExterno extends AuditModifySupport implements Serializable{
         this.activo = activo;
     }
 
+    public Integer getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(Integer tipo) {
+        this.tipo = tipo;
+    }
+    
     @Override
     public String toString() {
         return "DestinoExterno{" + "id=" + id + ", nombre=" + nombre + ", sigla=" + sigla + ", activo=" + activo + '}';

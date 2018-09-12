@@ -93,6 +93,10 @@ public class DestinoExternoService {
             throw new BusinessLogicException("la sigla del destino externo permite máximo " + textoDestinoExternoColumnLength + " caracteres.");
         }
         
+        if (destinoExterno.getTipo() == null) {
+            throw new BusinessLogicException("El tipo del destino externo es obligatorio.");
+        }
+        
         DestinoExterno destinoSigla = destinoExternoRepository.findOneBySiglaAndActivoTrue(siglaDestinoExterno);
         if (destinoSigla != null ) {
             throw new BusinessLogicException("ya existe un destino externo con esta sigla.");
@@ -141,6 +145,10 @@ public class DestinoExternoService {
             final int textoSiglaColumnLength = ReflectionUtil.getColumnLength(DestinoExterno.class, "sigla");
             if (siglaDestinoExterno.trim().length() > textoSiglaColumnLength) {
                 throw new BusinessLogicException("la sigla del destino externo permite máximo " + textoDestinoExternoColumnLength + " caracteres.");
+            }
+            
+            if (destinoExterno.getTipo() == null) {
+                throw new BusinessLogicException("El tipo del destino externo es obligatorio.");
             }
             
             
