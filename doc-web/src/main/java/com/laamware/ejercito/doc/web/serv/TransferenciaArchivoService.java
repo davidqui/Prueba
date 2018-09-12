@@ -3,10 +3,12 @@ package com.laamware.ejercito.doc.web.serv;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
+import com.laamware.ejercito.doc.web.entity.PlantillaFuidGestion;
 import com.laamware.ejercito.doc.web.entity.PlantillaTransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
+import com.laamware.ejercito.doc.web.repo.PlantillaFuidGestionRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import java.math.BigDecimal;
@@ -67,6 +69,9 @@ public class TransferenciaArchivoService {
      */
     @Autowired
     private PlantillaTransferenciaArchivoRepository plantillaRepository;
+    
+    @Autowired
+    private PlantillaFuidGestionRepository plantillaFuidGestionRepository;
 
     /**
      * Servicio de generacion de numero de radicado.
@@ -333,6 +338,11 @@ public class TransferenciaArchivoService {
         final PlantillaTransferenciaArchivo plantilla = plantillaRepository.findByActivoTrue();
         if (plantilla == null) {
             validacionDTO.addError("ATENCIÓN: No hay plantilla activa para la generación del acta de transferencia de archivo.");
+        }
+        
+        PlantillaFuidGestion plantillaFuid = plantillaFuidGestionRepository.findByActivoTrue();
+        if (plantillaFuid == null) {
+            validacionDTO.addError("ATENCIÓN: No hay plantilla activa del FUID de gestión.");
         }
 
         if (origenUsuario == null) {

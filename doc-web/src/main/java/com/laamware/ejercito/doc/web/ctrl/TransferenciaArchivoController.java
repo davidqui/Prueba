@@ -467,6 +467,8 @@ public class TransferenciaArchivoController extends UtilController {
         if(! transferenciaService.permisoAprobarJefe(transferenciaArchivo, usuarioSesion))
             return "security-denied";
         
+        
+        
         transferenciaService.aprobarTransferencia(transferenciaArchivo, usuarioSesion);
         
         return "redirect:" + PATH + "/resumen/"+transId;
