@@ -11,6 +11,7 @@ import com.laamware.ejercito.doc.web.repo.RolRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -857,7 +858,10 @@ public class ConsultaService {
             documentos = jdbcTemplate.query(consulta2, parameters3.toArray(), new RowMapper<DocumentoDTO>() {
             @Override
             public DocumentoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), rs.getDate("cuandoMod"), rs.getString("nombreProceso"),
+                    Timestamp timestamp = rs.getTimestamp("cuandoMod");
+                    Date fecModificacion = new Date(timestamp.getTime());
+                    
+                    DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), fecModificacion, rs.getString("nombreProceso"),
                             rs.getString("nombreEstado"), rs.getString("nombreUsuarioAsignado"), rs.getString("nombreUsuarioEnviado"), rs.getString("nombreUsuarioElabora"),
                             rs.getString("nombreUsuarioReviso"), rs.getString("nombreUsuarioVbueno"), rs.getString("nombreUsuarioFirma"), rs.getString("nombreClasificacion"),
                             rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"), rs.getBoolean("indPertenece"));
