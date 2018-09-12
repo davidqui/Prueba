@@ -175,10 +175,10 @@ public class ConsultaService {
         LinkedList<Object> parameters = armaConsulta(sql, asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen,
                 sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso, permisoAdministradorArchivo);
 
-        LOG.info("##################################################");
-        LOG.info("sql = " + sql);
-        LOG.info("parameters = " + parameters);
-        LOG.info("##################################################");
+//        LOG.info("##################################################");
+//        LOG.info("sql = " + sql);
+//        LOG.info("parameters = " + parameters);
+//        LOG.info("##################################################");
         String consulta = ""
                 + "select *\n"
                 + "from(\n"
@@ -725,12 +725,7 @@ public class ConsultaService {
             hasConditions = true;
         }
         
-        if (dependenciaDestino != null) {
-            sql.append(hasConditions ? operator.name() : "").append(" DOC.DEP_ID_DES = ? \n");
-            parameters.add(dependenciaDestino);
-            hasConditions = true;
-        }
-
+        
         if (dependenciaOrigen != null) {
             List<Integer> dependencias = subDepsList(dependenciaOrigen);
             String strDependencias = dependencias.toString();
@@ -739,9 +734,14 @@ public class ConsultaService {
             hasConditions = true;
         }
         
-        
          if (tipoBusqueda != null ) {
              if (tipoBusqueda.equals(0)) {
+                if (dependenciaDestino != null) {
+                    sql.append(hasConditions ? operator.name() : "").append(" DOC.DEP_ID_DES = ? \n");
+                    parameters.add(dependenciaDestino);
+                    hasConditions = true;
+                }
+                 
                 sql.append(hasConditions ? operator.name() : "").append(" INSTANCIA.PRO_ID IN (?, ?, ?) \n");
                 parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
                 parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
@@ -750,7 +750,8 @@ public class ConsultaService {
              if(tipoBusqueda.equals(1)){
                 sql.append(hasConditions ? operator.name() : "").append(" INSTANCIA.PRO_ID = ? \n");
                 parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
-                 if (destinoExterno != null) {
+                hasConditions = true;
+                if (destinoExterno != null) {
                      sql.append(hasConditions ? operator.name() : "").append(" DOC.ADE_ID = ? \n");
                      parameters.add(destinoExterno);
                  }
@@ -789,10 +790,10 @@ public class ConsultaService {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         StringBuilder sql = retornarNuevaConsulta();
         LinkedList<Object> parameters = armaConsultaNueva(sql, asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, sameValue, permisoAdministradorArchivo, tipoBusqueda, destinoExterno);
-        LOG.info("##################################################");
-        LOG.info("sql = " + sql);
-        LOG.info("parameters = " + parameters);
-        LOG.info("##################################################");
+//        LOG.info("##################################################");
+//        LOG.info("sql = " + sql);
+//        LOG.info("parameters = " + parameters);
+//        LOG.info("##################################################");
         String consulta = ""
                 + "select DOC_ID, RESULT_COUNT \n"
                 + "from(\n"

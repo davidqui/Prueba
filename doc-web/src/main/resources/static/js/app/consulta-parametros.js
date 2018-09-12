@@ -80,7 +80,7 @@ function selected(select) {
         $("#toggle-2").css("background-color", "#f0f0f0");
         $("#toggle-1").css("background-color", "#dddddd");
     }
-
+    
     setTimeout(function(){
         $("#container-1").css("display","none"); 
         $("#container-2").css("display","block");
