@@ -18,6 +18,7 @@ CREATE TABLE DOC.DESTINO_EXTERNO (
     CUANDO              DATE                NOT NULL,
     QUIEN_MOD           NUMBER(38)          NOT NULL,
     CUANDO_MOD          DATE                NOT NULL,
+    TIPO                NUMBER(1)
     PRIMARY KEY (ADE_ID)
 );
 
@@ -67,6 +68,7 @@ CREATE TABLE DOC.H_DESTINO_EXTERNO (
     CUANDO              DATE                NOT NULL,
     QUIEN_MOD           NUMBER(38)          NOT NULL,
     CUANDO_MOD          DATE                NOT NULL,
+    TIPO                NUMBER(1)
     PRIMARY KEY (HADE_ID)
 );
 
@@ -87,7 +89,8 @@ BEGIN
         QUIEN,     
         CUANDO,    
         QUIEN_MOD, 
-        CUANDO_MOD
+        CUANDO_MOD,
+        TIPO
     ) VALUES (
         DOC.H_DESTINO_EXTERNO_SEQ.NEXTVAL,
         :NEW.ADE_ID,
@@ -97,7 +100,8 @@ BEGIN
         :NEW.QUIEN,     
         :NEW.CUANDO,    
         :NEW.QUIEN_MOD, 
-        :NEW.CUANDO_MOD
+        :NEW.CUANDO_MOD,
+        :NEW.TIPO
     );
 END;
 /
