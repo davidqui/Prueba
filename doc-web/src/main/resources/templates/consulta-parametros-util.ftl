@@ -37,9 +37,18 @@
 <#if !dependenciaDestinoDescripcion??>
     <#assign dependenciaDestinoDescripcion = "" />
 </#if>
+
+<#--
+    2018-09-10 samuel.delgado@controltechcg.com Issue gogs #10 (SICDI-Controltech) feature-gogs-10:
+    Se agrean nuevas variables para la busqueda.
+-->
 <#if !tipoProceso??>
     <#assign tipoProceso = "" />
 </#if>
+<#if !destinoExterno??>
+    <#assign destinoExterno = "" />
+</#if>
+
 <#--
     2018-05-08 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
     Asignación de valor por defecto para la Firma UUID.

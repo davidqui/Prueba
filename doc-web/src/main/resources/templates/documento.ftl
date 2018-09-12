@@ -268,13 +268,25 @@
         </#if>
         
         <!--
-    2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
-    marcaAguaExterna
+            2018-09-03 samuel.delgado@controltechcg.com Feature #129 (SICDI-Controltech) feature-gogs-10
+            se cambia el campo de marca de agua por el administrable de destinos externos.
         -->
-        <#if instancia.proceso.id == procesoExternoId && mode.marcaAguaExterno_edit >
+        <#if instancia.proceso.id == procesoExternoId && mode.destinoExterno_edit >
         <fieldset class="form-group">
-            <label for="marcaAguaExterno">Marca de Agua</label>
-                <@spring.formInput "documento.marcaAguaExterno" 'class="form-control text-uppercase"' />
+            <label for="destinosExternos">Destino Externo(*)</label>
+            <@spring.bind "documento.destinoExterno" />
+            <select class="selectpicker" id="${spring.status.expression}" name="${spring.status.expression}" data-live-search="true">
+                    <#if destinosExternos??>
+                <option value=""></option>
+                        <#list destinosExternos as dte>
+                        <#if dte.id?string == ((documento.destinoExterno.id)!"")?string >
+                <option value="${dte.id}" selected="selected">${dte.sigla} - ${dte.nombre}</option>
+                        <#else>
+                <option value="${dte.id}">${dte.sigla} - ${dte.nombre}</option>
+                        </#if>
+                        </#list>
+                    </#if>
+                </select>
             <div class="error">
                     <@spring.showErrors "<br>"/>
                 </div>

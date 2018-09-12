@@ -39,11 +39,15 @@ public class DocumentoMode extends HashMap<String, Boolean> {
 		 * NAMES la clave cargoElabora, cargoFirma para que el componente 
                  * aparezca,según lo indicado en documento.ftl.
      */
+     /*
+		 * 2018-09-03 samuel.delgado@controltechcg.com feature #150 : Se adiciona a la lista
+		 * NAMES la clave destinoExterno para que el componente aparezca,según lo indicado en documento.ftl.
+     */
     private static final List<String> NAMES = Collections
             .unmodifiableList(Arrays.asList("sticker", "trd", "destinatario", "asunto", "remitente", "numeroOficio",
                     "fechaOficio", "numeroFolios", "plazo", "clasificacion", "expediente", "adjuntos", "observaciones",
                     "contenido", "radicado", "formatos", "plantilla", "radicadoOrfeo", "numeroBolsa", "guardar", "gradoExterno",
-                    "marcaAguaExterno", "restriccionDifusion", "cargoIdElabora", "cargoIdFirma"));
+                    "marcaAguaExterno", "destinoExterno", "restriccionDifusion", "cargoIdElabora", "cargoIdFirma"));
 
     public static final String NAME_REGISTRO = "registro";
 
@@ -135,7 +139,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                 .editAndView("clasificacion").editAndView("adjuntos").editAndView("observaciones")
                 .editAndView("contenido").editAndView("formatos").editAndView("plantilla").editAndView("plazo")// .editAndView("docx4jDocumento")
                 .editAndView("guardar").editAndView("expediente").editAndView("restriccionDifusion")
-                .editAndView("marcaAguaExterno").editAndView("gradoExterno").editAndView("cargoIdElabora");
+                .editAndView("marcaAguaExterno").editAndView("destinoExterno").editAndView("gradoExterno").editAndView("cargoIdElabora");
         EN_CONSTRUCCION.validator = new EnConstruccionValidator();
         modes.put(NAME_EN_CONSTRUCCION, EN_CONSTRUCCION);
 
@@ -159,7 +163,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         EN_CONSTRUCCION_EXTERNO.editAndView("trd").editAndView("destinatario").editAndView("asunto")
                 .editAndView("plazo").editAndView("clasificacion").editAndView("adjuntos").editAndView("observaciones")
                 .editAndView("contenido").editAndView("formatos").editAndView("plantilla").editAndView("guardar")
-                .editAndView("expediente").editAndView("gradoExterno").editAndView("marcaAguaExterno")
+                .editAndView("expediente").editAndView("gradoExterno").editAndView("marcaAguaExterno").editAndView("destinoExterno")
                 .editAndView("restriccionDifusion").editAndView("cargoIdElabora");
         EN_CONSTRUCCION_EXTERNO.validator = new EnConstruccionExternoValidator();
         modes.put(NAME_EN_CONSTRUCCION_EXTERNO, EN_CONSTRUCCION_EXTERNO);
@@ -168,7 +172,7 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                 .view("fechaOficio").view("numeroFolios").view("plazo").view("clasificacion").view("expediente")
                 .view("adjuntos").editAndView("observaciones").view("radicado").view("contenido").view("plantilla")
                 .view("radicadoOrfeo").view("numeroBolsa").view("restriccionDifusion")
-                .view("gradoExterno").view("marcaAguaExterno").view("cargoIdElabora").editAndView("cargoIdFirma");
+                .view("gradoExterno").view("marcaAguaExterno").view("destinoExterno").view("cargoIdElabora").editAndView("cargoIdFirma");
         modes.put(NAME_SOLO_LECTURA, SOLO_LECTURA);
 
         SOLO_LECTURA_INTERNO.view("trd").view("destinatario").view("remitente").view("asunto").view("remitente")
@@ -319,8 +323,15 @@ public class DocumentoMode extends HashMap<String, Boolean> {
             target.setGradoExterno(source.getGradoExterno());
         }
 
-        if (get("marcaAguaExterno_edit")) {
-            target.setMarcaAguaExterno(source.getMarcaAguaExterno());
+        /*
+         * 2018-09-03 samuel.delgado@controltechcg.com issue gogs #10 : se agrega parametros para 
+         * el destino externo del documento.
+         */
+        if (get("destinoExterno_edit")) {
+            target.setDestinoExterno(source.getDestinoExterno());
+            if (source.getDestinoExterno() != null) {
+                target.setMarcaAguaExterno(source.getDestinoExterno().getSigla());
+            }
         }
 
         if (get("restriccionDifusion_edit")) {
@@ -420,9 +431,16 @@ public class DocumentoMode extends HashMap<String, Boolean> {
         if (get("gradoExterno_edit") == false) {
             target.setGradoExterno(source.getGradoExterno());
         }
-
-        if (get("marcaAguaExterno_edit") == false) {
-            target.setMarcaAguaExterno(source.getMarcaAguaExterno());
+        
+        /*
+         * 2018-09-03 samuel.delgado@controltechcg.com issue gogs #10 : se agrega parametros para 
+         * el destino externo del documento.
+         */
+        if (get("destinoExterno_edit") == false) {
+            target.setDestinoExterno(source.getDestinoExterno());
+            if (source.getDestinoExterno() != null) {
+                target.setMarcaAguaExterno(source.getDestinoExterno().getSigla());
+            }
         }
 
         if (get("restriccionDifusion_edit") == false) {
@@ -663,13 +681,13 @@ public class DocumentoMode extends HashMap<String, Boolean> {
                 errors.rejectValue("destinatarioTitulo", "documento.destinatarioTitulo.empty");
             }
 
-            /*
-			 * 2017-09-29 edison.gonzalez@controltechcg.com Issue #129: Se coloca
-			 * validacíón del campo marca de agua como obligatorio.
-             */
+           /*
+            * 2018-09-03 samuel.delgado@controltechcg.com Issue gogs #10: Se coloca
+            * validacíón del campo destino externo como obligatorio.
+            */
             if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)
-                    && StringUtils.isBlank(doc.getMarcaAguaExterno())) {
-                errors.rejectValue("marcaAguaExterno", "documento.marcaAguaExterno.empty");
+                    && doc.getDestinoExterno() == null) {
+                errors.rejectValue("destinoExterno", "documento.destinoExterno.empty");
             }
 
             if (i.getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS)
