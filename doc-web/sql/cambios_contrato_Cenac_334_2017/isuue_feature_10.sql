@@ -51,6 +51,8 @@ COMMENT ON COLUMN DOC.DESTINO_EXTERNO.QUIEN_MOD
 IS 'ID del último usuario que modificó el  destino externo.';
 COMMENT ON COLUMN DOC.DESTINO_EXTERNO.CUANDO_MOD
 IS 'Fecha y hora de la última modificación el destino externo.';
+COMMENT ON COLUMN DOC.DESTINO_EXTERNO.TIPO
+IS 'Tipo de destino= 1: Estatal; 2: Privado; {[FUERZA PUBLICA] 3:Fuerza aérea; 4:Armada; 5:Ejercito; 6:Policía Nacional}';
 
 -- -----------------------------------------------------------------------------
 -- TABLA: H_DESTINO_EXTERNO
