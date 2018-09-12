@@ -562,7 +562,7 @@ public class ConsultaService {
                 + "      CLASIFICACION.CLA_NOMBRE                                                                                \"nombreClasificacion\", \n"
                 + "      DOC.DOC_RADICADO                                                                                        \"numeroRadicado\", \n"
                 + "      DEP_ORIGEN.DEP_ORI_NOMBRE                                                                               \"unidadOrigen\", \n"
-                + "      DEP_DESTINO.DEP_DES_NOMBRE                                                                              \"unidadDestino\", \n"
+                + "      case when INSTANCIA.PRO_ID = ? THEN DES_EXTERNO.SIGLA else DEP_DESTINO.DEP_DES_NOMBRE end               \"unidadDestino\", \n"
                 + "       nvl((select 1\n" 
                 + "            from dual\n" 
                 + "            where (INSTANCIA.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)"
@@ -583,6 +583,7 @@ public class ConsultaService {
                 + " LEFT JOIN USUARIO USU_REVISO             ON (DOC.USU_ID_APRUEBA          = USU_REVISO.USU_ID) \n"
                 + " LEFT JOIN USUARIO USU_VBUENO             ON (DOC.USU_ID_VISTO_BUENO      = USU_VBUENO.USU_ID) \n"
                 + " LEFT JOIN USUARIO USU_FIRMA              ON (DOC.USU_ID_FIRMA            = USU_FIRMA.USU_ID) \n"
+                + " LEFT JOIN DESTINO_EXTERNO DES_EXTERNO    ON (DOC.ADE_ID            = DES_EXTERNO.ADE_ID) \n"
                 + " LEFT JOIN CLASIFICACION                  ON (DOC.CLA_ID                  = CLASIFICACION.CLA_ID) \n"
                 + " LEFT JOIN (SELECT DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_ORI_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_ORI_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_ORI_NOMBRE, DEP_ID) DEP_ORIGEN ON (DEP_ORIGEN.DEP_ID = USU_ELABORA.DEP_ID)\n"
                 + " LEFT JOIN (SELECT DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID FROM (SELECT FIRST_VALUE(DEP_ORI_ID) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_ORI_ID, FIRST_VALUE(DEP_DES_NOMBRE) OVER (PARTITION BY DEP_ID ORDER BY ROW_NUM ASC) DEP_DES_NOMBRE, DEP_ID FROM(SELECT LEVEL ROW_NUM, CONNECT_BY_ROOT DEP_ID AS DEP_ORI_ID, CONNECT_BY_ROOT DEP_SIGLA AS DEP_DES_NOMBRE, DEP_ID FROM DEPENDENCIA WHERE (CONNECT_BY_ROOT DEP_IND_ENVIO_DOCUMENTOS = 1 OR CONNECT_BY_ROOT DEP_PADRE IS NULL) CONNECT BY DEP_PADRE = PRIOR DEP_ID)) GROUP BY DEP_ORI_ID, DEP_DES_NOMBRE, DEP_ID) DEP_DESTINO ON (DEP_DESTINO.DEP_ID = DOC.DEP_ID_DES)\n"
@@ -654,7 +655,7 @@ public class ConsultaService {
             sql.append("?").append((index < estadosNoAplican.length - 1) ? ", " : "");
             parameters.add(estadoID);
         }
-        sql.append(")\n");
+        sql.append(") AND DOC.DOC_ASUNTO IS NOT NULL \n");
         
         if (!permisoAdministradorArchivo) {
             sql.append(" AND ((INSTANCIA.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR HPIN.USU_ID = ?)) \n");
@@ -833,6 +834,7 @@ public class ConsultaService {
             System.out.println(consulta2);
              
             LinkedList<Object> parameters3 = new LinkedList<>();
+            parameters3.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
             parameters3.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
             parameters3.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
             parameters3.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
