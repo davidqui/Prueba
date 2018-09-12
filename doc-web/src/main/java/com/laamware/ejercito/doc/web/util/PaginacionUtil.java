@@ -20,21 +20,22 @@ public class PaginacionUtil {
      * @return PaginacionDTO
      */
     public static PaginacionDTO retornaParametros(int count, int pageIndex, int pageSize) {
+        int inicio = 1;
+        int fin = pageSize;
+        int totalPages = 0;
+        if (pageIndex > 1) {
+            inicio = ((pageIndex - 1) * pageSize) + 1;
+            fin = (inicio + pageSize) - 1;
+        }
         if (count > 0) {
-            int inicio = 1;
-            int fin = pageSize;
-            int totalPages = (int) Math.ceil((double) count / pageSize);
+            totalPages = (int) Math.ceil((double) count / pageSize);
 
-            if (pageIndex > 1) {
-                inicio = ((pageIndex - 1) * pageSize) + 1;
-                fin = (inicio + pageSize) - 1;
-            }
 
             if (fin > count) {
                 fin = count;
             }
-            return new PaginacionDTO(totalPages, inicio, fin, "Mostrando " + inicio + " a " + fin + " de " + count + " registros");
         }
-        return null;
+        return new PaginacionDTO(totalPages, inicio, fin, "Mostrando " + inicio + " a " + fin + " de " + count + " registros");
     }
+    
 }
