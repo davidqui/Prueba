@@ -36,6 +36,7 @@ import com.laamware.ejercito.doc.web.repo.OFSStageRepository;
 import com.laamware.ejercito.doc.web.util.GeneralUtils;
 import java.io.FilenameFilter;
 import java.util.Objects;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class OFS {
@@ -93,6 +94,36 @@ public class OFS {
 
         file = new File(getPath(id) + ".cnt");
         FileUtils.write(file, "application/pdf");
+        file.setLastModified(getRandomTime());
+
+        makeThumbnail(getPath(id));
+
+        return id;
+    }
+    
+    /**
+     * Permite guardar un archivo de cualquier tipo en la NAS. 
+     * 
+     * 2018-09-12 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param files Archivo a guardar.
+     * @return Codigo de identificacion asignado al archivo una vez guardado. 
+     * @throws IOException 
+     */
+    public String saveAllFile(MultipartFile files) throws IOException {
+        String id = null;
+        File file = null;
+        
+        do {
+            id = GeneralUtils.newId();
+            file = new File(getPath(id));
+        } while (file.exists());
+
+        FileUtils.writeByteArrayToFile(file, files.getBytes());
+        file.setLastModified(getRandomTime());
+
+        file = new File(getPath(id) + ".cnt");
+        FileUtils.write(file, files.getContentType());
         file.setLastModified(getRandomTime());
 
         makeThumbnail(getPath(id));
@@ -219,7 +250,7 @@ public class OFS {
             while ((line = reader.readLine()) != null) {
                 result.append(line + "\n");
             }
-            System.out.println(result.toString());
+            System.out.println("<<<<<<<<<<<<<<<< OFS BufferedReader >>>>>>>>>>>>>"+result.toString());
 
         } catch (Exception e) {
             e.printStackTrace();

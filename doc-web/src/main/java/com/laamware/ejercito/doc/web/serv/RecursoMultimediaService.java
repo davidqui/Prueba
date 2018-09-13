@@ -8,16 +8,12 @@ import com.laamware.ejercito.doc.web.repo.RecursoMultimediaRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.ReflectionException;
 import com.laamware.ejercito.doc.web.util.ReflectionUtil;
-import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.data.domain.Sort;
@@ -41,6 +37,10 @@ public class RecursoMultimediaService {
     @Autowired
     private RecursoMultimediaRepository recursoMultimediaRepository;
 
+    @Autowired
+    private OFS ofs;
+    
+    
     /**
      * Busca un registro de recurso multimedia por Id.
      *
@@ -54,15 +54,15 @@ public class RecursoMultimediaService {
     /**
      * Permite crear un nuevo registro de recurso multimedia e informacion de auditoria.
      * 
+     * 2018-09-06 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
      * @param recursoMultimedia datos de la entidad.
      * @param usuario id usuario en sesion.
-     * @param directorioRoot
-     * @param subDirectorioTematica
      * @param files informacion del archivo.
      * @throws BusinessLogicException
      * @throws ReflectionException 
      */
-    public void crearRecursoMultimedia(RecursoMultimedia recursoMultimedia, Usuario usuario, String directorioRoot, String subDirectorioTematica, MultipartFile files) throws BusinessLogicException, ReflectionException {
+    public void crearRecursoMultimedia(RecursoMultimedia recursoMultimedia, Usuario usuario, MultipartFile files) throws BusinessLogicException, ReflectionException{
         final String nombre = recursoMultimedia.getNombre();
         final String descripcion = recursoMultimedia.getDescripcion();
         final String fuente = recursoMultimedia.getFuente();
@@ -100,19 +100,46 @@ public class RecursoMultimediaService {
         recursoMultimedia.setFuente(fuente.toUpperCase());
         recursoMultimedia.setPesoOrden(pesoOrden);
         recursoMultimedia.setTipo(files.getContentType());
-        recursoMultimedia.setUbicacion(directorioRoot + File.separator + subDirectorioTematica);
+        recursoMultimedia.setNombreArchivoOriginal(files.getOriginalFilename());
+        
+        try {
+            final String ofsFileID = ofs.saveAllFile(files);
+            recursoMultimedia.setUbicacion(ofsFileID);
+            recursoMultimedia.setNombreArchivoFinal(files.getOriginalFilename().replace(files.getOriginalFilename(), ofsFileID));
+        } catch (IOException ex) {
+            Logger.getLogger(RecursoMultimediaService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         recursoMultimedia.setActivo(Boolean.TRUE);
         recursoMultimedia.setCuando(new Date());
         recursoMultimedia.setCuandoMod(new Date());
         recursoMultimedia.setQuien(usuario);
         recursoMultimedia.setQuienMod(usuario);
         
-        guardarArchivo(files, directorioRoot, subDirectorioTematica);
         recursoMultimediaRepository.saveAndFlush(recursoMultimedia);
     }
+
+    /**
+     * Recupera la data del recurso multimedia guardado en disco para su visualización.
+     * 
+     * 2018-09-13 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param recursoMultimedia datos de la entidad
+     * @return
+     * @throws BusinessLogicException
+     * @throws ReflectionException
+     * @throws IOException 
+     */
+    public OFSEntry viewRecursoMultimediaFile(RecursoMultimedia recursoMultimedia) throws BusinessLogicException, ReflectionException, IOException{
+       
+            RecursoMultimedia recurso= recursoMultimediaRepository.findOne(recursoMultimedia.getId());
+            OFSEntry entry=ofs.read(recurso.getUbicacion());
+            return entry;
+    }
+    
     
     /**
-     * Permite editar un registro de recursos multimedia
+     * Permite editar un registro de recursos multimedia.
      * 
      * @param recursoMultimedia
      * @param usuario id del usuario en sesión
@@ -152,7 +179,7 @@ public class RecursoMultimediaService {
         recursoMultimedia.setDescripcion(descripcion.toUpperCase());
         recursoMultimedia.setFuente(fuente.toUpperCase());
         RecursoMultimedia nombreRecursoAnterior = findOne(recursoMultimedia.getId());
-        recursoMultimedia.setPesoOrden(nombreRecursoAnterior.getPesoOrden());
+        recursoMultimedia.setPesoOrden(pesoOrden);
         recursoMultimedia.setTematica(nombreRecursoAnterior.getTematica());
         recursoMultimedia.setTipo(nombreRecursoAnterior.getTipo());
         recursoMultimedia.setUbicacion(nombreRecursoAnterior.getUbicacion());
@@ -191,41 +218,14 @@ public class RecursoMultimediaService {
         recursoMultimediaRepository.saveAndFlush(recursoMultimedia);
     }
     
-        
-    /**
-     * Permite agregar un archivo multimedia.
-     * 
-     * @param file Archivo seleccionado.
-     * @param directorioRoot
-     * @param subDirectorioTematica 
-     */
-    public void guardarArchivo(MultipartFile file, String directorioRoot, String subDirectorioTematica){
-        /*
-        * Numero Aleatorio para renombrar el archivo formato (numeroEvento+numeroAleatorio+extension)
-        * El archivo es almacenado en el directorio de destino sin extencion
-         */
-        int numeroAleatorio = ThreadLocalRandom.current().nextInt(1, 1000);
-        String nuevoNombre = subDirectorioTematica + "" + numeroAleatorio;
-        byte[] bytes;
-        try {
-            bytes = file.getBytes();
-            Path path = Paths.get(directorioRoot + File.separator + subDirectorioTematica + File.separator
-                + file.getOriginalFilename().replace(file.getOriginalFilename(), nuevoNombre+"."+identificarExtencionArchivo(file)));
-        Files.write(path, bytes);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Logger.getLogger(RecursoMultimediaService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }
-    
-    
     /**
      * Suministra una lista de los ContentType permitidos.
      * 
+     *  2018-09-06 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
      * @return Map con la informacion de los ContentType que se permiten cargar.
      */
-    private Map<String, String> extencionesPermitidas() {
+    public Map<String, String> extencionesPermitidas() {
         Map<String, String> listContentType = new HashMap<>();
         listContentType.put("application/pdf", "pdf");
         listContentType.put("video/x-msvideo", "avi");
@@ -238,6 +238,8 @@ public class RecursoMultimediaService {
     /**
      * Metodo que identifica la metadata de la extension de un archivo.
      *
+     *  2018-09-06 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
      * @param file Archivo a evaluar.
      * @return Valor que identifica la extencion del archivo que recibio por
      * parametro.
@@ -249,6 +251,8 @@ public class RecursoMultimediaService {
     /**
      * Permite validar el formato del archivo que se esta cargando.
      *
+     *  2018-09-06 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
      * @param contentType Tipo de contenido.
      * @return {@code true} Si el tipo de contenido es válido (PDF, AVI,
      * JPEG, JPG4); de lo contrario {@code false}.
@@ -277,4 +281,16 @@ public class RecursoMultimediaService {
     public List<RecursoMultimedia> findAll(Sort sort) {
         return recursoMultimediaRepository.findAll(sort);
     }
+    
+    
+    /**
+     * Lista todos los Recursos Multimedia activos de una Tematica.
+     *Modificar.......OJO
+     * 
+     * @param documento Documento.
+     * @return Lista de todos los adjuntos activos del documento.
+     */
+//    public List<Adjunto> findAllActivos(final Documento documento) {
+//        return adjuntoRepository.findAllByDocumentoIdAndActivoTrue(documento.getId());
+//    }
 }

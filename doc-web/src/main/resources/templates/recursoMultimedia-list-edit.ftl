@@ -18,8 +18,8 @@
                 <input type="text" class="form-control" id="descripcion" name="descripcion" value="${(recursoMultimedia.descripcion)!""}" style="text-transform:uppercase"/>
                 <label for="fuente">Fuente</label>
                 <input type="text" class="form-control" id="fuente" name="fuente" value="${(recursoMultimedia.fuente)!""}" style="text-transform:uppercase"/>
-                <label for="fuente">Peso Orden</label>
-                <input type="text" class="form-control" id="fuente" name="fuente" value="${(recursoMultimedia.pesoOrden)!""}"/>
+                <label for="pesoOrden">Peso Orden</label>
+                <input type="text" class="form-control" id="pesoOrden" name="pesoOrden" value="${(recursoMultimedia.pesoOrden)!""}"/>
             </fieldset>
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>

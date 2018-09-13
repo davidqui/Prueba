@@ -4,10 +4,13 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.RecursoMultimedia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.RecursoMultimediaService;
 import com.laamware.ejercito.doc.web.serv.TematicaService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.ReflectionException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.security.Principal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -15,12 +18,15 @@ import org.springframework.ui.Model;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,9 +64,6 @@ public class RecursoMultimediaController extends UtilController {
     @Autowired
     private TematicaService tematicaService;
     
-    @Value("${com.mil.imi.sicdi.archivomultimedia.root}")
-    private String directorioRoot;
-
     /**
      * Permite listar todos los recursos multimedia.
      *
@@ -96,6 +99,7 @@ public class RecursoMultimediaController extends UtilController {
         RecursoMultimedia recursoMultimedia = new RecursoMultimedia();
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
         model.addAttribute("tematicas", tematicaService.findActive(sort));
+        model.addAttribute("extenciones", recursoMultimediaService.extencionesPermitidas());
         return CREATE_TEMPLATE;
     }
 
@@ -117,14 +121,15 @@ public class RecursoMultimediaController extends UtilController {
 
     
     /**
+     * Modela en la vista los datos necesarios para crear un recurso multimedia.
      * 
-     * @param recursoMultimedia
+     * @param recursoMultimedia Datos del Objeto Recursos Multimedia tomados desde el formulario de creación.
      * @param req
      * @param eResult
      * @param model
      * @param redirect
-     * @param files
-     * @param principal
+     * @param files Archivo cargado en el formulario.
+     * @param principal Id del Usuario en sesión.
      * @return 
      */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
@@ -132,14 +137,15 @@ public class RecursoMultimediaController extends UtilController {
             @RequestParam("archivo") MultipartFile files, Principal principal) {
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
         final Usuario usuarioSesion = getUsuario(principal);
-        String subDirectorioTematica = "Multimedia";
 
         try {
-            recursoMultimediaService.crearRecursoMultimedia(recursoMultimedia, usuarioSesion, directorioRoot, subDirectorioTematica, files);
+            recursoMultimediaService.crearRecursoMultimedia(recursoMultimedia, usuarioSesion, files);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
+            Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+            model.addAttribute("tematicas", tematicaService.findActive(sort));
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
             return CREATE_TEMPLATE;
         }
@@ -223,4 +229,40 @@ public class RecursoMultimediaController extends UtilController {
     public RecursoMultimediaController controller() {
         return this;
     }
+    
+    
+    public void adjunto(@RequestParam("doc") String docId, @RequestParam("dad") String dad, Model model,
+            HttpServletResponse resp) {}
+    
+    /**
+     * Metodo para visualizar en una nueva ventana los recursos multimedia.
+     * 
+     * @param response
+     * @param key Id del Recurso Multimedia
+     * @throws IOException 
+     */
+    @RequestMapping(value = "/descargar/{key}", method = RequestMethod.GET)
+    public void descargarArchivo(HttpServletResponse response,@PathVariable("key") Integer key) throws IOException {
+        RecursoMultimedia archivoData=recursoMultimediaService.findOne(key);
+        ServletOutputStream os = null;
+        ByteArrayInputStream is = null;
+        try {
+            OFSEntry entry=recursoMultimediaService.viewRecursoMultimediaFile(archivoData);
+            byte[] bytes =entry.getContent();
+
+            response.setContentLength((int) bytes.length);
+            response.setContentType(entry.getContentType());
+
+            String headerKey = "Content-Disposition";
+            String headerValue = String.format("attachment; filename=\"%s\"", archivoData.getNombreArchivoOriginal());
+
+            ServletOutputStream outStream = response.getOutputStream();
+            IOUtils.write(bytes, outStream);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    
 }

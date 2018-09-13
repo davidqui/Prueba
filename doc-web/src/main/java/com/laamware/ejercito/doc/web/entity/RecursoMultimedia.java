@@ -23,14 +23,15 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 /**
- *
- * @author aherreram
+ * Servicio para las operaciones de los recursos multimedia.
+ * @author jcespedeso@imi.mil.co 
+ * @author dquijanor@imi.mil.co 
+ * @author aherreram@imi.mil.co 
+ * @since Septiembre 3, 2018 _feature_9 (SICDI-GETDE)
  */
 @Entity
 @Table(name = "RECURSO_MULTIMEDIA")
 @LaamLabel("Contenido Multimedia")
-//@NamedQueries({
-//    @NamedQuery(name = "RecursoMultimedia.findAll", query = "SELECT r FROM RecursoMultimedia r")})
 public class RecursoMultimedia implements Serializable {
 
     private static final long serialVersionUID = -19889764665489L;
@@ -46,16 +47,14 @@ public class RecursoMultimedia implements Serializable {
     @NotNull
     @Size(min = 1, max = 255)
     @LaamLabel("Nombre")
-    @LaamListColumn(order = 10)
-    @LaamCreate(order = 10)
+    @LaamListColumn(order = 1)
     @Column(name = "NOMBRE")
     private String nombre;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 1000)
     @LaamLabel("Descripcion")
-    @LaamListColumn(order = 10)
-    @LaamCreate(order = 10)
+    @LaamListColumn(order = 2)
     @Column(name = "DESCRIPCION")
     private String descripcion;
     @Basic(optional = false)
@@ -66,13 +65,11 @@ public class RecursoMultimedia implements Serializable {
     @NotNull
     @Size(min = 1, max = 255)
     @LaamLabel("Fuente")
-    @LaamListColumn(order = 10)
-    @LaamCreate(order = 10)
+    @LaamListColumn(order = 3)
     @Column(name = "FUENTE")
     private String fuente;
     @LaamLabel("Orden")
-    @LaamListColumn(order = 10)
-    @LaamCreate(order = 10)
+    @LaamListColumn(order = 4)
     @Column(name = "PESO_ORDEN")
     private BigInteger pesoOrden;
     @Basic(optional = false)
@@ -85,6 +82,16 @@ public class RecursoMultimedia implements Serializable {
     @Size(min = 1, max = 1000)
     @Column(name = "UBICACION")
     private String ubicacion;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 255)
+    @Column(name = "NOMBRE_ARCHIVO_ORIGINAL")
+    private String nombreArchivoOriginal;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 255)
+    @Column(name = "NOMBRE_ARCHIVO_FINAL")
+    private String nombreArchivoFinal;
     @Basic(optional = false)
     @NotNull
     @JoinColumn(name = "QUIEN", referencedColumnName = "USU_ID")
@@ -112,7 +119,7 @@ public class RecursoMultimedia implements Serializable {
         this.id = id;
     }
 
-    public RecursoMultimedia(Integer id, String nombre, String descripcion, Boolean activo, String fuente, BigInteger pesoOrden, String tipo, String ubicacion, Usuario quien, Date cuando, Usuario quienMod, Date cuandoMod, Tematica tematica) {
+    public RecursoMultimedia(Integer id, String nombre, String descripcion, Boolean activo, String fuente, BigInteger pesoOrden, String tipo, String ubicacion, String nombreArchivoOriginal, String nombreArchivoFinal, Usuario quien, Date cuando, Usuario quienMod, Date cuandoMod, Tematica tematica) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -121,6 +128,8 @@ public class RecursoMultimedia implements Serializable {
         this.pesoOrden = pesoOrden;
         this.tipo = tipo;
         this.ubicacion = ubicacion;
+        this.nombreArchivoOriginal = nombreArchivoOriginal;
+        this.nombreArchivoFinal = nombreArchivoFinal;
         this.quien = quien;
         this.cuando = cuando;
         this.quienMod = quienMod;
@@ -192,6 +201,22 @@ public class RecursoMultimedia implements Serializable {
         this.ubicacion = ubicacion;
     }
 
+    public String getNombreArchivoOriginal() {
+        return nombreArchivoOriginal;
+    }
+
+    public void setNombreArchivoOriginal(String nombreArchivoOriginal) {
+        this.nombreArchivoOriginal = nombreArchivoOriginal;
+    }
+
+    public String getNombreArchivoFinal() {
+        return nombreArchivoFinal;
+    }
+
+    public void setNombreArchivoFinal(String nombreArchivoFinal) {
+        this.nombreArchivoFinal = nombreArchivoFinal;
+    }
+
     public Usuario getQuien() {
         return quien;
     }
@@ -234,20 +259,22 @@ public class RecursoMultimedia implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 53 * hash + Objects.hashCode(this.id);
-        hash = 53 * hash + Objects.hashCode(this.nombre);
-        hash = 53 * hash + Objects.hashCode(this.descripcion);
-        hash = 53 * hash + Objects.hashCode(this.activo);
-        hash = 53 * hash + Objects.hashCode(this.fuente);
-        hash = 53 * hash + Objects.hashCode(this.pesoOrden);
-        hash = 53 * hash + Objects.hashCode(this.tipo);
-        hash = 53 * hash + Objects.hashCode(this.ubicacion);
-        hash = 53 * hash + Objects.hashCode(this.quien);
-        hash = 53 * hash + Objects.hashCode(this.cuando);
-        hash = 53 * hash + Objects.hashCode(this.quienMod);
-        hash = 53 * hash + Objects.hashCode(this.cuandoMod);
-        hash = 53 * hash + Objects.hashCode(this.tematica);
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.id);
+        hash = 97 * hash + Objects.hashCode(this.nombre);
+        hash = 97 * hash + Objects.hashCode(this.descripcion);
+        hash = 97 * hash + Objects.hashCode(this.activo);
+        hash = 97 * hash + Objects.hashCode(this.fuente);
+        hash = 97 * hash + Objects.hashCode(this.pesoOrden);
+        hash = 97 * hash + Objects.hashCode(this.tipo);
+        hash = 97 * hash + Objects.hashCode(this.ubicacion);
+        hash = 97 * hash + Objects.hashCode(this.nombreArchivoOriginal);
+        hash = 97 * hash + Objects.hashCode(this.nombreArchivoFinal);
+        hash = 97 * hash + Objects.hashCode(this.quien);
+        hash = 97 * hash + Objects.hashCode(this.cuando);
+        hash = 97 * hash + Objects.hashCode(this.quienMod);
+        hash = 97 * hash + Objects.hashCode(this.cuandoMod);
+        hash = 97 * hash + Objects.hashCode(this.tematica);
         return hash;
     }
 
@@ -276,6 +303,12 @@ public class RecursoMultimedia implements Serializable {
             return false;
         }
         if (!Objects.equals(this.ubicacion, other.ubicacion)) {
+            return false;
+        }
+        if (!Objects.equals(this.nombreArchivoOriginal, other.nombreArchivoOriginal)) {
+            return false;
+        }
+        if (!Objects.equals(this.nombreArchivoFinal, other.nombreArchivoFinal)) {
             return false;
         }
         if (!Objects.equals(this.id, other.id)) {
@@ -307,9 +340,7 @@ public class RecursoMultimedia implements Serializable {
 
     @Override
     public String toString() {
-        return "RecursoMultimedia{" + "id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", activo=" + activo + ", fuente=" + fuente + ", pesoOrden=" + pesoOrden + ", tipo=" + tipo + ", ubicacion=" + ubicacion + ", quien=" + quien + ", cuando=" + cuando + ", quienMod=" + quienMod + ", cuandoMod=" + cuandoMod + '}';
+        return "RecursoMultimedia{" + "id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", activo=" + activo + ", fuente=" + fuente + ", pesoOrden=" + pesoOrden + ", tipo=" + tipo + ", ubicacion=" + ubicacion + ", nombreArchivoOriginal=" + nombreArchivoOriginal + ", nombreArchivoFinal=" + nombreArchivoFinal + ", quien=" + quien + ", cuando=" + cuando + ", quienMod=" + quienMod + ", cuandoMod=" + cuandoMod + '}';
     }
-
-    
 
 }

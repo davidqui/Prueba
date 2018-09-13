@@ -18,7 +18,7 @@
                 <label for="fuente">Fuente</label>
                 <input type="text" class="form-control" id="fuente" name="fuente" value="${(recursoMultimedia.fuente)!""}" style="text-transform:uppercase"/>
                 <label for="pesoOrden">Peso Orden</label>
-                <input type="num" class="form-control" id="pesoOrden" name="pesoOrden" value="${(recursoMultimedia.pesoOrden)!""}"/>
+                <input type="text" class="form-control" id="pesoOrden" name="pesoOrden" value="${(recursoMultimedia.pesoOrden)!""}"/>
                 <fieldset class="form-group">          
                 <@spring.bind "recursoMultimedia.tematica" />
                     <label for="${spring.status.expression}">Temática</label><br>
