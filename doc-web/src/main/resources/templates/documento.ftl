@@ -268,13 +268,25 @@
         </#if>
         
         <!--
-    2017-09-28 edison.gonzalez@controltechcg.com Feature #129 (SICDI-Controltech) feature-129
-    marcaAguaExterna
+            2018-09-03 samuel.delgado@controltechcg.com Feature #129 (SICDI-Controltech) feature-gogs-10
+            se cambia el campo de marca de agua por el administrable de destinos externos.
         -->
-        <#if instancia.proceso.id == procesoExternoId && mode.marcaAguaExterno_edit >
+        <#if instancia.proceso.id == procesoExternoId && mode.destinoExterno_edit >
         <fieldset class="form-group">
-            <label for="marcaAguaExterno">Marca de Agua</label>
-                <@spring.formInput "documento.marcaAguaExterno" 'class="form-control text-uppercase"' />
+            <label for="destinosExternos">Destino Externo(*)</label>
+            <@spring.bind "documento.destinoExterno" />
+            <select class="selectpicker" id="${spring.status.expression}" name="${spring.status.expression}" data-live-search="true">
+                    <#if destinosExternos??>
+                <option value=""></option>
+                        <#list destinosExternos as dte>
+                        <#if dte.id?string == ((documento.destinoExterno.id)!"")?string >
+                <option value="${dte.id}" selected="selected">${dte.sigla} - ${dte.nombre}</option>
+                        <#else>
+                <option value="${dte.id}">${dte.sigla} - ${dte.nombre}</option>
+                        </#if>
+                        </#list>
+                    </#if>
+                </select>
             <div class="error">
                     <@spring.showErrors "<br>"/>
                 </div>
@@ -932,18 +944,28 @@
         Observaciones
     -->
     <div class="card m-y">                           		        
-    <#if (!((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
-            && (usuariologueado.id == documento.instancia.asignado.id))) >
         <#if (documento.observaciones)??>
         <h5 class="card-title" style="padding: 16px;margin: 0;">Observaciones</h5>
         <div class="card-body" id="obsDiv" style="padding: 0 16px;max-height: 373px;overflow: hidden;overflow-y: auto;">
-	                    <#list documento.observaciones as obs>
-            <hr/>
-            <strong>${utilController.nombre(obs.quien)}</strong>, <em> ${obs.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
-            <p>${obs.texto}</p>
-	                    </#list>
+            <#list documento.observaciones as obs>
+                <!--
+                    2018-09-05 samuel.delgado@controltechcg.com hotfix gogs #11 (SICDI-Controltech)
+                    hotfix-gogs-11.
+                -->
+                <#if (((documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno()) 
+                && (usuariologueado.id == documento.instancia.asignado.id))) >
+                    <#if (obs.cuando >= fechaMinObservaciones)>
+                    <hr/>
+                    <strong>${utilController.nombre(obs.quien)}</strong>, <em> ${obs.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
+                    <p>${obs.texto}</p>
+                    </#if>
+                <#else>
+                    <hr/>
+                    <strong>${utilController.nombre(obs.quien)}</strong>, <em> ${obs.cuando?string('yyyy-MM-dd hh:mm a:ss')}</em>
+                    <p>${obs.texto}</p>
+                </#if>
+	    </#list>
             </div>
-	        	</#if>
             <#if mode.observaciones_edit>
         <div class="card-block cus-gray-bg">
             <form method="post" id="obsForm" >

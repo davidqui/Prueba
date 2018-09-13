@@ -23,6 +23,7 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
+import com.laamware.ejercito.doc.web.entity.DestinoExterno;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Rol;
 import com.laamware.ejercito.doc.web.entity.Usuario;
@@ -32,8 +33,13 @@ import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.RolRepository;
 import com.laamware.ejercito.doc.web.serv.ConsultaService;
+import com.laamware.ejercito.doc.web.serv.DependenciaService;
+import com.laamware.ejercito.doc.web.serv.DestinoExternoService;
 import com.laamware.ejercito.doc.web.serv.ProcesoService;
+import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import com.laamware.ejercito.doc.web.util.PaginacionUtil;
+import java.time.LocalDate;
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -72,6 +78,9 @@ public class ConsultaController extends UtilController {
     @Autowired
     DependenciaRepository dependenciaRepository;
     
+    @Autowired
+    DependenciaService dependenciaService;
+    
     /*
      * 2018-07-05 samuel.delgado@controltechcg.com Issue #177 (SICDI-Controltech) feature-177.
      * Repository para roles
@@ -79,6 +88,13 @@ public class ConsultaController extends UtilController {
     @Autowired
     private RolRepository rolRepository;
 
+    /*
+     * 2018-09-10 samuel.delgado@controltechcg.com Issue gogs #10 (SICDI-Controltech) feature-gogs-10.
+     * servicio destinos externos.
+     */
+    @Autowired
+    private DestinoExternoService destinoExternoService;
+    
     /**
      * Ejecuta la búsqueda de documentos cuyo asunto o contenido contenga el
      * texto ingresado como términos de búsqueda
@@ -93,7 +109,7 @@ public class ConsultaController extends UtilController {
     public String consulta(@RequestParam(value = "term") String term, Model model, Principal principal) {
 
         // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+        List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
 
         if (StringUtils.isBlank(term)) {
@@ -110,7 +126,7 @@ public class ConsultaController extends UtilController {
          * feature-160: se agrega variable al método buscar para saber si busca en
          * el archivo del usuario o en todo sicdi.
          */
-        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null, term, null, false);
+        return buscar(model, term, term, null, null, term, term, null, null, null, term, principal, 1, 10, null, null, null, term, null, false, null, null);
     }
 
     /**
@@ -157,6 +173,9 @@ public class ConsultaController extends UtilController {
      * 2018-08-17 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
      * feature-160: se agrega variable al método buscar para saber si busca en
      * el archivo del usuario o en todo sicdi.
+     * 
+     * 2018-09-10 samuel.delgado@controltechcg.com Issue gogs #10 (SICDI-Controltech)
+     * feature-gogs-10: se cambia el modelo de petición de consulta.
      */
     @RequestMapping(value = "/parametros", method = {RequestMethod.GET, RequestMethod.POST})
     public String buscar(Model model, @RequestParam(value = "asignado", required = false) String asignado,
@@ -177,13 +196,16 @@ public class ConsultaController extends UtilController {
             @RequestParam(value = "dependenciaOrigenDescripcion", required = false) String dependenciaOrigenDescripcion,
             @RequestParam(value = "firmaUUID", required = false) String firmaUUID,
             @RequestParam(value = "tipoProceso", required = false) Integer tipoProceso,
-            @RequestParam(value = "buscarTodo", required = false, defaultValue = "false") Boolean buscarTodo) {
+            @RequestParam(value = "buscarTodo", required = false, defaultValue = "false") Boolean buscarTodo,
+            @RequestParam(value = "tipoBusqueda", required = false) Integer tipoBusqueda,
+            @RequestParam(value = "destinoExterno", required = false) Integer destinoExterno
+            ) {
 
         
         boolean sameValue = term != null && term.trim().length() > 0;
 
-        // 2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
-        List<Dependencia> listaDependencias = depsHierarchy();
+//         2018-01-31 edison.gonzalez@controltechcg.com Issue #147 (SICDI-Controltech)
+        List<Dependencia> listaDependencias = dependenciaService.depsHierarchy();
         model.addAttribute("dependencias", listaDependencias);
 
         /*
@@ -203,7 +225,7 @@ public class ConsultaController extends UtilController {
         }
 
         // Issue #105, Issue #128, Issue #160, Issue #177 
-        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID, tipoProceso};
+        Object[] args = {asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino, dependenciaOrigen, firmaUUID, tipoProceso, destinoExterno, tipoBusqueda};
 
         boolean parametrosVacios = true;
         for (Object arg : args) {
@@ -242,14 +264,24 @@ public class ConsultaController extends UtilController {
         boolean permisoAdministradorArchivo = consultaService.hasPermision(usuarioRoles, ROL_ADMINISTRADOR_ARCHIVO);
         
         model.addAttribute("permisoAdministradorArchivo", permisoAdministradorArchivo);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
         if (parametrosVacios) {
+            LocalDate now = LocalDate.now();
+            LocalDate firstDay = now.with(firstDayOfYear());
+            model.addAttribute("fechaInicio", firstDay);
+            model.addAttribute("fechaFin", now);
+            model.addAttribute("", tipoBusqueda);
             return "consulta-parametros";
         }
         
         List<DocumentoDTO> documentos = null;
         // Issue #177 se agrega parametro tipoProceso
-        int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
-                dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, tipoProceso, permisoAdministradorArchivo && buscarTodo);
+        PaginacionDTO prePaginacionDTO = PaginacionUtil.retornaParametros(0, pageIndex, pageSize);
+        Object[] asw = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino,
+                dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && !buscarTodo && !sameValue, sameValue, prePaginacionDTO.getRegistroInicio(),
+                prePaginacionDTO.getRegistroFin(), tipoBusqueda, destinoExterno);
+        int count = (int) asw[0];
+        System.out.println("ESTE ES EL  CONTADOR "+count);
         LOG.log(Level.INFO, "verificando count ]= {0}", count);
         int totalPages = 0;
         String labelInformacion = "";
@@ -258,9 +290,7 @@ public class ConsultaController extends UtilController {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
             // Issue #177 se agrega parametro tipoProceso
-            documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, fechaInicio, fechaFin, radicado, destinatario, clasificacion, dependenciaDestino,
-                    dependenciaOrigen, sameValue, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(),
-                    tipoProceso, permisoAdministradorArchivo && buscarTodo);
+            documentos = (List<DocumentoDTO>) asw[1];
             LOG.log(Level.INFO, "consulta completa");
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
@@ -271,7 +301,9 @@ public class ConsultaController extends UtilController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("labelInformacion", labelInformacion);
         model.addAttribute("pageSize", pageSize);
-
+        model.addAttribute("buscarTodo", buscarTodo);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
+        
         if (!sameValue) {
             model.addAttribute("asignado", asignado);
             model.addAttribute("asunto", asunto);
@@ -287,11 +319,12 @@ public class ConsultaController extends UtilController {
             model.addAttribute("dependenciaOrigenDescripcion", dependenciaOrigenDescripcion);
             model.addAttribute("firmaUUID", firmaUUID);
             model.addAttribute("tipoProceso", tipoProceso);
-            model.addAttribute("buscarTodo", buscarTodo);
+            model.addAttribute("destinoExterno", destinoExterno);
+        }else{
+            model.addAttribute("term", term);
         }
 
-        model.addAttribute("term", term);
-
+        
         return "consulta-parametros";
     }
 
@@ -312,24 +345,6 @@ public class ConsultaController extends UtilController {
         List<Integer> list = Arrays.asList(10, 30, 50);
         model.addAttribute("pageSizes", list);
         return list;
-    }
-
-    private List<Dependencia> depsHierarchy() {
-        List<Dependencia> root = dependenciaRepository.findByActivoAndPadreIsNull(true,
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        for (Dependencia d : root) {
-            depsHierarchy(d);
-        }
-        return root;
-    }
-
-    private void depsHierarchy(Dependencia d) {
-        List<Dependencia> subs = dependenciaRepository.findByActivoAndPadre(true, d.getId(),
-                new Sort(Direction.ASC, "pesoOrden", "nombre"));
-        d.setSubs(subs);
-        for (Dependencia x : subs) {
-            depsHierarchy(x);
-        }
     }
 
     /**
@@ -390,11 +405,10 @@ public class ConsultaController extends UtilController {
         final boolean puedeBuscarXDocFirmaEnvioUUID = isAuthorizedRol(AppConstants.BUSCAR_X_DOC_FIRMA_ENVIO_UUID);
         uiModel.addAttribute("puedeBuscarXDocFirmaEnvioUUID", puedeBuscarXDocFirmaEnvioUUID);
         
-        String asignado = null;
+
         String asunto = criteria;
         String radicado = criteria;
-        String destinatario = null;
-        String firmaUUID = null;
+
         
         final Usuario usuarioSesion = getUsuario(principal);
         final Integer usuarioID = usuarioSesion.getId();
@@ -408,8 +422,18 @@ public class ConsultaController extends UtilController {
 
         List<DocumentoDTO> documentos = null;
         // Issue #177 se agrega parametro tipoProceso
-        int count = consultaService.retornaCountConsultaMotorBusqueda(asignado, asunto, null, null, radicado, destinatario, null, null,
-                null, true, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, null, false);
+        if(criteria == null || criteria.trim().length() < 1){
+            uiModel.addAttribute("pageIndex", 0);
+            uiModel.addAttribute("totalPages", 0);
+            return "finder-buscar-documento";
+        }
+        
+        PaginacionDTO prePaginacionDTO = PaginacionUtil.retornaParametros(0, pageIndex, pageSize);
+        Object[] asw = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, null, null, radicado, null,
+                null, usuarioID, cargosIDs, false, true, prePaginacionDTO.getRegistroInicio(),
+                prePaginacionDTO.getRegistroFin(), null, null);
+        
+        int count = (int) asw[0];
         LOG.log(Level.INFO, "verificando count ]= {0}", count);
         int totalPages = 0;
         String labelInformacion = "";
@@ -418,8 +442,7 @@ public class ConsultaController extends UtilController {
             PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(count, pageIndex, pageSize);
             totalPages = paginacionDTO.getTotalPages();
             // Issue #177 se agrega parametro tipoProceso
-            documentos = consultaService.retornaConsultaMotorBusqueda(asignado, asunto, null, null, radicado, destinatario, null, null,
-                    null, true, usuarioID, firmaUUID, puedeBuscarXDocFirmaEnvioUUID, cargosIDs, paginacionDTO.getRegistroInicio(), paginacionDTO.getRegistroFin(), null, false);
+            documentos = (List<DocumentoDTO>) asw[1];
             LOG.log(Level.INFO, "consulta completa");
             labelInformacion = paginacionDTO.getLabelInformacion();
         }
@@ -444,4 +467,14 @@ public class ConsultaController extends UtilController {
         return procesoService.getProcesosAutorizados();
     }
 
+    /*
+    * 2018-09-10 samuel.delgado@controltechcg.com Issue gogs #10: se agregan los datos  
+    * para el selector de destino externo
+    */
+    @ModelAttribute("destinosExternos")
+    public List<DestinoExterno> destinosExternos() {
+        return destinoExternoService.findActive(new Sort(new Sort.Order(Sort.Direction.ASC, "nombre")));
+    }
+    
+   
 }

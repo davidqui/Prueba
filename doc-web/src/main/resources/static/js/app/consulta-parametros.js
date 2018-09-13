@@ -22,15 +22,6 @@ function initParameters(dependenciaOrigenDescripcion, dependenciaDestinoDescripc
 $('#fechaInicio').prop('readonly', true);
 $('#fechaFin').prop('readonly', true);
 
-$('#fechaInicio').each(function () {
-    var buton = "<div onclick='document.getElementById(\"" + $(this).attr("id") + "\").value = \"\"' class=\"input-group-addon btn\" >Limpiar</div>";
-    $(this).parent().append(buton);
-});
-$('#fechaFin').each(function () {
-    var buton = "<div onclick='document.getElementById(\"" + $(this).attr("id") + "\").value = \"\"' class=\"input-group-addon btn\" >Limpiar</div>";
-    $(this).parent().append(buton);
-});
-
 $('#clasificacionSelect').change(function () {
     $("#clasificacion").val($('#clasificacionSelect').val());
     $("#clasificacionNombre").val($("#clasificacionSelect option:selected").text());
@@ -73,3 +64,38 @@ $('#arbol_list_dependenciasj').on("select_node.jstree", function (e, data) {
     $("#dependenciaDestinoNombre").text(data.node.text);
     $("#dependenciaDestinoModal").modal('hide');
 }).jstree();
+
+
+function selected(select) {
+    $("#container-1").attr("class","container-1-dissapper");
+    $("#tipoBusqueda").val(select);
+    if (select == 0) {
+        $("#con-externo").css("display","none"); 
+        $("#con-interno").css("display","block");
+        $("#toggle-1").css("background-color", "#f0f0f0");
+        $("#toggle-2").css("background-color", "#dddddd");
+    }else{
+        $("#con-interno").css("display","none"); 
+        $("#con-externo").css("display","block");
+        $("#toggle-2").css("background-color", "#f0f0f0");
+        $("#toggle-1").css("background-color", "#dddddd");
+    }
+    
+    setTimeout(function(){
+        $("#container-1").css("display","none"); 
+        $("#container-2").css("display","block");
+    }, 300);
+}
+
+
+function changeToggleBuscarTodos(){
+    if (!$('#buscarTodo').is(":checked")) {
+        $('#buscartodo-si').css("color", "#606060");
+        $('#buscartodo-no').css("color", "#cccccc");
+    }else{
+        $('#buscartodo-si').css("color", "#cccccc");
+        $('#buscartodo-no').css("color", "#606060");
+    }
+}
+
+changeToggleBuscarTodos();

@@ -130,15 +130,9 @@
         </#if>
     </div>
     <div class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
-        <#if esJefeDependencia || expediente.usuarioAsignado == 1 || !tieneCambios>
-            <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" onclick="loading(event);">
-                Regresar a Expediente
-            </a>
-        <#else>
-            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#enviarJefeModal">
-                Enviar para aprobar
-            </button>
-        </#if>
+        <a href="/expediente/administrarExpediente?expId=${(expediente.expId)!""}" class="btn btn-primary btn-sm" onclick="loading(event);">
+            Regresar a Expediente
+        </a>
     </div>
     <#-- Modal de selección de usuarios. -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

@@ -29,6 +29,7 @@ public class DocumentoDTO implements Serializable{
     private String unidadOrigen;
     private String unidadDestino;
     private Boolean perteneceDocumento;
+    private Integer numDocumentos; 
 
     public DocumentoDTO() {
         // TODO Auto-generated constructor stub
@@ -189,6 +190,15 @@ public class DocumentoDTO implements Serializable{
     public void setPerteneceDocumento(Boolean perteneceDocumento) {
         this.perteneceDocumento = perteneceDocumento;
     }
+
+    public Integer getNumDocumentos() {
+        return numDocumentos;
+    }
+
+    public void setNumDocumentos(Integer numDocumentos) {
+        this.numDocumentos = numDocumentos;
+    }
+    
     
     @Override
     public boolean equals(Object obj) {

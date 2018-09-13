@@ -84,7 +84,10 @@ public class ExpDocumentoService {
         model.put("expediente", expediente);
         
         try {
-            notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_DOCUMENTO_INDEXADO, expediente.getDepId().getJefe());
+            if(!usuarioSesion.getId().equals(expediente.getDepId().getJefe()))
+                notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_DOCUMENTO_INDEXADO, expediente.getDepId().getJefe());
+            if(!usuarioSesion.getId().equals(expediente.getUsuCreacion()))
+                notificacionService.enviarNotificacion(model, NOTIFICACION_EXPEDIENTE_DOCUMENTO_INDEXADO, expediente.getUsuCreacion());
         } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
