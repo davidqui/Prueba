@@ -278,7 +278,7 @@ public class ConsultaController extends UtilController {
         // Issue #177 se agrega parametro tipoProceso
         PaginacionDTO prePaginacionDTO = PaginacionUtil.retornaParametros(0, pageIndex, pageSize);
         Object[] asw = consultaService.retornaConsultaMotorBusquedaNuevo(asunto, fechaInicio, fechaFin, radicado, dependenciaDestino,
-                dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && !buscarTodo && !sameValue, sameValue, prePaginacionDTO.getRegistroInicio(),
+                dependenciaOrigen, usuarioID, cargosIDs, permisoAdministradorArchivo && buscarTodo && !sameValue, sameValue, prePaginacionDTO.getRegistroInicio(),
                 prePaginacionDTO.getRegistroFin(), tipoBusqueda, destinoExterno);
         int count = (int) asw[0];
         System.out.println("ESTE ES EL  CONTADOR "+count);
