@@ -26,9 +26,11 @@ import com.laamware.ejercito.doc.web.repo.ProcesoRepository;
 import com.laamware.ejercito.doc.web.repo.TransicionRepository;
 
 @Controller
-@PreAuthorize("hasRole('ADMIN_PROCESOS')")
+//@PreAuthorize("hasRole('ADMIN_PROCESOS')")
 @RequestMapping(AdminProcesoController.PATH)
-public class AdminProcesoController extends AdminGenController<Proceso, Integer, ProcesoRepository> {
+public class AdminProcesoController 
+//       extends AdminGenController<Proceso, Integer, ProcesoRepository> 
+        {
 
 	static final String PATH = "/admin/proceso";
 
@@ -38,52 +40,52 @@ public class AdminProcesoController extends AdminGenController<Proceso, Integer,
 	@Autowired
 	private TransicionRepository transicionRepository;
 
-	@Override
-	ProcesoRepository getRepository() {
-		return procesoRepository;
-	}
+//	@Override
+//	ProcesoRepository getRepository() {
+//		return procesoRepository;
+//	}
+//
+//	@Override
+//	String getPath() {
+//		return AdminProcesoController.PATH;
+//	}
+//
+//	@Override
+//	GenDescriptor getDescriptor() {
+//		GenDescriptor d = reflectDescriptor(Proceso.class);
+//
+//		d.addAction("Estados...", AdminEstadoController.PATH, new String[] { "id" }, new String[] { "pid" });
+//
+//		d.addAction("Variables...", AdminVariableController.PATH, new String[] { "id" }, new String[] { "pid" });
+//
+//		d.addAction("Diagrama...", AdminProcesoController.PATH + "/diagrama", new String[] { "id" },
+//				new String[] { "pid" });
+//
+//		return d;
+//	}
+//
+//	@Override
+//	@ModelAttribute("activePill")
+//	public String getActivePill() {
+//		return "proceso";
+//	}
+//
+////	@RequestMapping(value = "/diagrama", method = RequestMethod.GET)
+//	public String diagrama(@RequestParam("pid") Integer pid, Model model) {
+//		model.addAttribute("pid", pid);
+//		return "admin-proceso-diagrama";
+//	}
+//
+//	@Override
+//	protected void registerLists(Map<String, Object> map) {
+//		super.registerLists(map);
+//		List<Proceso> procesos = procesoRepository.findByActivoAndAliasIsNull(true, new Sort(Direction.ASC, "nombre"));
+//		map.put("procesos", procesos);
+//		List<Proceso> procesosActivos = procesoRepository.findByActivo(true, new Sort(Direction.ASC, "nombre"));
+//		map.put("procesosActivos", procesosActivos);
+//	}
 
-	@Override
-	String getPath() {
-		return AdminProcesoController.PATH;
-	}
-
-	@Override
-	GenDescriptor getDescriptor() {
-		GenDescriptor d = reflectDescriptor(Proceso.class);
-
-		d.addAction("Estados...", AdminEstadoController.PATH, new String[] { "id" }, new String[] { "pid" });
-
-		d.addAction("Variables...", AdminVariableController.PATH, new String[] { "id" }, new String[] { "pid" });
-
-		d.addAction("Diagrama...", AdminProcesoController.PATH + "/diagrama", new String[] { "id" },
-				new String[] { "pid" });
-
-		return d;
-	}
-
-	@Override
-	@ModelAttribute("activePill")
-	public String getActivePill() {
-		return "proceso";
-	}
-
-	@RequestMapping(value = "/diagrama", method = RequestMethod.GET)
-	public String diagrama(@RequestParam("pid") Integer pid, Model model) {
-		model.addAttribute("pid", pid);
-		return "admin-proceso-diagrama";
-	}
-
-	@Override
-	protected void registerLists(Map<String, Object> map) {
-		super.registerLists(map);
-		List<Proceso> procesos = procesoRepository.findByActivoAndAliasIsNull(true, new Sort(Direction.ASC, "nombre"));
-		map.put("procesos", procesos);
-		List<Proceso> procesosActivos = procesoRepository.findByActivo(true, new Sort(Direction.ASC, "nombre"));
-		map.put("procesosActivos", procesosActivos);
-	}
-
-	@RequestMapping(value = "/proceso-json", method = RequestMethod.GET)
+//	@RequestMapping(value = "/proceso-json", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<String, Object> procesoJson(@RequestParam("proId") Integer proId) {
 

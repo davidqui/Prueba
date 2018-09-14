@@ -90,11 +90,11 @@ function selected(select) {
 
 function changeToggleBuscarTodos(){
     if (!$('#buscarTodo').is(":checked")) {
-        $('#buscartodo-si').css("color", "#606060");
-        $('#buscartodo-no').css("color", "#cccccc");
-    }else{
         $('#buscartodo-si').css("color", "#cccccc");
         $('#buscartodo-no').css("color", "#606060");
+    }else{
+        $('#buscartodo-si').css("color", "#606060");
+        $('#buscartodo-no').css("color", "#cccccc");
     }
 }
 

@@ -33,11 +33,11 @@
            		<@link_admin  "ADMIN_CLASIFICACIONES" "/admin/clasificacion" 'clasificacion' 'Clasificaciones'/>
 
                 <@link_admin  "ADMIN_PLANTILLAS" "/admin/plantilla" 'plantilla' 'Plantillas'/>
-
+  <#--
                 <@link_admin  "ADMIN_PROCESOS" "/admin/proceso" 'proceso' 'Procesos'/>
-
+                
                 <@link_admin  "ADMIN_PROCESOS" "/admin/proceso-transicion-tipo" 'proceso-transicion-tipo' 'Tipos de transicion de proceso'/>
-
+-->
                 <@link_admin  "ADMIN_TIPOLOGIA" "/admin/tipologia" 'tipologia' 'Tipología de documento'/>
 
                 <@link_admin  "ADMIN_TIPO_DOCUMENTO" "/admin/tipo-documento" 'tipo-documento' 'Tipo documento'/>

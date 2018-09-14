@@ -29,8 +29,11 @@ public class DocumentoDTO implements Serializable{
     private String unidadOrigen;
     private String unidadDestino;
     private Boolean perteneceDocumento;
-    private Integer numDocumentos; 
-
+    private Integer numDocumentos;
+    private String expNombre;
+    private String expId;
+    private Boolean perteneceExpediente;
+    
     public DocumentoDTO() {
         // TODO Auto-generated constructor stub
     }
@@ -198,7 +201,30 @@ public class DocumentoDTO implements Serializable{
     public void setNumDocumentos(Integer numDocumentos) {
         this.numDocumentos = numDocumentos;
     }
-    
+
+    public String getExpNombre() {
+        return expNombre;
+    }
+
+    public void setExpNombre(String expNombre) {
+        this.expNombre = expNombre;
+    }
+
+    public String getExpId() {
+        return expId;
+    }
+
+    public void setExpId(String expId) {
+        this.expId = expId;
+    }
+
+    public Boolean getPerteneceExpediente() {
+        return perteneceExpediente;
+    }
+
+    public void setPerteneceExpediente(Boolean perteneceExpediente) {
+        this.perteneceExpediente = perteneceExpediente;
+    }
     
     @Override
     public boolean equals(Object obj) {

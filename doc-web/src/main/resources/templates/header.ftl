@@ -31,8 +31,12 @@
         <title>${pageTitle}</title>
 
         <script src="/ckeditor/ckeditor.js"></script>
-         <!-- loader -->
+        
+        <!-- loader -->
         <link href='/css/loader.css' rel='stylesheet' type='text/css'>
+        
+        <!-- toggle -->
+        <link href='/css/toggle.css' rel='stylesheet' type='text/css'>
         <!-- search selector -->
         <link rel="stylesheet" href="/css/bootstrap-select.css" />
         <script src="/js/bootstrap-select.min.js"></script>
