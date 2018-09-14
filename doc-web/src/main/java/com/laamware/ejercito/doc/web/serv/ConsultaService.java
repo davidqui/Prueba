@@ -11,6 +11,7 @@ import com.laamware.ejercito.doc.web.repo.RolRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -563,16 +564,25 @@ public class ConsultaService {
                 + "      DOC.DOC_RADICADO                                                                                        \"numeroRadicado\", \n"
                 + "      DEP_ORIGEN.DEP_ORI_NOMBRE                                                                               \"unidadOrigen\", \n"
                 + "      case when INSTANCIA.PRO_ID = ? THEN DES_EXTERNO.SIGLA else DEP_DESTINO.DEP_DES_NOMBRE end               \"unidadDestino\", \n"
+                + "      EXPD.EXP_NOMBRE                                                                                         \"expNombre\", \n"
+                + "      EXPD.EXP_ID                                                                                             \"expId\", \n"
                 + "       nvl((select 1\n" 
                 + "            from dual\n" 
                 + "            where (INSTANCIA.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)"
                 + "                    OR ((INSTANCIA.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?)"
-                + "                    OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ?)))))),0)                 \"indPertenece\" \n"
+                + "                    OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ?)))))),0)                 \"indPertenece\", \n"
+                + "       nvl((select 1\n"
+                + "            from dual\n" 
+                + "            where (EXPDEP.USU_ID_JEFE = ? OR EXPD.USU_CREACION = ? OR EXUSU.USU_ID = ?)),0)                 \"indExpediente\" \n"
                 + " FROM DOCUMENTO DOC \n"
                 + " LEFT JOIN USUARIO USU_ULT_ACCION         ON (DOC.USU_ID_ULTIMA_ACCION	= USU_ULT_ACCION.USU_ID) \n"
                 + " LEFT JOIN DEPENDENCIA DEP                ON (DOC.DEP_ID_DES 		= DEP.DEP_ID) \n"
                 + " LEFT JOIN USUARIO USU_DEP_JEFE           ON (DEP.USU_ID_JEFE 		= USU_DEP_JEFE.USU_ID) \n"
                 + " LEFT JOIN PROCESO_INSTANCIA INSTANCIA    ON (DOC.PIN_ID 			= INSTANCIA.PIN_ID) \n"
+                + " LEFT JOIN EXP_DOCUMENTO EXDOC            ON (DOC.DOC_ID                 = EXDOC.DOC_ID AND EXDOC.ACTIVO = 1) \n"
+                + " LEFT JOIN EXPEDIENTE EXPD                ON (EXDOC.EXP_ID                = EXPD.EXP_ID) \n"
+                + " LEFT JOIN EXP_USUARIO EXUSU              ON (EXUSU.EXP_ID = EXPD.EXP_ID AND EXUSU.USU_ID = ?) \n"
+                + " LEFT JOIN DEPENDENCIA EXPDEP             ON (EXPDEP.DEP_ID = EXPD.DEP_ID)"
                 + " LEFT JOIN DOCUMENTO_USU_FIRMA DOCFIRMA   ON (DOC.DOC_ID 			= DOCFIRMA.DOC_ID ) \n"
                 + " LEFT JOIN S_INSTANCIA_USUARIO HPIN       ON (DOC.PIN_ID                  = HPIN.PIN_ID AND HPIN.USU_ID = ?) \n"
                 + " LEFT JOIN USUARIO USU                    ON (HPIN.USU_ID                 = USU.USU_ID) \n"
@@ -851,16 +861,30 @@ public class ConsultaService {
             parameters3.add(DocumentoActaEstado.ACTA_DIGITALIZADA.getId());
             parameters3.add(usuarioID);
             parameters3.add(usuarioID);
+            parameters3.add(usuarioID);
+            parameters3.add(usuarioID);
+            parameters3.add(usuarioID);
+            parameters3.add(usuarioID);
+
             System.out.println(parameters3);
             asw[0] = counter;
             List<DocumentoDTO> documentos;
             documentos = jdbcTemplate.query(consulta2, parameters3.toArray(), new RowMapper<DocumentoDTO>() {
             @Override
             public DocumentoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), rs.getDate("cuandoMod"), rs.getString("nombreProceso"),
+                    Timestamp timestamp = rs.getTimestamp("cuandoMod");
+                    Date fecModificacion = null;
+                    if (timestamp != null) 
+                        fecModificacion = new Date(timestamp.getTime());
+                    
+                    
+                    DocumentoDTO c = new DocumentoDTO(rs.getString("id"), rs.getString("idInstancia"), rs.getString("asunto"), fecModificacion, rs.getString("nombreProceso"),
                             rs.getString("nombreEstado"), rs.getString("nombreUsuarioAsignado"), rs.getString("nombreUsuarioEnviado"), rs.getString("nombreUsuarioElabora"),
                             rs.getString("nombreUsuarioReviso"), rs.getString("nombreUsuarioVbueno"), rs.getString("nombreUsuarioFirma"), rs.getString("nombreClasificacion"),
                             rs.getString("numeroRadicado"), rs.getString("unidadOrigen"), rs.getString("unidadDestino"), rs.getBoolean("indPertenece"));
+                    c.setExpNombre(rs.getString("expNombre"));
+                    c.setExpId(rs.getString("expId"));
+                    c.setPerteneceExpediente(rs.getBoolean("indExpediente"));
                     return c;
                 }
             });

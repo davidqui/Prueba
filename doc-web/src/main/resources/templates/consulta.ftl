@@ -54,6 +54,7 @@
                 <td style="font-weight:bold; text-align: center; vertical-align: middle; ">FIRMA</td>
                 <td style="font-weight:bold; text-align: center; vertical-align: middle; ">CLASIFICACIÓN</td>
                 <td style="font-weight:bold; text-align: center; vertical-align: middle; ">RADICADO</td>
+                <td style="font-weight:bold; text-align: center; vertical-align: middle; ">EXPEDIENTE</td>
                 </tr>
             </thead>
         <tbody>
@@ -104,7 +105,14 @@
                 <td style="text-align: center; vertical-align: middle;">
                             ${x.numeroRadicado!"&lt;Sin radicado&gt;"}
                     </td>
-                </tr>    
+                <td style="text-align: center; vertical-align: middle;">
+                    <#if x.perteneceExpediente>
+                        <strong><a href="/expediente/listarDocumentos?expId=${x.expId}">${x.expNombre!"&lt;No asignado &gt;"}</a></strong>
+                    <#else>
+                        ${x.expNombre!"&lt;No asignado &gt;"}
+                    </#if>
+                    </td>
+                </tr>   
                 </#list>
             </tbody>
         </table>
