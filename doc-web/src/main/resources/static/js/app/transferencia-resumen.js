@@ -51,3 +51,45 @@ function rechazarTransferencia(idTransferencia) {
           console.log(message);
     });
 }
+
+function reenviarTransferencia(idTransferencia) {
+    $.ajax({
+        method: "POST",
+        url: "/transferencia-archivo/verificar-transferencia/" + idTransferencia,
+        dataType: 'html'
+    }).then(function(docs) {
+        if (docs != null && docs.length > 0) {
+            var text = " los siguientes documentos ya no se encuentran en su custodia: </br> </br>";
+            $.each(docs, function(index, item) {
+                text += item.asunto +" -- "+ item.fecha+"</br>";
+            }
+            $('#confirmar-reenvio-modal').modal('show');
+            $('#title-modal').html("Documentos sin custodia");
+            $('#modal-body-info').html("<h5>"+message.responseText+"</h5>");
+            
+        }else{
+            reenviarTransferenciaUsuario(idTransferencia)
+        }
+        $(".div-loader").css({ display: "none" });
+        location.reload();
+      }, function(message) {
+          console.log(message);
+    });
+}
+
+
+
+
+function reenviarTransferenciaUsuario(idTransferencia) {
+    var usuario = $("#destinoUsuario").val();
+    
+    $.ajax({
+        method: "POST",
+        url: "/transferencia-archivo/devolver/" + idTransferencia+"/"+usuario,
+        dataType: 'html'
+    }).then(function) {
+        location.reload();
+      }, function(message) {
+          console.log(message);
+    });
+}

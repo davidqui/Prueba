@@ -3,6 +3,7 @@ package com.laamware.ejercito.doc.web.serv;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
+import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.PlantillaFuidGestion;
 import com.laamware.ejercito.doc.web.entity.PlantillaTransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
@@ -340,10 +341,10 @@ public class TransferenciaArchivoService {
             validacionDTO.addError("ATENCIÓN: No hay plantilla activa para la generación del acta de transferencia de archivo.");
         }
         
-        PlantillaFuidGestion plantillaFuid = plantillaFuidGestionRepository.findByActivoTrue();
-        if (plantillaFuid == null) {
-            validacionDTO.addError("ATENCIÓN: No hay plantilla activa del FUID de gestión.");
-        }
+//        PlantillaFuidGestion plantillaFuid = plantillaFuidGestionRepository.findByActivoTrue();
+//        if (plantillaFuid == null) {
+//            validacionDTO.addError("ATENCIÓN: No hay plantilla activa del FUID de gestión.");
+//        }
 
         if (origenUsuario == null) {
             validacionDTO.addError("Debe seleccionar un usuario origen de la transferencia.");
@@ -583,5 +584,14 @@ public class TransferenciaArchivoService {
 
         descripcion += " [" + usuario.getClasificacion().getNombre() + "]";
         return descripcion;
+    }
+    
+    
+    public void devolverTransferencia(final TransferenciaArchivo transferenciaArchivo){
+        TransferenciaArchivo nuevaTransferencia = transferenciaArchivo;
+        nuevaTransferencia.setDestinoUsuario(transferenciaArchivo.getOrigenUsuario());
+        nuevaTransferencia.setDestinoDependencia(transferenciaArchivo.getDestinoDependencia());
+        nuevaTransferencia.setOrigenUsuario(transferenciaArchivo.getDestinoUsuario());
+
     }
 }

@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.dto.CargoDTO;
+import com.laamware.ejercito.doc.web.dto.DocumentoDTO;
 import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
@@ -385,6 +386,14 @@ public class TransferenciaArchivoController extends UtilController {
         model.addAttribute("documentosXTransferenciaArchivo", documentosXTransferenciaArchivo);
         model.addAttribute("observaciones", observaciones);
         
+        if (transferenciaArchivo.getDestinoUsuario().getId().equals(usuarioSesion.getId()) &&
+                transferenciaArchivo.getIndAprobado() == 1) {
+            List<TransferenciaArchivoDetalle> documentosNoPosesionTransferencia = transferenciaArchivoDetalleService.documentosNoPosesionTransferencia(transferenciaArchivo, usuarioSesion);
+            List<TransExpedienteDetalle> expedientesNoPosesionTransferencia = transExpedienteDetalleService.expedientesNoPosesionTransferencia(transferenciaArchivo, usuarioSesion);
+            model.addAttribute("documentosNoPosesionTransferencia", documentosNoPosesionTransferencia);
+            model.addAttribute("expedientesNoPosesionTransferencia", expedientesNoPosesionTransferencia);
+        }
+        
         return "transferencia-resumen";
     }
     
@@ -559,6 +568,36 @@ public class TransferenciaArchivoController extends UtilController {
         }
         return false;
     }
+    
+    /**
+     * Verifica si un documento no se encuentra en la lista de los documentos que no posee custodia.
+     * @param id iidentificador del documento
+     * @param documentos lista de documentos sin juristicacción
+     * @return true si no se encuentra en la lista, false de lo contrio
+     */
+    public boolean hasDocumentoTransferido(Integer id, List<TransferenciaArchivoDetalle> documentos){
+        for (TransferenciaArchivoDetalle documento : documentos) {
+            if (documento.getId().equals(id)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Verifica si un expediente no se encuentra en la lista de los expedientes que no posee custodia.
+     * @param id iidentificador del documento
+     * @param documentos lista de documentos sin juristicacción
+     * @return true si no se encuentra en la lista, false de lo contrio
+     */
+    public boolean hasExpedienteTransferido(Long id, List<TransExpedienteDetalle> expedientes){
+        for (TransExpedienteDetalle expediente : expedientes) {
+            if (expediente.getTraExpId().equals(id)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     
     /**
@@ -652,4 +691,34 @@ public class TransferenciaArchivoController extends UtilController {
             return "transferencia-gestion-crear";
         }
     }
+    
+    @RequestMapping(value = "/devolver/{trans}/{usuId}", method = RequestMethod.POST)
+    public ResponseEntity<?> devolverTransferencia(@PathVariable("trans") Integer transId,
+            @PathVariable("usuId") Integer usuId, Principal principal, Model model){
+        final Usuario origenUsuario = getUsuario(principal);
+        final TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
+        if (!transferenciaService.permisoAprobarDestinatario(transferenciaArchivo, origenUsuario))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        
+        return null;
+    }
+//    
+//    @RequestMapping(value = "/verificar-transferencia/{trans}", method = RequestMethod.POST)
+//    public ResponseEntity<?> verificarDevolucionTransferencia(@PathVariable("trans") Integer transId, Principal principal){
+//        final Usuario origenUsuario = getUsuario(principal);
+//        final TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
+//        if (!transferenciaService.permisoAprobarDestinatario(transferenciaArchivo, origenUsuario))
+//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//        List<TransferenciaArchivoDetalle> documentosNoPosesionTransferencia = transferenciaArchivoDetalleService.documentosNoPosesionTransferencia(transferenciaArchivo, origenUsuario);
+//        List<DocumentoDTO> documentos = new ArrayList<>();
+//        for (TransferenciaArchivoDetalle dt : documentosNoPosesionTransferencia) {
+//            DocumentoDTO doc = new DocumentoDTO();
+//            doc.setAsunto(dt.getDocumentoDependencia().getDocumento().getAsunto());
+//            doc.setCuandoMod(dt.getDocumentoDependencia().getDocumento().getCuandoMod());
+//            doc.setNombreClasificacion(dt.getDocumentoDependencia().getDocumento().getClasificacion().getNombre());
+//        }
+//        return ResponseEntity.ok(documentos);
+//    }
+//    
+    
 }

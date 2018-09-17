@@ -6,6 +6,7 @@ import com.laamware.ejercito.doc.web.entity.TransExpedienteDetalle;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.TransExpedienteDetalleRepository;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +82,11 @@ public class TransExpedienteDetalleService {
         return transExpedienteDetalleRepository.expedienteXUsuarioxNotTransferencia(usuario.getId(), transferenciaArchivo.getId());
     }
     
-    
+    /***
+     * Método para transferir los expediente de una transfenrencia
+     * @param transferenciaArchivo transferencia de archivo
+     * @param usuario usuario
+     */
     public void transferirExpedientes(TransferenciaArchivo transferenciaArchivo, Usuario usuario){
         List<TransExpedienteDetalle> buscarXTransferenciaArchivo = buscarXTransferenciaArchivo(transferenciaArchivo);
         for (TransExpedienteDetalle transExpedienteDetalle : buscarXTransferenciaArchivo) {
@@ -89,5 +94,22 @@ public class TransExpedienteDetalleService {
             expedienteService.cambiarUsuarioCreador(transExpedienteDetalle.getExpId(), transExpedienteDetalle.getNuevoQuien(), transExpedienteDetalle.getAnteriorQuien());
             transExpedienteDetalleRepository.save(transExpedienteDetalle);
         }
+    }
+    
+    /***
+     * Lista los expedientes que no encuentran en custodia de un usuario.
+     * @param transferenciaArchivo transferencia de archivo
+     * @param usuario usuario a evaluar si tiene los expedientes
+     * @return lista de los expedientes que no pertenecen al usuario.
+     */
+    public List<TransExpedienteDetalle> expedientesNoPosesionTransferencia(TransferenciaArchivo transferenciaArchivo, Usuario usuario){
+        List<TransExpedienteDetalle> buscarXTransferenciaArchivo = buscarXTransferenciaArchivo(transferenciaArchivo);
+        List<TransExpedienteDetalle> answ = new ArrayList<>();
+        for (TransExpedienteDetalle transExpedienteDetalle : buscarXTransferenciaArchivo) {
+            if (!transExpedienteDetalle.getExpId().getUsuCreacion().getId().equals(usuario.getId())) {
+                answ.add(transExpedienteDetalle);
+            }
+        }
+        return answ;
     }
 }

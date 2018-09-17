@@ -5,6 +5,7 @@ import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,23 @@ public class TransferenciaArchivoDetalleService {
                     transferenciaArchivoDetalle.getNuevoUsuario(), transferenciaArchivoDetalle.getNuevoDependencia(),
                     transferenciaArchivo.getUsuDestinoCargo());
         }
+    }
+    
+    /***
+     * Lista los documentos de la transferencia que no se encuentra en la custodia del usuario.
+     * @param transferenciaArchivo transferencia de archivo
+     * @param usuario usuario a evaluar si tiene los documentos
+     * @return lista de los documentos que no pertenecen al usuario.
+     */
+    public List<TransferenciaArchivoDetalle> documentosNoPosesionTransferencia(TransferenciaArchivo transferenciaArchivo, Usuario usuario){
+        List<TransferenciaArchivoDetalle> answ = new ArrayList<>();
+        List<TransferenciaArchivoDetalle> findAllByTransferenciaArchivoAndActivo = transferenciaArchivoDetalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
+        for (TransferenciaArchivoDetalle transferenciaArchivoDetalle : findAllByTransferenciaArchivoAndActivo) {
+            if (!transferenciaArchivoDetalle.getDocumentoDependencia().getQuien().equals(usuario.getId())) {
+                answ.add(transferenciaArchivoDetalle);
+            }
+        }
+        return answ;
     }
 
 }

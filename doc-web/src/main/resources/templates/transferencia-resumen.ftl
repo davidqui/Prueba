@@ -97,6 +97,9 @@
                 <tr>
                     <th>Radicado</th>
                     <th>Asunto</th>
+                    <#if documentosNoPosesionTransferencia??>
+                        <th></th>
+                    </#if>   
                 </tr>
             </thead>
         </table>
@@ -108,6 +111,15 @@
                             <tr>
                                 <td nowrap name="radicado">${doc.documentoDependencia.documento.radicado!"&lt;Sin radicado&gt;"}</td>
                                 <td >${doc.documentoDependencia.documento.asunto!"&lt;Sin asunto&gt;"}</td>
+                                <#if documentosNoPosesionTransferencia??>
+                                    <td>
+                                        <#if controller.hasDocumentoTransferido(doc.id, documentosNoPosesionTransferencia)>
+                                            <img class="svg" src="/img/check.svg" alt=""/>
+                                        <#else>
+                                            <img class="svg" src="/img/x.svg" alt=""/>  
+                                        </#if>
+                                    </td>
+                                </#if>
                             <tr>
                         </#list>
                     </#if>
@@ -138,6 +150,9 @@
                     <tr>
                         <th style="width:50%;">Nombre</th>
                         <th>Dependencia</th>
+                        <#if expedientesNoPosesionTransferencia??>
+                            <th></th>
+                        </#if>
                     </tr>
                 </thead>
             </table>
@@ -149,6 +164,15 @@
                                 <tr>
                                     <td>${exp.expId.expNombre!"&lt;Sin asunto&gt;"}</td>
                                     <td>${exp.expId.depId.nombre}</td>
+                                    <#if expedientesNoPosesionTransferencia??>
+                                        <td>
+                                            <#if controller.hasExpedienteTransferido(exp.traExpId ,expedientesNoPosesionTransferencia)>
+                                                <img class="svg" src="/img/check.svg" alt=""/>
+                                            <#else>
+                                                <img class="svg" src="/img/x.svg" alt=""/>
+                                            </#if>
+                                        </td>
+                                    </#if>
                                 </tr>
                             </#list>
                         </#if>
@@ -226,15 +250,24 @@
 </div>
     
 <div class="navbar navbar-default navbar-fixed-bottom text-xs-center hermes-bottombar">
-    <#if transferenciaArchivo.usuarioAsignado = 1 && transferenciaArchivo.destinoUsuario.id == usuario.id>
-        <button class="btn btn-primary" onclick="modalDestinatario(${(usuario.id)!""}, '${(usuario.nombre)!""}')" data-toggle="modal"  data-target="#destinatarioRecibir">
-          Recibir
-        </button>
+    <#if transferenciaArchivo.destinoUsuario.id == usuario.id>
+        <#if transferenciaArchivo.usuarioAsignado = 1 && transferenciaArchivo.indAprobado = 0>
+            <button class="btn btn-primary" onclick="modalDestinatario(${(usuario.id)!""}, '${(usuario.nombre)!""}')" data-toggle="modal"  data-target="#destinatarioRecibir">
+              Recibir
+            </button>
+        </#if>
+        <#if transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.indAprobado = 1 && transferenciaArchivo.activo = true>
+            <a class="btn btn-warning" data-toggle="modal"  data-target="#modalReenviar" >
+              Devolver Transferencia 
+            </a>
+        </#if>
     </#if>
-    <#if transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id && transferenciaArchivo.indAprobado = 0>
+    <#if transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id>
+        <#if transferenciaArchivo.indAprobado = 0>
         <a href="/transferencia-archivo/aprobar/${(transferenciaArchivo.id)!""}" class="btn btn-primary" onclick="loading(event);">
           Aprobar
         </a>
+        </#if>
     </#if>
     <#if transferenciaArchivo.usuarioAsignado = 0 && transferenciaArchivo.origenUsuario.id == usuario.id>
         <#if (documentosXTransferenciaArchivo?size > 0 || expedientesSeleccionados?size > 0) >
@@ -306,6 +339,57 @@
     </div>
   </div>
 </div>
+    
+    
+<!--modal reenviar transferencia-->
+<div class="modal fade" id="modalReenviar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Reenviar Transferencia a usuario</h5>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body">                                        
+                        <div class="form-group">
+                            <label for="usuarioAsignado">Usuario (*)</label>
+                            <div class="input-group">
+                                <input type="text" id="destinoUsuario_visible" name="destinoUsuario_visible" class="form-control" value="" disabled />
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-primary" onclick="openFinderWindow()">Buscar</button>
+                                </div>
+                                <script src="/js/app/buscar-usuario.js"></script>
+                            </div> 
+                            <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="reenviarTransferencia(${(transferenciaArchivo.id)!""})">Reenviar</button>                                
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+    
+<!-- Confirmar reenvio info -->
+<div class="modal fade" id="confirmar-reenvio-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" style="overflow-y: auto;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #0275d8; color: white;">
+        <h5 class="modal-title" id="title-modal"></h5>
+      </div>
+      <div class="modal-body" id="modal-body-info">
+      </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="reenviarTransferencia(${(transferenciaArchivo.id)!""})">Continuar</button>                                
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        </div>
+    </div>
+  </div>
+</div>    
+    
     
 <script src="/js/app/transferencia-resumen.js"></script>
 <#include "footer.ftl" />

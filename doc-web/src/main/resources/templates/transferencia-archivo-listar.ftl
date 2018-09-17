@@ -3,7 +3,16 @@
 <#assign deferredJS = "" />
 <#include "header.ftl" />
 <#include "gen-paginacion.ftl">
-
+<style>
+    .selection-tr{
+        cursor:pointer;
+    }
+    
+    .selection-tr:hover{
+        background-color: #e8e8e8;
+    }
+    
+</style>
 <div class="container-fluid">
     <div>
         <ol class="breadcrumb">
@@ -44,13 +53,11 @@
                     <#if tipoTransferencia == "PROCESO">
                         <th>Ultimo estado</th>
                     </#if>
-                    <th></th>
-                    
                 </tr>
             </thead>
             <tbody>
                 <#list transferencias as ta>
-                    <tr>
+                    <tr class="selection-tr" onclick="location.href = '/transferencia-archivo/resumen/${ta.tarId}';">
                         <td>${ta.fechaCreacion?string('yyyy-MM-dd')}</td>
                         <#if tipoTransferencia == "DESTINO" || tipoTransferencia == "PROCESO">
                             <td>${ta.usuNomOrigen!""}</td>
@@ -64,11 +71,6 @@
                         <#if tipoTransferencia == "PROCESO">
                             <td>${ta.ultEstado!"0"}</td>
                         </#if>
-                        <td>
-                            <a title="Ver Resumen" href="/transferencia-archivo/resumen/${ta.tarId}">
-                                <img class="card-img-top" src="/img/eye.svg" alt="">
-                            </a>
-                        </td>
                     </tr>
                 </#list>
             </tbody>
