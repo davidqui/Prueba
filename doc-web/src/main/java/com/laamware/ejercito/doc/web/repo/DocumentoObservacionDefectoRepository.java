@@ -31,4 +31,12 @@ public interface DocumentoObservacionDefectoRepository extends JpaRepository<Doc
      */
     public List<DocumentoObservacionDefecto> findAllByActivoTrueOrderByTextoObservacionAsc();
 
+    
+    /**
+     * Trae una observación por defecto por el texto de la observación
+     * @param texto texto 
+     * @return observación defecto
+     */
+    public DocumentoObservacionDefecto getOneByActivoTrueAndTextoObservacion(String nombre);
+    
 }

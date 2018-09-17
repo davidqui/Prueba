@@ -34,13 +34,13 @@ public class PlantillaFuidGestion implements Serializable {
 
     private static final long serialVersionUID = -3422358052269185263L;
 
-    @GenericGenerator(name = "PLANTILLA_FUID_GESTION", strategy = "sequence",
+    @GenericGenerator(name = "PLANTILLA_FUID_GESTION_SEQ", strategy = "sequence",
             parameters = {
-                @Parameter(name = "sequence", value = "PLANTILLA_FUID_GESTION")
+                @Parameter(name = "sequence", value = "PLANTILLA_FUID_GESTION_SEQ")
                 ,@Parameter(name = "allocationSize", value = "1")
             })
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
-            generator = "PLANTILLA_FUID_GESTION")
+            generator = "PLANTILLA_FUID_GESTION_SEQ")
     @Id
     @Basic(optional = false)
     @NotNull

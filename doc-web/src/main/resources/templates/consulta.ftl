@@ -60,9 +60,9 @@
                 <#list documentos as x>
             <tr>
                 <td style="text-align: center; vertical-align: middle;">
-                            ${x.cuandoMod?string('yyyy-MM-dd')}
+                            ${(x.cuandoMod?string('yyyy-MM-dd'))!""}
                     <br>
-                            ${x.cuandoMod?string('hh:mm a')} 
+                            ${(x.cuandoMod?string('hh:mm a'))!""} 
                     </td>
                 <td style="text-align: center; vertical-align: middle;word-wrap:break-word;">
                     <#if x.perteneceDocumento>
@@ -113,7 +113,15 @@
             Se agrega items de visualizacion para la paginacion. 
         -->
         <#if totalPages gt 0>
-            <@printBar url="/consulta/parametros" params={"asignado":asignado,"asunto": asunto,"fechaInicio":fechaInicio,"fechaFin":fechaFin,"radicado":radicado,"destinatario":destinatario,"clasificacion":clasificacion, "dependenciaDestino":dependenciaDestino,"dependenciaOrigen":dependenciaOrigen,"term":term,"clasificacionNombre":clasificacionNombre,"dependenciaOrigenDescripcion":dependenciaOrigenDescripcion,"dependenciaDestinoDescripcion":dependenciaDestinoDescripcion, "tipoProceso":tipoProceso} metodo="post"/>
+            <@printBar url="/consulta/parametros" params={"asignado":asignado,
+                "asunto": asunto,"fechaInicio":fechaInicio,"fechaFin":fechaFin,
+                "radicado":radicado,"destinatario":destinatario,"clasificacion":clasificacion,
+                "dependenciaDestino":dependenciaDestino,"dependenciaOrigen":dependenciaOrigen, 
+                "term":term,"clasificacionNombre":clasificacionNombre,
+                "dependenciaOrigenDescripcion":dependenciaOrigenDescripcion,
+                "dependenciaDestinoDescripcion":dependenciaDestinoDescripcion, 
+                "tipoProceso":tipoProceso, "buscarTodo":(buscarTodo?string("true","false"))!"",
+                "destinoExterno":destinoExterno, "tipoBusqueda":tipoBusqueda!"" }metodo="post"/>
         </#if>
     </div>
 </#if>

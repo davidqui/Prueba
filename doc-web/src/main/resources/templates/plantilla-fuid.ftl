@@ -24,7 +24,7 @@
                 </tr>
             <tr>
                 <td><strong>Firma MD5</strong></td>
-                <td>${plantilla.firmaMD5}</td>
+                <td>${plantilla.firmaMd5}</td>    
                 </tr>
             <tr>
                 <td><strong>Cargado por</strong></td>
@@ -36,10 +36,10 @@
                 </tr>
             <tr>
                 <td><strong>Fecha de carga</strong></td>
-                <td>${plantilla.fecha?string('dd-MMMM-yyyy hh:mm a')}</td>
+                <td>${plantilla.cuando?string('dd-MMMM-yyyy hh:mm a')}</td>
                 </tr>
             <tr>
-                <td colspan="2"><strong><a href="/documento/download/${plantilla.codigoOFS}" >Descargar</a></strong></td>
+                <td colspan="2"><strong><a href="/documento/download/${plantilla.codigoOfs}" >Descargar</a></strong></td>
                 </tr>
             </tbody>
         </table>

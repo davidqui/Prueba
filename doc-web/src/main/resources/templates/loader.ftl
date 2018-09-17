@@ -6,7 +6,7 @@
                     <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <h3>
-                    Por favor espere ....
+                    SICDI Procesando ....
                 </h3>
             </div>
         </div>
