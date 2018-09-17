@@ -112,4 +112,16 @@ public class TransExpedienteDetalleService {
         }
         return answ;
     }
+    
+    /***
+     * Genera los nuevos apuntadores del expediente a la transferencia
+     * @param anterior anterior transferencia. 
+     * @param nueva nueva transferencia.
+     */
+    public void reeviarExpedienteTransferencia(TransferenciaArchivo anterior, TransferenciaArchivo nueva){
+         List<TransExpedienteDetalle> expedientes = buscarXTransferenciaArchivo(anterior);
+         for (TransExpedienteDetalle expediente : expedientes) {
+             guardarExpedienteTransferencia(nueva, expediente.getExpId(), nueva.getOrigenUsuario());
+        }
+    }
 }

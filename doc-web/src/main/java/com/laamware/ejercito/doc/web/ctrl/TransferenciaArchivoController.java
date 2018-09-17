@@ -34,6 +34,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -694,13 +695,18 @@ public class TransferenciaArchivoController extends UtilController {
     
     @RequestMapping(value = "/devolver/{trans}/{usuId}", method = RequestMethod.POST)
     public ResponseEntity<?> devolverTransferencia(@PathVariable("trans") Integer transId,
-            @PathVariable("usuId") Integer usuId, Principal principal, Model model){
+            @PathVariable("usuId") Integer usuId, @RequestParam(value = "justificacion", required = true) String justificacion, Principal principal, Model model){
         final Usuario origenUsuario = getUsuario(principal);
         final TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
-        if (!transferenciaService.permisoAprobarDestinatario(transferenciaArchivo, origenUsuario))
+        if (!transferenciaService.permisoReenviarTransferencia(transferenciaArchivo, origenUsuario))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        
-        return null;
+        final Usuario usuarioDestino = usuarioService.findOne(usuId);
+        try {
+            transferenciaService.reenviarTransferencia(transferenciaArchivo, usuarioDestino, justificacion);
+        } catch (Exception ex) {
+            Logger.getLogger(TransferenciaArchivoController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 //    
 //    @RequestMapping(value = "/verificar-transferencia/{trans}", method = RequestMethod.POST)

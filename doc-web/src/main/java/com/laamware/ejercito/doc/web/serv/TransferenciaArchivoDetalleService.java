@@ -92,5 +92,17 @@ public class TransferenciaArchivoDetalleService {
         }
         return answ;
     }
+    
+    /**
+     * Genera los nuevos apuntadores a los documentos para la nueva transferencia
+     * @param anterior anterior transferencia. 
+     * @param nueva nueva transferencia.
+     */
+    public void reeviarDocumentosTransferencia(TransferenciaArchivo anterior, TransferenciaArchivo nueva){
+        List<TransferenciaArchivoDetalle> documentos = transferenciaArchivoDetalleRepository.findAllByTransferenciaArchivoAndActivo(anterior, 1);
+        for (TransferenciaArchivoDetalle documento : documentos) {
+            guardarDocumentoTransferencia(nueva, documento.getDocumentoDependencia(), nueva.getOrigenUsuario());
+        }
+    }
 
 }

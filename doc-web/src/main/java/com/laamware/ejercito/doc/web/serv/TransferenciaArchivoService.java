@@ -186,6 +186,21 @@ public class TransferenciaArchivoService {
                 transferenciaArchivo.getDestinoUsuario().getId().equals(usuario.getId());
     }
     
+    
+    /**
+     * Permiso para reenviar una transferencia.
+     * @param transferenciaArchivo transferencia 
+     * @param usuario usuario para validar el permiso
+     * @return true si tiene permiso false de lo contrario.
+     */
+    public boolean permisoReenviarTransferencia(final TransferenciaArchivo transferenciaArchivo, final Usuario usuario){
+        return transferenciaArchivo != null && usuario != null &&
+                transferenciaArchivo.getUsuarioAsignado() == 2 &&
+                transferenciaArchivo.getIndAprobado() == 1 && 
+                transferenciaArchivo.getActivo() &&
+                transferenciaArchivo.getDestinoUsuario().getId().equals(usuario.getId());
+    }
+    
     /**
      * Permiso para rechazar una transferecia segun un usuario
      * @param transferenciaArchivo transferencia 
@@ -587,11 +602,12 @@ public class TransferenciaArchivoService {
     }
     
     
-    public void devolverTransferencia(final TransferenciaArchivo transferenciaArchivo){
-        TransferenciaArchivo nuevaTransferencia = transferenciaArchivo;
-        nuevaTransferencia.setDestinoUsuario(transferenciaArchivo.getOrigenUsuario());
-        nuevaTransferencia.setDestinoDependencia(transferenciaArchivo.getDestinoDependencia());
-        nuevaTransferencia.setOrigenUsuario(transferenciaArchivo.getDestinoUsuario());
-
+    public void reenviarTransferencia(final TransferenciaArchivo transferenciaArchivo, Usuario usuarioDestino, String justificacion) throws Exception{
+        TransferenciaArchivo transferencia = crearEncabezadoTransferenciaGestion(transferenciaArchivo.getDestinoUsuario(),
+                transferenciaArchivo.getUsuDestinoCargo().getId(), usuarioDestino, justificacion);
+        transferenciaArchivoDetalleService.reeviarDocumentosTransferencia(transferenciaArchivo, transferencia);
+        transExpedienteDetalleService.reeviarExpedienteTransferencia(transferenciaArchivo, transferencia);
+        enviarTransferencia(transferencia, transferenciaArchivo.getDestinoUsuario());
     }
+    
 }

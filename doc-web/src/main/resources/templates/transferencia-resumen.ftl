@@ -262,12 +262,10 @@
             </a>
         </#if>
     </#if>
-    <#if transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id>
-        <#if transferenciaArchivo.indAprobado = 0>
+    <#if transferenciaArchivo.usuarioAsignado = 2  && transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id && transferenciaArchivo.indAprobado = 0>
         <a href="/transferencia-archivo/aprobar/${(transferenciaArchivo.id)!""}" class="btn btn-primary" onclick="loading(event);">
           Aprobar
         </a>
-        </#if>
     </#if>
     <#if transferenciaArchivo.usuarioAsignado = 0 && transferenciaArchivo.origenUsuario.id == usuario.id>
         <#if (documentosXTransferenciaArchivo?size > 0 || expedientesSeleccionados?size > 0) >
@@ -362,11 +360,15 @@
                             </div> 
                             <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
                         </div>
+                        <div class="form-group">
+                            <label for="cargoAsignado">Justificación (*)</label>
+                            <textarea class="form-control" rows="5" id="justificacion"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="reenviarTransferencia(${(transferenciaArchivo.id)!""})">Reenviar</button>                                
+                <button type="button" class="btn btn-primary" onclick="reenviarTransferenciaUsuario(${(transferenciaArchivo.id)!""})">Reenviar</button>                                
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
