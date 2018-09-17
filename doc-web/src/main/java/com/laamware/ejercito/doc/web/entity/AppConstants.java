@@ -212,7 +212,7 @@ public class AppConstants {
      * Rol de administración de Recursos Multimedia
      */
     public static final String ADMIN_RECURSO_MULTIMEDIA = "ADMIN_RECURSO_MULTIMEDIA";
-    public static final String PATH_ADMIN_RECURSO_MULTIMEDIA = "/admin/recursoMultimedia";
+    public static final String PATH_ADMIN_RECURSO_MULTIMEDIA = "/admin/recursoMultimedia/list/";
 
     /**
      * Rol para búsqueda de documentos por firma/envío UUID.

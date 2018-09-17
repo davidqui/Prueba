@@ -9,17 +9,16 @@ public interface RecursoMultimediaRepository extends JpaRepository<RecursoMultim
 
     RecursoMultimedia findOneByNombreAndActivoTrue(String nombre);
 
+    public List<RecursoMultimedia> getByActivoTrueAndTematicaId(Sort sort, Integer Id);
     public List<RecursoMultimedia> getByActivoTrue(Sort sort);
     
     /**
-     * Busca todos los Recursos Multimedia activos para una Tematica.
-     *
-     * @param docId ID del documento.
-     * @return Lista de documentos adjuntos activos.
+     * Busca todos los registros de Recurso Multimedia en Tematica por el Id.
+     * 
+     * 2018-09-03 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param Id Id de la tematica a buscar.
+     * @return Listado de Recursos Multimedia de la Tematica a la que corresponda el Id.
      */
-    /*
-     * 2018-04-13 jgarcia@contrltechcg.com Issue #156 (SICDI-Controltech)
-     * feature-156.
-     */
-//    public List<Adjunto> findAllByDocumentoIdAndActivoTrue(String docId);
+    public List<RecursoMultimedia> findAllByTematicaId(Integer Id);
 }

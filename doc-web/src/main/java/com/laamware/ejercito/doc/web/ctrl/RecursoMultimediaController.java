@@ -3,6 +3,7 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.RecursoMultimedia;
+import com.laamware.ejercito.doc.web.entity.Tematica;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
 import com.laamware.ejercito.doc.web.serv.RecursoMultimediaService;
@@ -65,49 +66,61 @@ public class RecursoMultimediaController extends UtilController {
     private TematicaService tematicaService;
     
     /**
-     * Permite listar todos los recursos multimedia.
-     *
-     * @param all
-     * @param model
-     * @return
+     * Lista los Recursos Multimedia Activos por Tematica
+     * 
+     * 2018-09-13 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param key Id de una Tematica.
+     * @param all 
+     * @param model Parametro requerido por clase de spring
+     * @param redirect Parametro requerido por clase de spring
+     * @return Según corresponda genera un Lista de Recursos Multimedia Activos y por Tematica 
+     * o los Recursos Multimedia de una Tematica. 
      */
-    @RequestMapping(value = {""}, method = RequestMethod.GET)
-    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
+    @RequestMapping(value = {"/list/{key}"}, method = RequestMethod.GET)
+    public String listByTematica(@PathVariable(value = "key") Integer key, @RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model, RedirectAttributes redirect) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+        
+        Tematica listTematica = tematicaService.findOne(key);
+        model.addAttribute("tematicasView", listTematica);
         List<RecursoMultimedia> list;
         if (!all) {
-            list = recursoMultimediaService.findActive(sort);
+            list = recursoMultimediaService.findActiveAndTematica(sort, key);
         } else {
-            list = recursoMultimediaService.findAll(sort);
+            list = recursoMultimediaService.findAllByTematica(listTematica);
         }
         model.addAttribute("list", list);
         model.addAttribute("all", all);
-
+        
         return LIST_TEMPLATE;
     }
     
     /**
-     * Carga el formulario para crear un recurso multimedia.
+     * Carga los datos necesarios al formulario para crear un recurso multimedia.
      * 
-     * @param model
+     * @param model Parametro requerido por clase de spring
      * @return Template de creacion.
      */
-    @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
-    public String create(Model model) {
+    @RequestMapping(value = {"/create/{key}"}, method = RequestMethod.GET)
+    public String create(@PathVariable(value = "key") Integer key, Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         
         RecursoMultimedia recursoMultimedia = new RecursoMultimedia();
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
         model.addAttribute("tematicas", tematicaService.findActive(sort));
         model.addAttribute("extenciones", recursoMultimediaService.extencionesPermitidas());
+        Tematica listTematica = tematicaService.findOne(key);
+        model.addAttribute("tematicasCrear", listTematica);
         return CREATE_TEMPLATE;
     }
 
     /**
      * Permite visualizar el formulario de edición de un recurso multimedia.
      *
-     * @param model
-     * @param req conjunto de data recibida por intermedio del request a traves
+     * 2018-09-17 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param model Parametro requerido por clase de spring
+     * @param req Conjunto de data recibida por intermedio del request a traves
      * del formulario.
      * @return Pagina que permite editar un recurso multimedia.
      */
@@ -116,6 +129,8 @@ public class RecursoMultimediaController extends UtilController {
         Integer id = Integer.parseInt(req.getParameter("id"));
         RecursoMultimedia recursoMultimedia = recursoMultimediaService.findOne(id);
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
+        Tematica listTematica = tematicaService.findOne(recursoMultimedia.getTematica().getId());
+        model.addAttribute("tematicasEditar", listTematica);
         return EDIT_TEMPLATE;
     }
 
@@ -123,30 +138,35 @@ public class RecursoMultimediaController extends UtilController {
     /**
      * Modela en la vista los datos necesarios para crear un recurso multimedia.
      * 
+     * 2018-09-17 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
      * @param recursoMultimedia Datos del Objeto Recursos Multimedia tomados desde el formulario de creación.
-     * @param req
-     * @param eResult
-     * @param model
-     * @param redirect
+     * @param req Conjunto de data recibida por intermedio del request a traves del formulario.
+     * @param eResult Parametro requerido por clase de spring
+     * @param model Parametro requerido por clase de spring
+     * @param redirect Parametro requerido por clase de spring
      * @param files Archivo cargado en el formulario.
      * @param principal Id del Usuario en sesión.
-     * @return 
+     * @return Según corresponda pagina con el listado de los recursos multimedia Activos incluyendo el recien creado 
+     * o a la misma vista de creacion en el caso de que se presente una Exception.
      */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
     public String crear(RecursoMultimedia recursoMultimedia, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
             @RequestParam("archivo") MultipartFile files, Principal principal) {
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
         final Usuario usuarioSesion = getUsuario(principal);
-
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         try {
             recursoMultimediaService.crearRecursoMultimedia(recursoMultimedia, usuarioSesion, files);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
-            return "redirect:" + PATH + "?" + model.asMap().get("queryString");
+            model.addAttribute("tematicas", tematicaService.findActive(sort));
+            return "redirect:" +PATH+"/list/"+recursoMultimedia.getTematica().getId();
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
-            Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
-            model.addAttribute("tematicas", tematicaService.findActive(sort));
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            model.addAttribute("tematicas", tematicaService.findActive(sort));
+            Tematica listTematica = tematicaService.findOne(recursoMultimedia.getTematica().getId());
+            model.addAttribute("tematicasCrear", listTematica);
             return CREATE_TEMPLATE;
         }
     }
@@ -154,40 +174,47 @@ public class RecursoMultimediaController extends UtilController {
     /**
      * Permite actualizar un recurso multimedia.
      *
+     * 2018-09-17 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
      * @param recursoMultimedia
-     * @param req
-     * @param eResult
-     * @param model
-     * @param redirect
-     * @param archivo
-     * @param principal
-     * @return Pagina que edita un nombre del recurso multimedia.
+     * @param req Conjunto de data recibida por intermedio del request a traves del formulario.
+     * @param eResult Parametro requerido por clase de spring
+     * @param model Parametro requerido por clase de spring
+     * @param redirect Parametro requerido por clase de spring 
+     * @param principal Usuarion en la sesión activa. 
+     * @return Segun corresponda redirige al listado de Recursos Multimedia Activos incluyendo el recien modificado
+     * o a la misma vista de edición en el caso de que se presente una Exception.
      */
     @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
     public String actualizar(RecursoMultimedia recursoMultimedia, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
-            MultipartFile archivo, Principal principal) {
+            Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
         model.addAttribute(NOMBRE_DEFECTO_FTL, recursoMultimedia);
 
         try {
             recursoMultimediaService.editarRecursoMultimedia(recursoMultimedia, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
-            return "redirect:" + PATH + "?" + model.asMap().get("queryString");
+            return "redirect:" +PATH+"/list/"+recursoMultimedia.getTematica().getId();
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            Tematica listTematica = tematicaService.findOne(recursoMultimedia.getTematica().getId());
+            model.addAttribute("tematicasEditar", listTematica);
             return EDIT_TEMPLATE;
         }
     }
     
     /**
-     * Permite eliminar logicamente un registro de recurso multimedia
+     * Permite eliminar logicamente un registro de recurso multimedia.
      * 
-     * @param model
-     * @param req
-     * @param redirect
-     * @param principal
-     * @return 
+     * 2018-09-17 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param model Parametro requerido por clase de spring
+     * @param req Conjunto de data recibida por intermedio del request a traves del formulario.
+     * @param redirect Parametro requerido por clase de spring
+     * @param principal Id del usuario en la Sesión activa.
+     * @return Según corresponda redirige al listado de Recursos Multimedia Activos y sin el registro eliminado o
+     * presente una Exception.
      */
     @RequestMapping(value = {"/delete"}, method = RequestMethod.GET)
     public String delete(Model model, HttpServletRequest req, RedirectAttributes redirect, Principal principal) {
@@ -197,12 +224,43 @@ public class RecursoMultimediaController extends UtilController {
             RecursoMultimedia recursoMultimedia = recursoMultimediaService.findOne(id);
             recursoMultimediaService.eliminarRecursoMultimedia(recursoMultimedia, usuarioSesion);
             model.addAttribute(AppConstants.FLASH_SUCCESS, "Recurso eliminado con éxito");
+            return "redirect:" + PATH+"/list/"+recursoMultimedia.getTematica().getId();
         } catch (NumberFormatException ex) {
             LOG.log(Level.SEVERE, req.getParameter("id"), ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            return "redirect:" + PATH;
         }
 
-        return "redirect:" + PATH;
+    }
+    
+    
+    /**
+     * Cambia el estado de un Recurso Multimedia de eliminado a Activo.
+     * 
+     * 2018-09-17 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param model Parametro requerido por clase de spring.
+     * @param req Conjunto de data recibida por intermedio del request a traves del formulario.
+     * @param redirect Parametro requerido por clase de spring.
+     * @param principal Id del usuario activo en sesión.
+     * @return Según corresponda redirige al listado de Recursos Multimedia Activos o 
+     * presente una Exception.
+     */
+    @RequestMapping(value = {"/recuperar"}, method = RequestMethod.GET)
+    public String recuperar(Model model, HttpServletRequest req, RedirectAttributes redirect, Principal principal) {
+        try {
+            final Integer id = Integer.parseInt(req.getParameter("id"));
+            final Usuario usuarioSesion = getUsuario(principal);
+            RecursoMultimedia recursoMultimedia = recursoMultimediaService.findOne(id);
+            recursoMultimediaService.recuperarRecursoMultimedia(recursoMultimedia, usuarioSesion);
+            model.addAttribute(AppConstants.FLASH_SUCCESS, "Recurso recuperado con éxito");
+            return "redirect:" + PATH+"/list/"+recursoMultimedia.getTematica().getId();
+        } catch (NumberFormatException ex) {
+            LOG.log(Level.SEVERE, req.getParameter("id"), ex);
+            model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            return "redirect:" + PATH;
+        }
+
     }
 
     @ModelAttribute("descriptor")
@@ -230,12 +288,10 @@ public class RecursoMultimediaController extends UtilController {
         return this;
     }
     
-    
-    public void adjunto(@RequestParam("doc") String docId, @RequestParam("dad") String dad, Model model,
-            HttpServletResponse resp) {}
-    
     /**
      * Metodo para visualizar en una nueva ventana los recursos multimedia.
+     * 
+     * 2018-09-13 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
      * 
      * @param response
      * @param key Id del Recurso Multimedia

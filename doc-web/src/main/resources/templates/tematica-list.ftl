@@ -68,8 +68,8 @@
                 </#list>
                                <td nowrap="nowrap">
                             <#if x.activo?? && x.activo == true >
-                                <a href=${"/admin/tematica/edit?id="+x.id} class="btn btn-sm btn-warning" title="Modificar">M</a>
-                                <a href=${"/admin/tematica/delete?id="+x.id} class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro que desea eliminar el registro?');">E</a>
+                                <a href=${"/admin/tematica/edit?id="+x.id} class="btn btn-sm btn-warning title="Modificar">M</a>
+                                <a href=${"/admin/tematica/delete?id="+x.id} class="btn btn-sm btn-danger title="Eliminar" onclick="return confirm('¿Está seguro que desea eliminar el registro?');">E</a>
                                 
                             </#if>
                         <#if x.cuando?? >
@@ -78,7 +78,7 @@
                                 <#else>
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}">H</a>
                             </#if>
-                                <a href=${"/admin/recursoMultimedia"} class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Ir a Recurso Multimedia" >B</a>
+                                <a href="/admin/recursoMultimedia/list/${x.id}" class="btn btn-sm btn-warning title="Ver Recuros Multimedia">Ver Recurso</a>
                         </#if>
                                </td>
                 </tr>

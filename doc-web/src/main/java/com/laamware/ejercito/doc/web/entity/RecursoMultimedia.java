@@ -31,7 +31,7 @@ import org.hibernate.annotations.Parameter;
  */
 @Entity
 @Table(name = "RECURSO_MULTIMEDIA")
-@LaamLabel("Contenido Multimedia")
+@LaamLabel("Recursos Multimedia")
 public class RecursoMultimedia implements Serializable {
 
     private static final long serialVersionUID = -19889764665489L;

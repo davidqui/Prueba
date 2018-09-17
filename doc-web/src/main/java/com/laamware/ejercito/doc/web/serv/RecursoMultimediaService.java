@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.RecursoMultimedia;
+import com.laamware.ejercito.doc.web.entity.Tematica;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,9 @@ public class RecursoMultimediaService {
     @Autowired
     private RecursoMultimediaRepository recursoMultimediaRepository;
 
+    /**
+     * Repositorio del Sevicio de indexación de archivos de SICDI.
+     */
     @Autowired
     private OFS ofs;
     
@@ -141,6 +145,8 @@ public class RecursoMultimediaService {
     /**
      * Permite editar un registro de recursos multimedia.
      * 
+     * 2018-09-17 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
      * @param recursoMultimedia
      * @param usuario id del usuario en sesión
      * @throws BusinessLogicException
@@ -188,14 +194,16 @@ public class RecursoMultimediaService {
         recursoMultimedia.setQuienMod(usuario);
         recursoMultimedia.setCuandoMod(new Date());
         recursoMultimedia.setActivo(nombreRecursoAnterior.getActivo());
-
+        recursoMultimedia.setNombreArchivoOriginal(nombreRecursoAnterior.getNombreArchivoOriginal());
+        recursoMultimedia.setNombreArchivoFinal(nombreRecursoAnterior.getNombreArchivoFinal());
+        
         recursoMultimediaRepository.saveAndFlush(recursoMultimedia);
     }
     
     /**
      * Permite eliminar logicamente un registro de recursos multimedia. 
      * 
-     * @param recursoMultimedia
+     * @param recursoMultimedia Data de un recurso multimedia especifico. 
      * @param usuario id del usuario en sesión
      */
     public void eliminarRecursoMultimedia(RecursoMultimedia recursoMultimedia,Usuario usuario) {
@@ -208,7 +216,9 @@ public class RecursoMultimediaService {
     /**
      * Permite reactivar un registro de recurso multimedia.
      * 
-     * @param recursoMultimedia
+     * 2018-09-17 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param recursoMultimedia Data de un recurso multimedia especifico.
      * @param usuario id del usuario en sesión
      */
     public void recuperarRecursoMultimedia(RecursoMultimedia recursoMultimedia,Usuario usuario) {
@@ -265,32 +275,44 @@ public class RecursoMultimediaService {
      * Lista todas los recursos activos
      * 
      * @param sort
-     * @return 
+     * @return Lista de recursos multimedia Activo = 1
      */
     public List<RecursoMultimedia> findActive(Sort sort) {
         return recursoMultimediaRepository.getByActivoTrue(sort);
     }
     
     /**
-     * Lista todos los recurso
+     * Lista todos los recursos multimedia activos y que pertenezcan a una unica tematica. 
+     * 
+     * 2018-09-17 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param sort Ordenamiento.
+     * @param id Id de la Tematica por la cual se filtran los datos de registro multimedia.
+     * @return Lista de Recursos multimedia Activos y que pertenecen a una unica tematica. 
+     */
+    public List<RecursoMultimedia> findActiveAndTematica(Sort sort, Integer id) {
+        return recursoMultimediaRepository.getByActivoTrueAndTematicaId(sort, id);
+    }
+    
+    /**
+     * Lista todos los recurso multimedia
      * 
      * @param sort
-     * @return 
+     * @return Lista de recursos multimedia sin importar su estado. 
      */
-
     public List<RecursoMultimedia> findAll(Sort sort) {
         return recursoMultimediaRepository.findAll(sort);
     }
     
-    
     /**
-     * Lista todos los Recursos Multimedia activos de una Tematica.
-     *Modificar.......OJO
+     * Lista todos los Recursos Multimedia de una Tematica.
      * 
-     * @param documento Documento.
-     * @return Lista de todos los adjuntos activos del documento.
+     * 2018-09-14 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param tematica Id de la tematica por la cual se filtran los datos de recurso multimedia activo.
+     * @return Lista de Recursos Multimedia de una unica Tematica.
      */
-//    public List<Adjunto> findAllActivos(final Documento documento) {
-//        return adjuntoRepository.findAllByDocumentoIdAndActivoTrue(documento.getId());
-//    }
+    public List<RecursoMultimedia> findAllByTematica(final Tematica tematica) {
+        return recursoMultimediaRepository.findAllByTematicaId(tematica.getId());
+    }
 }
