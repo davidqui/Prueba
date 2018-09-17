@@ -160,9 +160,10 @@
           });
           onSelectCounter(true);
         });
-    });   
+    });
+        
     $( document ).ready(function() {
-        onSelectCounter();
+        onSelectCounter(true);
     });
 </script>
 <#include "footer.ftl" />

@@ -608,6 +608,8 @@ public class TransferenciaArchivoService {
         transferenciaArchivoDetalleService.reeviarDocumentosTransferencia(transferenciaArchivo, transferencia);
         transExpedienteDetalleService.reeviarExpedienteTransferencia(transferenciaArchivo, transferencia);
         enviarTransferencia(transferencia, transferenciaArchivo.getDestinoUsuario());
+        transferenciaArchivo.setActivo(Boolean.FALSE);
+        transferenciaRepository.save(transferenciaArchivo);
     }
     
 }

@@ -360,9 +360,20 @@
                             </div> 
                             <input type="hidden" id="destinoUsuario" name="destinoUsuario" value="" />
                         </div>
-                        <div class="form-group">
-                            <label for="cargoAsignado">Justificación (*)</label>
-                            <textarea class="form-control" rows="5" id="justificacion"></textarea>
+                        <div class="card-block cus-gray-bg">
+                            <fieldset class="form-group">
+                                <textarea class="form-control" rows="5" id="justificacion" name="justificacion" required>${justificacion!""}</textarea>
+                            </fieldset>
+                            <div class="row">
+                                <div class="col-xs-8">
+                                    <select id="doc-obs-defecto-select" name="doc-obs-defecto-select" class="form-control input-sm" onchange="setObservacionDefecto(this, 'justificacion')">
+                                        <option value="">Lista de justificaciones por defecto:</option>
+                                        <#list justificacionesDefecto as justificacionDefecto >
+                                        <option value="${justificacionDefecto.tjdId}">${justificacionDefecto.textoObservacion}</option>
+                                        </#list>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

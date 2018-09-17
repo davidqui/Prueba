@@ -101,7 +101,9 @@ public class TransferenciaArchivoDetalleService {
     public void reeviarDocumentosTransferencia(TransferenciaArchivo anterior, TransferenciaArchivo nueva){
         List<TransferenciaArchivoDetalle> documentos = transferenciaArchivoDetalleRepository.findAllByTransferenciaArchivoAndActivo(anterior, 1);
         for (TransferenciaArchivoDetalle documento : documentos) {
-            guardarDocumentoTransferencia(nueva, documento.getDocumentoDependencia(), nueva.getOrigenUsuario());
+            if (documento.getDocumentoDependencia().getQuien().equals(anterior.getDestinoUsuario().getId())) {
+                guardarDocumentoTransferencia(nueva, documento.getDocumentoDependencia(), nueva.getOrigenUsuario());
+            }
         }
     }
 

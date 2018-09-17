@@ -121,7 +121,9 @@ public class TransExpedienteDetalleService {
     public void reeviarExpedienteTransferencia(TransferenciaArchivo anterior, TransferenciaArchivo nueva){
          List<TransExpedienteDetalle> expedientes = buscarXTransferenciaArchivo(anterior);
          for (TransExpedienteDetalle expediente : expedientes) {
-             guardarExpedienteTransferencia(nueva, expediente.getExpId(), nueva.getOrigenUsuario());
+             if (expediente.getExpId().getUsuCreacion().getId().equals(anterior.getDestinoUsuario().getId())) {
+                guardarExpedienteTransferencia(nueva, expediente.getExpId(), nueva.getOrigenUsuario());
+             }
         }
     }
 }

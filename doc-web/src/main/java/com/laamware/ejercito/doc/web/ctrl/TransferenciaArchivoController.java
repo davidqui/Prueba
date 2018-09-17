@@ -708,23 +708,5 @@ public class TransferenciaArchivoController extends UtilController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-//    
-//    @RequestMapping(value = "/verificar-transferencia/{trans}", method = RequestMethod.POST)
-//    public ResponseEntity<?> verificarDevolucionTransferencia(@PathVariable("trans") Integer transId, Principal principal){
-//        final Usuario origenUsuario = getUsuario(principal);
-//        final TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
-//        if (!transferenciaService.permisoAprobarDestinatario(transferenciaArchivo, origenUsuario))
-//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-//        List<TransferenciaArchivoDetalle> documentosNoPosesionTransferencia = transferenciaArchivoDetalleService.documentosNoPosesionTransferencia(transferenciaArchivo, origenUsuario);
-//        List<DocumentoDTO> documentos = new ArrayList<>();
-//        for (TransferenciaArchivoDetalle dt : documentosNoPosesionTransferencia) {
-//            DocumentoDTO doc = new DocumentoDTO();
-//            doc.setAsunto(dt.getDocumentoDependencia().getDocumento().getAsunto());
-//            doc.setCuandoMod(dt.getDocumentoDependencia().getDocumento().getCuandoMod());
-//            doc.setNombreClasificacion(dt.getDocumentoDependencia().getDocumento().getClasificacion().getNombre());
-//        }
-//        return ResponseEntity.ok(documentos);
-//    }
-//    
     
 }

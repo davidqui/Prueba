@@ -103,4 +103,13 @@ function reenviarTransferenciaUsuario(idTransferencia) {
       }, function(message) {
           console.log(message);
     });
-} 
+}
+
+function setObservacionDefecto(select, observacionesTextAreaID) {
+    var texto = $.trim($(select).children("option").filter(":selected").text());
+    if (texto !== '') {
+        $("#" + observacionesTextAreaID).val(texto);
+    }
+
+    $(select).find('option:eq(0)').prop('selected', true);
+}
