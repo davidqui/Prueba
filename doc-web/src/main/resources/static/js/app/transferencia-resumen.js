@@ -113,3 +113,10 @@ function setObservacionDefecto(select, observacionesTextAreaID) {
 
     $(select).find('option:eq(0)').prop('selected', true);
 }
+
+function mostrarFuid(fuid){
+    $("#visualizarFuid .modal-body").empty();
+    $("#visualizarFuid .modal-body").append("<div class=\"card\">");
+    $("#visualizarFuid .modal-body").append("<iframe src=\"/ofs/viewer?file=/ofs/download/"+fuid+"\" width=\"100%\" height=\"700px\"></iframe>");
+    $("#visualizarFuid .modal-body").append("</div>");
+}

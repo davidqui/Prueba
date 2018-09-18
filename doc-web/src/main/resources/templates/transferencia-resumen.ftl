@@ -285,6 +285,15 @@
           Rechazar
         </button>
     </#if>
+    
+    <#if transferenciaArchivo.fuid??>
+        <a class="btn btn-success" onclick="mostrarFuid('${transferenciaArchivo.fuid}')" data-toggle="modal" href="#visualizarFuid">
+            Ver Fuid
+        </a>
+    </#if>
+    <#if transferenciaArchivo.docId??>
+        <a class="btn btn-success" href="/documento?pin=${transferenciaArchivo.docId.instancia.id}" target="_blank">Ver acta</a>
+    </#if>
 </div>
 
 <#-- Modal de aceptar por destinatario. -->
@@ -403,7 +412,23 @@
         </div>
     </div>
   </div>
-</div>    
+</div>   
+    
+<!-- Modal para visualizar Fuid -->
+<div class="modal fade" id="visualizarFuid" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Formato único de inventario documental</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; right: 7px; top: 5px;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
     
     
 <script src="/js/app/transferencia-resumen.js"></script>
