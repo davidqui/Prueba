@@ -55,9 +55,9 @@ public class TransferenciaArchivoService {
     /**
      * Notificaciones de la transferencia
      */
-    private static final Integer NOTIFICACION_TRANSFERENCIA_USUARIO_DESTINO_ACEPTADO = 400;
-    private static final Integer NOTIFICACION_TRANSFERENCIA_RECHAZADA = 401;
-    private static final Integer NOTIFICACION_TRANSFERENCIA_POR_AUTORIZAR = 402;
+    private static final Integer NOTIFICACION_TRANSFERENCIA_USUARIO_DESTINO_ACEPTADO = 401;
+    private static final Integer NOTIFICACION_TRANSFERENCIA_RECHAZADA = 402;
+    private static final Integer NOTIFICACION_TRANSFERENCIA_POR_AUTORIZAR = 400;
     private static final Integer NOTIFICACION_TRANSFERENCIA_AUTORIZADA = 403;
 
     /**
@@ -131,6 +131,8 @@ public class TransferenciaArchivoService {
 
     @Autowired
     private PlantillaFuidGestionService plantillaFuidGestionService;
+    
+    
 
     /**
      * Busca un registro de transferencia de archivo.
@@ -251,12 +253,16 @@ public class TransferenciaArchivoService {
 
         Map<String, Object> model = new HashMap();
         model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
+        model.put("usuOrigenCargo", transferenciaArchivo.getUsuOrigenCargo());
         model.put("usuDestino", transferenciaArchivo.getDestinoUsuario());
+        model.put("usuDestinoCargo", cargo);
         model.put("jefeOrigen", transferenciaArchivo.getOrigenDependencia().getJefe());
         model.put("transferencia", transferenciaArchivo);
 
         try {
+            model.put("usuario", transferenciaArchivo.getOrigenUsuario());
             notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_USUARIO_DESTINO_ACEPTADO, transferenciaArchivo.getOrigenUsuario());
+            model.put("usuario", transferenciaArchivo.getOrigenDependencia().getJefe());
             notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_POR_AUTORIZAR, transferenciaArchivo.getOrigenDependencia().getJefe());
         } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
@@ -271,24 +277,30 @@ public class TransferenciaArchivoService {
      * @param Observacion observación realizada
      * @param usuario usuario que realiza la acción
      */
-    public void rechazarTransferencia(TransferenciaArchivo transferenciaArchivo, String Observacion, Usuario usuario) {
+    public void rechazarTransferencia(TransferenciaArchivo transferenciaArchivo, String observacion, Usuario usuario) {
         transferenciaArchivo.setUsuarioAsignado(0);
         transferenciaArchivo.setUsuDestinoCargo(null);
         transferenciaRepository.save(transferenciaArchivo);
-        if (Observacion != null && Observacion.trim().length() > 0) {
-            transferenciaObservacionService.crearObservacon(transferenciaArchivo, Observacion, usuario);
+        if (observacion != null && observacion.trim().length() > 0) {
+            transferenciaObservacionService.crearObservacon(transferenciaArchivo, observacion, usuario);
         }
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_RECHAZADO);
 
         Map<String, Object> model = new HashMap();
         model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
+        model.put("usuOrigenCargo", transferenciaArchivo.getUsuOrigenCargo());
         model.put("usuDestino", transferenciaArchivo.getDestinoUsuario());
+        model.put("usuDestinoCargo", transferenciaArchivo.getUsuDestinoCargo());
         model.put("jefeOrigen", transferenciaArchivo.getOrigenDependencia().getJefe());
         model.put("transferencia", transferenciaArchivo);
+        model.put("motRechazo", observacion);
+        model.put("usuRechaza", usuario);
 
         try {
+            model.put("usuario", transferenciaArchivo.getOrigenUsuario());
             notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_RECHAZADA, transferenciaArchivo.getOrigenUsuario());
             if (!transferenciaArchivo.getDestinoUsuario().getId().equals(usuario.getId())) {
+                model.put("usuario", transferenciaArchivo.getOrigenUsuario());
                 notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_RECHAZADA, transferenciaArchivo.getOrigenUsuario());
             }
         } catch (Exception ex) {
@@ -346,14 +358,18 @@ public class TransferenciaArchivoService {
 
             Map<String, Object> model = new HashMap();
             model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
+            model.put("usuOrigenCargo", transferenciaArchivo.getUsuOrigenCargo());
             model.put("usuDestino", transferenciaArchivo.getDestinoUsuario());
+            model.put("usuDestinoCargo", transferenciaArchivo.getUsuDestinoCargo());
             model.put("jefeOrigen", transferenciaArchivo.getOrigenDependencia().getJefe());
             model.put("transferencia", transferenciaArchivo);
 
             if (!transferenciaArchivo.getOrigenUsuario().getId().equals(usuario.getId())) {
-                notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_USUARIO_DESTINO_ACEPTADO, transferenciaArchivo.getOrigenUsuario());
+                model.put("usuario", transferenciaArchivo.getOrigenUsuario());
+                notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_AUTORIZADA, transferenciaArchivo.getOrigenUsuario());
             }
-            notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_USUARIO_DESTINO_ACEPTADO, transferenciaArchivo.getDestinoUsuario());
+            model.put("usuario", transferenciaArchivo.getDestinoUsuario());
+            notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_AUTORIZADA, transferenciaArchivo.getDestinoUsuario());
         } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -256,7 +256,9 @@
               Recibir
             </button>
         </#if>
-        <#if transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.indAprobado = 1 && transferenciaArchivo.activo = true>
+        <#if transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.indAprobado = 1 && transferenciaArchivo.activo = true
+            && ((documentosXTransferenciaArchivo?size != documentosNoPosesionTransferencia?size) ||
+                (expedientesSeleccionados?size != expedientesNoPosesionTransferencia?size))>
             <a class="btn btn-warning" data-toggle="modal"  data-target="#modalReenviar" >
               Devolver Transferencia 
             </a>
@@ -363,7 +365,7 @@
                         <div class="card-block cus-gray-bg">
                             <fieldset class="form-group">
                                 <textarea class="form-control" rows="5" id="justificacion" name="justificacion" required>${justificacion!""}</textarea>
-                            </fieldset>
+                            </fieldset> 
                             <div class="row">
                                 <div class="col-xs-8">
                                     <select id="doc-obs-defecto-select" name="doc-obs-defecto-select" class="form-control input-sm" onchange="setObservacionDefecto(this, 'justificacion')">
