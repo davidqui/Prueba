@@ -272,6 +272,13 @@ public class TransferenciaArchivo implements Serializable {
     @JoinColumn(name = "DOC_ID", referencedColumnName = "DOC_ID")
     @ManyToOne
     private Documento docId;
+    
+    /**
+     * 2018-09-17 edison.gonzalez@controltechcg.com Issue #4 (SIGDI-Controltech)
+     * Codigo OFS del fuid
+     */
+    @Column(name = "FUID")
+    private String fuid;
 
     /**
      * Constructor vacío.
@@ -856,12 +863,30 @@ public class TransferenciaArchivo implements Serializable {
         return docId;
     }
 
+    
     /**
      * Establece el acta de la transferencia
      * @param docId 
      */
     public void setDocId(Documento docId) {
         this.docId = docId;
+    }
+    
+    /**
+     * Obtiene el código OFS del fuid.
+     *
+     * @return Fuid.
+     */
+    public String getFuid() {
+        return fuid;
+    }
+
+    /**
+     * Establece el código OFS del fuid.
+     * @param fuid
+     */
+    public void setFuid(String fuid) {
+        this.fuid = fuid;
     }
 
     @Override

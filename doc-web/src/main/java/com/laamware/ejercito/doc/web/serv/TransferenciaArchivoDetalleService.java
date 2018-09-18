@@ -69,7 +69,7 @@ public class TransferenciaArchivoDetalleService {
     public void transferirDocumentos(TransferenciaArchivo transferenciaArchivo){
         List<TransferenciaArchivoDetalle> buscarDocumentosTransferencia = buscarDocumentosTransferencia(transferenciaArchivo);
         for (TransferenciaArchivoDetalle transferenciaArchivoDetalle : buscarDocumentosTransferencia) {
-            transferenciaArchivoDetalle.setIndRealizado(0);
+            transferenciaArchivoDetalle.setIndRealizado(1);
             documentoDependenciaService.completarTransferencia(transferenciaArchivoDetalle.getDocumentoDependencia(), 
                     transferenciaArchivoDetalle.getNuevoUsuario(), transferenciaArchivoDetalle.getNuevoDependencia(),
                     transferenciaArchivo.getUsuDestinoCargo());

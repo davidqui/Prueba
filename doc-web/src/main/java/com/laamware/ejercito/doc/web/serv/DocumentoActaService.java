@@ -210,6 +210,9 @@ public class DocumentoActaService {
 
     @Autowired
     private TransExpedienteDetalleService transExpedienteDetalleService;
+    
+    @Autowired
+    private TransferenciaArchivoService transferenciaArchivoService;
 
     /**
      * Constructor.
@@ -1021,8 +1024,6 @@ public class DocumentoActaService {
             }
         }
         
-
-        // TODO: Preguntar que hacemos si la dependencia destino no tiene sigla.
         final String siglaDependenciaDestino = Objects.toString(transferenciaArchivo.getDestinoDependencia().getSigla(), "");
         ofs.insertWatermarkText(asposeDocument, siglaDependenciaDestino);
 
@@ -1045,6 +1046,9 @@ public class DocumentoActaService {
         documento.setCuandoMod(new Date());
 
         documentoService.actualizar(documento);
+        
+        transferenciaArchivo.setDocId(documento);
+        transferenciaArchivoService.actualizarTransferenciaArchivo(transferenciaArchivo);
 
         try {
             tmpFile.delete();

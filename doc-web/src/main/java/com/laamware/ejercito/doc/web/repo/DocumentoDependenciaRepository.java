@@ -172,7 +172,7 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
      * @return
      */
     @Query(value = ""
-            + "SELECT DISTINCT DOCD.* FROM DOCUMENTO_DEPENDENCIA DOCD LEFT JOIN DOCUMENTO DOC ON (DOC.DOC_ID = DOCD.DOC_ID) WHERE DOCD.QUIEN = :usuID AND DOCD.CARGO_ID = :carID", nativeQuery = true)
+            + "SELECT DISTINCT DOCD.* FROM DOCUMENTO_DEPENDENCIA DOCD LEFT JOIN DOCUMENTO DOC ON (DOC.DOC_ID = DOCD.DOC_ID) WHERE DOCD.QUIEN = :usuID AND DOCD.CARGO_ID = :carID and DOCD.activo = 1", nativeQuery = true)
     List<DocumentoDependencia> documentosDependenciaXUsuario(@Param("usuID") Integer usuID, @Param("carID") Integer carID);
     
     @Query(value = "" +
@@ -180,7 +180,7 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
         "FROM DOCUMENTO_DEPENDENCIA DOCD \n" +
         "LEFT JOIN DOCUMENTO DOC ON (DOC.DOC_ID = DOCD.DOC_ID) \n" +
         "LEFT JOIN TRANSFERENCIA_ARCHIVO_DETALLE TAD ON (TAD.DCDP_ID = DOCD.DCDP_ID) \n" +
-        "WHERE DOCD.QUIEN = :usuID AND TAD.TAR_ID != :tarId AND TAD.ACTIVO = 1 AND TAD.IND_REALIZADO = 0", nativeQuery = true)
+        "WHERE DOCD.QUIEN = :usuID AND TAD.TAR_ID != :tarId AND TAD.ACTIVO = 1 AND TAD.IND_REALIZADO = 0 and DOCD.activo = 1", nativeQuery = true)
     List<DocumentoDependencia> documentosDependenciaXUsuarioxNotTransferencia(@Param("usuID") Integer usuID, @Param("tarId") Integer tarId);
 
     /**
