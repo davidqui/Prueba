@@ -414,6 +414,7 @@
   </div>
 </div>   
     
+    
 <!-- Modal para visualizar Fuid -->
 <div class="modal fade" id="visualizarFuid" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
@@ -425,6 +426,22 @@
         </button>
       </div>
       <div class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
+    
+<!-- Modal info -->
+<div class="modal fade" id="info-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" style="overflow-y: auto;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #0275d8; color: white;">
+        <h5 class="modal-title" id="title-modal-message"></h5>
+      </div>
+      <div class="modal-body" id="modal-body-info-message">
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" data-dismiss="modal" >Aceptar</a>
       </div>
     </div>
   </div>

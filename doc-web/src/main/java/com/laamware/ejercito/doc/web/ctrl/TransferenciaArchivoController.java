@@ -697,9 +697,15 @@ public class TransferenciaArchivoController extends UtilController {
     public ResponseEntity<?> devolverTransferencia(@PathVariable("trans") Integer transId,
             @PathVariable("usuId") Integer usuId, @RequestParam(value = "justificacion", required = true) String justificacion, Principal principal, Model model){
         final Usuario origenUsuario = getUsuario(principal);
+        final Usuario usuario = usuarioService.findOne(usuId);
         final TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
         if (!transferenciaService.permisoReenviarTransferencia(transferenciaArchivo, origenUsuario))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        if (origenUsuario.getId().equals(usuId))
+            return new ResponseEntity<>("No puede reenviarse una transferencia a usted mismo.", HttpStatus.BAD_REQUEST);
+        if (usuario.getClasificacion().getOrden() < transferenciaArchivo.getDestinoUsuario().getClasificacion().getOrden()) {
+            return new ResponseEntity<>("El usuario "+usuario.getUsuGrado().getId()+" "+usuario.getNombre()+" tiene una clasificación menor que su clasificación.", HttpStatus.BAD_REQUEST);
+        }
         final Usuario usuarioDestino = usuarioService.findOne(usuId);
         try {
             transferenciaService.reenviarTransferencia(transferenciaArchivo, usuarioDestino, justificacion);

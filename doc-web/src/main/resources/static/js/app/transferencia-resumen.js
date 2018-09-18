@@ -79,7 +79,6 @@ function rechazarTransferencia(idTransferencia) {
 
 
 function reenviarTransferenciaUsuario(idTransferencia) {
-    console.log("ENTRA ACA!");
     var usuario = $("#destinoUsuario").val();
     var pJustificacion = $("#justificacion").val();
     
@@ -101,7 +100,10 @@ function reenviarTransferenciaUsuario(idTransferencia) {
     }).then(function() {
         location.reload();
       }, function(message) {
-          console.log(message);
+          console.log("ESTE ES EL MENSAJE ",message);
+            $('#title-modal-message').html("Advertencia");
+            $('#modal-body-info-message').html("<h5>"+message.responseText+"</h5>");
+            $('#info-modal').modal('show'); 
     });
 }
 
