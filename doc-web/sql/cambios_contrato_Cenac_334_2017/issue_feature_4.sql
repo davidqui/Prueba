@@ -34,29 +34,34 @@ COMMENT ON COLUMN DOC.TRANSFERENCIA_ARCHIVO.JUSTIFICACION       IS 'Justificaci√
 COMMENT ON COLUMN DOC.TRANSFERENCIA_ARCHIVO.USUARIO_ASIGNADO    IS 'Indica el usuario en el que se encuentra la transferencia  0: Usuario emisor; 1: Usuario receptor; 2: Usuario autorizador';
 COMMENT ON COLUMN DOC.TRANSFERENCIA_ARCHIVO.IND_APROBADO        IS 'Verifica si la transferencia se encuentra aprobada o no: 0: No aprobada; 1: Aprobada';
 COMMENT ON COLUMN DOC.TRANSFERENCIA_ARCHIVO.DOC_ID              IS 'Identificador del documento del acta asociada a la transferencia.';
+COMMENT ON COLUMN DOC.TRANSFERENCIA_ARCHIVO.FUID                IS 'Identificador del documento del Fuid.';
 
 UPDATE DOC.TRANSFERENCIA_ARCHIVO SET JUSTIFICACION = 'Sin Justificaci√≥n';
 UPDATE DOC.TRANSFERENCIA_ARCHIVO SET USUARIO_ASIGNADO = 2;
 UPDATE DOC.TRANSFERENCIA_ARCHIVO SET IND_APROBADO = 1;
+UPDATE DOC.TRANSFERENCIA_ARCHIVO SET ACTIVO = 0;
 
 ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO MODIFY JUSTIFICACION 	NOT NULL;
-ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO MODIFY USUARIO_ASIGNADO DEFAULT 0 NOT NULL;
-ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO MODIFY IND_APROBADO DEFAULT 0 NOT NULL;
+ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO MODIFY USUARIO_ASIGNADO   DEFAULT 0 NOT NULL;
+ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO MODIFY IND_APROBADO       DEFAULT 0 NOT NULL;
 
 ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO ADD CONSTRAINT TAR_DOC_ID_ACTA_FK FOREIGN KEY (DOC_ID) REFERENCES DOC.DOCUMENTO (DOC_ID);
+
+CREATE INDEX "DOC"."TRANSFERENCIA_ARCHIVO_ACTA" ON "DOC"."TRANSFERENCIA_ARCHIVO" ("DOC_ID");
+CREATE INDEX "DOC"."TRANSFERENCIA_ARCHIVO_FUID" ON "DOC"."TRANSFERENCIA_ARCHIVO" ("FUID");
 
 -- -----------------------------------------------------------------------------
 -- TRANSFERENCIA_ARCHIVO_DETALLE
 -- -----------------------------------------------------------------------------
 
-ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO_DETALLE ADD IND_REALIZADO 	NUMBER(1);
+ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO_DETALLE ADD IND_REALIZADO     NUMBER(1);
 ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO_DETALLE ADD ACTIVO            NUMBER(1);
 
 UPDATE DOC.TRANSFERENCIA_ARCHIVO_DETALLE SET IND_REALIZADO = 1;
 UPDATE DOC.TRANSFERENCIA_ARCHIVO_DETALLE SET ACTIVO = 0;
 
-ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO_DETALLE MODIFY IND_REALIZADO DEFAULT 0 NOT NULL;
-ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO_DETALLE MODIFY ACTIVO DEFAULT 1 NOT NULL;
+ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO_DETALLE MODIFY IND_REALIZADO  DEFAULT 0 NOT NULL;
+ALTER TABLE DOC.TRANSFERENCIA_ARCHIVO_DETALLE MODIFY ACTIVO         DEFAULT 1 NOT NULL;
 
 COMMENT ON COLUMN DOC.TRANSFERENCIA_ARCHIVO_DETALLE.IND_REALIZADO	IS 'Indica si el documento se transfirio: 1=Si; 0=No;';
 COMMENT ON COLUMN DOC.TRANSFERENCIA_ARCHIVO_DETALLE.ACTIVO       	IS 'Indica si el documento se encuentra disponible para la transferencia: 1=Si; 0=No;';
@@ -311,27 +316,60 @@ DECLARE
         and doc_asunto is not null
         and doc_fec_radicado is null;
     
+    aux_count_radicacion    NUMBER := 0;
+BEGIN
+    FOR AUX_C_RADICADO IN C_RADICADO LOOP         
+            aux_count_radicacion := aux_count_radicacion + 1;
+            UPDATE DOC.DOCUMENTO SET doc_fec_radicado = AUX_C_RADICADO.CUANDO WHERE DOC_ID = AUX_C_RADICADO.DOC_ID;
+    END LOOP;
+    DBMS_OUTPUT.PUT_LINE('radicacion= '||aux_count_radicacion);
+    commit;
+END;
+/
+
+DECLARE
     CURSOR C_INT_EXTERNO IS
-        select a.pin_id, a.doc_id, a.cuando, (select max(cuando) from DOCUMENTO_USU_FIRMA z where z.doc_id = a.doc_id) cuando_firma
-        from DOC.documento a,
-             DOC.proceso_instancia b
-        where b.pin_id = a.pin_id
-        and b.pro_id in (8,41)
-        and doc_asunto is not null
+       select a.pin_id, a.doc_id, max(c.cuando) cuando_firma
+        from DOC.documento a
+        join DOC.proceso_instancia b on (b.pin_id = a.pin_id and b.pro_id = 8 and b.pes_id != 83)
+        join DOC.DOCUMENTO_USU_FIRMA c on ( c.doc_id = a.doc_id and c.cuando is not null)
+        where a.doc_asunto is not null
         and doc_fec_radicado is null
-        and exists(
-            select 1
-            from DOC.DOCUMENTO_USU_FIRMA b
-            where b.doc_id = a.doc_id
-            and cuando is not null
-        )
-        and exists(
-            select 1
-            from DOC.h_proceso_instancia b
-            where b.pin_id = a.pin_id
-            and pes_id = 49
-        );
-    
+        group by a.pin_id, a.doc_id, a.cuando;
+
+    aux_count_int_externo   NUMBER := 0;
+BEGIN     
+    FOR AUX_C_INT_EXTERNO IN C_INT_EXTERNO LOOP   
+        aux_count_int_externo := aux_count_int_externo + 1;
+        UPDATE DOC.DOCUMENTO SET doc_fec_radicado = AUX_C_INT_EXTERNO.cuando_firma WHERE DOC_ID = AUX_C_INT_EXTERNO.DOC_ID;
+    END LOOP;
+    DBMS_OUTPUT.PUT_LINE('interno= '||aux_count_int_externo);
+    commit;
+END;
+/
+
+DECLARE
+    CURSOR C_INT_EXTERNO IS
+       select a.pin_id, a.doc_id, max(c.cuando) cuando_firma
+        from DOC.documento a
+        join DOC.proceso_instancia b on (b.pin_id = a.pin_id and b.pro_id = 41 and b.pes_id != 83)
+        join DOC.DOCUMENTO_USU_FIRMA c on ( c.doc_id = a.doc_id and c.cuando is not null)
+        where a.doc_asunto is not null
+        and doc_fec_radicado is null
+        group by a.pin_id, a.doc_id, a.cuando;
+
+    aux_count_int_externo   NUMBER := 0;
+BEGIN     
+    FOR AUX_C_INT_EXTERNO IN C_INT_EXTERNO LOOP   
+        aux_count_int_externo := aux_count_int_externo + 1;
+        UPDATE DOC.DOCUMENTO SET doc_fec_radicado = AUX_C_INT_EXTERNO.cuando_firma WHERE DOC_ID = AUX_C_INT_EXTERNO.DOC_ID;
+    END LOOP;
+    DBMS_OUTPUT.PUT_LINE('externo= '||aux_count_int_externo);
+    commit;
+END;
+/
+
+DECLARE
     CURSOR C_ACTAS IS
         select a.*, b.pro_id
         from DOC.documento a,
@@ -342,30 +380,13 @@ DECLARE
         AND ACTA_FECHA_ELABORACION IS NOT NULL
         and doc_fec_radicado is null;
     
-    aux_doc_fec_firma       TIMESTAMP;
-    aux_count_radicacion    NUMBER := 0;
-    aux_count_int_externo   NUMBER := 0;
     aux_count_acta          NUMBER := 0;
-    aux_count_error         NUMBER := 0;
 BEGIN
-    FOR AUX_C_RADICADO IN C_RADICADO LOOP         
-            aux_count_radicacion := aux_count_radicacion + 1;
-            UPDATE DOC.DOCUMENTO SET doc_fec_radicado = AUX_C_RADICADO.CUANDO WHERE DOC_ID = AUX_C_RADICADO.DOC_ID;
-    END LOOP;
-        
-    FOR AUX_C_INT_EXTERNO IN C_INT_EXTERNO LOOP   
-        aux_count_int_externo := aux_count_int_externo + 1;
-        UPDATE DOC.DOCUMENTO SET doc_fec_radicado = AUX_C_INT_EXTERNO.cuando_firma WHERE DOC_ID = AUX_C_INT_EXTERNO.DOC_ID;
-    END LOOP;
-        
     FOR AUX_C_ACTAS IN C_ACTAS LOOP   
         aux_count_acta := aux_count_acta + 1;
         UPDATE DOC.DOCUMENTO SET doc_fec_radicado = AUX_C_ACTAS.ACTA_FECHA_ELABORACION WHERE DOC_ID = AUX_C_ACTAS.DOC_ID;
     END LOOP;
-    DBMS_OUTPUT.PUT_LINE('radicacion= '||aux_count_radicacion);
-    DBMS_OUTPUT.PUT_LINE('int. externo= '||aux_count_int_externo);
     DBMS_OUTPUT.PUT_LINE('actas = '||aux_count_acta);
-    DBMS_OUTPUT.PUT_LINE('error = '||aux_count_error);
     commit;
 END;
 /
