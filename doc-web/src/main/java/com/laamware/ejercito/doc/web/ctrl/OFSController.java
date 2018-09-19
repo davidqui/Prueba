@@ -29,8 +29,10 @@ import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.serv.OFS;
 import com.laamware.ejercito.doc.web.serv.OFSEntry;
+import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 @Controller
 @RequestMapping(value = "/ofs")
@@ -46,6 +48,13 @@ public class OFSController extends UtilController {
 
     @Autowired
     DocumentoRepository documentRepository;
+    
+    /**
+    * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH): parametro que 
+    * especifica el inicio de la linea de mando
+    */
+    @Value("${com.mil.imi.sicdi.linea.mando.inicio}")
+    private String inicioLineaMando;
 
     private final String F = "zzzz1234567890abcdefghijklmnopqrstuvwxyz";
 
@@ -71,7 +80,14 @@ public class OFSController extends UtilController {
 
                 SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withFunctionName("FN_PDF_DOC_PREVIEW");
 
-                SqlParameterSource in = new MapSqlParameterSource().addValue("P_DOC_ID", iddoc);
+                /**
+                 * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH): se 
+                 * agrega parametro para laparte inicial de la linea de mando
+                 */
+                Map<String, Object> mapParams = new HashMap<>();
+                mapParams.put("P_DOC_ID", iddoc);
+                mapParams.put("P_LINEA_MANDO_INICIO", inicioLineaMando);
+                SqlParameterSource in = new MapSqlParameterSource().addValues(mapParams);
                 simpleJdbcCall.executeFunction(String.class, in);
 
                 KeysValuesAsposeDocxDTO asposeDocxDTO = DocumentoController.getKeysValuesWord(documentRepository.findPDFDocumento(iddoc), ofs.getRoot());
