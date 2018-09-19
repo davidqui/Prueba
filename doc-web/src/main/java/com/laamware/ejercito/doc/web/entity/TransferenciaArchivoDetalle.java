@@ -107,6 +107,20 @@ public class TransferenciaArchivoDetalle implements Serializable {
     @Column(name = "NUEVO_CUANDO")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date nuevoFechaAsignacion;
+    
+    /**
+     * 2018-08-23 edison.gonzalez@controltechcg.com Issue #4 (SIGDI-Controltech)
+     * Verifica si el documento fue transferido
+     */
+    @Column(name = "IND_REALIZADO")
+    private int indRealizado;
+    
+    /**
+     * 2018-08-23 edison.gonzalez@controltechcg.com Issue #4 (SIGDI-Controltech)
+     * Verifica si el documento se encuentra disponible para transferir
+     */
+    @Column(name = "ACTIVO")
+    private int activo;
 
     /**
      * Constructor vacío.
@@ -323,19 +337,55 @@ public class TransferenciaArchivoDetalle implements Serializable {
         this.nuevoFechaAsignacion = new Date(nuevoFechaAsignacion.getTime());
     }
 
+    /**
+     * Obtiene el indicador si se realizo la transferencia del documento
+     * @return Indicador
+     */
+    public int getIndRealizado() {
+        return indRealizado;
+    }
+
+    /**
+     * Establece si se realizo la transferencia del documento
+     * @param indRealizado 
+     */
+    public void setIndRealizado(int indRealizado) {
+        this.indRealizado = indRealizado;
+    }
+
+    /**
+     * Obtiene el indicador si el documento se encuentra disponible para la
+     * transferencia
+     * @return Indicador
+     */
+    public int getActivo() {
+        return activo;
+    }
+
+    /**
+     * Establece el indicador si el documento se encuentra disponible para la
+     * transferencia
+     * @param activo 
+     */
+    public void setActivo(int activo) {
+        this.activo = activo;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 47 * hash + Objects.hashCode(this.id);
-        hash = 47 * hash + Objects.hashCode(this.transferenciaArchivo);
-        hash = 47 * hash + Objects.hashCode(this.documentoDependencia);
-        hash = 47 * hash + Objects.hashCode(this.documentoID);
-        hash = 47 * hash + Objects.hashCode(this.anteriorDependencia);
-        hash = 47 * hash + Objects.hashCode(this.anteriorUsuario);
-        hash = 47 * hash + Objects.hashCode(this.anteriorFechaAsignacion);
-        hash = 47 * hash + Objects.hashCode(this.nuevoDependencia);
-        hash = 47 * hash + Objects.hashCode(this.nuevoUsuario);
-        hash = 47 * hash + Objects.hashCode(this.nuevoFechaAsignacion);
+        hash = 79 * hash + Objects.hashCode(this.id);
+        hash = 79 * hash + Objects.hashCode(this.transferenciaArchivo);
+        hash = 79 * hash + Objects.hashCode(this.documentoDependencia);
+        hash = 79 * hash + Objects.hashCode(this.documentoID);
+        hash = 79 * hash + Objects.hashCode(this.anteriorDependencia);
+        hash = 79 * hash + Objects.hashCode(this.anteriorUsuario);
+        hash = 79 * hash + Objects.hashCode(this.anteriorFechaAsignacion);
+        hash = 79 * hash + Objects.hashCode(this.nuevoDependencia);
+        hash = 79 * hash + Objects.hashCode(this.nuevoUsuario);
+        hash = 79 * hash + Objects.hashCode(this.nuevoFechaAsignacion);
+        hash = 79 * hash + this.indRealizado;
+        hash = 79 * hash + this.activo;
         return hash;
     }
 
@@ -351,6 +401,12 @@ public class TransferenciaArchivoDetalle implements Serializable {
             return false;
         }
         final TransferenciaArchivoDetalle other = (TransferenciaArchivoDetalle) obj;
+        if (this.indRealizado != other.indRealizado) {
+            return false;
+        }
+        if (this.activo != other.activo) {
+            return false;
+        }
         if (!Objects.equals(this.documentoID, other.documentoID)) {
             return false;
         }
@@ -378,7 +434,9 @@ public class TransferenciaArchivoDetalle implements Serializable {
         if (!Objects.equals(this.nuevoUsuario, other.nuevoUsuario)) {
             return false;
         }
-        return Objects.equals(this.nuevoFechaAsignacion, other.nuevoFechaAsignacion);
+        if (!Objects.equals(this.nuevoFechaAsignacion, other.nuevoFechaAsignacion)) {
+            return false;
+        }
+        return true;
     }
-
 }

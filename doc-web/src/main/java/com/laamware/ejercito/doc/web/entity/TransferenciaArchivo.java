@@ -47,7 +47,12 @@ public class TransferenciaArchivo implements Serializable {
     /**
      * Estado de transferencia creada.
      */
-    public static final String CREADA_ESTADO = "C";
+    public static final String CREADA_ESTADO = "I";
+    
+    /**
+     * Estado de transferencia anulada.
+     */
+    public static final String ANULADA_ESTADO = "C";
 
     /**
      * Estado de transferencia aprobada.
@@ -238,6 +243,42 @@ public class TransferenciaArchivo implements Serializable {
     @JoinColumn(name = "USU_CREADOR_CARGO", referencedColumnName = "CAR_ID")
     @ManyToOne
     private Cargo usuCreadorCargo;
+    
+    /**
+     * 2018-08-23 edison.gonzalez@controltechcg.com Issue #4 (SIGDI-Controltech)
+     * Justificación de la transferencia
+     */
+    @Column(name = "JUSTIFICACION")
+    private String justificacion;
+    
+    /**
+     * 2018-08-23 edison.gonzalez@controltechcg.com Issue #4 (SIGDI-Controltech)
+     * Usuario asignado en la que se encuentra la transferencia
+     */
+    @Column(name = "USUARIO_ASIGNADO")
+    private int usuarioAsignado;
+    
+    /**
+     * 2018-08-23 edison.gonzalez@controltechcg.com Issue #4 (SIGDI-Controltech)
+     * Indica si la transferencia fue aprobada
+     */
+    @Column(name = "IND_APROBADO")
+    private int indAprobado;
+    
+    /**
+     * 2018-08-23 edison.gonzalez@controltechcg.com Issue #4 (SIGDI-Controltech)
+     * Acta asociada a la transferencia del archivo
+     */
+    @JoinColumn(name = "DOC_ID", referencedColumnName = "DOC_ID")
+    @ManyToOne
+    private Documento docId;
+    
+    /**
+     * 2018-09-17 edison.gonzalez@controltechcg.com Issue #4 (SIGDI-Controltech)
+     * Codigo OFS del fuid
+     */
+    @Column(name = "FUID")
+    private String fuid;
 
     /**
      * Constructor vacío.
@@ -760,35 +801,126 @@ public class TransferenciaArchivo implements Serializable {
     public void setUsuCreadorCargo(Cargo usuCreadorCargo) {
         this.usuCreadorCargo = usuCreadorCargo;
     }
+
+    /**
+     * Obtiene la justificacion.
+     *
+     * @return Justificación.
+     */
+    public String getJustificacion() {
+        return justificacion;
+    }
+
+    /**
+     * Establece la justificación.
+     *
+     * @param justificacion
+     */
+    public void setJustificacion(String justificacion) {
+        this.justificacion = justificacion;
+    }
+
+    /**
+     * Obtiene el usuario asignado.
+     *
+     * @return Usuario asignado.
+     */
+    public int getUsuarioAsignado() {
+        return usuarioAsignado;
+    }
+
+    /**
+     * Establece el usuario asignado.
+     * @param usuarioAsignado 
+     */
+    public void setUsuarioAsignado(int usuarioAsignado) {
+        this.usuarioAsignado = usuarioAsignado;
+    }
+
+    /**
+     * Obtiene el indicador de aprobado.
+     *
+     * @return Indicador de aprobado.
+     */
+    public int getIndAprobado() {
+        return indAprobado;
+    }
+
+    /**
+     * Establece si la transferencia se encuentra aprobada
+     * @param indAprobado 
+     */
+    public void setIndAprobado(int indAprobado) {
+        this.indAprobado = indAprobado;
+    }
+
+    /**
+     * Obtiene el acta de la transferencia.
+     *
+     * @return Acta.
+     */
+    public Documento getDocId() {
+        return docId;
+    }
+
     
+    /**
+     * Establece el acta de la transferencia
+     * @param docId 
+     */
+    public void setDocId(Documento docId) {
+        this.docId = docId;
+    }
+    
+    /**
+     * Obtiene el código OFS del fuid.
+     *
+     * @return Fuid.
+     */
+    public String getFuid() {
+        return fuid;
+    }
+
+    /**
+     * Establece el código OFS del fuid.
+     * @param fuid
+     */
+    public void setFuid(String fuid) {
+        this.fuid = fuid;
+    }
+
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 79 * hash + Objects.hashCode(this.id);
-        hash = 79 * hash + Objects.hashCode(this.activo);
-        hash = 79 * hash + Objects.hashCode(this.tipo);
-        hash = 79 * hash + Objects.hashCode(this.estado);
-        hash = 79 * hash + Objects.hashCode(this.creadorUsuario);
-        hash = 79 * hash + Objects.hashCode(this.creadorDependencia);
-        hash = 79 * hash + Objects.hashCode(this.creadorGrado);
-        hash = 79 * hash + Objects.hashCode(this.usuCreadorCargo);
-        hash = 79 * hash + Objects.hashCode(this.fechaCreacion);
-        hash = 79 * hash + Objects.hashCode(this.origenUsuario);
-        hash = 79 * hash + Objects.hashCode(this.origenDependencia);
-        hash = 79 * hash + Objects.hashCode(this.origenClasificacion);
-        hash = 79 * hash + Objects.hashCode(this.origenGrado);
-        hash = 79 * hash + Objects.hashCode(this.usuOrigenCargo);
-        hash = 79 * hash + Objects.hashCode(this.destinoUsuario);
-        hash = 79 * hash + Objects.hashCode(this.destinoDependencia);
-        hash = 79 * hash + Objects.hashCode(this.destinoClasificacion);
-        hash = 79 * hash + Objects.hashCode(this.destinoGrado);
-        hash = 79 * hash + Objects.hashCode(this.usuDestinoCargo);
-        hash = 79 * hash + Objects.hashCode(this.numeroDocumentos);
-        hash = 79 * hash + Objects.hashCode(this.fechaAprobacion);
-        hash = 79 * hash + Objects.hashCode(this.actaOFS);
-        hash = 79 * hash + Objects.hashCode(this.transferenciaAnteriorID);
-        hash = 79 * hash + Objects.hashCode(this.transferenciaAnteriorOrigenClasificacion);
-        hash = 79 * hash + Objects.hashCode(this.numeroRadicado);
+        int hash = 7;
+        hash = 47 * hash + Objects.hashCode(this.id);
+        hash = 47 * hash + Objects.hashCode(this.activo);
+        hash = 47 * hash + Objects.hashCode(this.tipo);
+        hash = 47 * hash + Objects.hashCode(this.estado);
+        hash = 47 * hash + Objects.hashCode(this.creadorUsuario);
+        hash = 47 * hash + Objects.hashCode(this.creadorDependencia);
+        hash = 47 * hash + Objects.hashCode(this.creadorGrado);
+        hash = 47 * hash + Objects.hashCode(this.fechaCreacion);
+        hash = 47 * hash + Objects.hashCode(this.origenUsuario);
+        hash = 47 * hash + Objects.hashCode(this.origenDependencia);
+        hash = 47 * hash + Objects.hashCode(this.origenClasificacion);
+        hash = 47 * hash + Objects.hashCode(this.origenGrado);
+        hash = 47 * hash + Objects.hashCode(this.destinoUsuario);
+        hash = 47 * hash + Objects.hashCode(this.destinoDependencia);
+        hash = 47 * hash + Objects.hashCode(this.destinoClasificacion);
+        hash = 47 * hash + Objects.hashCode(this.destinoGrado);
+        hash = 47 * hash + Objects.hashCode(this.numeroDocumentos);
+        hash = 47 * hash + Objects.hashCode(this.fechaAprobacion);
+        hash = 47 * hash + Objects.hashCode(this.actaOFS);
+        hash = 47 * hash + Objects.hashCode(this.transferenciaAnteriorID);
+        hash = 47 * hash + Objects.hashCode(this.transferenciaAnteriorOrigenClasificacion);
+        hash = 47 * hash + Objects.hashCode(this.numeroRadicado);
+        hash = 47 * hash + Objects.hashCode(this.usuDestinoCargo);
+        hash = 47 * hash + Objects.hashCode(this.usuOrigenCargo);
+        hash = 47 * hash + Objects.hashCode(this.usuCreadorCargo);
+        hash = 47 * hash + Objects.hashCode(this.justificacion);
+        hash = 47 * hash + this.usuarioAsignado;
+        hash = 47 * hash + this.indAprobado;
+        hash = 47 * hash + Objects.hashCode(this.docId);
         return hash;
     }
 
@@ -804,25 +936,25 @@ public class TransferenciaArchivo implements Serializable {
             return false;
         }
         final TransferenciaArchivo other = (TransferenciaArchivo) obj;
+        if (this.usuarioAsignado != other.usuarioAsignado) {
+            return false;
+        }
+        if (this.indAprobado != other.indAprobado) {
+            return false;
+        }
         if (!Objects.equals(this.tipo, other.tipo)) {
             return false;
         }
         if (!Objects.equals(this.estado, other.estado)) {
             return false;
         }
-        if (!Objects.equals(this.usuCreadorCargo, other.usuCreadorCargo)) {
-            return false;
-        }
-        if (!Objects.equals(this.usuOrigenCargo, other.usuOrigenCargo)) {
-            return false;
-        }
-        if (!Objects.equals(this.usuDestinoCargo, other.usuDestinoCargo)) {
-            return false;
-        }
         if (!Objects.equals(this.actaOFS, other.actaOFS)) {
             return false;
         }
         if (!Objects.equals(this.numeroRadicado, other.numeroRadicado)) {
+            return false;
+        }
+        if (!Objects.equals(this.justificacion, other.justificacion)) {
             return false;
         }
         if (!Objects.equals(this.id, other.id)) {
@@ -876,7 +1008,24 @@ public class TransferenciaArchivo implements Serializable {
         if (!Objects.equals(this.transferenciaAnteriorID, other.transferenciaAnteriorID)) {
             return false;
         }
-        return Objects.equals(this.transferenciaAnteriorOrigenClasificacion, other.transferenciaAnteriorOrigenClasificacion);
+        if (!Objects.equals(this.transferenciaAnteriorOrigenClasificacion, other.transferenciaAnteriorOrigenClasificacion)) {
+            return false;
+        }
+        if (!Objects.equals(this.usuDestinoCargo, other.usuDestinoCargo)) {
+            return false;
+        }
+        if (!Objects.equals(this.usuOrigenCargo, other.usuOrigenCargo)) {
+            return false;
+        }
+        if (!Objects.equals(this.usuCreadorCargo, other.usuCreadorCargo)) {
+            return false;
+        }
+        if (!Objects.equals(this.docId, other.docId)) {
+            return false;
+        }
+        return true;
     }
+    
+    
 
 }

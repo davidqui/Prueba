@@ -35,6 +35,10 @@
         <!-- loader -->
         <link href='/css/loader.css' rel='stylesheet' type='text/css'>
         
+        <!-- header -->
+        <link href='/css/header.css' rel='stylesheet' type='text/css'>
+        
+        
         <!-- toggle -->
         <link href='/css/toggle.css' rel='stylesheet' type='text/css'>
         <!-- search selector -->
@@ -161,10 +165,10 @@
             <a class="navbar-brand hidden-md-down" href="#"><h3>SICDI</h3></a>
                         <#if username?? >
             <ul class="nav navbar-nav">
-                <li class="nav-item">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="hidden-md-down">Bandejas</span><span class="hidden-lg-up">Ban</span>
+                <li class="nav-item mb-header-sicdi">
+                    <div class="btn-group mb-header-sicdi">
+                        <button type="button" class="btn btn-primary dropdown-toggle btn-sm mb-header-sicdi" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="md-down">Bandejas</span>
                             </button>
                         <div class="dropdown-menu">
                             <!--#181 se agrega loader --> 
@@ -180,28 +184,27 @@
                             </div>
                         </div>
                     </li>
-                <li class="nav-item">
+                <li class="nav-item mb-header-sicdi">
                     <!--#181 se agrega loader --> 
-                    <a href="/proceso/list" class="btn btn-success btn-sm" onclick="loading(event);"><span class="hidden-md-down">Registro</span><span class="hidden-lg-up">Reg</span></a>
+                    <a href="/proceso/list" class="btn btn-success btn-sm" onclick="loading(event);"><span class="md-down">Registro</span></a>
                     </li>
-                <li class="nav-item">
+                <li class="nav-item mb-header-sicdi">
                     <!--#181 se agrega loader --> 
-                    <a href="/expediente/listarExpedientes?" class="btn btn-secondary btn-sm" onclick="loading(event);"><span class="hidden-md-down">Expedientes</span><span class="hidden-lg-up">Exp</span></a>
+                    <a href="/expediente/listarExpedientes?" class="btn btn-secondary btn-sm" onclick="loading(event);"><span class="md-down">Expedientes</span></a>
                     </li>
-                <li class="nav-item">
+                <li class="nav-item mb-header-sicdi">
                     <!--#181 se agrega loader --> 
-                    <a href="/expediente/carpeta" class="btn btn-secondary btn-sm" onclick="loading(event);"><span class="hidden-md-down">Archivos</span><span class="hidden-lg-up">Car</span></a>
+                    <a href="/expediente/carpeta" class="btn btn-secondary btn-sm" onclick="loading(event);"><span class="md-down">Archivos</span></a>
                 </li>
 
                         <!--
                             2017-08-29 jgarcia@controltechcg.com Issue #120 (SICDI-Controltech) feature-120:
                             Botón para acceder al módulo de transferencia de archivo.
                 -->
-                <li class="nav-item">
+                <li class="nav-item mb-header-sicdi">
                     <!--#181 se agrega loader --> 
-                    <a href="/transferencia-archivo/crear" class="btn btn-warning btn-sm" onclick="loading(event);">
-                        <span class="hidden-md-down">Transferencia de Archivo</span>
-                        <span class="hidden-lg-up">TAR</span>
+                    <a href="/transferencia-archivo/listar" class="btn btn-warning btn-sm" onclick="loading(event);">
+                        <span class="md-down">Transferencia de Archivo</span>
                         </a>
                     </li>
 
@@ -216,11 +219,10 @@
                         </form>
                     </li>
 
-                <li class="nav-item">
+                <li class="nav-item mb-header-sicdi">
                     <!--#181 se agrega loader --> 
                     <a href="/reporteDependencia/init" class="btn btn-warning btn-sm" onclick="loading(event);">
-                        <span class="hidden-md-down">Reporte</span>
-                        <span class="hidden-lg-up">TAR</span>
+                        <span class="md-down">Reporte</span>
                         </a>
                     </li>
                 </ul>

@@ -19,6 +19,8 @@ public interface TrdRepository extends GenJpaRepository<Trd, Integer> {
     List<Trd> findByActivo(boolean b, Sort sort);
 
     List<Trd> findByActivoAndSerieNull(boolean b, Sort sort);
+    
+    List<Trd> findByActivoAndSerieNull(boolean b);
 
     Trd findByCodigo(String ser);
 

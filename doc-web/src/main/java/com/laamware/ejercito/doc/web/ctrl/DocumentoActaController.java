@@ -80,7 +80,7 @@ public class DocumentoActaController extends UtilController {
     private static final String DOCUMENTO_ACTA_USUARIOS_TEMPLATE = "documento-acta-usuarios";
 
     private static final String DOCUMENTO_ACTA_ENVIO_REGISTRO_TEMPLATE = "documento-acta-envioRegistro";
-    
+
     private static final String DOCUMENTO_ACTA_VALIDAR_TEMPLATE = "documento-acta-validar";
 
     private static final String SECURITY_DENIED_TEMPLATE = "security-denied";
@@ -88,7 +88,7 @@ public class DocumentoActaController extends UtilController {
     private static final String REDIRECT_ACCESO_DENEGADO_URL = "redirect:/documento/acceso-denegado";
 
     private static final String REDIRECT_PROCESO_INSTANCIA_URL_FORMAT = "redirect:" + ProcesoController.PATH + "/instancia?pin=%s";
-    
+
     public static final String VARIABLE_STICKER = "doc.sticker";
 
     @Autowired
@@ -120,21 +120,21 @@ public class DocumentoActaController extends UtilController {
 
     @Autowired
     private DocumentoObservacionDefectoService observacionDefectoService;
-    
+
     /*
      * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
      * feature-181: Servicio de los documentos del expediente.
      */
     @Autowired
     private ExpDocumentoService expDocumentoService;
-    
+
     /*
      * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
      * feature-181: Servicio de expediente.
      */
     @Autowired
     private ExpedienteService expedienteService;
-    
+
 
     @Override
     public String nombre(Integer idUsuario) {
@@ -153,12 +153,22 @@ public class DocumentoActaController extends UtilController {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String procesar(@RequestParam("pin") final String procesoInstanciaID, Model uiModel, Principal principal, RedirectAttributes redirectAttributes) {
         final Usuario usuarioSesion = getUsuario(principal);
+        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
+        final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
+
         final boolean tieneAccesoPorAsignacion = actaService.verificaAccesoDocumentoActa(usuarioSesion, procesoInstanciaID);
         if (!tieneAccesoPorAsignacion) {
-            return SECURITY_DENIED_TEMPLATE;
+            if (documentoID == null) {
+                return SECURITY_DENIED_TEMPLATE;
+            } else {
+                Documento documento = actaService.buscarDocumento(documentoID);
+                final boolean puedeConsultarPorAsociacionOArchivo = puedeConsultarPorAsociacionOArchivo(usuarioSesion, documento);
+                if (!puedeConsultarPorAsociacionOArchivo) {
+                    return SECURITY_DENIED_TEMPLATE;
+                }
+            }
         }
 
-        Instancia procesoInstancia = procesoService.instancia(procesoInstanciaID);
         if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ANULADO.getId())) {
             redirectAttributes.addFlashAttribute(AppConstants.FLASH_ERROR, "El acta seleccionada se encuentra anulada y no puede ser consultada.");
             return REDIRECT_MAIN_URL;
@@ -168,8 +178,6 @@ public class DocumentoActaController extends UtilController {
         if (!tieneAccesoPorClasificacion) {
             return REDIRECT_ACCESO_DENEGADO_URL;
         }
-
-        String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
 
         final Documento documento;
         if (documentoID == null) {
@@ -183,9 +191,10 @@ public class DocumentoActaController extends UtilController {
 
         if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ACTA_DIGITALIZADA.getId())) {
             /**
-            * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
-            * feature-181: se agrega los expedientes disponibles para el acta ser indexada
-            */
+             * 2018-08-09 samuel.delgado@controltechcg.com Issue #181
+             * (SICDI-Controltech) feature-181: se agrega los expedientes
+             * disponibles para el acta ser indexada
+             */
             ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
             if (expDocumento == null) {
                 List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion, documento.getTrd());
@@ -574,11 +583,12 @@ public class DocumentoActaController extends UtilController {
         if (procesoInstancia.getEstado().getId().equals(DocumentoActaEstado.ACTA_DIGITALIZADA.getId())) {
             cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
             /**
-            * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
-            * feature-181: se agrega los expedientes disponibles para el acta ser indexada
-            */
+             * 2018-08-09 samuel.delgado@controltechcg.com Issue #181
+             * (SICDI-Controltech) feature-181: se agrega los expedientes
+             * disponibles para el acta ser indexada
+             */
             ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
-            System.out.println("QUE PTAS PASA "+expDocumento+" - "+documento.getId());
+            System.out.println("QUE PTAS PASA " + expDocumento + " - " + documento.getId());
             if (expDocumento == null) {
                 List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion, documento.getTrd());
                 uiModel.addAttribute("expedientesValidos", expedientesValidos);
@@ -591,18 +601,19 @@ public class DocumentoActaController extends UtilController {
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
         uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "El acta ha sido digitalizada y archivada.");
-        
+
         /**
-        * 2018-08-09 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
-        * feature-181: se agrega los expedientes disponibles para el acta ser indexada
-        */
+         * 2018-08-09 samuel.delgado@controltechcg.com Issue #181
+         * (SICDI-Controltech) feature-181: se agrega los expedientes
+         * disponibles para el acta ser indexada
+         */
         ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
-        System.out.println("QUE PTAS PASA "+expDocumento+" - "+documento.getId());
+        System.out.println("QUE PTAS PASA " + expDocumento + " - " + documento.getId());
         if (expDocumento == null) {
             List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioSesion, documento.getTrd());
             uiModel.addAttribute("expedientesValidos", expedientesValidos);
         }
-            
+
         return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
     }
 
@@ -792,8 +803,8 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute("usuariosAsignados", actaService.listarRegistrosUsuariosAsignados(documento));
         uiModel.addAttribute("observacionesDefecto", observacionDefectoService.listarActivas());
         uiModel.addAttribute("usuariosAsignadosConsulta", actaService.listarRegistrosUsuariosAsignadosConsulta(documento));
-        uiModel.addAttribute("usuarioRegistro",actaService.retornaUltimoUsuarioRegistroAsignado(documento));
-        uiModel.addAttribute("sticker",procesoInstancia.findVariable(DocumentoActaController.VARIABLE_STICKER));
+        uiModel.addAttribute("usuarioRegistro", actaService.retornaUltimoUsuarioRegistroAsignado(documento));
+        uiModel.addAttribute("sticker", procesoInstancia.findVariable(DocumentoActaController.VARIABLE_STICKER));
     }
 
     /**
@@ -906,14 +917,14 @@ public class DocumentoActaController extends UtilController {
         procesoInstancia.setCuandoMod(new Date());
         procesoInstancia.forward(procesoTransicionID);
         procesoInstancia.asignar(usuarioRegistro);
-        
+
         uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado al usuario \"" + usuarioRegistro.toString() + "\" al acta \"" + documento.getAsunto() + "\".");
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
 
         return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
     }
-    
+
     /**
      * Envia al usuario de registro el acta.
      *
@@ -951,9 +962,9 @@ public class DocumentoActaController extends UtilController {
 
         return DOCUMENTO_ACTA_CARGAR_TEMPLATE;
     }
-    
+
     /**
-     * Envia al usuario quie creo el acta, para que valide el usuario quien creo 
+     * Envia al usuario quie creo el acta, para que valide el usuario quien creo
      * el acta.
      *
      * @param procesoInstanciaID ID de la instancia del proceso.
@@ -996,7 +1007,7 @@ public class DocumentoActaController extends UtilController {
 
             return DOCUMENTO_ACTA_ENVIO_REGISTRO_TEMPLATE;
         }
-        
+
         procesoInstancia.setQuienMod(usuarioSesion.getId());
         procesoInstancia.setCuandoMod(new Date());
         procesoInstancia.forward(procesoTransicionID);
@@ -1005,15 +1016,15 @@ public class DocumentoActaController extends UtilController {
         uiModel.addAttribute(AppConstants.FLASH_SUCCESS, "Ha sido asignado al usuario \"" + documento.getElabora().toString() + "\" al acta \"" + documento.getAsunto() + "\".");
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);
-        if(Objects.equals(usuarioSesion.getId(), documento.getElabora().getId())){
+        if (Objects.equals(usuarioSesion.getId(), documento.getElabora().getId())) {
             return DOCUMENTO_ACTA_VALIDAR_TEMPLATE;
-        }else{
+        } else {
             return DOCUMENTO_ACTA_CONSULTAR_TEMPLATE;
         }
     }
-    
+
     /**
-     * Envia al usuario quie creo el acta, para que valide el usuario quien creo 
+     * Envia al usuario quie creo el acta, para que valide el usuario quien creo
      * el acta.
      *
      * @param procesoInstanciaID ID de la instancia del proceso.
@@ -1050,9 +1061,9 @@ public class DocumentoActaController extends UtilController {
 
         return DOCUMENTO_ACTA_VALIDAR_TEMPLATE;
     }
-    
+
     /**
-     * Envia al usuario quie creo el acta, para que valide el usuario quien creo 
+     * Envia al usuario quie creo el acta, para que valide el usuario quien creo
      * el acta.
      *
      * @param procesoInstanciaID ID de la instancia del proceso.
@@ -1084,7 +1095,7 @@ public class DocumentoActaController extends UtilController {
 
         final String documentoID = procesoInstancia.getVariable(Documento.DOC_ID);
         Documento documento = actaService.buscarDocumento(documentoID);
-        
+
         actaService.generaVariableSticker(procesoInstancia);
 
         cargarInformacionBasicaUIModel(uiModel, documento, procesoInstancia, usuarioSesion);

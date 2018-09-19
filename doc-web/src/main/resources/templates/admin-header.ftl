@@ -67,6 +67,8 @@
                 <@link_admin  "ADMIN_LOG" "/admin/logs" 'logs' 'Logs'/>
 
                 <@link_admin  "ADMIN_PLANTILLA_TRANSF_ARCHIVO" "/admin/plantilla-transf-archivo" 'plantilla-transf-archivo' 'Plantilla Transf. Archivo'/>
+                
+                <@link_admin  "ADMIN_FUID_GESTION" "/admin/plantilla-fuid" 'plantilla-fuid' 'Plantilla FUID Gestión'/>
 
                 <#--
                     2018-05-09 jgarcia@controltechcg.com Issue #160 (SICDI-Controltech) feature-160:
@@ -79,7 +81,10 @@
                     Enlace para la opción de notificaciones.
                 -->
                 <@link_admin  "ADMIN_NOTIFICACIONES" "/admin/notificacion" 'notificaciones' 'Notificaciones'/>
-                
+                <#--
+                    2018-08-01 dquijanor@imi.mil.co Issue #181 (GETDE) feature-181:
+                    Enlace para la opción de parametrizacion del nombre del expediente.
+                -->
                 <@link_admin  "ADMIN_PAR_NOMBRE_EXPEDIENTE" "/admin/parnombrexpediente" 'parnombrexpediente' 'Parametro Nombre Expediente'/>
                 
                 <#--
@@ -93,6 +98,13 @@
                     Enlace para la opción de destino externo.
                 -->
                 <@link_admin  "ADMIN_DESTINO_EXTERNO" "/admin/destino-externo" 'destinos-externos' 'Destinos Externos'/>
+                
+                <#--
+                    2018-08-23 dquijanor@imi.mil.co Issue #4 (GETDE) feature-gogs-4:
+                    Enlace para la opción de parametrizacion del nombre del expediente.
+                -->
+                <@link_admin  "ADMIN_TRANS_JUSTIF_DEFECTO" "/admin/transjustificaciondefecto" 'transjustificaciondefecto' 'Observacion Transferencia Archivo'/>
+                
                 </ul>
             </div>
         </div>

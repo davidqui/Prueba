@@ -313,7 +313,7 @@ public class Documento extends AuditModifySupport {
     @JoinColumn(name = "DOC_ID_ORIGINAL")
     private List<DependenciaCopiaMultidestino> dependenciaCopiaMultidestinos = new ArrayList<DependenciaCopiaMultidestino>();
     
-    @Size(max = 2000)
+    @Size(max = 4000)
     @Column(name = "ACTA_DESCRIPCION")
     private String actaDescripcion;
     
@@ -324,6 +324,15 @@ public class Documento extends AuditModifySupport {
     @ManyToOne
     @JoinColumn (name = "ADE_ID", referencedColumnName = "ADE_ID")
     private DestinoExterno destinoExterno;
+    
+    /**
+     * 2018-08-27 edison.gonzalez@controltechcg.com Issue #4: Variable que permite
+     * centralizar la fecha de radicación de un documento, independientemente
+     * del proceso.
+     */
+    @Column(name = "DOC_FEC_RADICADO")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date docFecRadicado;
 
     @Transient
     private List<UsuarioVistoBuenoDTO> vistosBuenos = new ArrayList<UsuarioVistoBuenoDTO>();
@@ -1290,5 +1299,13 @@ public class Documento extends AuditModifySupport {
 
     public void setActaDescripcion(String actaDescripcion) {
         this.actaDescripcion = actaDescripcion;
+    }
+
+    public Date getDocFecRadicado() {
+        return docFecRadicado;
+    }
+
+    public void setDocFecRadicado(Date docFecRadicado) {
+        this.docFecRadicado = docFecRadicado;
     }
 }

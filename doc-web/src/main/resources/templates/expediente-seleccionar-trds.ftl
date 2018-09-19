@@ -116,7 +116,6 @@
                 values.val('true'); 
                 console.log(values);
             }
-                
         }
             
         function selectAllTrdPadre(form, button, id){

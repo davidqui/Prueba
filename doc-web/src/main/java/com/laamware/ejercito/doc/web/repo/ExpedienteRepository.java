@@ -2,6 +2,7 @@ package com.laamware.ejercito.doc.web.repo;
 
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Expediente;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +12,7 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
 
     /**
      * Trae una lista de expedientes dado un nombre y una dependecia.
+     *
      * @param nombre
      * @param dependencia
      * @return
@@ -70,7 +72,8 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + "LEFT OUTER JOIN USUARIO UJD ON (UJD.USU_ID = DEP_JEFE.USU_ID_JEFE) "
             + "WHERE ((EXP.USU_CREACION = :usuId) OR (EXPUSUARIO.USU_ID = :usuId and EXPUSUARIO.IND_APROBADO = 1 AND EXPUSUARIO.ACTIVO = 1 AND EXP.IND_CERRADO = 0) OR (DEP_JEFE.USU_ID_JEFE = :usuId)) ";
     /**
-     * Consulta encargada de traer los expedientes a los que un usuario puede agregar un documento por trd
+     * Consulta encargada de traer los expedientes a los que un usuario puede
+     * agregar un documento por trd
      */
     String CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO = ""
             + "SELECT DISTINCT EXP.*"
@@ -94,13 +97,13 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
     @Query(value = "select count(1)\n"
             + "from(\n"
             + CONSULTALISTAEXPEDIENTESXUSUARIO
-            +" AND EXP.IND_CERRADO IN (:indicador) "
+            + " AND EXP.IND_CERRADO IN (:indicador) "
             + ") exp\n", nativeQuery = true)
     int findExpedientesDTOPorUsuarioCount(@Param("usuId") Integer usuId, @Param("indicador") List<Integer> indicador);
-    
+
     /**
-     * Obtiene el numero de registros de expedientes por usuario y filtro por el nombre
-     * del expediente
+     * Obtiene el numero de registros de expedientes por usuario y filtro por el
+     * nombre del expediente
      *
      * @param usuId Identificador del Usuario
      * @param filtro filtro de busqueda
@@ -110,8 +113,8 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
     @Query(value = "select count(1)\n"
             + "from(\n"
             + CONSULTALISTAEXPEDIENTESXUSUARIO
-            +" AND EXP.EXP_NOMBRE LIKE UPPER('%'||:filtro||'%') "
-            +" AND EXP.IND_CERRADO IN (:indicador) "
+            + " AND EXP.EXP_NOMBRE LIKE UPPER('%'||:filtro||'%') "
+            + " AND EXP.IND_CERRADO IN (:indicador) "
             + ") exp\n", nativeQuery = true)
     int findExpedientesDTOPorUsuarioYfiltroCount(@Param("usuId") Integer usuId, @Param("filtro") String filtro, @Param("indicador") List<Integer> indicador);
 
@@ -137,10 +140,10 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
             + ") exp\n"
             + "where exp.num_lineas >= :inicio and exp.num_lineas <= :fin\n", nativeQuery = true)
     List<Object[]> findExpedientesPorUsuarioPaginado(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin, @Param("indicador") List<Integer> indicador);
-    
+
     /**
-     * Obtiene los registros de expedientes por usuario y filtro, de acuerdo a la fila
-     * inicial y final.
+     * Obtiene los registros de expedientes por usuario y filtro, de acuerdo a
+     * la fila inicial y final.
      *
      * @param usuId Identificador del usuario
      * @param inicio Número de registro inicial
@@ -164,24 +167,60 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, Long> {
     List<Object[]> findExpedientesPorUsuarioYfiltroPaginado(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin, @Param("filtro") String filtro, @Param("indicador") List<Integer> indicador);
 
     /**
-     * Obtiene los registros de expedientes por usuario, de acuerdo a un expediente
+     * Obtiene los registros de expedientes por usuario, de acuerdo a un
+     * expediente
+     *
      * @param usuId
      * @param expId
-     * @return 
+     * @return
      */
     @Query(value = ""
             + CONSULTALISTAEXPEDIENTESXUSUARIO
             + "AND EXP.EXP_ID = :expId", nativeQuery = true)
     List<Object[]> findExpedienteDtoPorUsuarioPorExpId(@Param("usuId") Integer usuId, @Param("expId") Long expId);
-    
-    /***
-     * Lista los expedientes a los que un usuario puede indexar documentos dao una trd
+
+    /**
+     * *
+     * Lista los expedientes a los que un usuario puede indexar documentos dao
+     * una trd
+     *
      * @param usuId Identificador del usuario
-     * @param trd identificador de la trd 
+     * @param trd identificador de la trd
      * @return lista de los expedientes validos
      */
     @Query(value = ""
             + CONSULTA_EXPEDIENTE_USUARIO_INDEXACION_TRD_ABIERTO
             + "", nativeQuery = true)
     List<Expediente> findExpedientesIndexacionPorUsuarioPorTrd(@Param("usuId") Integer usuId, @Param("trdId") Integer trd);
+
+    /**
+     * *
+     * Lista todos los expedientes en las que un usuario es usuario creador
+     *
+     * @param usuario usuario creador
+     * @return
+     */
+    List<Expediente> getByUsuCreacion(Usuario usuario);
+
+    /**
+     *
+     * Consulta que permite identificar el numero de expedientes que tiene un
+     * usuario y un cargo, que no estan siendo utlizados en una transferencia
+     *
+     * @param usuID
+     * @return Número de expedientes
+     */
+    @Query(value = ""
+            + "select count(1)\n"
+            + "from EXPEDIENTE a\n"
+            + "where a.usu_creacion = :usuID\n"
+            + "and not exists(\n"
+            + "    select 1\n"
+            + "    from TRANS_EXPEDIENTE_DETALLE b\n"
+            + "    where b.anterior_quien = a.usu_creacion\n"
+            + "    and activo = 1\n"
+            + "    and b.ind_realizado = 0\n"
+            + "    and b.exp_id = a.exp_id\n"
+            + ")", nativeQuery = true)
+    int cantidadExpedientesPosibleTransferenciaXusuId(@Param("usuID") Integer usuID);
 }

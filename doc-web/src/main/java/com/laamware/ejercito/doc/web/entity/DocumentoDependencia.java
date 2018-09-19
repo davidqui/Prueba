@@ -1,5 +1,8 @@
 package com.laamware.ejercito.doc.web.entity;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,7 +17,9 @@ import org.hibernate.annotations.Parameter;
 
 @Entity
 @Table(name = "DOCUMENTO_DEPENDENCIA")
-public class DocumentoDependencia extends AuditActivoCreateSupport {
+public class DocumentoDependencia implements Serializable{
+
+    private static final long serialVersionUID = -91798746378120176L;
 
     @Id
     @GenericGenerator(name = "DOCUMENTO_DEPENDENCIA_SEQ", strategy = "sequence", parameters = {
@@ -40,10 +45,19 @@ public class DocumentoDependencia extends AuditActivoCreateSupport {
     /*
         * 2017-03-01 edison.gonzalez@controltechcg.com Issue #151 (SICDI-Controltech):
         * Se adiciona el cargo con el cual se archiva el documento.
-    */
+     */
     @JoinColumn(name = "CARGO_ID", referencedColumnName = "CAR_ID")
     @ManyToOne
     private Cargo cargo;
+
+    @Column(name = "ACTIVO")
+    private Boolean activo = Boolean.TRUE;
+
+    @Column(name = "CUANDO")
+    private Date cuando;
+
+    @Column(name = "QUIEN")
+    private Integer quien;
 
     public Integer getId() {
         return id;
@@ -84,4 +98,83 @@ public class DocumentoDependencia extends AuditActivoCreateSupport {
     public void setCargo(Cargo cargo) {
         this.cargo = cargo;
     }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+
+    public Date getCuando() {
+        return cuando;
+    }
+
+    public void setCuando(Date cuando) {
+        this.cuando = cuando;
+    }
+
+    public Integer getQuien() {
+        return quien;
+    }
+
+    public void setQuien(Integer quien) {
+        this.quien = quien;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.id);
+        hash = 97 * hash + Objects.hashCode(this.documento);
+        hash = 97 * hash + Objects.hashCode(this.dependencia);
+        hash = 97 * hash + Objects.hashCode(this.trd);
+        hash = 97 * hash + Objects.hashCode(this.cargo);
+        hash = 97 * hash + Objects.hashCode(this.activo);
+        hash = 97 * hash + Objects.hashCode(this.cuando);
+        hash = 97 * hash + Objects.hashCode(this.quien);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DocumentoDependencia other = (DocumentoDependencia) obj;
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Objects.equals(this.documento, other.documento)) {
+            return false;
+        }
+        if (!Objects.equals(this.dependencia, other.dependencia)) {
+            return false;
+        }
+        if (!Objects.equals(this.trd, other.trd)) {
+            return false;
+        }
+        if (!Objects.equals(this.cargo, other.cargo)) {
+            return false;
+        }
+        if (!Objects.equals(this.activo, other.activo)) {
+            return false;
+        }
+        if (!Objects.equals(this.cuando, other.cuando)) {
+            return false;
+        }
+        if (!Objects.equals(this.quien, other.quien)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

@@ -20,6 +20,7 @@ public interface TransferenciaArchivoDetalleRepository extends JpaRepository<Tra
      * @param transferenciaArchivo Transferencia de archivo.
      * @return Lista de detalles.
      */
-    public List<TransferenciaArchivoDetalle> findAllByTransferenciaArchivo(TransferenciaArchivo transferenciaArchivo);
-
+    public List<TransferenciaArchivoDetalle> findAllByTransferenciaArchivoAndActivo(TransferenciaArchivo transferenciaArchivo, int activo);
+    
+    
 }

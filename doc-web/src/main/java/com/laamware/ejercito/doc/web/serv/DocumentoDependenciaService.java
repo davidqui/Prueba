@@ -1,16 +1,23 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.dto.DocumentoDependenciaArchivoDTO;
+import com.laamware.ejercito.doc.web.dto.TrdDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
+import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
+import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DocumentoDependenciaRepository;
+import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -40,6 +47,9 @@ public class DocumentoDependenciaService {
     @Autowired
     private DocumentoDependenciaRepository documentoDependenciaRepository;
 
+    @Autowired
+    private TrdRepository trdRepository;
+    
     /**
      * Obtiene la lista de registros de archivo (DTOs) para la pantalla de
      * archivo, según la subserie, el usuario (y su dependencia), y el cargo (si
@@ -119,5 +129,97 @@ public class DocumentoDependenciaService {
     public DocumentoDependencia buscarRegistroActivo(final Documento documento, final Usuario usuario) {
         return documentoDependenciaRepository.findOneByDocumentoAndQuienAndActivoTrue(documento, usuario.getId());
     }
-
+    
+    /***
+     * Busca un documento dependencia por identificador 
+     * @param id identificador documento dependencia
+     * @return  DocumentoDependencia
+     */
+    public DocumentoDependencia buscarPorId(Integer id){
+        return documentoDependenciaRepository.findOne(id);
+    }
+    
+    /***
+     * lista los documentos dependencia por un usuario y los empaqueta por trd 
+     * @param usuario usuario a buscar los documentos
+     * @return lista de documentos. 
+     */
+    /*
+     * 2018-08-23 jgarcia@controltechcg.com Issue gogs #4 (SICDI-Controltech)
+     * feature-gogs-4.
+     */
+    public List<TrdDTO> documentoXtrdDadoUsuario(Usuario usuario, Integer cargo){
+        List<DocumentoDependencia> documentosDependenciaXUsuario;
+        documentosDependenciaXUsuario = documentoDependenciaRepository.documentosDependenciaXUsuario(usuario.getId(), cargo);
+        Map<Trd, List<DocumentoDependencia>> hashMap = new HashMap<>();
+        Calendar c = Calendar.getInstance();
+        for (DocumentoDependencia documento : documentosDependenciaXUsuario) {
+            Documento pdocumento = documento.getDocumento();
+            c.setTime(pdocumento.getDocFecRadicado());
+            c.add(Calendar.YEAR, pdocumento.getTrd().getRetArchivoGeneral());
+            if (new Date().before(c.getTime()))
+                if (!hashMap.containsKey(documento.getDocumento().getTrd())) {
+                    List<DocumentoDependencia> list = new ArrayList<>();
+                    list.add(documento);
+                    hashMap.put(documento.getDocumento().getTrd(), list);
+                } else {
+                    hashMap.get(documento.getDocumento().getTrd()).add(documento);
+                }
+        }
+        List<Trd> findByActivoAndSerieNull = trdRepository.findByActivoAndSerieNull(true);
+        List<TrdDTO> documentosXtrd = new ArrayList<>();
+        for (Trd trd : findByActivoAndSerieNull) {
+            TrdDTO tdto = new TrdDTO(trd.getId(), trd.getNombre(), trd.getCodigo(), 0);
+            documentosXtrd.add(tdto);
+        }
+        for (Map.Entry<Trd, List<DocumentoDependencia>> entry : hashMap.entrySet()) {
+            for (TrdDTO trdDTO : documentosXtrd) {
+                if (trdDTO.getTrdId() == entry.getKey().getSerie()) {
+                    TrdDTO tdto = new TrdDTO(entry.getKey().getId(), entry.getKey().getNombre(), entry.getKey().getCodigo(), entry.getValue().size());
+                    tdto.setDocumentosDependencia(entry.getValue());
+                    if (trdDTO.getSubSeries() == null)
+                        trdDTO.setSubSeries(new ArrayList<TrdDTO>());
+                    trdDTO.getSubSeries().add(tdto);
+                }
+            }
+        }
+        return documentosXtrd;
+    }
+    
+    /**
+     * Lista los documentos que se encuentran en documentos en otras transferencias abiertas
+     * @param usuario usuario a consultar documentos
+     * @param transferenciaArchivo transferencia de archivo actual
+     * @return  lista de documentos dependencia
+     */
+    /*
+     * 2018-08-23 jgarcia@controltechcg.com Issue gogs #4 (SICDI-Controltech)
+     * feature-gogs-4.
+     */
+    public List<DocumentoDependencia> listarDocumentosOtrasTransferencias(Usuario usuario, TransferenciaArchivo transferenciaArchivo){
+        return documentoDependenciaRepository.documentosDependenciaXUsuarioxNotTransferencia(usuario.getId(), transferenciaArchivo.getId());
+    }
+    
+    
+    public void completarTransferencia(DocumentoDependencia documentoDependencia, Usuario usuario, Dependencia dependencia, Cargo cargo){
+        documentoDependencia.setQuien(usuario.getId());
+        documentoDependencia.setCargo(cargo);
+        documentoDependencia.setDependencia(dependencia);
+        documentoDependencia.setCuando(new Date());
+        System.err.println("Guardando la transferencia");
+        documentoDependenciaRepository.save(documentoDependencia);
+        System.err.println("transferencia guardada");
+    }
+    
+    
+    /**
+     * Retorna la cantidad de documentos posibles que tiene un usuario y un cargo
+     * de su archivo, cuyos documentos no se encuentren en proceso de transferencia.
+     * @param usuID Identificador del usuario
+     * @param cargoId Identificador del cargo
+     * @return Número de documentos
+     */
+    public int cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(Integer usuID,Integer cargoId){
+        return documentoDependenciaRepository.cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(usuID, cargoId);
+    }
 }
