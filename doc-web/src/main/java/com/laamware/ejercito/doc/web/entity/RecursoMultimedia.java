@@ -55,6 +55,7 @@ public class RecursoMultimedia implements Serializable {
     @Size(min = 1, max = 1000)
     @LaamLabel("Descripcion")
     @LaamListColumn(order = 2)
+    @LaamWidget("textarea")
     @Column(name = "DESCRIPCION")
     private String descripcion;
     @Basic(optional = false)

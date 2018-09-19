@@ -58,6 +58,7 @@ public class Tematica implements Serializable {
      @LaamLabel("Descripcion")
     @LaamListColumn(order = 10)
     @LaamCreate(order = 10)
+    @LaamWidget("textarea")
     @Column(name = "DESCRIPCION")
     private String descripcion;
     @Basic(optional = false)

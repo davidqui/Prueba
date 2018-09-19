@@ -141,6 +141,11 @@ public class RecursoMultimediaService {
             return entry;
     }
     
+    public OFSEntry viewRecursoMultimediaFile(String ubicacion) throws BusinessLogicException, ReflectionException, IOException{
+            OFSEntry entry=ofs.read(ubicacion);
+            return entry;
+    }
+    
     
     /**
      * Permite editar un registro de recursos multimedia.

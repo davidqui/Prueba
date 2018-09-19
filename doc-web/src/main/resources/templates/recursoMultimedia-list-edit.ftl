@@ -12,11 +12,12 @@
         <form action="/admin/recursoMultimedia/actualizar" method="POST" enctype="multipart/form-data" >
             <input type="hidden" id="id" name="id" value="${recursoMultimedia.id}" />
             <fieldset class="form-group">
-                <label for="nombre">Nombre</label>
+                <label for="nombre">Nombre(*)</label>
                 <input type="text" class="form-control" id="nombre" name="nombre" value="${(recursoMultimedia.nombre)!""}" style="text-transform:uppercase"/>
-                <label for="descripcion">Descripcion</label>
-                <input type="text" class="form-control" id="descripcion" name="descripcion" value="${(recursoMultimedia.descripcion)!""}" style="text-transform:uppercase"/>
-                <label for="fuente">Fuente</label>
+                <label for="descripcion">Descripcion(*)</label>
+                <textarea  class="form-control" id="descripcion" name="descripcion" value="${(recursoMultimedia.descripcion)!""}" style="text-transform:uppercase">${(recursoMultimedia.descripcion)!""}</textarea>
+                <!--<input type="text" class="form-control" id="descripcion" name="descripcion" value="${(recursoMultimedia.descripcion)!""}" style="text-transform:uppercase"/>-->
+                <label for="fuente">Fuente(*)</label>
                 <input type="text" class="form-control" id="fuente" name="fuente" value="${(recursoMultimedia.fuente)!""}" style="text-transform:uppercase"/>
                 <label for="pesoOrden">Peso Orden</label>
                 <input type="number" class="form-control" id="pesoOrden" name="pesoOrden" value="${(recursoMultimedia.pesoOrden)!""}" min="1" max="100"/>

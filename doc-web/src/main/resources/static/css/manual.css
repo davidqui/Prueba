@@ -1,0 +1,86 @@
+/* 
+    Created on : 19/09/2018, 01:52:48 PM
+    Author     : aherreram
+*/
+
+@media only screen and (min-width: 1170px)
+page-collections .cards-split-container {
+    width: calc(100% - 10px);
+}
+
+@media only screen and (min-width: 768px)
+page-collections .cards-split-container2 {
+    width: calc(100% - 300px)!important;
+}
+
+page-collections .cards-split-container {
+    margin-top: 10px;
+    height: auto;
+}
+
+@media (min-width: 1170px)
+.cards-split-container {
+    width: calc(100% - 300px);
+}
+
+@media (min-width: 768px)
+.cards-split-container {
+    width: calc(100% - 50px);
+}
+
+.cards-split-container {
+    width: calc(100% - 10px);
+    height: 300px;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px;
+}
+
+.cards-split-container .container {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    display: flex;
+}
+
+.card-contenido{
+    width: 200px;
+    height: 300px;
+    margin: 0 10px;
+}
+
+page-collections .picker-button-left, page-collections .picker-button-right {
+    z-index: 9999;
+    position: absolute;
+    width: 20px;
+    margin: 0;
+    max-height: 420px;
+    background-color: #e9eaec;
+}
+
+.hover-video{
+    position:  absolute; 
+    background-color: transparent;
+    top:0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width:  100%; 
+    height:  100%;
+    display: none;
+}
+
+.padre-videominiatura:hover .hover-video{
+    display: block;
+}
+
+
+.padre-videominiatura{
+  position:relative;
+  cursor:pointer;
+}

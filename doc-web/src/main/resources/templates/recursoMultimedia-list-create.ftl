@@ -13,7 +13,7 @@
                 <label for="nombre">Nombre(*)</label>
                 <input type="text" class="form-control" id="nombre" name="nombre" value="${(recursoMultimedia.nombre)!""}" style="text-transform:uppercase"/>
                 <label for="descripcion">Descripcion(*)</label>
-                <input type="text" class="form-control" id="descripcion" name="descripcion" value="${(recursoMultimedia.descripcion)!""}" style="text-transform:uppercase"/>
+                <textarea type="text" rows="5" cols="10" class="form-control" id="descripcion" name="descripcion" value="${(recursoMultimedia.descripcion)!""}" style="text-transform:uppercase"></textarea>
                 <label for="fuente">Fuente(*)</label>
                 <input type="text" class="form-control" id="fuente" name="fuente" value="${(recursoMultimedia.fuente)!""}" style="text-transform:uppercase"/>
                 <label for="pesoOrden">Peso Orden</label>
