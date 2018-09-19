@@ -390,7 +390,17 @@ public class TransferenciaArchivoController extends UtilController {
         if (transferenciaArchivo.getDestinoUsuario().getId().equals(usuarioSesion.getId()) &&
                 transferenciaArchivo.getIndAprobado() == 1) {
             List<TransferenciaArchivoDetalle> documentosNoPosesionTransferencia = transferenciaArchivoDetalleService.documentosNoPosesionTransferencia(transferenciaArchivo, usuarioSesion);
+            List<DocumentoDependencia> documentosTransferencia = documentoDependenciaService.listarDocumentosOtrasTransferencias(usuarioSesion, transferenciaArchivo);
+            for (TransferenciaArchivoDetalle documento : documentosXTransferenciaArchivo) {
+                for (DocumentoDependencia documentoDependencia : documentosTransferencia) {
+                       if (documento.getDocumentoDependencia().getId().equals(documentoDependencia.getId())) {
+                        documentosNoPosesionTransferencia.add(documento);
+                        break;
+                    }
+                }
+            }
             List<TransExpedienteDetalle> expedientesNoPosesionTransferencia = transExpedienteDetalleService.expedientesNoPosesionTransferencia(transferenciaArchivo, usuarioSesion);
+            expedientesNoPosesionTransferencia.addAll(transExpedienteDetalleService.buscarOtrosExpedientesEnTranseferencia(usuarioSesion, transferenciaArchivo));
             model.addAttribute("documentosNoPosesionTransferencia", documentosNoPosesionTransferencia);
             model.addAttribute("expedientesNoPosesionTransferencia", expedientesNoPosesionTransferencia);
         }
