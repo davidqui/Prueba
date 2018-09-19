@@ -121,6 +121,7 @@ public class TRDService {
                 + "     AND subserie.activo = 1\n"
                 + "     AND dependencia_trd.activo = 1\n"
                 + "     AND dependencia_trd.dep_id = ?\n"
+                + "     AND documento_dependencia.dep_id = dependencia_trd.dep_id\n"
                 + "     AND documento_dependencia.activo = 1\n"
                 + "     AND documento_dependencia.quien = ?\n"
                 + (cargo == null ? "" : "     AND documento_dependencia .cargo_id = ?\n");
@@ -191,6 +192,7 @@ public class TRDService {
                 + "   WHERE subserie.activo = 1\n"
                 + "     AND subserie.trd_serie = ?\n"
                 + "     AND dependencia_trd.activo = 1\n"
+                + "     AND documento_dependencia.dep_id = dependencia_trd.dep_id\n"
                 + "     AND dependencia_trd.dep_id = ?\n"
                 + "     AND documento_dependencia.activo = 1\n"
                 + "     AND documento_dependencia.quien = ?\n"
