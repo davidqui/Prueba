@@ -387,6 +387,13 @@ public class DocumentoController extends UtilController {
     @Autowired
     private UsuSelFavoritosService usuSelFavoritosService;
     
+    /**
+    * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH): parametro que 
+    * especifica el inicio de la linea de mando
+    */
+    @Value("${com.mil.imi.sicdi.linea.mando.inicio}")
+    private String inicioLineaMando;
+    
     /* ---------------------- públicos ------------------------------- */
     /**
      * Muestra la página de acceso denegado
@@ -3282,11 +3289,16 @@ public class DocumentoController extends UtilController {
         jdbcTemplate.setResultsMapCaseInsensitive(true);
 
         SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withFunctionName("FN_PDF_RADIOGRAMA_MAIN");
-
+        
+        /**
+        * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH): parametro que 
+        * especifica el inicio de la linea de mando
+        */
         SqlParameterSource in = new MapSqlParameterSource()
                 .addValue("P_DOC_ID", documento.getId())
                 .addValue("P_USU_ID_FIRMA", usuarioSesion.getId())
-                .addValue("P_DOC_RADICADO", documento.getRadicado());
+                .addValue("P_DOC_RADICADO", documento.getRadicado())
+                .addValue("P_LINEA_MANDO_INICIO", inicioLineaMando);
 
         String plSqlResultado = simpleJdbcCall.executeFunction(String.class, in);
 
@@ -3595,8 +3607,12 @@ public class DocumentoController extends UtilController {
         jdbcTemplate.setResultsMapCaseInsensitive(true);
         SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withFunctionName("FN_PDF_RADIOGRAMA_MAIN");
 
+        /**
+        * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH): parametro que 
+        * especifica el inicio de la linea de mando
+        */
         SqlParameterSource in = new MapSqlParameterSource().addValue("P_DOC_ID", doc.getId())
-                .addValue("P_USU_ID_FIRMA", yo.getId()).addValue("P_DOC_RADICADO", doc.getRadicado());
+                .addValue("P_USU_ID_FIRMA", yo.getId()).addValue("P_DOC_RADICADO", doc.getRadicado()).addValue("P_LINEA_MANDO_INICIO", inicioLineaMando);
 
         String resultado = simpleJdbcCall.executeFunction(String.class, in);
 
