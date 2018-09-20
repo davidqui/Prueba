@@ -15,6 +15,7 @@
     <p>
         <#if returnUrl??><a href="${returnUrl}" class="btn btn-secondary btn-sm">Regresar</a></#if>
          <a href="/admin/recursoMultimedia/create/${tematicasView.id}" class="btn btn-success btn-sm">Crear</a>
+         <a href="/admin/tematica" class="btn btn-success btn-sm">Regresar</a>
     </p>
 
     Total ${list?size}
@@ -67,7 +68,7 @@
                         <#assign first = false />
                     </td>
                 </#list>
-                        <td nowrap="nowrap"><a href="/admin/recursoMultimedia/descargar/${x.id}" target="_blank" data-toggle="popover" data-trigger="hover" data-placement="left" title="Tipo de Archivo" data-content="${x.tipo}" >Ver</a>
+                        <td nowrap="nowrap"><a href="/admin/recursoMultimedia/descargar/${x.id}" target="_blank" data-toggle="popover" data-trigger="hover" data-placement="left" title="Tipo de Archivo" data-content="${x.tipo}" ><#if x.tipo=="application/pdf"><img src="/img/file-text.svg"><#else><img src="/img/video.svg"></#if></a>
                             </td>
                 	<td nowrap="nowrap">
                             <#if x.activo?? && x.activo == true >

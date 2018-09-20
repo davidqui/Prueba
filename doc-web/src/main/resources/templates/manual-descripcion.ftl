@@ -9,18 +9,22 @@
                 <#if recurso.tipo!="application/pdf">
                 <div class="card-header">
                     <h2>${recurso.tematica.nombre?capitalize}</h2>
-                    <h3>${recurso.nombre?capitalize}</h3>
+                    <h3 id="titulovideo">${recurso.nombre?capitalize}</h3>
                     </div>
                 <div class="card-body">
                     <video id="myVideo" name="videoprincipal" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="592"  controls autoplay>
                         Tu navegador no implementa el elemento <code>video</code>.
                         </video>
+                    </div>
+                <div class="card-footer text-muted">
+                    <p id="descripcion" style="text-align: justify;">${recurso.descripcion?capitalize}</p>
                     <#break>
                     </#if>
                     </#list>
                     </div>
+                
                 </div>
-           
+           <!--Fin card-->
             </div>
         <!--Fin columna 1 Video Principla-->
         <div class="col-sm-3">
@@ -30,16 +34,17 @@
                 <div class="card-header">
                     <h6>${recurso.nombre?capitalize}</h6>
                     </div>
-                <div class="card-body padre-videominiatura" onclick="myFunction('/admin/recursoMultimedia/descargar/${recurso.id}')">
-                <div id="reproducir" class="hover-video"><img src="/img/youtube.svg" style="width: 60%;"></div>
+                <div class="card-body padre-videominiatura" onclick="myFunction('/admin/recursoMultimedia/descargar/${recurso.id}', '${recurso.nombre?capitalize}', '${recurso.descripcion?capitalize}')">
+                <div id="reproducir" class="hover-video"><img src="/img/Play5.png" style="width: 25%;"></div>
                 
                 <div id="videominiatura">
                     
-                    <video id="minvideo" name="listavideos" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="100%">
+                    <video id="minvideo" name="listavideos" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="100%" preload="preload">
                         Tu navegador no implementa el elemento <code>video</code>
                         </video>
                     </div>
                     </div>
+             
                   </#if>
                         </#list>
                 </div>
@@ -100,8 +105,10 @@
 
 
     <script> 
-    function myFunction(url) { 
-        document.getElementById("minvideo").src = url;
+    function myFunction(url,nombreRecurso,nombreDescripcion) {
+        $("#titulovideo").text(nombreRecurso);
+        $("#descripcion").text(nombreDescripcion);
+        document.getElementById("myVideo").src = url;
         document.getElementById("myVideo").load();
     } 
     </script>

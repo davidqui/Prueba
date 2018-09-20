@@ -306,15 +306,24 @@ public class RecursoMultimediaController extends UtilController {
             OFSEntry entry=recursoMultimediaService.viewRecursoMultimediaFile(archivoData);
             byte[] bytes =entry.getContent();
 
+            response.reset();
             response.setContentLength((int) bytes.length);
             response.setContentType(entry.getContentType());
+            response.setBufferSize((int) bytes.length);
 
-            String headerKey = "Content-Disposition";
-            String headerValue = String.format("attachment; filename=\"%s\"", archivoData.getNombreArchivoOriginal());
+//            ServletOutputStream outStream = response.getOutputStream();
+//            IOUtils.write(bytes, outStream);
 
-            ServletOutputStream outStream = response.getOutputStream();
-            IOUtils.write(bytes, outStream);
-
+//            String headerKey = "Content-Disposition";
+//            String headerValue = String.format("attachment; filename=\"%s.mp4\"", "sdsdg");
+//            response.setHeader(headerKey, headerValue);
+            
+            // Write response
+            os = response.getOutputStream();
+            is = new ByteArrayInputStream(bytes);
+            IOUtils.copy(is, os);
+            os.flush();
+            os.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

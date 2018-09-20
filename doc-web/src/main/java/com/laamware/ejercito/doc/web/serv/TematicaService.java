@@ -76,7 +76,7 @@ public class TematicaService {
         }
         
         tematica.setNombre(nombre.toUpperCase());
-        tematica.setDescripcion(descripcion);
+        tematica.setDescripcion(descripcion.toUpperCase());
         tematica.setActivo(Boolean.TRUE);
         tematica.setCuando(new Date());
         tematica.setCuandoMod(new Date());
@@ -100,6 +100,10 @@ public class TematicaService {
         if (nombre == null || nombre.trim().length() == 0) {
             throw new BusinessLogicException("El texto del nombre es obligatorio.");
         }
+        final String descripcion = tematica.getDescripcion();
+        if (descripcion == null || descripcion.trim().length() == 0) {
+            throw new BusinessLogicException("El texto de descripcion es obligatorio.");
+        }
 
         final int textoNombreColumnLength = ReflectionUtil.getColumnLength(Tematica.class, "nombre");
         if (nombre.trim().length() > textoNombreColumnLength) {
@@ -111,6 +115,7 @@ public class TematicaService {
             throw new BusinessLogicException("Este nombre ya existe.");
         }
         tematica.setNombre(nombre.toUpperCase());
+        tematica.setDescripcion(descripcion.toUpperCase());
         Tematica nombreTematicaAnterior = findOne(tematica.getId());
         tematica.setQuien(nombreTematicaAnterior.getQuien());
         tematica.setCuando(nombreTematicaAnterior.getCuando());
