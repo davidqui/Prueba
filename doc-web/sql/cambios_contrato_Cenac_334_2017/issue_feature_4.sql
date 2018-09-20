@@ -434,3 +434,40 @@ INSERT INTO DOC.ROL (
 );
 
 COMMIT;
+
+
+-- -----------------------------------------------------------------------------
+-- AJUSTE A DATOS DOCUMENTO_DEPENDENCIA
+-- -----------------------------------------------------------------------------
+declare
+    cursor c_repetidos is
+        select doc_id, max(dcdp_id) aux_dcdp_id
+        from documento_dependencia
+        where activo = 1
+        group by doc_id
+        having count(1) > 1
+        order by doc_id;
+begin
+    for aux_c_repetidos in c_repetidos loop
+        update documento_dependencia set activo = 0 where doc_id = aux_c_repetidos.doc_id and dcdp_id != aux_c_repetidos.aux_dcdp_id;
+    end loop;
+    commit;
+end;
+/
+
+declare
+    cursor c_sincargo is
+        select distinct a.quien, b.usu_cargo_principal_id
+        from documento_dependencia a,
+             usuario b
+        where a.activo = 1
+        and a.cargo_id is null
+        and a.quien = b.usu_id
+        and b.usu_cargo_principal_id is not null;
+begin
+    for aux_c_sincargo in c_sincargo loop
+        update documento_dependencia set cargo_id = aux_c_sincargo.usu_cargo_principal_id where quien = aux_c_sincargo.quien;
+    end loop;
+    commit;
+end;
+/
