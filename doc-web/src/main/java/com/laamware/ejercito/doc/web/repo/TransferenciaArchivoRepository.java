@@ -72,7 +72,7 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
             + "             TRANSFERENCIA_ESTADO TE\n"
             + "        WHERE TE.TRA_EST_ID = TT.TRA_EST_ID\n"
             + "        AND TT.TAR_ID = TA.TAR_ID\n"
-            + "        AND TT.FEC_CREACION = (SELECT MAX(FEC_CREACION) FROM TRANSFERENCIA_TRANSICION WHERE TT.TAR_ID = TA.TAR_ID)) ULT_ESTADO,\n"
+            + "        AND TT.FEC_CREACION = (SELECT MAX(FEC_CREACION) FROM TRANSFERENCIA_TRANSICION TT2 WHERE TT2.TAR_ID = TA.TAR_ID)) ULT_ESTADO,\n"
             + "        decode(:usuId,TA.ORIGEN_USU_ID, 1, 0) ESUSUORIGEN,\n"
             + "        decode(:usuId,DEP.USU_ID_JEFE, 1, 0) ESJEFE,\n"
             + "        decode(:usuId,TA.DESTINO_USU_ID, 1, 0) ESUSUDESTINO\n"
