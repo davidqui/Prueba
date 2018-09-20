@@ -5,6 +5,7 @@ import com.aspose.words.Document;
 import com.aspose.words.License;
 import com.aspose.words.NodeType;
 import com.aspose.words.Paragraph;
+import com.aspose.words.ParagraphAlignment;
 import com.aspose.words.Row;
 import com.aspose.words.Run;
 import com.aspose.words.Table;
@@ -1296,6 +1297,7 @@ public class DocumentoActaService {
             Paragraph paragraph = new Paragraph(asposeDocument);
             paragraph.getParagraphFormat().getStyle().getFont().setSize(8);
             paragraph.getParagraphFormat().getStyle().getFont().setName("Arial");
+            paragraph.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
             paragraph.appendChild(new Run(asposeDocument, cellValue));
 
             Cell cell = new Cell(asposeDocument);
