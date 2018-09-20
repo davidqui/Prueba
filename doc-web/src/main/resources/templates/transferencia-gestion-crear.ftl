@@ -100,5 +100,9 @@
 
         $(select).find('option:eq(0)').prop('selected', true);
     }
+        
+    $(document).on('submit','form',function(){
+        loading(event);
+    });
 </script>
 <#include "footer.ftl" />
