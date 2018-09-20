@@ -603,7 +603,7 @@ public class TransferenciaArchivoController extends UtilController {
      */
     public boolean hasExpedienteTransferido(Long id, List<TransExpedienteDetalle> expedientes){
         for (TransExpedienteDetalle expediente : expedientes) {
-            if (expediente.getTraExpId().equals(id)) {
+            if (expediente.getExpId().getExpId().equals(id)) {
                 return false;
             }
         }

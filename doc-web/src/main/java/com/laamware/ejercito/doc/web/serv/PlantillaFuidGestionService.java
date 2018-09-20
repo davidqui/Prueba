@@ -5,6 +5,7 @@ import com.aspose.words.Document;
 import com.aspose.words.License;
 import com.aspose.words.NodeType;
 import com.aspose.words.Paragraph;
+import com.aspose.words.ParagraphAlignment;
 import com.aspose.words.Row;
 import com.aspose.words.Run;
 import com.aspose.words.Table;
@@ -269,9 +270,9 @@ public class PlantillaFuidGestionService {
         final String asunto = documento.getAsunto();
 
         String fecRadicado = documentDateFormatter.format(documento.getDocFecRadicado());
-        final String numCaja = "---------------";
-        final String numCarpeta = "---------------";
-        final String tomo = "---------------";
+        final String numCaja    = "-----------";
+        final String numCarpeta = "-----------";
+        final String tomo       = "-----------";
         final String otro = "NAS-IMI";
 
         final int numFolios = documentoService.obtenerNumeroFolios(documento);
@@ -325,6 +326,7 @@ public class PlantillaFuidGestionService {
             Paragraph paragraph = new Paragraph(asposeDocument);
             paragraph.getParagraphFormat().getStyle().getFont().setSize(8);
             paragraph.getParagraphFormat().getStyle().getFont().setName("Arial");
+            paragraph.getParagraphFormat().setAlignment(ParagraphAlignment.CENTER);
             paragraph.appendChild(new Run(asposeDocument, cellValue));
 
             Cell cell = new Cell(asposeDocument);
