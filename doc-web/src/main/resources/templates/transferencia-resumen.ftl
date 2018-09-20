@@ -166,7 +166,7 @@
                                     <td>${exp.expId.depId.nombre}</td>
                                     <#if expedientesNoPosesionTransferencia??>
                                         <td>
-                                            <#if controller.hasExpedienteTransferido(exp.traExpId ,expedientesNoPosesionTransferencia)>
+                                            <#if controller.hasExpedienteTransferido(exp.expId.expId ,expedientesNoPosesionTransferencia)>
                                                 <img class="svg" src="/img/check.svg" alt=""/>
                                             <#else>
                                                 <img class="svg" src="/img/x.svg" alt=""/>
