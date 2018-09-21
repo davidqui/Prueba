@@ -212,7 +212,7 @@
     </div>
     <div class="card">
         <div class="card-header">
-          Transiciones s
+          Transiciones
         </div>
         <#if (transiciones??) && (transiciones?size > 0) >
         <ul class="list-group list-group-flush" style="max-height: 165px;overflow: hidden;overflow-y: auto;">

@@ -319,6 +319,19 @@ public class TransferenciaArchivoService {
         transferenciaArchivo.setUsuarioAsignado(1);
         transferenciaRepository.save(transferenciaArchivo);
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_PEDIENTE_ACEPTACION);
+                Map<String, Object> model = new HashMap();
+        model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
+        model.put("usuOrigenCargo", transferenciaArchivo.getUsuOrigenCargo());
+        model.put("usuDestino", transferenciaArchivo.getDestinoUsuario());
+        model.put("jefeOrigen", transferenciaArchivo.getOrigenDependencia().getJefe());
+        model.put("transferencia", transferenciaArchivo);
+
+        try {
+            model.put("usuario", transferenciaArchivo.getDestinoUsuario());
+            notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_POR_AUTORIZAR, transferenciaArchivo.getDestinoUsuario());
+        } catch (Exception ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
