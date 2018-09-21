@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import org.springframework.data.domain.Pageable;
 
 public interface DependenciaRepository extends GenJpaRepository<Dependencia, Integer> {
 
@@ -73,4 +74,28 @@ public interface DependenciaRepository extends GenJpaRepository<Dependencia, Int
     *  usuario registro dado por un usuario.
     */
     public List<Dependencia> findActivoByUsuarioRegistro(Usuario usuario);
-}
+    
+    @Query(value = "select t from Dependencia t where t.activo = 1 and (LOWER(t.nombre) like %:pNombre% or"
+            + " LOWER(t.sigla) like %:pNombre% or LOWER(t.depCodigoLdap) like %:pNombre% or"
+            + " LOWER(t.depCodigoLdap) like %:pNombre%)"
+            + " order by t.nombre")
+    public List<Dependencia> findDependenciaAdminActivo(@Param("pNombre") String pNombre, Pageable pageable);
+    
+    @Query(value = "select t from Dependencia t where (LOWER(t.nombre) like %:pNombre% or"
+        + " LOWER(t.sigla) like %:pNombre% or LOWER(t.depCodigoLdap) like %:pNombre% or"
+        + " LOWER(t.depCodigoLdap) like %:pNombre%)"
+        + " order by t.nombre")
+    public List<Dependencia> findDependenciaAdmin(@Param("pNombre") String pNombre, Pageable pageable);
+    
+    @Query(value = "select COUNT(t) from Dependencia t where t.activo = 1 and (LOWER(t.nombre) like %:pNombre% or"
+        + " LOWER(t.sigla) like %:pNombre% or LOWER(t.depCodigoLdap) like %:pNombre% or"
+        + " LOWER(t.depCodigoLdap) like %:pNombre%)"
+        + " order by t.nombre")
+    public Long countDependenciaAdminActivo(@Param("pNombre") String pNombre);
+    
+    @Query(value = "select COUNT(t) from Dependencia t where (LOWER(t.nombre) like %:pNombre% or"
+        + " LOWER(t.sigla) like %:pNombre% or LOWER(t.depCodigoLdap) like %:pNombre% or"
+        + " LOWER(t.depCodigoLdap) like %:pNombre%)"
+        + " order by t.nombre")
+    public Long countDependenciaAdmin(@Param("pNombre") String pNombre);
+}   

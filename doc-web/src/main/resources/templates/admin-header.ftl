@@ -1,5 +1,6 @@
 <#include "util-macros.ftl" />
 <#include "header.ftl">
+<#include "gen-paginacion.ftl">
 <div class="col-md-4 col-lg-3">
     <div class="card">
         <div class="card-header">

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import org.springframework.data.domain.Pageable;
 
 public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
 
@@ -92,6 +93,21 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      */
     @Query(value = "select t from Usuario t order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
     List<Usuario> findAllOrderByGradoDesc();
+    
+    /**
+     * Obtiene la lista de los usuarios por un nombre, paginados
+     * @param pNombre nombre para el filtro
+     * @param pageable paginador
+     * @return lista
+     */
+        /**
+     * 2018-09-20 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+     * feature-174: Adición para la paginación.
+     */
+    @Query(value = "select t from Usuario t where (LOWER(t.nombre) like %:pNombre% or"
+            + " LOWER(t.dependencia.nombre) like %:pNombre% or LOWER(t.login) like %:pNombre%)"
+            + " order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
+    List<Usuario> findAllOrderByNombreContainingGradoDesc(@Param("pNombre") String pNombre, Pageable pageable);
 
     /**
      * Obtiene la lista de los usuarios activos ordenados por el peso del grado.
@@ -107,7 +123,54 @@ public interface UsuarioRepository extends GenJpaRepository<Usuario, Integer> {
      */
     @Query(value = "select t from Usuario t where t.activo = 1 order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
     List<Usuario> findAllByActivoTrueOrderByGradoDesc();
+    
+    /**
+     * Obtiene la lista de los usuarios activos por un nombre, paginados
+     * @param pNombre nombre para el filtro
+     * @param pageable paginador
+     * @return lista
+     */
+    /**
+     * 2018-09-20 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+     * feature-174: Adición para la paginación.
+     */
+    @Query(value = "select t from Usuario t where t.activo = 1 and (LOWER(t.nombre) like %:pNombre% or"
+            + " LOWER(t.dependencia.nombre) like %:pNombre% or LOWER(t.login) like %:pNombre%) "
+            + "order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
+    List<Usuario> findAllByActivoTrueAndNombreContainingOrderByGradoDesc(@Param("pNombre") String pNombre, Pageable pageable);
+    
+    /**
+     * Obtiene el tamaño de la lista de los usuarios por un nombre, paginados
+     * @param pNombre nombre para el filtro
+     * @param pageable paginador
+     * @return lista
+     */
+        /**
+     * 2018-09-20 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+     * feature-174: Adición para la paginación.
+     */
+    @Query(value = "select COUNT(t) from Usuario t where (LOWER(t.nombre) like %:pNombre% or"
+            + " LOWER(t.dependencia.nombre) like %:pNombre% or LOWER(t.login) like %:pNombre%) "
+            + "order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
+    Long countByNombreContainingOrderByGradoDesc(@Param("pNombre") String pNombre);
+    
+    /**
+     * Obtiene el tamaño de la lista de los usuarios activos por un nombre, paginados
+     * @param pNombre nombre para el filtro
+     * @param pageable paginador
+     * @return lista
+     */
+        /**
+     * 2018-09-20 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+     * feature-174: Adición para la paginación.
+     */
+    @Query(value = "select COUNT(t) from Usuario t where t.activo = 1 and "
+            + "(LOWER(t.nombre) like %:pNombre% or "
+            + " LOWER(t.dependencia.nombre) like %:pNombre% or"
+            + " LOWER(t.login) like %:pNombre%) order by t.usuGrado.pesoOrden DESC, t.nombre ASC")
+    Long countByActivoTrueAndNombreContainingOrderByGradoDesc(@Param("pNombre") String pNombre);
 
+    
     /**
      * Obtiene los usuarios activos que pertenecen a la dependencia ordenados
      * por el peso del grado, segun la dependencia.

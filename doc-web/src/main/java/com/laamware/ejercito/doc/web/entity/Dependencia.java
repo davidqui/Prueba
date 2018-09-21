@@ -104,13 +104,11 @@ public class Dependencia extends AuditActivoModifySupport {
     private List<DependenciaTrd> trds;
 
     @LaamLabel("Código LDAP")
-    @LaamListColumn(order = 50)
     @LaamCreate(order = 90)
     @Column(name = "DEP_CODIGO_LDAP")
     private String depCodigoLdap;
 
     @LaamLabel("Código Orfeo")
-    @LaamListColumn(order = 60)
     @LaamCreate(order = 100)
     @Column(name = "DEP_CODIGO_ORFEO")
     private String depCodigoOrfeo;
@@ -142,7 +140,6 @@ public class Dependencia extends AuditActivoModifySupport {
 
     @LaamLabel("Convertir en unidad padre")
     @LaamCreate(order = 60)
-    @LaamListColumn(order = 50)
     @LaamWidget(value = "checkbox")
     @Column(name = "DEP_IND_ENVIO_DOCUMENTOS")
     private Boolean depIndEnvioDocumentos;
