@@ -151,4 +151,22 @@ public class DocumentoService {
         }
         return numFolios;
     }
+
+    /**
+     * Metodo que retorna la linea de mando de acuerdo a la dependencia del
+     * usuario
+     *
+     * @param usuario
+     * @return Linea de mando
+     */
+    public String retornaLineaMando(Usuario usuario) {
+        List<Object[]> result = documentoRepository.retornaSiglasDependientes(usuario.getDependencia().getId());
+        String lineaMando = "";
+        if (!result.isEmpty()) {
+            for (Object object : result) {
+                lineaMando = lineaMando + "-" + (String) object;
+            }
+        }
+        return lineaMando;
+    }
 }

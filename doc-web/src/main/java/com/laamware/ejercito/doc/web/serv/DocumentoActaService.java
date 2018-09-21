@@ -120,11 +120,12 @@ public class DocumentoActaService {
 
         ESTADO_MODE_MAP_FOR_UI = Collections.unmodifiableMap(forUIMap);
     }
-   
+
     /**
      * Prefijo de línea de mando.
      */
-    private static final String LINEA_MANDO_PREFIX = "MDN-CGFM-COEJC-SECEJ";
+    @Value("${com.mil.imi.sicdi.linea.mando.inicio}")
+    private String LINEA_MANDO_PREFIX;
 
     /**
      * Separador de línea de mando.
@@ -211,7 +212,7 @@ public class DocumentoActaService {
 
     @Autowired
     private TransExpedienteDetalleService transExpedienteDetalleService;
-    
+
     @Autowired
     private TransferenciaArchivoService transferenciaArchivoService;
 
@@ -276,7 +277,7 @@ public class DocumentoActaService {
 	 * 2018-08-29 edison.gonzalez@controltechcg.com Issue #181 (SICDI-Controltech)
 	 * feature-181: Se adiciona los permisos de acceso de los usuarios de los
          * expedientes y se centraliza un solo metodo para la verificación de acceso.
-        */
+         */
         return usuarioService.verificaAccesoDocumento(usuario.getId(), procesoInstanciaID);
 //        return usuarioService.verificaAccesoDocumentoActa(usuario, procesoInstanciaID);
     }
@@ -874,7 +875,8 @@ public class DocumentoActaService {
 
     /**
      * Metodo que permite crear el proceso del acta de transferencia.
-     * @param transferenciaArchivo 
+     *
+     * @param transferenciaArchivo
      */
     public void crearActaDeTransferencia(TransferenciaArchivo transferenciaArchivo) {
         try {
@@ -906,16 +908,16 @@ public class DocumentoActaService {
             /*Usuario registro*/
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.ENVIAR_REGISTRO.getId());
-            
+
             /*Sticker*/
             procesoInstancia.setCuandoMod(new Date());
             generaVariableSticker(procesoInstancia);
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.GENERAR_STICKER.getId());
-            
+
             /*Validar*/
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.VALIDAR.getId());
-            
+
             /*Aprobar_archivar*/
             digitalizarYArchivarActa(documento, procesoInstancia, jefeDependencia, DocumentoActaTransicionTransferencia.APROBAR_ARCHIVAR.getId());
 
@@ -977,7 +979,7 @@ public class DocumentoActaService {
         final License asposeLicense = new License();
         final Resource resource = new ClassPathResource("Aspose.Words.lic");
         asposeLicense.setLicense(resource.getInputStream());
-        
+
         final Document asposeDocument = new Document(plantillaPath);
 
         asposeDocument.getMailMerge().execute(asposeMap.getNombres(), asposeMap.getValues());
@@ -989,7 +991,7 @@ public class DocumentoActaService {
 
         final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 2, true);
         if (table != null) {
-            
+
             if (detalles.isEmpty()) {
                 table.removeAllChildren();
             } else {
@@ -1003,7 +1005,7 @@ public class DocumentoActaService {
                 }
             }
         }
-        
+
         final List<TransExpedienteDetalle> transferenciaExpediente = transExpedienteDetalleService.buscarXTransferenciaArchivo(transferenciaArchivo);
         if (transferenciaExpediente.size() > 0) {
             ordenarDetallesExpediente(transferenciaExpediente);
@@ -1024,7 +1026,7 @@ public class DocumentoActaService {
                 }
             }
         }
-        
+
         final String siglaDependenciaDestino = Objects.toString(transferenciaArchivo.getDestinoDependencia().getSigla(), "");
         ofs.insertWatermarkText(asposeDocument, siglaDependenciaDestino);
 
@@ -1047,7 +1049,7 @@ public class DocumentoActaService {
         documento.setCuandoMod(new Date());
 
         documentoService.actualizar(documento);
-        
+
         transferenciaArchivo.setDocId(documento);
         transferenciaArchivoService.actualizarTransferenciaArchivo(transferenciaArchivo);
 
@@ -1086,7 +1088,7 @@ public class DocumentoActaService {
         final Dependencia origenUnidadDependencia = dependenciaRepository.findOne(unidadID);
         map.put("ELABORA_DEP_SPADRE", origenUnidadDependencia.getNombre());
 
-        final String lineaMando = buildLineaMando(transferenciaArchivo);
+        final String lineaMando = LINEA_MANDO_PREFIX + documentoService.retornaLineaMando(jefeDependencia);
         map.put("LINEA_MANDO2", lineaMando);
 
         map.put("N_RADICADO", documento.getRadicado());
@@ -1156,6 +1158,7 @@ public class DocumentoActaService {
 
     /**
      * Retorna el archivo de la firma del usuario
+     *
      * @param usuario
      * @return Archivo de firma
      */
@@ -1166,29 +1169,6 @@ public class DocumentoActaService {
         }
 
         return new File(ofs.getPath(usuario.getImagenFirmaExtension()));
-    }
-
-    /**
-     * Construye la línea de mando de la dependencia origen de la transferencia.
-     *
-     * @param transferenciaArchivo Transferencia de archivo.
-     * @return Línea de mando.
-     */
-    private String buildLineaMando(final TransferenciaArchivo transferenciaArchivo) {
-        String lineaMando = LINEA_MANDO_PREFIX;
-
-        final Dependencia origenDependencia = transferenciaArchivo.getOrigenDependencia();
-        final Integer unidadID = dependenciaRepository.findUnidadID(origenDependencia.getId());
-        final Dependencia origenUnidadDependencia = dependenciaRepository.findOne(unidadID);
-        if (origenUnidadDependencia.getSigla() != null) {
-            lineaMando += LINEA_MANDO_SEPARATOR + origenUnidadDependencia.getSigla();
-        }
-
-        if (origenDependencia.getSigla() != null) {
-            lineaMando += LINEA_MANDO_SEPARATOR + origenDependencia.getSigla();
-        }
-
-        return lineaMando;
     }
 
     /**
@@ -1266,7 +1246,7 @@ public class DocumentoActaService {
             }
         });
     }
-    
+
     /**
      * Ordena la lista de detalles según el código de la TRD asociada.
      *
@@ -1367,7 +1347,7 @@ public class DocumentoActaService {
         final String fecCreacion = documentDateFormatter.format(detalle.getExpId().getFecCreacion());
 
         final String tipo = (detalle.getExpId().getExpTipo() == 1) ? "Expediente simple" : "Expediente complejo";
-        
+
         final String estado = detalle.getExpId().getIndCerrado() ? "Cerrado" : "Abierto";
 
         return new String[]{String.valueOf(indice), trdPrincipal, nombreExpediente, siglaUnidadOrigen, fecCreacion, tipo, estado};
