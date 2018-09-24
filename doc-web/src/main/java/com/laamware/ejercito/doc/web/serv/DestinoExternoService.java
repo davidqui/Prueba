@@ -9,6 +9,8 @@ import com.laamware.ejercito.doc.web.util.ReflectionUtil;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -59,6 +61,21 @@ public class DestinoExternoService {
      */
     public DestinoExterno findOne(Integer id) {
         return destinoExternoRepository.findOne(id);
+    }
+    
+    public Page<DestinoExterno> findAll(Pageable pageable){
+        return destinoExternoRepository.findAll(pageable);
+    }
+    
+    /**
+     * 
+     * Lista todas las observaciones activas
+     *
+     * @param pageable paginador
+     * @return lista de observaciones
+     */
+    public Page<DestinoExterno> findActive(Pageable pageable) {
+        return destinoExternoRepository.findAllByActivoTrue(pageable);
     }
 
     /**

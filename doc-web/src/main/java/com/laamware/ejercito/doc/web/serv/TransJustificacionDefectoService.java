@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +43,15 @@ public class TransJustificacionDefectoService {
     public List<TransJustificacionDefecto> findAll(Sort sort) {
         return transJustificacionDefectoRepository.findAll(sort);
     }
+    
+    /***
+     * Retorna la pagina de las observaciones
+     * @param pageable paginador
+     * @return pagina
+     */
+    public Page<TransJustificacionDefecto> findAll(Pageable pageable) {
+        return transJustificacionDefectoRepository.findAll(pageable);
+    }
 
     /**
      * *
@@ -51,6 +62,17 @@ public class TransJustificacionDefectoService {
      */
     public List<TransJustificacionDefecto> findActive(Sort sort) {
         return transJustificacionDefectoRepository.getByActivoTrue(sort);
+    }
+    
+     /**
+     * 
+     * Lista todas las observaciones activas
+     *
+     * @param pageable paginador
+     * @return lista de observaciones
+     */
+    public Page<TransJustificacionDefecto> findActive(Pageable pageable) {
+        return transJustificacionDefectoRepository.findAllByActivoTrue(pageable);
     }
 
     /**
@@ -146,5 +168,5 @@ public class TransJustificacionDefectoService {
     public List<TransJustificacionDefecto> listarActivas() {
         return transJustificacionDefectoRepository.findAllByActivoTrueOrderByTextoObservacionAsc();
     }
-
+    
 }

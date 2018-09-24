@@ -2,6 +2,8 @@ package com.laamware.ejercito.doc.web.repo;
 
 import com.laamware.ejercito.doc.web.entity.RazonInhabilitar;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -20,6 +22,13 @@ public interface RazonInhabilitarRepository extends JpaRepository<RazonInhabilit
      * @return 
      */
     List<RazonInhabilitar> getByActivoTrue(Sort sort);
+    
+    /**
+     * Lista todas las razones para inhabilitar usuarios
+     * @param sort
+     * @return 
+     */
+    Page<RazonInhabilitar> getByActivoTrue(Pageable pageable);
 
     /**
      * Lista todas las razones para inhabilitar usuarios activas, ordenadas por el

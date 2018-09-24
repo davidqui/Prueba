@@ -53,7 +53,7 @@
 
                 <@link_admin  "ADMIN_CARGOS" "/admin/cargos" 'cargos' 'Cargos'/>
 
-                <@link_admin  "ADMIN_DOMINIO" "/admin/dominio" 'Dominios' 'Dominios'/>
+                <@link_admin  "ADMIN_DOMINIO" "/admin/dominio" 'dominio' 'Dominios'/>
                 
                 <#--
                     2018-05-24 samuel.delgado@controltechcg.com Issue #172 (SICDI-Controltech) feature-172:
@@ -63,9 +63,9 @@
 
                 <@link_admin  "ADMIN_INFORMES" "/admin/informes/init" 'informes' 'Informes'/>
 
-                <@link_admin  "ADMIN_FORMATOS" "/admin/formatos" 'formatos' 'Formatos'/>
+                <@link_admin  "ADMIN_FORMATOS" "/admin/formatos" 'formato' 'Formatos'/>
 
-                <@link_admin  "ADMIN_LOG" "/admin/logs" 'logs' 'Logs'/>
+                <@link_admin  "ADMIN_LOG" "/admin/logs" 'log' 'Logs'/>
 
                 <@link_admin  "ADMIN_PLANTILLA_TRANSF_ARCHIVO" "/admin/plantilla-transf-archivo" 'plantilla-transf-archivo' 'Plantilla Transf. Archivo'/>
                 

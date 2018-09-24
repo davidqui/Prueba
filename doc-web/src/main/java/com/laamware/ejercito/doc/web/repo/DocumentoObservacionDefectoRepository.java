@@ -2,6 +2,8 @@ package com.laamware.ejercito.doc.web.repo;
 
 import com.laamware.ejercito.doc.web.entity.DocumentoObservacionDefecto;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -22,6 +24,13 @@ public interface DocumentoObservacionDefectoRepository extends JpaRepository<Doc
      * @return 
      */
     List<DocumentoObservacionDefecto> getByActivoTrue(Sort sort);
+    
+    /**
+     * Lista todas las observaciones activas
+     * @param sort
+     * @return 
+     */
+    Page<DocumentoObservacionDefecto> getByActivoTrue(Pageable pageable);
 
     /**
      * Lista todas las observaciones por defecto activas, ordenadas por el

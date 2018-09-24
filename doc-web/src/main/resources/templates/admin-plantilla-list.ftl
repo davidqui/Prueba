@@ -47,6 +47,9 @@
         </#list>
         </tbody>
     </table>
+    <#if totalPages gt 0>
+        <@printBar url="/admin/plantilla" params={"filtro": filtro!"", "all": all?string("true", "false") } metodo="get"/>
+    </#if>
 </div>
 
 <#include "footer.ftl">

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +51,28 @@ public class DocumentoObservacionDefectoService {
      */
     public List<DocumentoObservacionDefecto> findActive(Sort sort) {
         return documentoObservacionDefectoRepository.getByActivoTrue(sort);
+    }
+    
+    /**
+     * *
+     * Lista todas las observaciones
+     *
+     * @param pageable
+     * @return
+     */
+    public Page<DocumentoObservacionDefecto> findAll(Pageable pageable) {
+        return documentoObservacionDefectoRepository.findAll(pageable);
+    }
+
+    /**
+     * *
+     * Lista todas las observaciones activas
+     *
+     * @param sort
+     * @return
+     */
+    public Page<DocumentoObservacionDefecto> findActive(Pageable pageable) {
+        return documentoObservacionDefectoRepository.getByActivoTrue(pageable);
     }
 
     /**

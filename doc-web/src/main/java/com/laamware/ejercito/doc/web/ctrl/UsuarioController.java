@@ -50,6 +50,7 @@ import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import org.springframework.data.domain.PageRequest;
 import static java.lang.Math.toIntExact;
 import java.util.ArrayList;
+import org.springframework.data.domain.Page;
 
 @Controller
 @PreAuthorize("hasRole('ADMIN_USUARIOS')")
@@ -107,38 +108,19 @@ public class UsuarioController extends UtilController {
             @RequestParam(value = "filtro", required = false, defaultValue = "") String filtro,
             Model model) {
         
-        if (page == null)
-            page = 0;
+        if (page == null || page < 0)
+            page = 1;
         
-        
-        if (pageSize == null) 
-            pageSize = 15;
+        if (pageSize == null || pageSize < 0)
+            pageSize = ADMIN_PAGE_SIZE;
         
         filtro = filtro.toLowerCase();
         
-        Long count;
-        if (all) {
-            count = usuarioRepository.countByNombreContainingOrderByGradoDesc(filtro);
-        }else{
-            count = usuarioRepository.countByActivoTrueAndNombreContainingOrderByGradoDesc(filtro);
-        }
+        Page<Usuario> list = findAll(all, page-1, pageSize, filtro);
         
-        List<Usuario> list = new ArrayList<>();
-
-        int totalPages = 0;
-        String labelInformacion = "";
-
-        if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(toIntExact(count), page, pageSize);
-            totalPages = paginacionDTO.getTotalPages();
-            list = findAll(all, page, pageSize, filtro);
-            labelInformacion = paginacionDTO.getLabelInformacion();
-        }
-
-        model.addAttribute("pageIndex", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("labelInformacion", labelInformacion);
-        model.addAttribute("list", list);
+        Long count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());
         model.addAttribute("filtro", filtro);
         model.addAttribute("all", all);
         return "usuario-list";
@@ -566,7 +548,7 @@ public class UsuarioController extends UtilController {
         return d;
     }
 
-    protected List<Usuario> findAll(boolean all, Integer page, Integer pageSize, String filtro) {
+    protected Page<Usuario> findAll(boolean all, Integer page, Integer pageSize, String filtro) {
         /* 
          * 2017-10-05 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech)
          * feature-131: Ajuste de orden segun el peso de los grados.

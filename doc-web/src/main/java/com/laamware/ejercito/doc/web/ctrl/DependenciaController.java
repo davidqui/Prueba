@@ -40,6 +40,7 @@ import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import static java.lang.Math.toIntExact;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 @Controller
@@ -80,6 +81,10 @@ public class DependenciaController extends UtilController {
     @Autowired
     private TRDService trdService;
 
+    /**
+    * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+    * feature-174: Adición para la paginación.
+    */
     @PreAuthorize("hasRole('ADMIN_DEPENDENCIAS')")
     @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
@@ -88,38 +93,19 @@ public class DependenciaController extends UtilController {
             @RequestParam(value = "filtro", required = false, defaultValue = "") String filtro,
             Model model) {
         
-        if (page == null)
-            page = 0;
+        if (page == null || page < 0)
+            page = 1;
         
-        
-        if (pageSize == null) 
-            pageSize = 15;
+        if (pageSize == null || pageSize < 0) 
+            pageSize = ADMIN_PAGE_SIZE;
         
         filtro = filtro.toLowerCase();
         
-        List<Dependencia> list = new ArrayList<>();
+        Page<Dependencia> list = findAll(all, page-1, pageSize, filtro);
 
-        Long count;
-        if (!all) {
-            count = dependenciaRepository.countDependenciaAdminActivo(filtro);
-        }else{
-            count = dependenciaRepository.countDependenciaAdmin(filtro);
-        }
-        
-        int totalPages = 0;
-        String labelInformacion = "";
-        
-        if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(toIntExact(count), page, pageSize);
-            totalPages = paginacionDTO.getTotalPages();
-            list = findAll(all, page, pageSize, filtro);
-            labelInformacion = paginacionDTO.getLabelInformacion();
-        }
-        
-        model.addAttribute("pageIndex", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("labelInformacion", labelInformacion);
-        model.addAttribute("list", list);
+        Long count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());
         model.addAttribute("filtro", filtro);
         model.addAttribute("all", all);
         return "dependencia-list";
@@ -131,7 +117,7 @@ public class DependenciaController extends UtilController {
         return "dependencia-create";
     }
 
-    protected List<Dependencia> findAll(boolean all, Integer page, Integer pageSize, String filtro) {
+    protected Page<Dependencia> findAll(boolean all, Integer page, Integer pageSize, String filtro) {
         if (!all) {
             return dependenciaRepository.findDependenciaAdminActivo(filtro, new PageRequest(page, pageSize));
         } else {

@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -66,6 +68,28 @@ public class NotificacionService {
      */
     public List<Notificacion> findActive(Sort sort) {
         return notificacionRepository.getByActivoTrue(sort);
+    }
+    
+    /**
+     * *
+     * Lista todas las observaciones
+     *
+     * @param sort
+     * @return
+     */
+    public Page<Notificacion> findAll(Pageable pageable) {
+        return notificacionRepository.findAll(pageable);
+    }
+
+    /**
+     * *
+     * Lista todas las notificaciones activas
+     *
+     * @param sort
+     * @return
+     */
+    public Page<Notificacion> findActive(Pageable pageable) {
+        return notificacionRepository.getByActivoTrue(pageable);
     }
 
     /**
