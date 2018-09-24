@@ -33,6 +33,9 @@ import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.repo.GenJpaRepository;
 import com.laamware.ejercito.doc.web.serv.CacheService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 public abstract class GenController<ET, IDT extends Serializable, RT extends GenJpaRepository<ET, IDT>>
 		extends UtilController {
@@ -178,14 +181,40 @@ public abstract class GenController<ET, IDT extends Serializable, RT extends Gen
 			return findAll();
 		}
 	}
-
+        
+        /**
+        * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+        * feature-174: Adición para la paginación.
+        */
+	protected Page<ET> findAll(boolean all, Pageable pageable) {
+		if (!all) {
+			return getRepository().findByActivo(true, pageable);
+		} else {
+			return getRepository().findAll(pageable);
+		}
+	}
+        /**
+        * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+        * feature-174: Adición para la paginación.
+        */
 	@RequestMapping(value = { "" }, method = RequestMethod.GET)
 	public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
+                        @RequestParam(value = "pageIndex", required = false) Integer page,
+                        @RequestParam(value = "pageSize", required = false) Integer pageSize,
 			Model model) {
-		List<ET> list = findAll(all);
-		model.addAttribute("list", list);
-		model.addAttribute("all", all);
+            
+                if (page == null || page < 0)
+                    page = 1;
+                if (pageSize == null || pageSize < 0)
+                    pageSize = ADMIN_PAGE_SIZE;
+                
+                Pageable pageable = new PageRequest(page-1, pageSize);
 
+		Page<ET> list = findAll(all, pageable);
+                adminPageable(list.getTotalElements(), model, page, pageSize);
+		model.addAttribute("list", list.getContent());
+		model.addAttribute("all", all);
+                
 		// 2017-02-13 jgarcia@controltechcg.com Issue #49.
 		if (useNoCreateList()) {
 			return "gen-list-no-create";

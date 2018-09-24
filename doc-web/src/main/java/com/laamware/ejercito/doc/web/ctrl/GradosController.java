@@ -21,6 +21,9 @@ import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Grados;
 import com.laamware.ejercito.doc.web.repo.GradosRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 @Controller
@@ -33,13 +36,30 @@ public class GradosController extends UtilController {
 	@Autowired
 	GradosRepository gradosRepository;
 
-
+        /**
+        * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+        * feature-174: Adición para la paginación.
+        */
 	@RequestMapping(value = { "" }, method = RequestMethod.GET)
 	public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
-			Model model) {
-		List<Grados> list = findAll(all);
-		model.addAttribute("list", list);
-		model.addAttribute("all", all);
+                @RequestParam(value = "pageIndex", required = false) Integer page,
+                @RequestParam(value = "pageSize", required = false) Integer pageSize,	
+                Model model) {
+            
+                if (page == null || page < 0)
+                    page = 1;
+                if (pageSize == null || pageSize < 0)      
+                    pageSize = ADMIN_PAGE_SIZE;
+            
+                Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.DESC, "pesoOrden");
+
+                Page<Grados> list = findAll(all, pageable);
+                
+                Long count = list.getTotalElements();
+                adminPageable(count, model, page, pageSize);
+                model.addAttribute("list", list.getContent());
+                model.addAttribute("all", all);
+                
 		return "grados-list";
 	}
 
@@ -50,12 +70,11 @@ public class GradosController extends UtilController {
 		return "grados-create";
 	}
 
-	protected List<Grados> findAll(boolean all) {
-                Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "pesoOrden"));
+	protected Page<Grados> findAll(boolean all, Pageable pageable) {
 		if (!all) {
-			return gradosRepository.findByActivo(true,sort);
+			return gradosRepository.findByActivo(true, pageable);
 		} else {
-			return gradosRepository.findAll(sort);
+			return gradosRepository.findAll(pageable);
 		}
 	}
 

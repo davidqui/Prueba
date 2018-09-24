@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -45,17 +48,36 @@ public class DominioController extends UtilController {
      * @param model
      * @return Pagina de consulta de dominio
      */
+    /**
+    * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+    * feature-174: Adición para la paginación.
+    */
     @RequestMapping(value = {""}, method = RequestMethod.GET)
-    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
-        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "nombre"));
-        List<Dominio> list = new ArrayList<>();
+    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
+            @RequestParam(value = "pageIndex", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            Model model) {
+        
+        if (page == null || page < 0)
+            page = 1;
+        if (pageSize == null || pageSize < 0)
+            pageSize = ADMIN_PAGE_SIZE;
+        
+        Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.DESC, "nombre");
+
+        
+        Page<Dominio> list;
         if (!all) {
-            list = dominioService.mostrarDominiosActivos(sort);
+            list = dominioService.mostrarDominiosActivos(pageable);
         }else{
-            list = dominioService.findAll(sort);
+            list = dominioService.findAll(pageable);
         }
-        model.addAttribute("list", list);
+        
+        Long count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());
         model.addAttribute("all", all);
+        
         return "dominio-list";
     }
 

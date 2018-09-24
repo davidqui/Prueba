@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import java.security.Principal;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,6 +45,12 @@ import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.DominioService;
 import com.laamware.ejercito.doc.web.serv.LdapService;
 import com.laamware.ejercito.doc.web.serv.OFS;
+import com.laamware.ejercito.doc.web.util.PaginacionUtil;
+
+import org.springframework.data.domain.PageRequest;
+import static java.lang.Math.toIntExact;
+import java.util.ArrayList;
+import org.springframework.data.domain.Page;
 
 @Controller
 @PreAuthorize("hasRole('ADMIN_USUARIOS')")
@@ -90,11 +97,31 @@ public class UsuarioController extends UtilController {
 
     static final String PATH = "/usuarios";
 
+    /**
+     * 2018-09-20 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+     * feature-174: Adición para la paginación.
+     */
     @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String listarUsuarios(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
+            @RequestParam(value = "pageIndex", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "filtro", required = false, defaultValue = "") String filtro,
             Model model) {
-        List<Usuario> list = findAll(all);
-        model.addAttribute("list", list);
+        
+        if (page == null || page < 0)
+            page = 1;
+        
+        if (pageSize == null || pageSize < 0)
+            pageSize = ADMIN_PAGE_SIZE;
+        
+        filtro = filtro.toLowerCase();
+        
+        Page<Usuario> list = findAll(all, page-1, pageSize, filtro);
+        
+        Long count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());
+        model.addAttribute("filtro", filtro);
         model.addAttribute("all", all);
         return "usuario-list";
     }
@@ -521,15 +548,19 @@ public class UsuarioController extends UtilController {
         return d;
     }
 
-    protected List<Usuario> findAll(boolean all) {
+    protected Page<Usuario> findAll(boolean all, Integer page, Integer pageSize, String filtro) {
         /* 
-         *2017-10-05 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech)
+         * 2017-10-05 edison.gonzalez@controltechcg.com Issue #131 (SICDI-Controltech)
          * feature-131: Ajuste de orden segun el peso de los grados.
          */
+        /**
+        * 2018-09-20 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+        * feature-174: Adición para la paginación.
+        */
         if (!all) {
-            return usuarioRepository.findAllByActivoTrueOrderByGradoDesc();
+            return usuarioRepository.findAllByActivoTrueAndNombreContainingOrderByGradoDesc(filtro, new PageRequest(page, pageSize));
         } else {
-            return usuarioRepository.findAllOrderByGradoDesc();
+            return usuarioRepository.findAllOrderByNombreContainingGradoDesc(filtro, new PageRequest(page, pageSize));
         }
     }
 

@@ -24,18 +24,24 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.laamware.ejercito.doc.web.ctrl.GenController.MapWrapper;
+import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.DependenciaTrd;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.Trd;
+import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DependenciaTrdRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.serv.CacheService;
 import com.laamware.ejercito.doc.web.serv.TRDService;
+import com.laamware.ejercito.doc.web.util.PaginacionUtil;
+import static java.lang.Math.toIntExact;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 @Controller
 @RequestMapping(DependenciaController.PATH)
@@ -75,13 +81,32 @@ public class DependenciaController extends UtilController {
     @Autowired
     private TRDService trdService;
 
+    /**
+    * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+    * feature-174: Adición para la paginación.
+    */
     @PreAuthorize("hasRole('ADMIN_DEPENDENCIAS')")
     @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
+            @RequestParam(value = "pageIndex", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "filtro", required = false, defaultValue = "") String filtro,
             Model model) {
+        
+        if (page == null || page < 0)
+            page = 1;
+        
+        if (pageSize == null || pageSize < 0) 
+            pageSize = ADMIN_PAGE_SIZE;
+        
+        filtro = filtro.toLowerCase();
+        
+        Page<Dependencia> list = findAll(all, page-1, pageSize, filtro);
 
-        List<Dependencia> list = findAll(all);
-        model.addAttribute("list", list);
+        Long count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());
+        model.addAttribute("filtro", filtro);
         model.addAttribute("all", all);
         return "dependencia-list";
     }
@@ -92,11 +117,11 @@ public class DependenciaController extends UtilController {
         return "dependencia-create";
     }
 
-    protected List<Dependencia> findAll(boolean all) {
+    protected Page<Dependencia> findAll(boolean all, Integer page, Integer pageSize, String filtro) {
         if (!all) {
-            return dependenciaRepository.findByActivo(true);
+            return dependenciaRepository.findDependenciaAdminActivo(filtro, new PageRequest(page, pageSize));
         } else {
-            return dependenciaRepository.findAll();
+            return dependenciaRepository.findDependenciaAdmin(filtro, new PageRequest(page, pageSize));
         }
     }
 

@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import static com.laamware.ejercito.doc.web.ctrl.UtilController.ADMIN_PAGE_SIZE;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
@@ -9,6 +10,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -17,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -38,10 +43,21 @@ public class CargosController extends UtilController {
     static final String PATH = "/admin/cargos";
 
     @RequestMapping(value = {""}, method = RequestMethod.GET)
-    public String list(Model model) {
-        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "carNombre"));
-        List<Cargo> list = cargosRepository.findAll(sort);
-        model.addAttribute("list", list);
+    public String list(@RequestParam(value = "pageIndex", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize, Model model) {
+        
+        if (page == null || page < 0)
+            page = 1;
+        if (pageSize == null || pageSize < 0)
+            pageSize = ADMIN_PAGE_SIZE;
+        
+        Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.DESC, "carNombre");
+        
+        Page<Cargo> list = cargosRepository.findAll(pageable);
+        Long count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());      
+        
         return "cargos-list";
     }
 
