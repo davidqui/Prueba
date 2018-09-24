@@ -73,7 +73,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import net.sourceforge.jbarcodebean.JBarcodeBean;
-import net.sourceforge.jbarcodebean.model.Interleaved25;
+import net.sourceforge.jbarcodebean.model.Code128;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -1185,7 +1185,14 @@ public class DocumentoActaService {
 
         JBarcodeBean barcode = new JBarcodeBean();
 
-        barcode.setCodeType(new Interleaved25());
+        /*
+        * nuestro tipo de codigo de barra
+        * 2018-09-24 edison.gonzalez@controltechcg.com Issue #17 (SICDI-Controltech)
+        * hotfix-17: Se realiza el cambio de tipo, para que se genere correctamente
+        * el código de barras. Se aplica el mismo código utilizado en el reporte
+        * de sticker de los procesos de radicación.
+         */
+        barcode.setCodeType(new Code128());
 
         String codigo;
         if (value == null || value.trim().isEmpty()) {
