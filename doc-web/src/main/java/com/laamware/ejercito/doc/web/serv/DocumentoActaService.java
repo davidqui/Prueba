@@ -49,7 +49,6 @@ import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.Global;
-import com.laamware.ejercito.doc.web.util.NumeroVersionComparator;
 import com.laamware.ejercito.doc.web.util.UsuarioXDocumentoActaComparator;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -61,7 +60,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -96,6 +94,10 @@ public class DocumentoActaService {
     public static final Map<String, String> ESTADO_MODE_MAP_FOR_UI;
 
     private static final Logger LOG = Logger.getLogger(DocumentoActaService.class.getName());
+    
+    private static final SimpleDateFormat DOCUMENTDATEFORMAT = new SimpleDateFormat(Global.DOCUMENT_DATE_FORMAT_PATTERN, Global.COLOMBIA);
+    private static final SimpleDateFormat STICKERDATEFORMAT = new SimpleDateFormat(Global.STICKER_DATE_FORMAT_PATTERN, Global.COLOMBIA);
+    final SimpleDateFormat DATEFORMAT = new SimpleDateFormat(Global.DATE_FORMAT, Global.COLOMBIA);
 
     private String imagesRoot;
 
@@ -353,7 +355,7 @@ public class DocumentoActaService {
                 final Date actaFechaElaboracionLimite = DateUtil.setTime(DateUtil.add(new Date(), Calendar.DATE, -diasLimiteFechaElaboracion), DateUtil.SetTimeType.START_TIME);
                 if (actaFechaElaboracion.before(actaFechaElaboracionLimite)) {
                     validation.addError(documentoActaDTO, campo, "La fecha de elaboración es menor que la fecha límite permitida: "
-                            + new SimpleDateFormat(Global.DATE_FORMAT).format(actaFechaElaboracionLimite));
+                            + DATEFORMAT.format(actaFechaElaboracionLimite));
                 } else {
                     final Date fechaSistema = DateUtil.setTime(new Date(), DateUtil.SetTimeType.END_TIME);
                     if (actaFechaElaboracion.after(fechaSistema)) {
@@ -478,13 +480,9 @@ public class DocumentoActaService {
      * @return Documento actualizado con el número de radicación asignado.
      */
     public Documento asignarNumeroRadicacion(Documento documento, final Usuario usuarioSesion) {
-        final Dependencia dependenciaDestino = documento.getDependenciaDestino();
-        final Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
-
-        final Proceso proceso = documento.getInstancia().getProceso();
-        final Radicacion radicacion = radicadoService.findByProceso(proceso);
-
-        documento.setRadicado(radicadoService.retornaNumeroRadicado(superDependencia.getId(), radicacion.getRadId()));
+        Integer unidad = dependenciaRepository.findUnidadID(documento.getDependenciaDestino().getId());
+        final Radicacion radicacion = radicadoService.findByProceso(documento.getInstancia().getProceso());
+        documento.setRadicado(radicadoService.retornaNumeroRadicado(unidad, radicacion.getRadId()));
         documento.setSticker(generaSticker(documento));
 
         documento.setQuienMod(usuarioSesion.getId());
@@ -501,11 +499,10 @@ public class DocumentoActaService {
      */
     private String generaSticker(Documento doc) {
         try {
-            final SimpleDateFormat sdf = new SimpleDateFormat(Global.STICKER_DATE_FORMAT_PATTERN, Global.COLOMBIA);
             Map<String, Object> params = new HashMap<>();
             params.put("radicado", doc.getRadicado() == null ? "" : doc.getRadicado());
             params.put("asunto", doc.getAsunto() == null ? "" : doc.getAsunto());
-            params.put("cuando", sdf.format(doc.getActaFechaElaboracion()));
+            params.put("cuando", STICKERDATEFORMAT.format(doc.getActaFechaElaboracion()));
             params.put("elabora", doc.getElabora().getNombre());
             params.put("imagesRoot", imagesRoot);
             List<String> listaUnElemento = new ArrayList<>(1);
@@ -752,7 +749,7 @@ public class DocumentoActaService {
      * corresponda al formato esperado.
      */
     private Date buildFechaElaboracion(final String fechaElaboracion) throws ParseException {
-        return DateUtil.setTime(new SimpleDateFormat(Global.DATE_FORMAT).parse(fechaElaboracion), DateUtil.SetTimeType.START_TIME);
+        return DateUtil.setTime(DATEFORMAT.parse(fechaElaboracion), DateUtil.SetTimeType.START_TIME);
     }
 
     /**
@@ -872,18 +869,21 @@ public class DocumentoActaService {
      */
     public void crearActaDeTransferencia(TransferenciaArchivo transferenciaArchivo, final List<TransferenciaArchivoDetalle> detalles, final List<TransExpedienteDetalle> transferenciaExpediente) {
         try {
-            System.err.println("crearActaDeTransferencia inicia= " + new Date());
+//            System.err.println("crearActaDeTransferencia inicia= " + new Date());
             final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
             final Usuario usuarioEmisor = transferenciaArchivo.getOrigenUsuario();
             final Usuario usuarioReceptor = transferenciaArchivo.getDestinoUsuario();
 
+//            System.err.println("crearActaDeTransferencia inicia crea instancia= " + new Date());
             /*Creando la instancia*/
             String pinId = procesoService.instancia(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS, jefeDependencia);
             Instancia procesoInstancia = procesoService.instancia(pinId);
 
+//            System.err.println("crearActaDeTransferencia inicia crea documento= " + new Date());
             /*Crando el documento*/
-            Documento documento = crearDocumentoDeActaDeTransferencia(pinId, transferenciaArchivo);
+            Documento documento = crearDocumentoDeActaDeTransferencia(pinId, transferenciaArchivo,jefeDependencia,usuarioEmisor,usuarioReceptor);
 
+//            System.err.println("crearActaDeTransferencia inicia asigna usuarios= " + new Date());
             /*Asignando usuarios transferencia*/
             Estado estado = procesoEstadoRepository.findEstadoInicialByProId(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
             procesoInstancia.setEstado(estado);
@@ -892,57 +892,56 @@ public class DocumentoActaService {
             asignarUsuarioActa(documento, jefeDependencia, jefeDependencia.getUsuCargoPrincipalId(), jefeDependencia);
             asignarUsuarioActa(documento, usuarioEmisor, transferenciaArchivo.getUsuOrigenCargo(), jefeDependencia);
             asignarUsuarioActa(documento, usuarioReceptor, transferenciaArchivo.getUsuDestinoCargo(), jefeDependencia);
-
+//            System.err.println("crearActaDeTransferencia inicia asigna numero radicado= " + new Date());
+            
             /*Asignando número de radicado*/
             documento = asignarNumeroRadicacion(documento, jefeDependencia);
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.GENERAR_NUMERO_RADICADO.getId());
 
+//            System.err.println("crearActaDeTransferencia inicia asigna usuario de registro= " + new Date());
             /*Usuario registro*/
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.ENVIAR_REGISTRO.getId());
 
+//            System.err.println("crearActaDeTransferencia inicia sticker= " + new Date());
             /*Sticker*/
             procesoInstancia.setCuandoMod(new Date());
             generaVariableSticker(procesoInstancia);
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.GENERAR_STICKER.getId());
 
+//            System.err.println("crearActaDeTransferencia inicia validar= " + new Date());
             /*Validar*/
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.VALIDAR.getId());
 
+//            System.err.println("crearActaDeTransferencia inicia aprobar y archivar= " + new Date());
             /*Aprobar_archivar*/
             digitalizarYArchivarActa(documento, procesoInstancia, jefeDependencia, DocumentoActaTransicionTransferencia.APROBAR_ARCHIVAR.getId());
-            System.err.println("crearActaDeTransferencia termina= " + new Date());
+//            System.err.println("crearActaDeTransferencia termina= " + new Date());
             /*Creación del documento del acta*/
             crearActaPdf(transferenciaArchivo, documento, detalles, transferenciaExpediente);
-            System.err.println("crearActaDeTransferencia terminapdf= " + new Date());
+//            System.err.println("crearActaDeTransferencia terminapdf= " + new Date());
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger.getLogger(DocumentoActaService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public Documento crearDocumentoDeActaDeTransferencia(String pinId, TransferenciaArchivo transferenciaArchivo) {
+    public Documento crearDocumentoDeActaDeTransferencia(String pinId, TransferenciaArchivo transferenciaArchivo, final Usuario jefeDependencia, final Usuario usuarioEmisor,final Usuario usuarioReceptor) {
         try {
             Instancia procesoInstancia = procesoService.instancia(pinId);
-            final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
-            final Usuario usuarioEmisor = transferenciaArchivo.getOrigenUsuario();
-            final Usuario usuarioReceptor = transferenciaArchivo.getDestinoUsuario();
-
             Documento documento = crearDocumento(procesoInstancia, jefeDependencia);
 
             /*Actualizando documento con información del acta*/
             final String asunto = "Transferencia de archivos y expedientes en gestión de " + usuarioEmisor.getLogin() + " a " + usuarioReceptor.getLogin();;
 
             final String actaLugar = usuarioEmisor.getDependencia().getCiudad();
-            final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(Global.DATE_FORMAT, Global.COLOMBIA);
-
             DocumentoActaDTO documentoActaDTO = new DocumentoActaDTO();
             documentoActaDTO.setDocId(documento.getId());
             documentoActaDTO.setAsunto(asunto);
             documentoActaDTO.setActaLugar(actaLugar);
-            documentoActaDTO.setActaFechaElaboracion(documentDateFormatter.format(new Date()));
+            documentoActaDTO.setActaFechaElaboracion(DATEFORMAT.format(new Date()));
             documentoActaDTO.setClasificacion(transferenciaArchivo.getOrigenClasificacion().getId().toString());
             documentoActaDTO.setTrd(trdService.findOne(subserieActaTransferencia).getId().toString());
             documentoActaDTO.setNumeroFolios("0");
@@ -966,18 +965,22 @@ public class DocumentoActaService {
      * Aspose.
      */
     private void crearActaPdf(final TransferenciaArchivo transferenciaArchivo, final Documento documento, final List<TransferenciaArchivoDetalle> detalles, final List<TransExpedienteDetalle> transferenciaExpediente) throws Exception {
-
+//        System.err.println("crearActaPdf inicia= " + new Date());
         final PlantillaTransferenciaArchivo plantilla = plantillaRepository.findByActivoTrue();
-        final KeysValuesAsposeDocxDTO asposeMap = crearMapaAsposeActa(transferenciaArchivo, documento, detalles, transferenciaExpediente);
         final String plantillaPath = ofs.getPath(plantilla.getCodigoOFS());
+//        System.err.println("crearActaPdf encontrando plantilla= " + new Date());
+        
+        final Document asposeDocument = new Document(plantillaPath);
         final License asposeLicense = new License();
         final Resource resource = new ClassPathResource("Aspose.Words.lic");
         asposeLicense.setLicense(resource.getInputStream());
+//        System.err.println("crearActaPdf documento y licencia= " + new Date());
 
-        final Document asposeDocument = new Document(plantillaPath);
-
+        
+        final KeysValuesAsposeDocxDTO asposeMap = crearMapaAsposeActa(transferenciaArchivo, documento, detalles, transferenciaExpediente);
         asposeDocument.getMailMerge().execute(asposeMap.getNombres(), asposeMap.getValues());
-
+//        System.err.println("crearActaPdf merge termina= " + new Date());
+        
         final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 2, true);
         if (table != null) {
 
@@ -994,6 +997,7 @@ public class DocumentoActaService {
                 }
             }
         }
+//        System.err.println("crearActaPdf primera tabla termina= " + new Date());
 
         
 
@@ -1012,6 +1016,8 @@ public class DocumentoActaService {
                 }
             }
         }
+        
+//        System.err.println("crearActaPdf segunda tabla termina= " + new Date());
 
         final String siglaDependenciaDestino = Objects.toString(transferenciaArchivo.getDestinoDependencia().getSigla(), "");
         ofs.insertWatermarkText(asposeDocument, siglaDependenciaDestino);
@@ -1049,6 +1055,7 @@ public class DocumentoActaService {
                 LOG.log(Level.SEVERE, null, ex1);
             }
         }
+//        System.err.println("crearActaPdf termina= " + new Date());
     }
 
     /**
@@ -1059,7 +1066,6 @@ public class DocumentoActaService {
      * @return Mapa de campos/valor.
      */
     private KeysValuesAsposeDocxDTO crearMapaAsposeActa(final TransferenciaArchivo transferenciaArchivo, Documento documento, List<TransferenciaArchivoDetalle> detalle, List<TransExpedienteDetalle> transferenciaExpediente) {
-        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(Global.DOCUMENT_DATE_FORMAT_PATTERN, Global.COLOMBIA);
         final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
 
         final KeysValuesAsposeDocxDTO map = new KeysValuesAsposeDocxDTO();
@@ -1082,7 +1088,7 @@ public class DocumentoActaService {
         final String elaboraCiudad = transferenciaArchivo.getOrigenDependencia().getCiudad();
         map.put("DEPENDENCIA_CIUDAD_ELABORA", elaboraCiudad == null ? "" : elaboraCiudad);
 
-        final String fechaDocumento = documentDateFormatter.format(new Date());
+        final String fechaDocumento = DOCUMENTDATEFORMAT.format(new Date());
         map.put("FECHA_DOC", fechaDocumento);
 
         map.put("ORIGEN_DEPENDENCIA_JEFE_GRADO_ID", jefeDependencia.getUsuGrado().getId());
@@ -1297,8 +1303,7 @@ public class DocumentoActaService {
             siglaUnidadOrigen = Objects.toString(unidadOrigen.getSigla(), "");
         }
 
-        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(Global.DATE_FORMAT, Global.COLOMBIA);
-        final String fecCreacion = documentDateFormatter.format(detalle.getExpId().getFecCreacion());
+        final String fecCreacion = DATEFORMAT.format(detalle.getExpId().getFecCreacion());
 
         final String tipo = (detalle.getExpId().getExpTipo() == 1) ? "Expediente simple" : "Expediente complejo";
 
