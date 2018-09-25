@@ -24,13 +24,10 @@ import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaFuidGestionRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.util.Global;
-import com.laamware.ejercito.doc.web.util.NumeroVersionComparator;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -122,7 +119,7 @@ public class PlantillaFuidGestionService {
         return nuevaPlantilla;
     }
 
-    public void crearDocumentoFuid(TransferenciaArchivo transferenciaArchivo,List<TransferenciaArchivoDetalle> detalles) throws Exception {
+    public void crearDocumentoFuid(TransferenciaArchivo transferenciaArchivo, List<TransferenciaArchivoDetalle> detalles) throws Exception {
 
         if (detalles.size() > 0) {
             final PlantillaFuidGestion plantilla = plantillaRepository.findByActivoTrue();
@@ -267,21 +264,21 @@ public class PlantillaFuidGestionService {
         final String asunto = documento.getAsunto();
 
         String fecRadicado = documentDateFormatter.format(documento.getDocFecRadicado());
-        final String numCaja    = "-----------";
+        final String numCaja = "-----------";
         final String numCarpeta = "-----------";
-        final String tomo       = "-----------";
+        final String tomo = "-----------";
         final String otro = "NAS-IMI";
 
         final int numFolios = documentoService.obtenerNumeroFolios(documento);
         final String numeroFolios = String.valueOf(numFolios);
 
         final String soporte;
-        if(documento.getInstancia().getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)){
+        if (documento.getInstancia().getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
             soporte = "DIGITALIZADO";
-        }else{
+        } else {
             soporte = "ELECTRONICO";
         }
-        
+
         final String freConsulta = "BAJA";
         final String notas;
         ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);

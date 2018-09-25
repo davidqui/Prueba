@@ -366,7 +366,6 @@ public class TransferenciaArchivoService {
      */
     public void aprobarTransferencia(TransferenciaArchivo transferenciaArchivo, Usuario usuario) {
         try {
-            System.err.println("aprobar inicia= " + new Date());
             transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_APROBADO);
             transferenciaArchivoDetalleService.transferirDocumentos(transferenciaArchivo);
             transExpedienteDetalleService.transferirExpedientes(transferenciaArchivo, usuario);
@@ -386,9 +385,6 @@ public class TransferenciaArchivoService {
             }
 
             documentoActaService.crearActaDeTransferencia(transferenciaArchivo, detalles, transferenciaExpediente);
-
-//            System.err.println("crearDo cumentoFuid= " + new Date());
-
             plantillaFuidGestionService.crearDocumentoFuid(transferenciaArchivo, detalles);
 
             Map<String, Object> model = new HashMap();
@@ -405,7 +401,6 @@ public class TransferenciaArchivoService {
             }
             model.put("usuario", transferenciaArchivo.getDestinoUsuario());
             notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_AUTORIZADA, transferenciaArchivo.getDestinoUsuario());
-            System.err.println("termina aprobar= " + new Date());
         } catch (Exception ex) {
             Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
         }
