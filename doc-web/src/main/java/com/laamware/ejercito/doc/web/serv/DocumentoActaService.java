@@ -946,7 +946,7 @@ public class DocumentoActaService {
             documentoActaDTO.setTrd(trdService.findOne(subserieActaTransferencia).getId().toString());
             documentoActaDTO.setNumeroFolios("0");
             documentoActaDTO.setCargoElabora(jefeDependencia.getUsuCargoPrincipalId().getId().toString());
-            documentoActaDTO.setActaDescripcion(asunto);
+            documentoActaDTO.setActaDescripcion(transferenciaArchivo.getJustificacion());
 
             return guardarRegistroDatos(documentoActaDTO, jefeDependencia);
         } catch (Exception e) {
