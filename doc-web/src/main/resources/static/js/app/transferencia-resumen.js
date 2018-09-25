@@ -103,8 +103,8 @@ function reenviarTransferenciaUsuario(idTransferencia) {
         url: "/transferencia-archivo/devolver/" + idTransferencia+"/"+usuario,
         data: {justificacion: pJustificacion},
         dataType: 'html'
-    }).then(function() {
-        location.reload();
+    }).then(function(id) {
+        window.location.replace("/transferencia-archivo/resumen/"+id);
       }, function(message) {
           console.log("ESTE ES EL MENSAJE ",message);
             $('#title-modal-message').html("Advertencia");

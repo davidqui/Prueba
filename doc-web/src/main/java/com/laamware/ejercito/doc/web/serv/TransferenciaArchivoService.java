@@ -691,15 +691,16 @@ public class TransferenciaArchivoService {
     public void actualizarTransferenciaArchivo(TransferenciaArchivo transferenciaArchivo) {
         transferenciaRepository.saveAndFlush(transferenciaArchivo);
     }
-
-    public void reenviarTransferencia(final TransferenciaArchivo transferenciaArchivo, Usuario usuarioDestino, String justificacion) throws Exception {
+    
+    
+    public TransferenciaArchivo reenviarTransferencia(final TransferenciaArchivo transferenciaArchivo, Usuario usuarioDestino, String justificacion) throws Exception{
         TransferenciaArchivo transferencia = crearEncabezadoTransferenciaGestion(transferenciaArchivo.getDestinoUsuario(),
                 transferenciaArchivo.getUsuDestinoCargo().getId(), usuarioDestino, justificacion);
         transferenciaArchivoDetalleService.reeviarDocumentosTransferencia(transferenciaArchivo, transferencia);
         transExpedienteDetalleService.reeviarExpedienteTransferencia(transferenciaArchivo, transferencia);
-        enviarTransferencia(transferencia, transferenciaArchivo.getDestinoUsuario());
         transferenciaArchivo.setActivo(Boolean.FALSE);
-        transferenciaRepository.save(transferenciaArchivo);
+        transferenciaRepository.saveAndFlush(transferenciaArchivo);
+        return transferencia;
     }
 
     /**
