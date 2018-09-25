@@ -713,16 +713,19 @@ public class TransferenciaArchivoController extends UtilController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         if (origenUsuario.getId().equals(usuId))
             return new ResponseEntity<>("No puede reenviarse una transferencia a usted mismo.", HttpStatus.BAD_REQUEST);
-        if (usuario.getClasificacion().getOrden() < transferenciaArchivo.getDestinoUsuario().getClasificacion().getOrden()) {
-            return new ResponseEntity<>("El usuario "+usuario.getUsuGrado().getId()+" "+usuario.getNombre()+" tiene una clasificación menor que su clasificación.", HttpStatus.BAD_REQUEST);
-        }
+        if (usuario.getClasificacion().getOrden() < transferenciaArchivo.getDestinoUsuario().getClasificacion().getOrden())
+            return new ResponseEntity<>("La transferencia no se puede efectuar por que el usuario "+usuario.getUsuGrado().getId()+" "+usuario.getNombre()+" tiene una clasificación menor a la suya. </br> Por favor verificar e intentar nuevamente.", HttpStatus.BAD_REQUEST);
+        if (usuario.getDependencia().getJefe() == null)
+            return new ResponseEntity<>("La transferencia no se puede efectuar por que la dependencia del usuario  "+usuario.getUsuGrado().getId()+" "+usuario.getNombre()+" no tiene un jefe de dependencia. </br> Por favor verificar e intentar nuevamente.", HttpStatus.BAD_REQUEST);
+
         final Usuario usuarioDestino = usuarioService.findOne(usuId);
         try {
-            transferenciaService.reenviarTransferencia(transferenciaArchivo, usuarioDestino, justificacion);
+            TransferenciaArchivo trReenviada = transferenciaService.reenviarTransferencia(transferenciaArchivo, usuarioDestino, justificacion);
+            return ResponseEntity.ok(trReenviada.getId());
         } catch (Exception ex) {
             Logger.getLogger(TransferenciaArchivoController.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
     
 }

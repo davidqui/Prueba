@@ -257,10 +257,10 @@
             </button>
         </#if>
         <#if transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.indAprobado = 1 && transferenciaArchivo.activo = true
-            && ((documentosXTransferenciaArchivo?size != documentosNoPosesionTransferencia?size) ||
-                (expedientesSeleccionados?size != expedientesNoPosesionTransferencia?size))>
+            && ((documentosXTransferenciaArchivo?size != documentosNoPosesionTransferencia?size && documentosXTransferenciaArchivo?size>0) ||
+                (expedientesSeleccionados?size != expedientesNoPosesionTransferencia?size && expedientesSeleccionados?size > 0))>
             <a class="btn btn-warning" data-toggle="modal"  data-target="#modalReenviar" >
-              Devolver Transferencia 
+              Reenviar Transferencia  
             </a>
         </#if>
     </#if>
@@ -292,7 +292,7 @@
         </a>
     </#if>
     <#if transferenciaArchivo.docId??>
-        <a class="btn btn-success" href="/documento?pin=${transferenciaArchivo.docId.instancia.id}" target="_blank">Ver acta</a>
+        <a class="btn btn-success" href="/documento?pin=${transferenciaArchivo.docId.instancia.id}" target="_blank">Ver Acta</a>
     </#if>
 </div>
 

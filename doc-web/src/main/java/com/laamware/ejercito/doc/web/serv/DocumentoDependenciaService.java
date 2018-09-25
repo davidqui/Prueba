@@ -156,8 +156,17 @@ public class DocumentoDependenciaService {
         for (DocumentoDependencia documento : documentosDependenciaXUsuario) {
             Documento pdocumento = documento.getDocumento();
             c.setTime(pdocumento.getDocFecRadicado());
-            c.add(Calendar.YEAR, pdocumento.getTrd().getRetArchivoGeneral());
-            if (new Date().before(c.getTime()))
+            if (pdocumento.getTrd().getRetArchivoGeneral() != null) {
+                c.add(Calendar.YEAR, pdocumento.getTrd().getRetArchivoGeneral());
+                if (new Date().before(c.getTime()))
+                    if (!hashMap.containsKey(documento.getDocumento().getTrd())) {
+                        List<DocumentoDependencia> list = new ArrayList<>();
+                        list.add(documento);
+                        hashMap.put(documento.getDocumento().getTrd(), list);
+                    } else {
+                        hashMap.get(documento.getDocumento().getTrd()).add(documento);
+                    }
+            }else{
                 if (!hashMap.containsKey(documento.getDocumento().getTrd())) {
                     List<DocumentoDependencia> list = new ArrayList<>();
                     list.add(documento);
@@ -165,6 +174,7 @@ public class DocumentoDependenciaService {
                 } else {
                     hashMap.get(documento.getDocumento().getTrd()).add(documento);
                 }
+            }
         }
         List<Trd> findByActivoAndSerieNull = trdRepository.findByActivoAndSerieNull(true);
         List<TrdDTO> documentosXtrd = new ArrayList<>();
