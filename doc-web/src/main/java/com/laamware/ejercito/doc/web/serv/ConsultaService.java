@@ -568,7 +568,7 @@ public class ConsultaService {
                 + "      EXPD.EXP_ID                                                                                             \"expId\", \n"
                 + "       nvl((select 1\n" 
                 + "            from dual\n" 
-                + "            where (INSTANCIA.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ?)"
+                + "            where (INSTANCIA.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR USU.USU_ID = ? or DOCUMENTO_DEPENDENCIA.QUIEN = ?)"
                 + "                    OR ((INSTANCIA.PRO_ID IN (?) AND ((USU.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?)"
                 + "                    OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ?)))))),0)                 \"indPertenece\", \n"
                 + "       nvl((select 1\n"
@@ -668,11 +668,12 @@ public class ConsultaService {
         sql.append(") AND DOC.DOC_ASUNTO IS NOT NULL \n");
         
         if (!permisoAdministradorArchivo) {
-            sql.append(" AND ((INSTANCIA.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR HPIN.USU_ID = ?)) \n");
+            sql.append(" AND ((INSTANCIA.PRO_ID IN (?, ?, ?) AND (DOC.USU_ID_ELABORA = ? OR DOC.USU_ID_FIRMA = ? OR HPIN.USU_ID = ? or DOCUMENTO_DEPENDENCIA.QUIEN = ?)) \n");
             sql.append(" OR ((INSTANCIA.PRO_ID IN (?) AND ((HPIN.USU_ID = ? AND INSTANCIA.PES_ID <> ?) OR (DOCUMENTO_DEPENDENCIA.QUIEN = ? AND INSTANCIA.PES_ID = ?) OR (USUARIO_X_DOCUMENTO_ACTA.USU_ID = ? AND INSTANCIA.PES_ID = ? \n");
             parameters.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
             parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
             parameters.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
+            parameters.add(usuarioID);
             parameters.add(usuarioID);
             parameters.add(usuarioID);
             parameters.add(usuarioID);
@@ -800,10 +801,10 @@ public class ConsultaService {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         StringBuilder sql = retornarNuevaConsulta();
         LinkedList<Object> parameters = armaConsultaNueva(sql, asunto, fechaInicio, fechaFin, radicado, dependenciaDestino, dependenciaOrigen, usuarioID, cargosIDs, sameValue, permisoAdministradorArchivo, tipoBusqueda, destinoExterno);
-//        LOG.info("##################################################");
-//        LOG.info("sql = " + sql);
-//        LOG.info("parameters = " + parameters);
-//        LOG.info("##################################################");
+        LOG.info("##################################################");
+        LOG.info("sql = " + sql);
+        LOG.info("parameters = " + parameters);
+        LOG.info("##################################################");
         String consulta = ""
                 + "select DOC_ID, RESULT_COUNT \n"
                 + "from(\n"
@@ -849,6 +850,7 @@ public class ConsultaService {
             parameters3.add(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS);
             parameters3.add(Proceso.ID_TIPO_PROCESO_GENERAR_Y_ENVIAR_DOCUMENTO_PARA_UNIDADES_DE_INTELIGENCIA_Y_CONTRAINTELIGENCIA);
             parameters3.add(Proceso.ID_TIPO_PROCESO_GENERAR_DOCUMENTOS_PARA_ENTES_EXTERNOS_O_PERSONAS);
+            parameters3.add(usuarioID);
             parameters3.add(usuarioID);
             parameters3.add(usuarioID);
             parameters3.add(usuarioID);
