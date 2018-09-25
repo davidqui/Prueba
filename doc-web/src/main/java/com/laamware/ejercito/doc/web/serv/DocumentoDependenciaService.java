@@ -206,9 +206,7 @@ public class DocumentoDependenciaService {
         documentoDependencia.setCargo(cargo);
         documentoDependencia.setDependencia(dependencia);
         documentoDependencia.setCuando(new Date());
-        System.err.println("Guardando la transferencia");
         documentoDependenciaRepository.save(documentoDependencia);
-        System.err.println("transferencia guardada");
     }
     
     

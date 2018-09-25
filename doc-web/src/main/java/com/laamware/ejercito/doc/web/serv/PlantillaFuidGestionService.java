@@ -122,15 +122,12 @@ public class PlantillaFuidGestionService {
         return nuevaPlantilla;
     }
 
-    public void crearDocumentoFuid(TransferenciaArchivo transferenciaArchivo) throws Exception {
-        final List<TransferenciaArchivoDetalle> detalles = detalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
+    public void crearDocumentoFuid(TransferenciaArchivo transferenciaArchivo,List<TransferenciaArchivoDetalle> detalles) throws Exception {
 
         if (detalles.size() > 0) {
             final PlantillaFuidGestion plantilla = plantillaRepository.findByActivoTrue();
             final String plantillaPath = ofs.getPath(plantilla.getCodigoOfs());
             final Document asposeDocument = new Document(plantillaPath);
-
-            ordenarDetalles(detalles);
 
             final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 2, true);
 
@@ -294,24 +291,6 @@ public class PlantillaFuidGestionService {
             notas = "EXPEDIENTE ELECTRONICO";
         }
         return new String[]{numOrden, codigo, asunto, fecRadicado, fecRadicado, numCaja, numCarpeta, tomo, otro, numeroFolios, soporte, freConsulta, notas};
-    }
-
-    /**
-     * Ordena la lista de detalles según el código de la TRD asociada.
-     *
-     * @param detalles Lista de detalles de transferencia.
-     */
-    private void ordenarDetalles(List<TransferenciaArchivoDetalle> detalles) {
-        Collections.sort(detalles, new Comparator<TransferenciaArchivoDetalle>() {
-            final NumeroVersionComparator versionComparator = new NumeroVersionComparator();
-
-            @Override
-            public int compare(TransferenciaArchivoDetalle detalle1, TransferenciaArchivoDetalle detalle2) {
-                final String codigo1 = detalle1.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
-                final String codigo2 = detalle2.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
-                return versionComparator.compare(codigo1, codigo2);
-            }
-        });
     }
 
     /**
