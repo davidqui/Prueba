@@ -1,8 +1,10 @@
 package com.laamware.ejercito.doc.web.repo;
 import com.laamware.ejercito.doc.web.entity.DestinoExterno;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 /**
  * Repositorio de persistencia para {@link DestinoExterno}.
  *
@@ -10,7 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @since 1.8
  * @version 31/08/2018 Issue gogs #10 (SICDI-Controltech) feature-gogs-10
  */
-public interface DestinoExternoRepository extends JpaRepository<DestinoExterno, Integer>{
+public interface DestinoExternoRepository extends GenJpaRepository<DestinoExterno, Integer>{
     
     /**
      * Lista todas los destinos externos activos
@@ -33,4 +35,6 @@ public interface DestinoExternoRepository extends JpaRepository<DestinoExterno, 
      */
     public DestinoExterno findOneBySiglaAndActivoTrue(String sigla);
 
+    
+    public Page<DestinoExterno> findAllByActivoTrue(Pageable pageable);
 }

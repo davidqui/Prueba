@@ -1,22 +1,28 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
+import com.laamware.ejercito.doc.web.dto.PaginacionDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.TransJustificacionDefecto;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.serv.TransJustificacionDefectoService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
+import com.laamware.ejercito.doc.web.util.PaginacionUtil;
 import com.laamware.ejercito.doc.web.util.ReflectionException;
+import static java.lang.Math.toIntExact;
 import java.security.Principal;
-import org.springframework.data.domain.Sort;
+import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,19 +64,34 @@ public class TransJustificacionDefectoController extends UtilController {
      * @param model
      * @return 
      */
-     
+    /**
+    * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+    * feature-174: Adición para la paginación.
+    */
     @RequestMapping(value = {""}, method = RequestMethod.GET)
-    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
-        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
+            @RequestParam(value = "pageIndex", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            Model model) {
         
-        List<TransJustificacionDefecto> list;
+        if (page == null || page < 0)
+            page = 1;
+        if (pageSize == null || pageSize < 0)
+            pageSize = ADMIN_PAGE_SIZE;
+        
+        Long count;
+        
+        Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.ASC, "cuando");
+        Page<TransJustificacionDefecto> list;
         if (!all) {
-            list = justificacionDefectoService.findActive(sort);
+            list = justificacionDefectoService.findActive(pageable);
         } else {
-            list = justificacionDefectoService.findAll(sort);
+            list = justificacionDefectoService.findAll(pageable);
         }
         
-        model.addAttribute("list", list);
+        count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());
         model.addAttribute("all", all);
 
         return LIST_TEMPLATE;

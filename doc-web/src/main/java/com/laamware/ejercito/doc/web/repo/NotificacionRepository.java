@@ -2,6 +2,8 @@ package com.laamware.ejercito.doc.web.repo;
 
 import com.laamware.ejercito.doc.web.entity.Notificacion;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +26,13 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Inte
      * @return 
      */
     List<Notificacion> getByActivoTrue(Sort sort);
+    
+    /**
+     * Lista todas las notificaciones activas
+     * @param sort
+     * @return 
+     */
+    Page<Notificacion> getByActivoTrue(Pageable pageable);
     
     @Query(nativeQuery = true, value = ""
             + "SELECT NOTIFICACION.*                                                                        "

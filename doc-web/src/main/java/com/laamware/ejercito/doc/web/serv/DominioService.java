@@ -9,6 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +48,14 @@ public class DominioService {
 
     public List<Dominio> findAll(Sort sort) {
         return dominioRepository.findAll(sort);
+    }
+    
+    public Page<Dominio> mostrarDominiosActivos(Pageable pageable) {
+        return dominioRepository.getByActivoTrue(pageable);
+    }
+
+    public Page<Dominio> findAll(Pageable pageable) {
+        return dominioRepository.findAll(pageable);
     }
 
     public Dominio findOne(String id) {

@@ -64,6 +64,9 @@
             </#list>
             </tbody>
         </table>
+        <#if totalPages gt 0>
+            <@printBar url="/admin/parnombrexpediente" params={"filtro": filtro!"", "all": all?string("true", "false") } metodo="get"/>
+        </#if>
 
     </div>
 

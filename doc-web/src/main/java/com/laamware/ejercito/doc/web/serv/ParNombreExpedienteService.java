@@ -12,6 +12,8 @@ import com.laamware.ejercito.doc.web.util.ReflectionUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Servicio para las operaciones de los nombres de los expedientes.
@@ -39,6 +41,17 @@ public class ParNombreExpedienteService {
      */
     public List<ParNombreExpediente> findAll() {
         return parNombreExpedienteRepository.findAll();
+    }
+    
+    /**
+     * *
+     * Lista todos los Nombres
+     *
+     * @param sort
+     * @return
+     */
+    public Page<ParNombreExpediente> findAll(Pageable pageable) {
+        return parNombreExpedienteRepository.findAll(pageable);
     }
 
     /**

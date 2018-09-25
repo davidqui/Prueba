@@ -3,6 +3,7 @@ package com.laamware.ejercito.doc.web.ctrl;
 import com.aspose.words.Bookmark;
 import com.aspose.words.BookmarkCollection;
 import com.aspose.words.Document;
+import static com.laamware.ejercito.doc.web.ctrl.UtilController.ADMIN_PAGE_SIZE;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -34,6 +35,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
@@ -62,17 +66,36 @@ public class PlantillaController extends UtilController {
         @Value("${com.mil.imi.sicdi.plantillas.validar}")
         private Boolean VALIDAR_PLANTILLAS;
         
+        /**
+        * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+        * feature-174: Adición para la paginación.
+        */
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public String list(Model model,
+                        @RequestParam(value = "pageIndex", required = false) Integer page,
+                        @RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all) {
-		model.addAttribute("all", all);
-		List<Plantilla> plantillas = null;
+		
+            if (page == null || page < 0)
+                page = 1;
+            if (pageSize == null || pageSize < 0)
+                pageSize = ADMIN_PAGE_SIZE;   
+            
+            Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.ASC, "codigo");
+
+            
+                Page<Plantilla> plantillas = null;
 		if (all) {
-			plantillas = rep.findAll(new Sort(Direction.ASC, "codigo"));
+			plantillas = rep.findAll(pageable);
 		} else {
-			plantillas = rep.findByActivo(true, new Sort(Direction.ASC, "codigo"));
+			plantillas = rep.findByActivo(true, pageable);
 		}
-		model.addAttribute("list", plantillas);
+                
+                Long count = plantillas.getTotalElements();
+                adminPageable(count, model, page, pageSize);
+                model.addAttribute("list", plantillas.getContent());
+                model.addAttribute("all", all);
+        
 		return "admin-plantilla-list";
 	}
 

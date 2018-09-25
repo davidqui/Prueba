@@ -1,4 +1,4 @@
-<#assign pageTitle = "Administraciòn Logs" />
+<#assign pageTitle = "Administración Logs" />
 <#include "gen-macros.ftl">
 <#if templatePrefix??>
     <#include templatePrefix + "-header.ftl">
@@ -20,12 +20,18 @@
 		<fieldset class="form-group">
 			<table>
 				<tr>
-		        	<td><label for="usuario">Login</label></td>
-		        	<td><input type="text" class="form-control" id="login" name="usuario" /><td>
+		        	<td style="padding-right: 16px;"><label for="usuario">Login</label></td>
+		        	<td><input type="text" class="form-control" id="login" name="usuario" value="${(usuario)!""}"/><td>
 		        	<td><button type="submit" class="btn btn-success btn-sm">Consulta el log del usuario</button></td>	 
 		       </tr> 
 	       </table>	       
-	    </fieldset>    
+	    </fieldset>
+            <div style="display: flex;">
+                <input name="filtro" maxlength="150" size="30" class="form-control" type="text" style="width: 80%" value="${(filtro)!""}">    
+                <button type="submit" class="btn btn-primary" onclick="loading(event);" style="width: 20%">
+                    <span class="hidden-md-down"><img class="card-img-top" src="/img/search.svg" alt=""> Buscar</span><span class="hidden-lg-up"><img class="card-img-top" src="/img/search.svg" alt=""></span>
+                </button>
+            </div>
     </form>
     
     <br />
@@ -33,7 +39,6 @@
     
         <br />
         <!-- 2017-02-24 jgarcia@controltechcg.com Issue #111: Se amplía el campo de búsqueda a 150 caracteres. -->
-        Buscador un registro en la tabla de actual <input id="txt_tabla_logs" maxlength="150" size="30" class="form-control" type="text">    
         <table class="table" id="tabla_logs">
             <thead class="thead-inverse">
                 <tr>
@@ -55,7 +60,9 @@
             </#list>
             </tbody>
         </table>
-
+        <#if  totalPages?? && totalPages gt 0>
+            <@printBar url="/admin/logs/usuario" params={"filtro": filtro!"", "usuario": usuario!"" } metodo="get"/>
+        </#if>
 </div>
 
 <script>

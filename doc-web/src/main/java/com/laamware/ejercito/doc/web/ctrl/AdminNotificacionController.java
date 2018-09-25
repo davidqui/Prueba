@@ -19,6 +19,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -69,17 +72,32 @@ public class AdminNotificacionController extends UtilController {
      * @param model
      * @return Pagina de consulta de observaciones por defecto
      */
+    /**
+    * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
+    * feature-174: Adición para la paginación.
+    */
     @RequestMapping(value = {""}, method = RequestMethod.GET)
-    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
-        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
-        List<Notificacion> list;
+    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
+            @RequestParam(value = "pageIndex", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            Model model) {
+        if (page == null || page < 0)
+            page = 1;
+        if (pageSize == null || pageSize < 0)
+            pageSize = ADMIN_PAGE_SIZE;
+        
+        Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.ASC, "cuando");
+        
+        Page<Notificacion> list;
         if (!all) {
-            list = notificacionService.findActive(sort);
+            list = notificacionService.findActive(pageable);
         } else {
-            list = notificacionService.findAll(sort);
+            list = notificacionService.findAll(pageable);
         }
-
-        model.addAttribute("list", list);
+        
+        Long count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());
         model.addAttribute("all", all);
 
         return LIST_TEMPLATE;
