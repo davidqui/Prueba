@@ -6,6 +6,7 @@ import com.laamware.ejercito.doc.web.entity.Cargo;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
+import com.laamware.ejercito.doc.web.entity.Expediente;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.Trd;
 import com.laamware.ejercito.doc.web.entity.Usuario;
@@ -229,5 +230,18 @@ public class DocumentoDependenciaService {
      */
     public int cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(Integer usuID,Integer cargoId){
         return documentoDependenciaRepository.cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(usuID, cargoId);
+    }
+    
+    /**
+     * Lista los documentos en un expediente.
+     * @param expediente expediente a listar los documentos 
+     * @return documentos del expediente
+     */
+    /**
+     * 2018-09-26 samuel.delgado@controltechcg.com Issue #4 (SICDI-Controltech)
+     * feature-gogs-4: método que trae los documentos de un usuario en un expediente
+     */
+    public List<DocumentoDependencia> documentosExpedienteUsuario(Expediente expediente, Usuario usuario){
+        return documentoDependenciaRepository.documentosDependenciaXExpedienteXUsuario(expediente.getExpId(), usuario.getId());
     }
 }

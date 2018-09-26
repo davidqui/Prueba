@@ -212,4 +212,20 @@ public interface DocumentoDependenciaRepository extends GenJpaRepository<Documen
             + "    and b.doc_id = a.doc_id\n"
             + ")", nativeQuery = true)
     int cantidadDocumentosPosibleTransferenciaXusuIdAndCargoId(@Param("usuId") Integer usuID, @Param("cargoId") Integer cargoId);
+
+
+    /***
+     * lista los documentos que le pertenecen a un usuario en un expediente.
+     * @param expId identificador del expediente
+     * @param usuId identificador del usuario
+     * @return 
+     */
+    @Query(value = "" +
+        "SELECT DISTINCT DOCD.* \n" +
+        "        FROM DOCUMENTO_DEPENDENCIA DOCD \n" +
+        "        LEFT JOIN DOCUMENTO DOC ON (DOC.DOC_ID = DOCD.DOC_ID)\n" +
+        "        LEFT JOIN EXP_DOCUMENTO EXD ON (EXD.DOC_ID = DOC.DOC_ID AND EXD.ACTIVO = 1)\n" +
+        "        WHERE DOCD.QUIEN = :usuId AND DOCD.activo = 1 AND EXD.EXP_ID = :expId", nativeQuery = true)
+    List<DocumentoDependencia> documentosDependenciaXExpedienteXUsuario(@Param("expId") Long expId, @Param("usuId") Integer usuId);
+
 }

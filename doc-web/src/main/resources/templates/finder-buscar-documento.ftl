@@ -88,7 +88,7 @@ Administrables
                                     <td>${(documento.nombreUsuarioElabora)!""}</td>
                                     <td>${(documento.unidadDestino)!""}</td>
                                     <td>${(documento.nombreClasificacion)!""}</td>
-                                    <td>${(documento.cuandoMod)!""}</td>
+                                    <td>${(documento.cuandoMod?string('dd.MM.yyyy HH:mm:ss'))!""}</td>
                                 </tr>
                                 <tr>
                                 </#list>
