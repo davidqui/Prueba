@@ -37,6 +37,9 @@ public class DocumentoService {
     private DependenciaRepository dependenciaRepository;
     
     @Autowired
+    private AdjuntoService adjuntoService;
+    
+    @Autowired
     private OFS ofs;
 
     /**
@@ -125,8 +128,8 @@ public class DocumentoService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        List<Adjunto> adjuntos = documento.getAdjuntos();
+        
+        List<Adjunto> adjuntos = adjuntoService.findAllActivos(documento);
 
         //Obtiene el número de folios de los adjuntos
         if (!adjuntos.isEmpty()) {
