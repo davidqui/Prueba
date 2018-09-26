@@ -943,7 +943,7 @@ public class DocumentoActaService {
             documentoActaDTO.setAsunto(asunto);
             documentoActaDTO.setActaLugar(actaLugar);
             documentoActaDTO.setActaFechaElaboracion(DATEFORMAT.format(new Date()));
-            documentoActaDTO.setClasificacion(transferenciaArchivo.getOrigenClasificacion().getId().toString());
+            documentoActaDTO.setClasificacion(clasificacionRepository.findMinOrderActivo().getNombre());
             documentoActaDTO.setTrd(trdService.findOne(subserieActaTransferencia).getId().toString());
             documentoActaDTO.setNumeroFolios("0");
             documentoActaDTO.setCargoElabora(jefeDependencia.getUsuCargoPrincipalId().getId().toString());
@@ -1058,8 +1058,7 @@ public class DocumentoActaService {
 
         final KeysValuesAsposeDocxDTO map = new KeysValuesAsposeDocxDTO();
 
-        final Clasificacion minClasificacion = clasificacionRepository.findMinOrderActivo();
-        map.put("N_CLASIFICACION", minClasificacion.getNombre());
+        map.put("N_CLASIFICACION", documento.getClasificacion().getNombre());
 
         final byte[] barcodeBytes = buildBarcodeBytes(documento.getRadicado().replaceAll("-", ""));
         map.put("COD_BARRA", barcodeBytes);
