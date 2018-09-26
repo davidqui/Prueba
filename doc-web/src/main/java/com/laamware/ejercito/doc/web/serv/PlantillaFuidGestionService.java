@@ -23,7 +23,6 @@ import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaFuidGestionRepository;
-import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.util.Global;
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +52,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PlantillaFuidGestionService {
 
     private static final Logger LOG = Logger.getLogger(PlantillaFuidGestionService.class.getName());
+    private static final Integer TIPOLOGIA_ANEXO = 3;
 
     /**
      * Repositorio de plantillas.
@@ -70,10 +70,13 @@ public class PlantillaFuidGestionService {
     private ExpDocumentoService expDocumentoService;
 
     @Autowired
-    private TransferenciaArchivoDetalleRepository detalleRepository;
-
-    @Autowired
     private TransferenciaArchivoService transferenciaArchivoService;
+    
+    @Autowired
+    private AdjuntoService adjuntoService;
+    
+    @Autowired
+    TipologiaService tipologiaService;
 
     /**
      * Servicio de OFS.
@@ -156,7 +159,8 @@ public class PlantillaFuidGestionService {
 
             transferenciaArchivo.setFuid(codigoActaOFS);
             transferenciaArchivoService.actualizarTransferenciaArchivo(transferenciaArchivo);
-
+            adjuntoService.guardarAdjunto(transferenciaArchivo.getDocId(), tipologiaService.find(TIPOLOGIA_ANEXO), transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe(), "FUID.pdf",Global.PDF_FILE_CONTENT_TYPE,codigoActaOFS);
+            
             try {
                 tmpFile.delete();
             } catch (Exception ex) {
