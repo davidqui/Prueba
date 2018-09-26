@@ -1112,6 +1112,10 @@ public class DocumentoController extends UtilController {
         } else {
             old = documentRepository.getOne(docId);
         }
+        
+        if(old.getCargoIdElabora() != null && doc.getCargoIdElabora() == null){
+            doc.setCargoIdElabora(old.getCargoIdElabora());
+        }
 
         if (fileSaveRequestGet) {
 
