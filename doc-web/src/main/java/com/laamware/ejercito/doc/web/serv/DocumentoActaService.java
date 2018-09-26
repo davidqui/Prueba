@@ -943,7 +943,7 @@ public class DocumentoActaService {
             documentoActaDTO.setAsunto(asunto);
             documentoActaDTO.setActaLugar(actaLugar);
             documentoActaDTO.setActaFechaElaboracion(DATEFORMAT.format(new Date()));
-            documentoActaDTO.setClasificacion(clasificacionRepository.findMinOrderActivo().getNombre());
+            documentoActaDTO.setClasificacion(clasificacionRepository.findMinOrderActivo().getId().toString());
             documentoActaDTO.setTrd(trdService.findOne(subserieActaTransferencia).getId().toString());
             documentoActaDTO.setNumeroFolios("0");
             documentoActaDTO.setCargoElabora(jefeDependencia.getUsuCargoPrincipalId().getId().toString());
