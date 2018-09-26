@@ -9,6 +9,7 @@ import com.aspose.words.ParagraphAlignment;
 import com.aspose.words.Row;
 import com.aspose.words.Run;
 import com.aspose.words.Table;
+import com.aspose.words.VerticalAlignment;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
@@ -285,7 +286,7 @@ public class PlantillaFuidGestionService {
         if (expDocumento != null) {
             notas = expDocumento.getExpId().getExpNombre();
         } else {
-            notas = "EXPEDIENTE ELECTRONICO";
+            notas = "DOCUMENTO ELECTRONICO";
         }
         return new String[]{numOrden, codigo, asunto, fecRadicado, fecRadicado, numCaja, numCarpeta, tomo, otro, numeroFolios, soporte, freConsulta, notas};
     }
@@ -306,6 +307,7 @@ public class PlantillaFuidGestionService {
             paragraph.appendChild(new Run(asposeDocument, cellValue));
 
             Cell cell = new Cell(asposeDocument);
+            cell.getCellFormat().setVerticalAlignment(VerticalAlignment.TOP);
             cell.appendChild(paragraph);
             row.appendChild(cell);
         }

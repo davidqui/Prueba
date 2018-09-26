@@ -9,6 +9,7 @@ import com.aspose.words.ParagraphAlignment;
 import com.aspose.words.Row;
 import com.aspose.words.Run;
 import com.aspose.words.Table;
+import com.aspose.words.VerticalAlignment;
 import com.itextpdf.text.pdf.PdfReader;
 import com.laamware.ejercito.doc.web.ctrl.DocumentoActaController;
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
@@ -52,9 +53,7 @@ import com.laamware.ejercito.doc.web.util.Global;
 import com.laamware.ejercito.doc.web.util.UsuarioXDocumentoActaComparator;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -128,11 +127,6 @@ public class DocumentoActaService {
     @Value("${com.mil.imi.sicdi.linea.mando.inicio}")
     private String LINEA_MANDO_PREFIX;
 
-    /**
-     * Separador de línea de mando.
-     */
-    private static final String LINEA_MANDO_SEPARATOR = "-";
-
     private final Integer serieActasID;
 
     private final Integer diasLimiteFechaElaboracion;
@@ -159,9 +153,6 @@ public class DocumentoActaService {
 
     @Autowired
     private RadicadoService radicadoService;
-
-    @Autowired
-    private DependenciaService dependenciaService;
 
     @Autowired
     private OFS ofs;
@@ -1019,7 +1010,8 @@ public class DocumentoActaService {
         final KeysValuesAsposeDocxDTO asposeMap = crearMapaAsposeActa(transferenciaArchivo, documento, detalles, transferenciaExpediente);
         asposeDocument.getMailMerge().execute(asposeMap.getNombres(), asposeMap.getValues());
         
-        final String siglaDependenciaDestino = Objects.toString(transferenciaArchivo.getDestinoDependencia().getSigla(), "");
+        
+        final String siglaDependenciaDestino = dependenciaRepository.retornaSiglaSuperior(transferenciaArchivo.getDestinoDependencia().getId());
         ofs.insertWatermarkText(asposeDocument, siglaDependenciaDestino);
 
         final File tmpFile = File.createTempFile("_sigdi_temp_", ".pdf");
@@ -1238,6 +1230,7 @@ public class DocumentoActaService {
             paragraph.appendChild(new Run(asposeDocument, cellValue));
 
             Cell cell = new Cell(asposeDocument);
+            cell.getCellFormat().setVerticalAlignment(VerticalAlignment.TOP);
             cell.appendChild(paragraph);
             row.appendChild(cell);
         }

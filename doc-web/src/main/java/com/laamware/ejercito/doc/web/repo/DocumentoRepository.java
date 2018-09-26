@@ -844,12 +844,4 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
             + "where ((pro_id = 8 and pes_id = 49) or (pro_id = 9 and pes_id = 46)) \n"
             + "and pin_id = :pinID)", nativeQuery = true)
     Date fechaMinObservaciones(@Param("pinID") String pinID);
-
-    @Query(value = ""
-            + "SELECT DEP_SIGLA\n"
-            + "FROM DEPENDENCIA WHERE DEP_SIGLA IS NOT NULL\n"
-            + "START WITH DEP_ID = :depId\n"
-            + "CONNECT BY DEP_ID = PRIOR DEP_PADRE\n"
-            + "ORDER BY LEVEL DESC, DEP_SIGLA", nativeQuery = true)
-    List<Object[]> retornaSiglasDependientes(@Param("depId") Integer depId);
 }

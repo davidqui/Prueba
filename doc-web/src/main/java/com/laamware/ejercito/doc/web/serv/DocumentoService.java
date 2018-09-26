@@ -6,13 +6,11 @@ import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +33,9 @@ public class DocumentoService {
     @Autowired
     private InstanciaRepository instanciaRepository;
 
+    @Autowired
+    private DependenciaRepository dependenciaRepository;
+    
     @Autowired
     private OFS ofs;
 
@@ -158,7 +159,7 @@ public class DocumentoService {
      * @return Linea de mando
      */
     public String retornaLineaMando(Usuario usuario) {
-        List<Object[]> result = documentoRepository.retornaSiglasDependientes(usuario.getDependencia().getId());
+        List<Object[]> result = dependenciaRepository.retornaSiglasDependientes(usuario.getDependencia().getId());
         String lineaMando = "";
         if (!result.isEmpty()) {
             for (Object object : result) {
