@@ -1109,11 +1109,13 @@ public class DocumentoActaService {
             indice++;
         }
 
+        map.put("ORIGEN_CARGO", transferenciaArchivo.getUsuOrigenCargo().getCarNombre());
         map.put("ORIGEN_GRADO_ID", transferenciaArchivo.getOrigenGrado().getId());
         map.put("ORIGEN_NOMBRE", transferenciaArchivo.getOrigenUsuario().getNombre());
 
         map.put("DESTINO_GRADO_ID", transferenciaArchivo.getDestinoGrado().getId());
         map.put("DESTINO_NOMBRE", transferenciaArchivo.getDestinoUsuario().getNombre());
+        map.put("DESTINO_CARGO", transferenciaArchivo.getUsuDestinoCargo().getCarNombre());
 
         map.put("JUSTIFICACION", transferenciaArchivo.getJustificacion());
 

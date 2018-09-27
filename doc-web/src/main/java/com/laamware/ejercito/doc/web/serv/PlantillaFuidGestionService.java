@@ -271,7 +271,7 @@ public class PlantillaFuidGestionService {
         String fecRadicado = documentDateFormatter.format(documento.getDocFecRadicado());
         final String numCaja = "-----------";
         final String numCarpeta = "-----------";
-        final String tomo = "-----------";
+        final String tomo = "----------";
         final String otro = "NAS-IMI";
 
         final int numFolios = documentoService.obtenerNumeroFolios(documento);
