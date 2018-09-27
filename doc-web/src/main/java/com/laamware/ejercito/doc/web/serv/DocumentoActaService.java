@@ -431,12 +431,12 @@ public class DocumentoActaService {
         return validation;
     }
 
-    public Documento guardarRegistroDatos(final DocumentoActaDTO documentoActaDTO, final Usuario usuario) throws ParseException {
+    public Documento guardarRegistroDatos(DocumentoActaDTO documentoActaDTO, final Usuario usuario) throws ParseException {
         final Date fechaHoraActual = new Date();
 
         Documento documento = documentoService.buscarDocumento(documentoActaDTO.getDocId());
         documento.setAsunto(documentoActaDTO.getAsunto());
-        documento.setClasificacion(new Clasificacion(Integer.parseInt(documentoActaDTO.getClasificacion())));
+        documento.setClasificacion(clasificacionRepository.getOne(Integer.parseInt(documentoActaDTO.getClasificacion())));
         documento.setTrd(new Trd(Integer.parseInt(documentoActaDTO.getTrd())));
         documento.setNumeroFolios(Integer.parseInt(documentoActaDTO.getNumeroFolios()));
         documento.setQuienMod(usuario.getId());
@@ -895,10 +895,9 @@ public class DocumentoActaService {
             procesoInstancia.setEstado(estado);
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.SELECCIONAR_USUARIOS.getId());
-            asignarUsuarioActa(documento, jefeDependencia, jefeDependencia.getUsuCargoPrincipalId(), jefeDependencia);
+
             asignarUsuarioActa(documento, usuarioEmisor, transferenciaArchivo.getUsuOrigenCargo(), jefeDependencia);
             asignarUsuarioActa(documento, usuarioReceptor, transferenciaArchivo.getUsuDestinoCargo(), jefeDependencia);
-//            System.err.println("crearActaDeTransferencia inicia asigna numero radicado= " + new Date());
 
             /*Asignando número de radicado*/
             documento = asignarNumeroRadicacionActasTransferencia(documento, jefeDependencia);
@@ -943,7 +942,9 @@ public class DocumentoActaService {
             documentoActaDTO.setAsunto(asunto);
             documentoActaDTO.setActaLugar(actaLugar);
             documentoActaDTO.setActaFechaElaboracion(DATEFORMAT.format(new Date()));
-            documentoActaDTO.setClasificacion(clasificacionRepository.findMinOrderActivo().getId().toString());
+            String clasificacion = clasificacionRepository.findMinOrderActivo().getId().toString();
+                    
+            documentoActaDTO.setClasificacion(clasificacion);
             documentoActaDTO.setTrd(trdService.findOne(subserieActaTransferencia).getId().toString());
             documentoActaDTO.setNumeroFolios("0");
             documentoActaDTO.setCargoElabora(jefeDependencia.getUsuCargoPrincipalId().getId().toString());
