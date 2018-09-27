@@ -238,7 +238,7 @@
         <ul class="list-group list-group-flush" style="max-height: 165px;overflow: hidden;overflow-y: auto;">
             <#list observaciones as observacion>
             <li class="list-group-item">
-                <strong>${(observacion.usuId.usuGrado.id)!""}${(observacion.usuId.nombre)!""}</strong> --
+                <strong>${(observacion.usuId.usuGrado.id)!""} ${(observacion.usuId.nombre)!""}</strong> --
                 <small>${(observacion.fecCreacion?string('dd/MM/yyyy HH:mm'))!""}</small>
                 <br/>
                 <p>${(observacion.traObservacion)!""}</p>
