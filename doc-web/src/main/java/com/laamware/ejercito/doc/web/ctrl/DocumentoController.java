@@ -116,7 +116,6 @@ import com.laamware.ejercito.doc.web.repo.TrdRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
 import com.laamware.ejercito.doc.web.serv.AdjuntoService;
 import com.laamware.ejercito.doc.web.serv.ArchivoAutomaticoService;
-import com.laamware.ejercito.doc.web.serv.CacheService;
 import com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
 import com.laamware.ejercito.doc.web.serv.DestinoExternoService;
@@ -155,7 +154,7 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 
 import net.sourceforge.jbarcodebean.JBarcodeBean;
-import net.sourceforge.jbarcodebean.model.Interleaved25;
+import net.sourceforge.jbarcodebean.model.Code128;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.UncategorizedSQLException;
@@ -202,7 +201,7 @@ public class DocumentoController extends UtilController {
      * Id del proceso de acta
      */
     public static final Integer ID_TIPO_PROCESO_ACTA = 100;
-    
+
     List<Plantilla> listaPlantilla;
     private String imagesRoot;
     private String ofsRoot;
@@ -315,7 +314,7 @@ public class DocumentoController extends UtilController {
 
     @Autowired
     TRDService tRDService;
-    
+
     @Autowired
     DestinoExternoService destinoExternoService;
 
@@ -365,22 +364,21 @@ public class DocumentoController extends UtilController {
     @Autowired
     private NotificacionxUsuarioService notificacionxUsuarioService;
 
-    
     /*
      * 2018-08-02 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
      * feature-181: Servicio de expediente.
      */
     @Autowired
     private ExpedienteService expedienteService;
-    
+
     /*
      * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
      * feature-181: Servicio de los documentos del expediente.
      */
     @Autowired
     private ExpDocumentoService expDocumentoService;
-    
-     /*
+
+    /*
      * 2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
      * feature-6: Asignación de usuarios favoritos.
      */
@@ -463,9 +461,15 @@ public class DocumentoController extends UtilController {
 
         JBarcodeBean barcode = new JBarcodeBean();
 
-        // nuestro tipo de codigo de barra
-        barcode.setCodeType(new Interleaved25());
-        // barcode.setCodeType(new Code39());
+        
+        /*
+        * nuestro tipo de codigo de barra
+        * 2018-09-24 edison.gonzalez@controltechcg.com Issue #17 (SICDI-Controltech)
+        * hotfix-17: Se realiza el cambio de tipo, para que se genere correctamente
+        * el código de barras. Se aplica el mismo código utilizado en el reporte
+        * de sticker de los procesos de radicación.
+         */
+        barcode.setCodeType(new Code128());
 
         if (documento.getPdfTexto4() != null && documento.getPdfTexto4().trim().length() > 0) {
             // nuestro valor a codificar y algunas configuraciones mas
@@ -648,7 +652,7 @@ public class DocumentoController extends UtilController {
 
         return keysValuesAsposeDocxDTO;
     }
-    
+
     /**
      * Muestra la pantalla con los datos del documento. Si la instancia no tiene
      * definido un documento asociado entonces lo crea y lo enlaza a la
@@ -826,16 +830,17 @@ public class DocumentoController extends UtilController {
 
         // 2017-04-26 jgarcia@controltechcg.com Issue #58 (SICDI-Controltech)
         addConsultaTemplateModelAttributes(model, usuarioLogueado, doc);
-        
+
         /**
-         * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
-         * feature-181: se agrega la lista de los expedientes al que se puede agregar un
-         * documento, todo mientras el documento no este en otro expediente.
+         * 2018-08-03 samuel.delgado@controltechcg.com Issue #181
+         * (SICDI-Controltech) feature-181: se agrega la lista de los
+         * expedientes al que se puede agregar un documento, todo mientras el
+         * documento no este en otro expediente.
          */
         ExpDocumento expDocumento = expDocumentoService.findByDocumento(doc);
         if (expDocumento == null) {
-            if (((doc.esDocumentoRevisionRadicado() || doc.esDocumentoEnviadoInterno())&& (usuarioLogueado.getId() == doc.getInstancia().getAsignado().getId())
-                    || (doc.getAprueba() != null && usuarioLogueado.getId().equals(doc.getElabora().getId()))) && doc.getExpediente() == null){
+            if (((doc.esDocumentoRevisionRadicado() || doc.esDocumentoEnviadoInterno()) && (usuarioLogueado.getId() == doc.getInstancia().getAsignado().getId())
+                    || (doc.getAprueba() != null && usuarioLogueado.getId().equals(doc.getElabora().getId()))) && doc.getExpediente() == null) {
                 List<Expediente> expedientesValidos = expedienteService.obtenerExpedientesIndexacionPorUsuarioPorTrd(usuarioLogueado, doc.getTrd());
                 model.addAttribute("expedientesValidos", expedientesValidos);
             }
@@ -843,10 +848,10 @@ public class DocumentoController extends UtilController {
         /*
         * 2018-09-05 samuel.delgado@controltechcg.com hotfix gogs #11 (SICDI-Controltech)
         * hotfix-gogs-11.
-        */
+         */
         Date fechaMinObservaciones = documentRepository.fechaMinObservaciones(pin);
         model.addAttribute("fechaMinObservaciones", fechaMinObservaciones);
-        
+
         return "documento";
     }
 
@@ -1107,6 +1112,10 @@ public class DocumentoController extends UtilController {
         } else {
             old = documentRepository.getOne(docId);
         }
+        
+        if(old.getCargoIdElabora() != null && doc.getCargoIdElabora() == null){
+            doc.setCargoIdElabora(old.getCargoIdElabora());
+        }
 
         if (fileSaveRequestGet) {
 
@@ -1264,9 +1273,9 @@ public class DocumentoController extends UtilController {
         // las propiedades editables al objeto que se extrajo de la base de
         // datos y luego se guarda para que se realicen los cambios.
         try {
-            System.out.println("TEST PRUEBA HOY! "+doc.getDestinoExterno());
-            System.out.println("TEST PRUEBA HOY! "+old.getDestinoExterno());
-            
+            System.out.println("TEST PRUEBA HOY! " + doc.getDestinoExterno());
+            System.out.println("TEST PRUEBA HOY! " + old.getDestinoExterno());
+
             mode.transferirEditables(doc, old);
 
             if (fileSaveRequestGet && fileId != null) {
@@ -1311,7 +1320,7 @@ public class DocumentoController extends UtilController {
         return String.format("redirect:%s/instancia?pin=%s", ProcesoController.PATH, pin);
 
     }
-    
+
     /**
      * Genera el sticker del documento
      *
@@ -1996,7 +2005,7 @@ public class DocumentoController extends UtilController {
             RedirectAttributes redirect) {
 
         final Usuario usuarioSesion = getUsuario(principal);
-        
+
         Integer idUsuario = null;
         if (uidS != null) {
             idUsuario = Integer.parseInt(uidS.replaceAll("\\.", ""));
@@ -2024,7 +2033,7 @@ public class DocumentoController extends UtilController {
                         /*
                         * 2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
                         * feature-6: Asignación de usuarios favoritos.
-                        */
+                         */
                         Usuario uselected = usuR.getOne(uid);
                         usuSelFavoritosService.addUsuarioSelected(usuarioSesion, uselected);
                         return uselected;
@@ -2071,11 +2080,11 @@ public class DocumentoController extends UtilController {
                     }
 
                     model.addAttribute("usuarios", usuarios);
-                }else{
+                } else {
                     /*
                     * 2018-08-14 samuel.delgado@controltechcg.com Issue #6 (SICDI-Controltech)
                     * feature-6: Asignación de usuarios favoritos.
-                    */
+                     */
                     List<UsuSelFavoritos> listarUsuariosFavoritos = usuSelFavoritosService.listarUsuariosFavoritos(usuarioSesion);
                     for (UsuSelFavoritos usuarioSeleccionado : listarUsuariosFavoritos) {
 
@@ -2151,9 +2160,8 @@ public class DocumentoController extends UtilController {
         String docId = i.getVariable(Documento.DOC_ID);
         Documento doc = documentRepository.getOne(docId);
         model.addAttribute("documento", doc);
-        
+
         //TODO ADD USUARIOS FAVORITOS
-        
         return "documento-asignar";
     }
 
@@ -2713,7 +2721,7 @@ public class DocumentoController extends UtilController {
                 if (bvb != null) {
                     d.setVistoBueno(null);
                 }
-                
+
                 Usuario yo = i.getAsignado();
 
                 List<HProcesoInstancia> hinstancias = hprocesoInstanciaRepository.findById(pin,
@@ -2739,9 +2747,10 @@ public class DocumentoController extends UtilController {
         Documento doc = documentRepository.getOne(docId);
         doc.setUsuarioUltimaAccion(getUsuario(principal));
         /**
-        * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
-        * feature-181: se cambia el revisado a null y el expediente cuando se devuelve el documento
-        */
+         * 2018-08-03 samuel.delgado@controltechcg.com Issue #181
+         * (SICDI-Controltech) feature-181: se cambia el revisado a null y el
+         * expediente cuando se devuelve el documento
+         */
         doc.setAprueba(null);
         doc.setExpediente(null);
         documentRepository.saveAndFlush(doc);
@@ -2993,15 +3002,17 @@ public class DocumentoController extends UtilController {
                     redirect.addFlashAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
                     return redirectURL;
                 }
-                
+
                 /**
-                * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
-                * feature-181: se agrega a expediente si existe en el documento
-                */
+                 * 2018-08-03 samuel.delgado@controltechcg.com Issue #181
+                 * (SICDI-Controltech) feature-181: se agrega a expediente si
+                 * existe en el documento
+                 */
                 Expediente expediente = documento.getExpediente();
-                if (expediente != null)
+                if (expediente != null) {
                     expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
-                
+                }
+
 
                 /*
                  * Issue #118
@@ -3120,14 +3131,15 @@ public class DocumentoController extends UtilController {
          * 2018-04-25 edison.gonzalez@controltechcg.com Issue #156
          * (SICDI-Controltech) feature-156 Reemplazo metodo depreciado
          */
-        
         /**
-        * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
-        * feature-181: se agrega a expediente si existe en el documento
-        */
+         * 2018-08-03 samuel.delgado@controltechcg.com Issue #181
+         * (SICDI-Controltech) feature-181: se agrega a expediente si existe en
+         * el documento
+         */
         Expediente expediente = documento.getExpediente();
-        if (expediente != null)
+        if (expediente != null) {
             expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
+        }
 
         redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS,
                 buildAsignadosTextMultidestino(multidestinoService, usuarioService, dependenciaService, instancia, "Asignado a ", documentRepository));
@@ -4875,50 +4887,55 @@ public class DocumentoController extends UtilController {
 
         return "redirect:/";
     }
-    
+
     /**
-     * 2018-08-03 samuel.delgado@controltechcg.com Issue #181 (SICDI-Controltech)
-     * feature-181: método para enviar un documento a un expediente.
+     * 2018-08-03 samuel.delgado@controltechcg.com Issue #181
+     * (SICDI-Controltech) feature-181: método para enviar un documento a un
+     * expediente.
      */
     /**
      * Método que agrega un documento al expediente.
+     *
      * @param pin
      * @param principal
      * @param model
      * @param redirect
-     * @return 
+     * @return
      */
     @RequestMapping(value = "/addDocExpediente/{pinId}/{expId}", method = RequestMethod.POST)
-    public ResponseEntity<?> addDocExpediente(@PathVariable("expId") Long expId, 
-            @PathVariable("pinId") String pinId, Principal principal){
-        
+    public ResponseEntity<?> addDocExpediente(@PathVariable("expId") Long expId,
+            @PathVariable("pinId") String pinId, Principal principal) {
+
         Usuario usuarioSesion = getUsuario(principal);
         // Obtiene la instancia
         Instancia i = procesoService.instancia(pinId);
         // Obtiene el documento registrado en las variables de la instancia
         String docId = i.getVariable(Documento.DOC_ID);
-        
+
         Boolean acceso = usuarioService.verificaAccesoDocumento(usuarioSesion.getId(), pinId);
-        if (!acceso)
+        if (!acceso) {
             return new ResponseEntity<>("No tiene permisos sobre el documento", HttpStatus.UNAUTHORIZED);
-        
+        }
+
         Documento documento = documentRepository.getOne(docId);
         Expediente expediente = expedienteService.findOne(expId);
 
-        if ((!expedienteService.permisoIndexacion(usuarioSesion, expediente) 
-                && !expedienteService.permisoAdministrador(usuarioSesion, expediente)))
+        if ((!expedienteService.permisoIndexacion(usuarioSesion, expediente)
+                && !expedienteService.permisoAdministrador(usuarioSesion, expediente))) {
             return new ResponseEntity<>("No tiene permiso sobre el expediente", HttpStatus.UNAUTHORIZED);
-        
-        if (!i.getProceso().getId().equals(ID_TIPO_PROCESO_ACTA))
-             if (!(documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())&& 
-                    (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) {
+        }
+
+        if (!i.getProceso().getId().equals(ID_TIPO_PROCESO_ACTA)) {
+            if (!(documento.esDocumentoRevisionRadicado() || documento.esDocumentoEnviadoInterno())
+                    && (usuarioSesion.getId() == documento.getInstancia().getAsignado().getId())) {
                 documento.setExpediente(expediente);
                 documentRepository.saveAndFlush(documento);
                 return ResponseEntity.ok("ok");
-             }
-        
+            }
+        }
+
         expDocumentoService.agregarDocumentoExpediente(documento, expediente, usuarioSesion);
-        
+
         return ResponseEntity.ok("ok");
     }
 
@@ -5080,10 +5097,10 @@ public class DocumentoController extends UtilController {
     public List<Clasificacion> clasificaciones() {
         return clasificacionRepository.findByActivo(true, new Sort(Direction.ASC, "orden"));
     }
-    
+
     /**
-     * 2018-09-03 samuel.delgado@controltechcg.com Issue gogs #10
-     * Carga el listado de destinos externos
+     * 2018-09-03 samuel.delgado@controltechcg.com Issue gogs #10 Carga el
+     * listado de destinos externos
      *
      * @return
      */
