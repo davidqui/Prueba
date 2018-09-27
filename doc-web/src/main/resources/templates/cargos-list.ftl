@@ -74,6 +74,9 @@
             </#list>
             </tbody>
         </table>
+        <#if totalPages gt 0>
+            <@printBar url="/admin/cargos" params={"filtro": filtro!""} metodo="get"/>
+        </#if>
     </#if>
 
 </div>

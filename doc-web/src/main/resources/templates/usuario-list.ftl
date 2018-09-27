@@ -19,7 +19,6 @@
         <a href="/usuarios/nuevo" class="btn btn-success btn-sm">Crear nuevo</a>
     </p>
 
-    Total ${list?size}
 
     <#if descriptor.properties?size == 0>
         <div class="jumbotron">
@@ -34,7 +33,14 @@
         </#if>
         <br />
         <!-- 2017-02-24 jgarcia@controltechcg.com Issue #111: Se amplía el campo de búsqueda a 150 caracteres. -->
-        Buscador general <input id="txt_tabla_usuarios" maxlength="150" size="30" class="form-control" type="text">    
+        Buscador general
+        <form method="GET" style="display: flex;">
+            <input type="hidden" name="all" value="${all?string("true", "false")}">
+            <input name="filtro" maxlength="150" size="30" class="form-control" type="text" style="width: 80%" value="${(filtro)!""}">    
+            <button type="submit" class="btn btn-primary" onclick="loading(event);" style="width: 20%">
+                <span class="hidden-md-down"><img class="card-img-top" src="/img/search.svg" alt=""> Buscar</span><span class="hidden-lg-up"><img class="card-img-top" src="/img/search.svg" alt=""></span>
+                </button>
+        </form>
         <table class="table" id="tabla_usuarios">
             <thead class="thead-inverse">
                 <tr>
@@ -92,6 +98,9 @@
             </#list>
             </tbody>
         </table>
+        <#if totalPages gt 0>
+            <@printBar url="/usuarios" params={"filtro": filtro!"", "all": all?string("true", "false") } metodo="get"/>
+        </#if>
     </#if>
 
 </div>

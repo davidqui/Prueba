@@ -83,6 +83,9 @@
             </#list>
             </tbody>
         </table>
+        <#if totalPages gt 0>
+            <@printBar url="/admin/destino-externo" params={"filtro": filtro!"", "all": all?string("true", "false") } metodo="get"/>
+        </#if>
     </#if>
 
 </div>

@@ -2,6 +2,8 @@ package com.laamware.ejercito.doc.web.repo;
 
 import java.io.Serializable;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -12,4 +14,5 @@ public interface GenJpaRepository<T, TID extends Serializable> extends
 
 	List<T> findByActivo(boolean activo);
 
+        Page<T> findByActivo(boolean activo, Pageable pageable);
 }
