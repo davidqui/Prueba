@@ -11,6 +11,8 @@ import com.laamware.ejercito.doc.web.util.ReflectionUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 /**
@@ -138,13 +140,23 @@ public class TematicaService {
         tematica.setActivo(Boolean.FALSE);
         tematicaRepository.saveAndFlush(tematica);
     }
+
+    /**
+     * Lista todas las Tematicas activos para paginación.
+     * 
+     * @param pageable
+     * @return Objeto Pageable con información de Tematicas activas.
+     */
+    public Page<Tematica> findActive(Pageable pageable) {
+        return tematicaRepository.getByActivoTrue(pageable);
+    }
+    
     /**
      * Lista todas las Tematicas activos
      * 
      * @param sort
-     * @return 
+     * @return Listado de Tematicas activas
      */
-
     public List<Tematica> findActive(Sort sort) {
         return tematicaRepository.getByActivoTrue(sort);
     }
@@ -155,8 +167,17 @@ public class TematicaService {
      * @param sort
      * @return 
      */
-
     public List<Tematica> findAll(Sort sort) {
         return tematicaRepository.findAll(sort);
+    }
+    
+    /**
+     * Lista todos las tematicas para paginación.
+     * 
+     * @param pageable
+     * @return Objetos Page con la información de las Tematicas.
+     */
+    public Page<Tematica> findAll(Pageable pageable) {
+        return tematicaRepository.findAll(pageable);
     }
 }

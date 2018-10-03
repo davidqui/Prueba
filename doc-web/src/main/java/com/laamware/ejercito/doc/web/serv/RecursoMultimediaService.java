@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -320,4 +322,58 @@ public class RecursoMultimediaService {
     public List<RecursoMultimedia> findAllByTematica(final Tematica tematica) {
         return recursoMultimediaRepository.findAllByTematicaId(tematica.getId());
     }
+    
+    /**
+     * Lista todos los recursos multimedia activos y que pertenezcan a una unica tematica permitiendo su paginación. 
+     * 
+     * 2018-10-01 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param pageable
+     * @param id Id de la Tematica por la cual se filtran los datos de registro multimedia.
+     * @return Lista de Recursos multimedia Activos y que pertenecen a una unica tematica. 
+     */
+    public Page<RecursoMultimedia> findActiveAndTematicaPage(Pageable pageable, Integer id) {
+        return recursoMultimediaRepository.getByActivoTrueAndTematicaId(pageable,id);
+    }
+    
+    /**
+     * Busca todos los registros activos de Recurso Multimedia por el nombre, para paginar.
+     * 
+     * 2018-10-01 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param pageable
+     * @param nombre
+     * @return Objeto Page con los datos del resultado.
+     */
+    public Page<RecursoMultimedia> findAllActiveName(Pageable pageable, String nombre) {
+        return recursoMultimediaRepository.findByNombreIgnoreCaseContainingAndActivoTrue(pageable, nombre);
+    }
+    
+    /**
+     * Busca todos los registros de Recurso Multimedia por el nombre, para paginar.
+     * 
+     * 2018-10-01 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param pageable
+     * @param nombre
+     * @return Objeto Page con los datos del resultado.
+     */
+    public Page<RecursoMultimedia> findAllName(Pageable pageable, String nombre) {
+        return recursoMultimediaRepository.findByNombreIgnoreCaseContaining(pageable, nombre);
+    }
+    
+    /**
+     * Lista todos los Recursos Multimedia de una Tematica para su paginación.
+     * 
+     * 2018-10-01 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param pageable
+     * @param tematica Id de la tematica por la cual se filtran los datos de recurso multimedia activo.
+     * @return Lista de Recursos Multimedia de una unica Tematica.
+     */
+    public Page<RecursoMultimedia> findAllByTematicaPage(Pageable pageable, final Tematica tematica) {
+        return recursoMultimediaRepository.findAllByTematicaId(pageable, tematica.getId());
+    }
+    
+   
 }

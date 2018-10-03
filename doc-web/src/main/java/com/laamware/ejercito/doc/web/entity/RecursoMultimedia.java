@@ -53,7 +53,7 @@ public class RecursoMultimedia implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 1000)
-    @LaamLabel("Descripcion")
+    @LaamLabel("Descripción")
     @LaamListColumn(order = 2)
     @LaamWidget("textarea")
     @Column(name = "DESCRIPCION")

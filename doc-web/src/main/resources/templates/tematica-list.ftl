@@ -1,6 +1,7 @@
 <#setting number_format="computer">
 <#assign pageTitle = descriptor.label />
 <#include "gen-macros.ftl">
+<#include "gen-paginacion.ftl">
 <#if templatePrefix??>
     <#include templatePrefix + "-header.ftl">
 <#else>
@@ -85,6 +86,9 @@
             </#list>
             </tbody>
         </table>
+        <#if totalPages gt 0>
+            <@printBar url="/admin/tematica" params={"filtro": filtro!"", "all": all?string("true", "false")} metodo="get"/>
+        </#if>
     </#if>
 
 </div>

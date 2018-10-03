@@ -16,7 +16,6 @@ import java.security.Principal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletOutputStream;
@@ -24,6 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -72,24 +74,42 @@ public class RecursoMultimediaController extends UtilController {
      * 
      * @param key Id de una Tematica.
      * @param all 
+     * @param page 
+     * @param pageSize 
      * @param model Parametro requerido por clase de spring
      * @param redirect Parametro requerido por clase de spring
      * @return Según corresponda genera un Lista de Recursos Multimedia Activos y por Tematica 
      * o los Recursos Multimedia de una Tematica. 
      */
     @RequestMapping(value = {"/list/{key}"}, method = RequestMethod.GET)
-    public String listByTematica(@PathVariable(value = "key") Integer key, @RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model, RedirectAttributes redirect) {
-        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+    public String listByTematica(@PathVariable(value = "key") Integer key, 
+                                 @RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, 
+                                 @RequestParam(value = "pageIndex", required = false) Integer page,
+                                 @RequestParam(value = "pageSize", required = false) Integer pageSize, Model model, RedirectAttributes redirect) {
         
-        Tematica listTematica = tematicaService.findOne(key);
-        model.addAttribute("tematicasView", listTematica);
-        List<RecursoMultimedia> list;
+        Tematica seleccionTematica = tematicaService.findOne(key);
+        model.addAttribute("tematicasView", seleccionTematica);
+
+        if (page == null || page < 0)
+            page = 1;
+        
+        if (pageSize == null || pageSize < 0)
+            pageSize = ADMIN_PAGE_SIZE;
+        
+        Long count;
+        
+        Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.ASC, "cuando");
+
+        Page <RecursoMultimedia> list;
         if (!all) {
-            list = recursoMultimediaService.findActiveAndTematica(sort, key);
+            list = recursoMultimediaService.findActiveAndTematicaPage(pageable, key);
         } else {
-            list = recursoMultimediaService.findAllByTematica(listTematica);
+            list = recursoMultimediaService.findAllByTematicaPage(pageable, seleccionTematica);
         }
-        model.addAttribute("list", list);
+        
+        count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());
         model.addAttribute("all", all);
         
         return LIST_TEMPLATE;
@@ -98,6 +118,7 @@ public class RecursoMultimediaController extends UtilController {
     /**
      * Carga los datos necesarios al formulario para crear un recurso multimedia.
      * 
+     * @param key 
      * @param model Parametro requerido por clase de spring
      * @return Template de creacion.
      */
@@ -233,7 +254,6 @@ public class RecursoMultimediaController extends UtilController {
 
     }
     
-    
     /**
      * Cambia el estado de un Recurso Multimedia de eliminado a Activo.
      * 
@@ -260,32 +280,6 @@ public class RecursoMultimediaController extends UtilController {
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
             return "redirect:" + PATH;
         }
-
-    }
-
-    @ModelAttribute("descriptor")
-    GenDescriptor getDescriptor() {
-        return GenDescriptor.find(RecursoMultimedia.class);
-    }
-
-    @ModelAttribute("activePill")
-    public String getActivePill() {
-        return "recursoMultimedia";
-    }
-
-    @ModelAttribute("templatePrefix")
-    protected String getTemplatePrefix() {
-        return "admin";
-    }
-
-    /**
-     * Agrega el controlador
-     *
-     * @return controlador
-     */
-    @ModelAttribute("controller")
-    public RecursoMultimediaController controller() {
-        return this;
     }
     
     /**
@@ -311,14 +305,6 @@ public class RecursoMultimediaController extends UtilController {
             response.setContentType(entry.getContentType());
             response.setBufferSize((int) bytes.length);
 
-//            ServletOutputStream outStream = response.getOutputStream();
-//            IOUtils.write(bytes, outStream);
-
-//            String headerKey = "Content-Disposition";
-//            String headerValue = String.format("attachment; filename=\"%s.mp4\"", "sdsdg");
-//            response.setHeader(headerKey, headerValue);
-            
-            // Write response
             os = response.getOutputStream();
             is = new ByteArrayInputStream(bytes);
             IOUtils.copy(is, os);
@@ -328,6 +314,31 @@ public class RecursoMultimediaController extends UtilController {
             e.printStackTrace();
         }
 
+    }
+    
+    @ModelAttribute("descriptor")
+    GenDescriptor getDescriptor() {
+        return GenDescriptor.find(RecursoMultimedia.class);
+    }
+
+    @ModelAttribute("activePill")
+    public String getActivePill() {
+        return "recursoMultimedia";
+    }
+
+    @ModelAttribute("templatePrefix")
+    protected String getTemplatePrefix() {
+        return "admin";
+    }
+
+    /**
+     * Agrega el controlador
+     *
+     * @return controlador
+     */
+    @ModelAttribute("controller")
+    public RecursoMultimediaController controller() {
+        return this;
     }
     
 }

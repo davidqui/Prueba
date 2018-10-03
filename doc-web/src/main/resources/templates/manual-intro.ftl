@@ -5,14 +5,14 @@
         <div class="col-md-4 col-lg-3">
           <div class="card">
             <div class="card-header">
-              Menú Manual de Usuario
+              <a href="/manual/intro" class="nav-link"><img src="/img/menu.svg" style="margin-right:2px;"><b>Temario Manual de Usuario</b></a>
             </div>
             <div class="card-block">
               <ul class="nav nav-pills nav-stacked">
               	<#if tematicas?? >
                 <#list tematicas as tematica>
                 <li class="nav-item">
-                  <a href="/manual/multimedia/${tematica.id}" class="nav-link" >${tematica.nombre?capitalize}</a>
+                  <a href="/manual/multimedia/${tematica.id}" class="nav-link" ><img src="/img/book-open.svg" style="height: 14px; margin-right:2px;"> ${tematica.nombre?capitalize}</a>
                 </li>
                 </#list>
 				</#if>
@@ -24,13 +24,25 @@
         
 <div class="container-fluid">
     <h1 class="cus-h1-page-title">${pageTitle}</h1>
+    
+    
+    
+    
     <p>Bienvenido señor usuario, al <ins>Manual de Usuario Final</ins> del <b>Sistema Clasificado de documentos de Inteligencia Militar - SICDI</b>, 
         esta es una herramienta de autoaprendizaje en la que usted podrá validar la correcta utilización de todas 
         las funcionalidades del sistema, esto le facilitará su interacción con el aplicativo, haciendo más eficiente su utilización. 
     </p>
     <div class="alert alert-info" role="alert">
-  		<strong>Para iniciar, seleccione un tema de su interes del menú izquierdo...</strong> 
-	</div>
+<!--  		<strong>Para iniciar, seleccione un tema de su interes del menú izquierdo...</strong> -->
+        <form class="form-search content-search navbar-form" action="/manual/busqueda" method="GET">
+            <div class="input-group">
+                <input placeholder="Buscar Recurso Multimedia" name="findTokens" id="findTokens" class="form-control form-text" type="search" size="15" maxlength="128" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                    </span>
+                </div>
+            </form>
+        </div>
     
     <!--Fin alerta-->
     <div class="card bg-light text-dark">
@@ -50,7 +62,7 @@
                     <h3 id="titulovideo">${recurso.nombre?capitalize}</h3>
                     </div>
                 <div class="card-body">
-                    <video id="myVideo" name="videoprincipal" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="592"  controls autoplay>
+                    <video id="myVideo" name="videoprincipal" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="592"  controls>
                         Tu navegador no implementa el elemento <code>video</code>.
                         </video>
                     </div>

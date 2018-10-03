@@ -1,25 +1,18 @@
 <#setting number_format="computer">
-<#assign pageTitle = descriptor.label />
+<#assign pageTitle = "Resultado de la Busqueda"/>
 <#include "gen-macros.ftl">
 <#include "gen-paginacion.ftl">
-<#if templatePrefix??>
-    <#include templatePrefix + "-header.ftl">
-<#else>
-    <#include "admin-header.ftl">
-</#if>
+<#include "manual-opciones.ftl">
 
 <div class="container-fluid">
-    <h1 class="cus-h1-page-title">${pageTitle} -> <b>${tematicasView.nombre?capitalize}</b></h1>
+    <h1 class="cus-h1-page-title">${pageTitle}</b></h1>
     <#if descriptor.description??>
         <p class="lead">${descriptor.description}</p>
     </#if>
     <p>
         <#if returnUrl??><a href="${returnUrl}" class="btn btn-secondary btn-sm">Regresar</a></#if>
-         <a href="/admin/recursoMultimedia/create/${tematicasView.id}" class="btn btn-success btn-sm">Crear</a>
-         <a href="/admin/tematica" class="btn btn-success btn-sm">Regresar</a>
+         <a href="/manual/intro" class="btn btn-success btn-sm">Regresar</a>
     </p>
-
-    Total ${list?size}
 
     <#if descriptor.properties?size == 0>
         <div class="jumbotron">
@@ -27,11 +20,6 @@
             <p>Por alguna razón la lista de propiedades está vacía. Por lo general es automático el reconocimiento de propiedades a menos que todas las propiedades estén marcadas como @Transient.</p>
         </div>
     <#else>
-        <#if all?? && all>
-            <a class="btn btn-link" href="?all=false">No mostrar eliminados</a>
-        <#else>
-            <a class="btn btn-link" href="?all=true">Mostrar eliminados</a>
-        </#if>
         <br />
         <table class="table">
             <thead class="thead-inverse">
@@ -39,6 +27,7 @@
                 <#list descriptor.listProperties() as p>
                     <th>${p.label}</th>
                 </#list>
+                    <th>Tematica</th>
                     <th>Archivo</th>
                     <th>Acciones</th>
                 </tr>
@@ -69,21 +58,16 @@
                         <#assign first = false />
                     </td>
                 </#list>
+                        <td nowrap="nowrap">${x.tematica.nombre}
+                            </td>
                         <td nowrap="nowrap"><a href="/admin/recursoMultimedia/descargar/${x.id}" target="_blank" data-toggle="popover" data-trigger="hover" data-placement="left" title="Tipo de Archivo" data-content="${x.tipo}" ><#if x.tipo=="application/pdf"><img src="/img/file-text.svg"><#else><img src="/img/video.svg"></#if></a>
                             </td>
                 	<td nowrap="nowrap">
-                            <#if x.activo?? && x.activo == true >
-                                <a href="/admin/recursoMultimedia/edit?id=${+x.id}" class="btn btn-sm btn-warning" title="Modificar">M</a>
-                                <a href="/admin/recursoMultimedia/delete?id=${+x.id}" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro que desea eliminar el registro?');">E</a>
-                            <#else>
-                                <a href="/admin/recursoMultimedia/recuperar?id=${+x.id}" class="btn btn-sm btn-warning" title="Modificar">Recuperar</a>  
-                                </#if>
                         <#if x.cuando?? >
                             <#if x.cuandoMod?? >
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien!"Sistema"} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}, Modificado por: ${x.quienMod!"Nadie"} el día ${x.cuandoMod?string('dd.MM.yyyy HH:mm:ss')!"Ninguno"}">H</a>
                             <#else>
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}">H</a>
-                                
                             </#if>
                                 
                         </#if>
@@ -93,7 +77,7 @@
             </tbody>
         </table>
         <#if totalPages gt 0>
-            <@printBar url="/admin/recursoMultimedia/list/${tematicasView.id}" params={"filtro": filtro!"", "all": all?string("true", "false")} metodo="get"/>
+            <@printBar url="/manual/busqueda" params={"findTokens": findData,"all": all?string("true", "false")} metodo="get"/>
         </#if>
     </#if>
 

@@ -12,11 +12,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,26 +60,46 @@ public class TematicaController extends UtilController {
      *  Permite listar todos los temas disponibles del modulo tematica  
      * 
      * @param all
+     * @param page
+     * @param pageSize
      * @param model
-     * @return 
+     * @return Lista de todos las Tematicas segun corresponda activas o activas y eliminadas.
      */
-     
     @RequestMapping(value = {" "}, method = RequestMethod.GET)
-    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all, Model model) {
-        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
+                       @RequestParam(value = "pageIndex", required = false) Integer page,
+                       @RequestParam(value = "pageSize", required = false) Integer pageSize, Model model) {
         
-         List<Tematica> list;
+        if (page == null || page < 0)
+            page = 1;
+        
+        if (pageSize == null || pageSize < 0)
+            pageSize = ADMIN_PAGE_SIZE;
+        
+        Long count;
+        
+        Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.ASC, "cuando");
+        
+        Page<Tematica> list;
         if (!all) {
-            list = tematicaService.findActive(sort);
+            list = tematicaService.findActive(pageable);
         } else {
-            list = tematicaService.findAll(sort);
+            list = tematicaService.findAll(pageable);
         }
         
-        model.addAttribute("list", list);
+        count = list.getTotalElements();
+        adminPageable(count, model, page, pageSize);
+        model.addAttribute("list", list.getContent());
         model.addAttribute("all", all);
         return LIST_TEMPLATE;
     }
 
+    /**
+     * Crea una nueva instancia de Tematica para la creación de un nuevo registro.
+     * 
+     * @param model
+     * @return Vista de creación de una nueva tematica.
+     */
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(Model model) {
         Tematica tematica = new Tematica();
@@ -131,7 +153,7 @@ public class TematicaController extends UtilController {
     }
 
     /**
-     * Permite actualizar una tematica
+     * Permite actualizar una tematica.
      *
      * @param tematica
      * @param req
@@ -158,7 +180,16 @@ public class TematicaController extends UtilController {
             return EDIT_TEMPLATE;
         }
     }
-
+    
+    /**
+     * Permite eliminar logicamente una Tematica especifica.
+     * 
+     * @param model
+     * @param req
+     * @param redirect
+     * @param principal
+     * @return Mensaje de confirmación de la eliminación
+     */
     @RequestMapping(value = {"/delete"}, method = RequestMethod.GET)
     public String delete(Model model, HttpServletRequest req, RedirectAttributes redirect, Principal principal) {
         try {
