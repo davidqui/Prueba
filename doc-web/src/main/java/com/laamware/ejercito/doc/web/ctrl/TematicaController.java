@@ -78,7 +78,7 @@ public class TematicaController extends UtilController {
         
         Long count;
         
-        Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.ASC, "cuando");
+        Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.DESC, "cuando");
         
         Page<Tematica> list;
         if (!all) {
