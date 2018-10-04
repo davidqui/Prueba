@@ -36,6 +36,4 @@ public enum RolConstants {
     PROCESAR_REGISTRO_ACTAS,
     REGISTRO,
     ADMIN_TEMATICA,
-    ADMIN_RECURSO_MULTIMEDIA
-    
 }

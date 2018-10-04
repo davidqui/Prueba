@@ -1,9 +1,7 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
-import com.laamware.ejercito.doc.web.entity.Notificacion;
 import com.laamware.ejercito.doc.web.entity.RecursoMultimedia;
-import com.laamware.ejercito.doc.web.entity.Tematica;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping(value = ManualController.PATH)

@@ -58,21 +58,6 @@
         <div class="col-sm-9">
     <div class="cards-split-container cards-split-container2">
         
-<!--        <button class="picker-button-left button button-md button-clear button-clear-md" clear="" icon-only="" ion-button="">
-            <span class="button-inner">
-              <ion-icon color="primary" name="ios-arrow-back" role="img" class="icon icon-md icon-md-primary ion-ios-arrow-back" aria-label="arrow back"></ion-icon>
-            </span>
-            <div class="button-effect" style="transform: translate3d(-115px, -90px, 0px) scale(1); height: 240px; width: 240px; opacity: 0; transition: transform 359ms ease 0s, opacity 252ms ease 107ms;"></div>
-            </button>
-        
-        
-        <button class="picker-button-right button button-md button-clear button-clear-md" clear="" icon-only="" ion-button=""> 
-            <span class="button-inner">
-              <ion-icon color="primary" name="ios-arrow-forward" role="img" class="icon icon-md icon-md-primary ion-ios-arrow-forward" aria-label="arrow forward"></ion-icon>
-            </span>
-            <div class="button-effect" style="transform: translate3d(-104px, -18px, 0px) scale(1); height: 227px; width: 227px; opacity: 0; transition: transform 359ms ease 0s, opacity 252ms ease 107ms;"></div>
-            </button>-->
-        
         <div class="container" id="pick2">
             <#list recursos as recurso>
                 <#if recurso.tipo=="application/pdf">    

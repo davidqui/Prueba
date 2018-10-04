@@ -45,7 +45,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @since Septiembre 3, 2018 _feature_9 (SICDI-GETDE)
  */
 @Controller
-@PreAuthorize(value = "hasRole('ADMIN_RECURSO_MULTIMEDIA')")
+@PreAuthorize(value = "hasRole('ADMIN_TEMATICA')")
 @RequestMapping(RecursoMultimediaController.PATH)
 public class RecursoMultimediaController extends UtilController {
     
