@@ -41,8 +41,6 @@ public abstract class UtilController {
     private Map<Integer, String> userNombres = new HashMap<>();
     private Map<Integer, String> userLogins = new HashMap<>();
     
-    public final Integer ADMIN_PAGE_SIZE=15;
-
     /**
      * Establece el formato de fecha
      *
@@ -480,32 +478,4 @@ public abstract class UtilController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("labelInformacion", labelInformacion);
     }
-
-     /**
-    * 2018-09-24 samuel.delgado@controltechcg.com Issue #174 (SICDI-Controltech)
-    * feature-174: Adición para la paginación.
-    */
-    /**
-     * Agrega al modelo los atributos necesarios para la paginación.
-     * @param count total elementos
-     * @param model modelo 
-     * @param page pagína
-     * @param pageSize tamaño de paginas
-     */
-    public void adminPageable(Long count, Model model, Integer page, Integer pageSize){
-        int totalPages = 0;
-        String labelInformacion = "";
-        
-        if (count > 0) {
-            PaginacionDTO paginacionDTO = PaginacionUtil.retornaParametros(toIntExact(count), page, pageSize);
-            totalPages = paginacionDTO.getTotalPages();
-            labelInformacion = paginacionDTO.getLabelInformacion();
-        }
-
-        model.addAttribute("pageIndex", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("labelInformacion", labelInformacion);
-    }
-    
-    
 }
