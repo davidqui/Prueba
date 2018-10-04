@@ -31,7 +31,7 @@
 
                 <@link_admin  "ADMIN_AUDITORIA" "/admin/audit-security" 'audit-security' 'Auditoría y seguridad'/>
 
-           		<@link_admin  "ADMIN_CLASIFICACIONES" "/admin/clasificacion" 'clasificacion' 'Clasificaciones'/>
+           	<@link_admin  "ADMIN_CLASIFICACIONES" "/admin/clasificacion" 'clasificacion' 'Clasificaciones'/>
 
                 <@link_admin  "ADMIN_PLANTILLAS" "/admin/plantilla" 'plantilla' 'Plantillas'/>
   <#--
@@ -106,6 +106,13 @@
                 -->
                 <@link_admin  "ADMIN_TRANS_JUSTIF_DEFECTO" "/admin/transjustificaciondefecto" 'transjustificaciondefecto' 'Observacion Transferencia Archivo'/>
                 
+                
+                <#--
+                    2018-09-03 @author jcespedeso@imi.mil.co @author dquijanor@imi.mil.co @author aherreram@imi.mil.co feature_9 (SICDI-GETDE)
+                    Issue #9 (SICDI-Controltech) feature-gogs-9: Enlace para la opción de Tematica.
+                -->
+                <@link_admin  "ADMIN_TEMATICA" "/admin/tematica" 'tematica' 'Administración Manual Usuario'/>
+              
                 </ul>
             </div>
         </div>

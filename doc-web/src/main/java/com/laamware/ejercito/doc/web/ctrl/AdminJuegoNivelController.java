@@ -51,7 +51,7 @@ public class AdminJuegoNivelController extends
 	private Integer getJuegoId() {
 		return new Integer(queryStringMap.get("jid"));
 	}
-
+        
 	private Juego getJuego() {
 		Juego x = new Juego();
 		x.setId(getJuegoId());

@@ -37,4 +37,5 @@ public enum RolConstants {
     PROCESAR_REGISTRO_ACTAS,
     REGISTRO,
     ADMIN_FUID_GESTION
+    ADMIN_TEMATICA,
 }

@@ -208,6 +208,12 @@ public class AppConstants {
     public static final String PATH_ADMIN_TRANS_JUSTIF_DEFECTO = "/admin/transjustificaciondefecto";
 
     /**
+     * Rol de administración de tematica
+     */
+    public static final String ADMIN_TEMATICA = "ADMIN_TEMATICA";
+    public static final String PATH_ADMIN_TEMATICA = "/admin/tematica";
+    
+    /**
      * Rol para búsqueda de documentos por firma/envío UUID.
      */
     /*
