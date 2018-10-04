@@ -308,8 +308,7 @@ public class RecursoMultimediaController extends UtilController {
             os = response.getOutputStream();
             is = new ByteArrayInputStream(bytes);
             IOUtils.copy(is, os);
-            os.flush();
-            os.close();
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
