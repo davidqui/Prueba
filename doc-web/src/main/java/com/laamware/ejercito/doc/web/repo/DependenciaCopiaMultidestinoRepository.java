@@ -26,6 +26,14 @@ public interface DependenciaCopiaMultidestinoRepository extends JpaRepository<De
      * @return Lista de registros de copia multidestino.
      */
     public List<DependenciaCopiaMultidestino> findAllByDocumentoOriginalAndActivoTrue(Documento documentoOriginal);
+    
+    /**
+     * Busca la lista de registros pendientes de clonación para el documento indicado.
+     *
+     * @param documentoOriginal Documento original.
+     * @return Lista de registros de copia multidestino.
+     */
+    public List<DependenciaCopiaMultidestino> findAllByDocumentoOriginalAndActivoTrueAndDocumentoResultadoIsNull(Documento documentoOriginal);
 
     /**
      * Busca si existe un registro activo para el documento y la dependencia

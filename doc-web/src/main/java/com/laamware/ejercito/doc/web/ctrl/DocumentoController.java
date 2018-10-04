@@ -1112,8 +1112,8 @@ public class DocumentoController extends UtilController {
         } else {
             old = documentRepository.getOne(docId);
         }
-        
-        if(old.getCargoIdElabora() != null && doc.getCargoIdElabora() == null){
+
+        if (old.getCargoIdElabora() != null && doc.getCargoIdElabora() == null) {
             doc.setCargoIdElabora(old.getCargoIdElabora());
         }
 
@@ -3033,6 +3033,7 @@ public class DocumentoController extends UtilController {
             }
 
             final List<Dependencia> todasDependenciasMultidestino = multidestinoService.listarTodasDependenciasMultidestino(documento);
+            LOG.info("Iniciando verificación multidestino DOC_ID=[" + documento.getId() + "]");
             final BusinessLogicValidation todasDependenciasDestinoValidacion = multidestinoService.validarTodasDependenciasMultidestino(todasDependenciasMultidestino);
             if (!todasDependenciasDestinoValidacion.isAllOK()) {
                 // TODO: Enviar mensaje de error a la pantalla de firma y envío,
@@ -3045,7 +3046,7 @@ public class DocumentoController extends UtilController {
             // Verifica si se necesita realizar el proceso de clonación de los
             // documentos adicionales.
             Integer numPendientes = multidestinoService.cantidadDocumentosResultadosPendientesXDocumentoOriginal(documento.getId());
-
+            
             if (numPendientes != 0) {
                 try {
                     multidestinoService.clonarDocumentoMultidestino(documento, usuarioSesion);
@@ -3071,6 +3072,7 @@ public class DocumentoController extends UtilController {
                 return redirectURL;
             }
 
+            LOG.info("Documentos pendientes multidestino DOC_ID=[" + documento.getId() + "] -- número de dependencias asociadas= " + numPendientes);
             final List<Documento> documentosMultidestino = multidestinoService.listarTodosDocumentosMultidestino(documento);
 
             for (final Documento documentoMultidestino : documentosMultidestino) {

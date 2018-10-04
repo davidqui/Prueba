@@ -275,9 +275,6 @@
         <div class="container-fluid" id="masterdiv">
             <div class="row cus-root-container">
                 <script>
-                    $( window ).on( "load", function() {
-                        $(".div-loader").css({ display: "none" });
-                    });
                         
                     $("#consulta-form").on("submit", function(){
                      $(".div-loader").css({ display: "block" });

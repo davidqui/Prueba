@@ -21,6 +21,18 @@
     var date = $(this).attr('value');
     $(this).datepicker('setDate', date);
   });
+      
+      
+    $( window ).on( "load", function() {
+        $(".div-loader").css({ display: "none" });
+    });
+        
+    $(window).unload(function(){});
+    
+    if(performance.navigation.type == 2){
+        location.reload(true);
+    }
+    
     </script>
 
     ${deferredJS!""}

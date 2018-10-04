@@ -104,6 +104,17 @@ public class DependenciaCopiaMultidestinoService {
     public List<DependenciaCopiaMultidestino> listarActivos(final Documento documentoOriginal) {
         return multidestinoRepository.findAllByDocumentoOriginalAndActivoTrue(documentoOriginal);
     }
+    
+    /**
+     * Lista todos los registros de dependencia copia multidestino activos pendientes 
+     * del proceso de clonacion para un documento.
+     *
+     * @param documentoOriginal Documento original.
+     * @return Lista de los registros activos de multidestino.
+     */
+    public List<DependenciaCopiaMultidestino> listarPendientesDeClonacion(final Documento documentoOriginal) {
+        return multidestinoRepository.findAllByDocumentoOriginalAndActivoTrueAndDocumentoResultadoIsNull(documentoOriginal);
+    }
 
     /**
      * Busca un registro activo para el documento y dependencia destino
@@ -248,8 +259,10 @@ public class DependenciaCopiaMultidestinoService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void clonarDocumentoMultidestino(final Documento documentoOriginal, final Usuario usuarioSesion) throws Exception {
-        final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarActivos(documentoOriginal);
+        LOG.log(Level.INFO, "Inicia Clonacion multidestino DOC_ID=[{0}]", documentoOriginal.getId());
+        final List<DependenciaCopiaMultidestino> copiaMultidestinos = listarPendientesDeClonacion(documentoOriginal);
 
+        LOG.log(Level.INFO, "Clonacion multidestino DOC_ID=[{0}] -- lista de activos={1}", new Object[]{documentoOriginal.getId(), copiaMultidestinos.size()});
         List<String> uuids = new ArrayList();
         try (Connection conn = dataSource.getConnection()) {
             for (final DependenciaCopiaMultidestino copiaMultidestino : copiaMultidestinos) {
@@ -306,11 +319,11 @@ public class DependenciaCopiaMultidestinoService {
             LOG.info("com.laamware.ejercito.doc.web.serv.DependenciaCopiaMultidestinoService.clonarDocumentoMultidestino()");
             final String p_doc_id_origen = documentoOriginal.getId();
             // 2018-05-17 jgarcia@controltechcg.com Issue #165 (SICDI-Controltech) hotfix-165
-            LOG.log(Level.INFO, "p_doc_id_origen = {0}", p_doc_id_origen);
+            
             final String p_pin_id_nuevo = GeneralUtils.newId();
             final String p_doc_id_nuevo = GeneralUtils.newId();
             final Integer p_dep_id_des = copiaMultidestino.getDependenciaDestino().getId();
-
+            
             final List<Adjunto> adjuntos = adjuntoService.findAllActivos(documentoOriginal);
             // 2018-05-17 jgarcia@controltechcg.com Issue #165 (SICDI-Controltech) hotfix-165
             LOG.log(Level.INFO, "adjuntos = {0}", adjuntos.size());
@@ -339,7 +352,9 @@ public class DependenciaCopiaMultidestinoService {
                     .addValue(P_DOC_DOCX_DOCUMENTO, p_doc_docx_documento)
                     .addValue(P_ARRAY_UUID_DOC_ADJUNTO, p_array_uuid_doc_adjunto);
 
+            LOG.log(Level.INFO, "Inicia procedimiento de clonacion p_doc_id_origen = {0} --- p_doc_id_nuevo = {1}", new Object[]{p_doc_id_origen,p_doc_id_nuevo});
             simpleJdbcCall.execute(sqlParameterSource);
+            LOG.log(Level.INFO, "Termina procedimiento de clonacion p_doc_id_origen = {0} --- p_doc_id_nuevo = {1}", new Object[]{p_doc_id_origen,p_doc_id_nuevo});
 
             final Documento documentoResultado = documentoRepository.getOne(p_doc_id_nuevo);
             copiaMultidestino.setDocumentoResultado(documentoResultado);
