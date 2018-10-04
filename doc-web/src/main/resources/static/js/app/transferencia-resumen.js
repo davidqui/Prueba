@@ -39,6 +39,12 @@ function recibirDestinatario(idTransferencia) {
 
 function rechazarTransferencia(idTransferencia) {
     var pObservacion = $("#observacion").val();
+    
+    if (pObservacion === undefined || $.trim(pObservacion) === "") {
+        alert("Señor usuario debe justificar el porqué de su rechazo.");
+        return;
+    }
+    
     $.ajax({
         method: "POST",
         url: "/transferencia-archivo/rechazar/" + idTransferencia,
@@ -97,8 +103,8 @@ function reenviarTransferenciaUsuario(idTransferencia) {
         url: "/transferencia-archivo/devolver/" + idTransferencia+"/"+usuario,
         data: {justificacion: pJustificacion},
         dataType: 'html'
-    }).then(function() {
-        location.reload();
+    }).then(function(id) {
+        window.location.replace("/transferencia-archivo/resumen/"+id);
       }, function(message) {
           console.log("ESTE ES EL MENSAJE ",message);
             $('#title-modal-message').html("Advertencia");

@@ -6,13 +6,11 @@ import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.Instancia;
 import com.laamware.ejercito.doc.web.entity.Proceso;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.DocumentoRepository;
 import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +34,12 @@ public class DocumentoService {
     private InstanciaRepository instanciaRepository;
 
     @Autowired
+    private DependenciaRepository dependenciaRepository;
+    
+    @Autowired
+    private AdjuntoService adjuntoService;
+    
+    @Autowired
     private OFS ofs;
 
     /**
@@ -46,9 +50,7 @@ public class DocumentoService {
      * @return Nuevo documento con estado {@link Documento#ESTADO_TEMPORAL}.
      */
     public Documento crearDocumento(Instancia procesoInstancia, final Usuario usuarioCreador) {
-        System.err.println("Creando documento");
         final Documento documento = Documento.create();
-        System.err.println("Creando documento id= " + documento.getId());
         documento.setInstancia(procesoInstancia);
         documento.setEstadoTemporal(Documento.ESTADO_TEMPORAL);
 
@@ -126,8 +128,8 @@ public class DocumentoService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        List<Adjunto> adjuntos = documento.getAdjuntos();
+        
+        List<Adjunto> adjuntos = adjuntoService.findAllActivos(documento);
 
         //Obtiene el número de folios de los adjuntos
         if (!adjuntos.isEmpty()) {
@@ -150,5 +152,23 @@ public class DocumentoService {
             }
         }
         return numFolios;
+    }
+
+    /**
+     * Metodo que retorna la linea de mando de acuerdo a la dependencia del
+     * usuario
+     *
+     * @param usuario
+     * @return Linea de mando
+     */
+    public String retornaLineaMando(Usuario usuario) {
+        List<Object[]> result = dependenciaRepository.retornaSiglasDependientes(usuario.getDependencia().getId());
+        String lineaMando = "";
+        if (!result.isEmpty()) {
+            for (Object object : result) {
+                lineaMando = lineaMando + "-" + (String) object;
+            }
+        }
+        return lineaMando;
     }
 }

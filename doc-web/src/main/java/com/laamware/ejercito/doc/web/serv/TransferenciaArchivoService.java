@@ -7,15 +7,20 @@ import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
 import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.PlantillaFuidGestion;
 import com.laamware.ejercito.doc.web.entity.PlantillaTransferenciaArchivo;
+import com.laamware.ejercito.doc.web.entity.TransExpedienteDetalle;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.CargosRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaFuidGestionRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepository;
+import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
+import com.laamware.ejercito.doc.web.util.NumeroVersionComparator;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -131,8 +136,9 @@ public class TransferenciaArchivoService {
 
     @Autowired
     private PlantillaFuidGestionService plantillaFuidGestionService;
-    
-    
+
+    @Autowired
+    private TransferenciaArchivoDetalleRepository detalleRepository;
 
     /**
      * Busca un registro de transferencia de archivo.
@@ -198,18 +204,19 @@ public class TransferenciaArchivoService {
 
     /**
      * Permiso para reenviar una transferencia.
-     * @param transferenciaArchivo transferencia 
+     *
+     * @param transferenciaArchivo transferencia
      * @param usuario usuario para validar el permiso
      * @return true si tiene permiso false de lo contrario.
      */
-    public boolean permisoReenviarTransferencia(final TransferenciaArchivo transferenciaArchivo, final Usuario usuario){
-        return transferenciaArchivo != null && usuario != null &&
-                transferenciaArchivo.getUsuarioAsignado() == 2 &&
-                transferenciaArchivo.getIndAprobado() == 1 && 
-                transferenciaArchivo.getActivo() &&
-                transferenciaArchivo.getDestinoUsuario().getId().equals(usuario.getId());
+    public boolean permisoReenviarTransferencia(final TransferenciaArchivo transferenciaArchivo, final Usuario usuario) {
+        return transferenciaArchivo != null && usuario != null
+                && transferenciaArchivo.getUsuarioAsignado() == 2
+                && transferenciaArchivo.getIndAprobado() == 1
+                && transferenciaArchivo.getActivo()
+                && transferenciaArchivo.getDestinoUsuario().getId().equals(usuario.getId());
     }
-    
+
     /**
      * Permiso para rechazar una transferecia segun un usuario
      *
@@ -319,6 +326,19 @@ public class TransferenciaArchivoService {
         transferenciaArchivo.setUsuarioAsignado(1);
         transferenciaRepository.save(transferenciaArchivo);
         transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_PEDIENTE_ACEPTACION);
+        Map<String, Object> model = new HashMap();
+        model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
+        model.put("usuOrigenCargo", transferenciaArchivo.getUsuOrigenCargo());
+        model.put("usuDestino", transferenciaArchivo.getDestinoUsuario());
+        model.put("jefeOrigen", transferenciaArchivo.getOrigenDependencia().getJefe());
+        model.put("transferencia", transferenciaArchivo);
+
+        try {
+            model.put("usuario", transferenciaArchivo.getDestinoUsuario());
+            notificacionService.enviarNotificacion(model, NOTIFICACION_TRANSFERENCIA_POR_AUTORIZAR, transferenciaArchivo.getDestinoUsuario());
+        } catch (Exception ex) {
+            Logger.getLogger(ExpUsuarioService.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -353,8 +373,19 @@ public class TransferenciaArchivoService {
             transferenciaRepository.save(transferenciaArchivo);
             transferenciaTransicionService.crearTransicion(transferenciaArchivo, usuario, TRANSFERENCIA_ESTADO_TRANSFERIDO);
 
-            documentoActaService.crearActaDeTransferencia(transferenciaArchivo);
-            plantillaFuidGestionService.crearDocumentoFuid(transferenciaArchivo);
+            final List<TransferenciaArchivoDetalle> detalles = detalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
+            final List<TransExpedienteDetalle> transferenciaExpediente = transExpedienteDetalleService.buscarXTransferenciaArchivo(transferenciaArchivo);
+
+            if (detalles.size() > 0) {
+                ordenarDetalles(detalles);
+            }
+
+            if (transferenciaExpediente.size() > 0) {
+                ordenarDetallesExpediente(transferenciaExpediente);
+            }
+
+            documentoActaService.crearActaDeTransferencia(transferenciaArchivo, detalles, transferenciaExpediente);
+            plantillaFuidGestionService.crearDocumentoFuid(transferenciaArchivo, detalles);
 
             Map<String, Object> model = new HashMap();
             model.put("usuOrigen", transferenciaArchivo.getOrigenUsuario());
@@ -657,14 +688,49 @@ public class TransferenciaArchivoService {
     }
     
     
-    public void reenviarTransferencia(final TransferenciaArchivo transferenciaArchivo, Usuario usuarioDestino, String justificacion) throws Exception{
+    public TransferenciaArchivo reenviarTransferencia(final TransferenciaArchivo transferenciaArchivo, Usuario usuarioDestino, String justificacion) throws Exception{
         TransferenciaArchivo transferencia = crearEncabezadoTransferenciaGestion(transferenciaArchivo.getDestinoUsuario(),
                 transferenciaArchivo.getUsuDestinoCargo().getId(), usuarioDestino, justificacion);
         transferenciaArchivoDetalleService.reeviarDocumentosTransferencia(transferenciaArchivo, transferencia);
         transExpedienteDetalleService.reeviarExpedienteTransferencia(transferenciaArchivo, transferencia);
-        enviarTransferencia(transferencia, transferenciaArchivo.getDestinoUsuario());
         transferenciaArchivo.setActivo(Boolean.FALSE);
-        transferenciaRepository.save(transferenciaArchivo);
+        transferenciaRepository.saveAndFlush(transferenciaArchivo);
+        return transferencia;
     }
-    
+
+    /**
+     * Ordena la lista de detalles según el código de la TRD asociada.
+     *
+     * @param detalles Lista de detalles de transferencia.
+     */
+    private void ordenarDetalles(List<TransferenciaArchivoDetalle> detalles) {
+        Collections.sort(detalles, new Comparator<TransferenciaArchivoDetalle>() {
+            final NumeroVersionComparator versionComparator = new NumeroVersionComparator();
+
+            @Override
+            public int compare(TransferenciaArchivoDetalle detalle1, TransferenciaArchivoDetalle detalle2) {
+                final String codigo1 = detalle1.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
+                final String codigo2 = detalle2.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
+                return versionComparator.compare(codigo1, codigo2);
+            }
+        });
+    }
+
+    /**
+     * Ordena la lista de detalles según el código de la TRD asociada.
+     *
+     * @param detalles Lista de detalles de transferencia.
+     */
+    private void ordenarDetallesExpediente(List<TransExpedienteDetalle> detalles) {
+        Collections.sort(detalles, new Comparator<TransExpedienteDetalle>() {
+            final NumeroVersionComparator versionComparator = new NumeroVersionComparator();
+
+            @Override
+            public int compare(TransExpedienteDetalle detalle1, TransExpedienteDetalle detalle2) {
+                final String codigo1 = detalle1.getExpId().getTrdIdPrincipal().getCodigo();
+                final String codigo2 = detalle1.getExpId().getTrdIdPrincipal().getCodigo();
+                return versionComparator.compare(codigo1, codigo2);
+            }
+        });
+    }
 }

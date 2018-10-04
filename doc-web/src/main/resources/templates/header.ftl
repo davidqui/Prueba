@@ -126,7 +126,7 @@
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title" style="color: #0275d8;">Configuración Notificaciones</h4>
                                 </div>
-                                <div class="modal-body" style="color: black;">
+                                <div class="modal-body" style="height: 600px; overflow-y: scroll; color: black;">
 
                                 </div>
                             </div>

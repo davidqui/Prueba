@@ -35,7 +35,12 @@ public class TransferenciaArchivoDetalleService {
     @Autowired
     private DocumentoDependenciaService documentoDependenciaService;
     
-    
+    /***
+     * Guarda un documento en la transferencia
+     * @param transferenciaArchivo transferencia a guradar documento
+     * @param documentoDependencia documento dependencia asociado
+     * @param usuario usuario que realiza la transferencia 
+     */
     public void guardarDocumentoTransferencia(TransferenciaArchivo transferenciaArchivo, 
         DocumentoDependencia documentoDependencia, Usuario usuario){
         TransferenciaArchivoDetalle transferenciaArchivoDetalle = new TransferenciaArchivoDetalle();
@@ -53,11 +58,49 @@ public class TransferenciaArchivoDetalleService {
         transferenciaArchivoDetalleRepository.save(transferenciaArchivoDetalle);
     }
     
+    /**
+     * Elimina rodos los documentos de transferencia archivo
+     * @param transferenciaArchivo 
+     */
     public void eliminarDocumentosTransferencia(TransferenciaArchivo transferenciaArchivo){
         List<TransferenciaArchivoDetalle> documentos = transferenciaArchivoDetalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
         for (TransferenciaArchivoDetalle documento : documentos) { 
             documento.setActivo(0);
             transferenciaArchivoDetalleRepository.save(documento);
+        }
+    }
+    
+    public void eliminarDocumentosExpedientesTransferencia(TransferenciaArchivo transferenciaArchivo, Usuario usuario){
+        List<TransferenciaArchivoDetalle> documentos = transferenciaArchivoDetalleRepository.findAllTransferenciaExpedienteExpId(usuario.getId(), transferenciaArchivo.getId());
+        for (TransferenciaArchivoDetalle documento : documentos) { 
+            documento.setActivo(0);
+            transferenciaArchivoDetalleRepository.save(documento);
+        }
+    }
+    
+    /**
+     * guarda una lista de documentos en una transferencia.
+     * @param transferenciaArchivo transferencuia a agregar los doucmentos
+     * @param documentos lista de documentos
+     * @param usuario usuario creador 
+     */
+    public void guardarListaDocumentosTransferencia(TransferenciaArchivo transferenciaArchivo, 
+            List<DocumentoDependencia> documentos, List<DocumentoDependencia> documentosEnTransferencia, 
+            Usuario usuario){
+        
+        for (DocumentoDependencia documento : documentos) {
+            if(documento.getCargo().getId().equals(transferenciaArchivo.getUsuOrigenCargo().getId())){
+                boolean find = false;
+                for (DocumentoDependencia documentoDependencia : documentosEnTransferencia) {
+                    if (documentoDependencia.getId().equals(documento.getId())) {
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    guardarDocumentoTransferencia(transferenciaArchivo, documento, usuario);
+                }
+            }
         }
     }
     

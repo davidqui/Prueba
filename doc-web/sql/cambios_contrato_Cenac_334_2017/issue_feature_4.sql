@@ -234,8 +234,8 @@ INSERT INTO DOC.WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('460','Nombr
 INSERT INTO DOC.WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('461','Sigla Grado usuario correo destino','usuario.usuGrado.id');
 INSERT INTO DOC.WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('462','Cargo usuario correo destino','usuario.usuCargoPrincipalId.carNombre');
 INSERT INTO DOC.WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('463','Nombre usuario rechaza','usuRechaza.nombre');
-INSERT INTO DOC.WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('464','Nombre usuario rechaza','usuRechaza.usuGrado.id');
-INSERT INTO DOC.WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('465','Nombre usuario rechaza','usuRechaza.usuCargoPrincipalId.carNombre');
+INSERT INTO DOC.WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('464','Sigla grado usuario rechaza','usuRechaza.usuGrado.id');
+INSERT INTO DOC.WILDCARD_NOTIFICACION (WNF_ID,NOMBRE,VALOR) VALUES ('465','Cargo usuario rechaza','usuRechaza.usuCargoPrincipalId.carNombre');
 
 -- -----------------------------------------------------------------------------
 -- TABLA: 
@@ -329,7 +329,7 @@ END;
 
 DECLARE
     CURSOR C_INT_EXTERNO IS
-       select a.pin_id, a.doc_id, max(c.cuando) cuando_firma
+       select a.pin_id, a.doc_id, min(c.cuando) cuando_firma
         from DOC.documento a
         join DOC.proceso_instancia b on (b.pin_id = a.pin_id and b.pro_id = 8 and b.pes_id != 83)
         join DOC.DOCUMENTO_USU_FIRMA c on ( c.doc_id = a.doc_id and c.cuando is not null)
@@ -350,7 +350,7 @@ END;
 
 DECLARE
     CURSOR C_INT_EXTERNO IS
-       select a.pin_id, a.doc_id, max(c.cuando) cuando_firma
+       select a.pin_id, a.doc_id, min(c.cuando) cuando_firma
         from DOC.documento a
         join DOC.proceso_instancia b on (b.pin_id = a.pin_id and b.pro_id = 41 and b.pes_id != 83)
         join DOC.DOCUMENTO_USU_FIRMA c on ( c.doc_id = a.doc_id and c.cuando is not null)

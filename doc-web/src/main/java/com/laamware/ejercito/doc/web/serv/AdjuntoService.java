@@ -115,6 +115,34 @@ public class AdjuntoService {
         adjunto = adjuntoRepository.saveAndFlush(adjunto);
         return adjunto;
     }
+    
+    /**
+     * Guarda un archivo en el OFS y lo registra como adjunto de un documento.
+     *
+     * @param documento Documento.
+     * @param tipologia Tipología del adjunto.
+     * @param usuario Usuario que realiza la carga del adjunto.
+     * @param archivoNombreOriginal Nombre original del archivo.
+     * @param ofsFileID Id del archivo
+     * @param contentType Tipo de contenido del archivo.
+     * @return Instancia del registro del archivo adjunto.
+     */
+    /*
+     * 2018-09-26 edison.gonzalez@controltechcg.com Issue #4 (SICDI-Controltech)
+     * feature-gogs-4.
+     */
+    public Adjunto guardarAdjunto(final Documento documento, final Tipologia tipologia, final Usuario usuario, final String archivoNombreOriginal,final String contentType, String ofsFileID){
+        Adjunto adjunto = Adjunto.create();
+        adjunto.setDocumento(documento);
+        adjunto.setTipologia(tipologia);
+        adjunto.setOriginal(archivoNombreOriginal);
+        adjunto.setQuien(usuario.getId());
+        adjunto.setCuando(new Date());
+        adjunto.setContenido(ofsFileID);
+
+        adjunto = adjuntoRepository.saveAndFlush(adjunto);
+        return adjunto;
+    }
 
     /**
      * Busca un adjunto por su ID y ID de documento, siempre y cuando el

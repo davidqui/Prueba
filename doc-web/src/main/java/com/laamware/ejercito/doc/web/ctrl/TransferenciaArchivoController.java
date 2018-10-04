@@ -293,14 +293,7 @@ public class TransferenciaArchivoController extends UtilController {
                 }
             }
         }
-        
-        List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(usuarioSesion);
-        List<TransferenciaTransicion> findTransferenciaTransicionRechazado = transferenciaTransicionService.findTransferenciaTransicionRechazado(transferenciaEstadoService.getById(ESTADO_RECHAZADO), transferenciaArchivo);
-        
-        if (!findTransferenciaTransicionRechazado.isEmpty() || expedientes.isEmpty()) {
-            return "redirect:" + PATH + "/resumen/"+ transId;
-        }
-        return "redirect:" + PATH + "/seleccionar-expediente/" + transId;
+        return "redirect:" + PATH + "/resumen/"+ transId;
     }
 
     /**
@@ -343,20 +336,28 @@ public class TransferenciaArchivoController extends UtilController {
     @RequestMapping(value = "/seleccionar-expediente/{trans}", method = RequestMethod.POST)
     public String asignarExpedientes(@PathVariable("trans") Integer transId, Principal principal, Model model,
             @RequestParam(value = "expedientes", required = false) Long[] expedientes) {
-        Usuario usuarioSesion = getUsuario(principal);
-        TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
+        final Usuario usuarioSesion = getUsuario(principal);
+        final TransferenciaArchivo transferenciaArchivo = transferenciaService.findOneTransferenciaArchivo(transId);
         if (!transferenciaService.permisoEditarTransferencia(transferenciaArchivo, usuarioSesion)) {
             return "security-denied";
         }
         transExpedienteDetalleService.eliminarExpedientesTransferencia(transferenciaArchivo);
+        transferenciaArchivoDetalleService.eliminarDocumentosExpedientesTransferencia(transferenciaArchivo, usuarioSesion);
         if (expedientes != null) {
             for (Long expediente : expedientes) {
                 Expediente pExpediente = expedienteService.finById(expediente);
+                List<DocumentoDependencia> documentosExpediente = documentoDependenciaService.documentosExpedienteUsuario(pExpediente, usuarioSesion);
+                List<DocumentoDependencia> documentosEnTransferencia = documentoDependenciaService.listarDocumentosOtrasTransferencias(usuarioSesion, transferenciaArchivo);
+                transferenciaArchivoDetalleService.guardarListaDocumentosTransferencia(transferenciaArchivo, documentosExpediente, documentosEnTransferencia, usuarioSesion);
                 transExpedienteDetalleService.guardarExpedienteTransferencia(transferenciaArchivo,
                         pExpediente, usuarioSesion);
             }
         }
-        return "redirect:" + PATH + "/resumen/" + transId;
+        List<TransferenciaTransicion> findTransferenciaTransicionRechazado = transferenciaTransicionService.findTransferenciaTransicionRechazado(transferenciaEstadoService.getById(ESTADO_RECHAZADO), transferenciaArchivo);
+        if (!findTransferenciaTransicionRechazado.isEmpty()) {
+            return "redirect:" + PATH + "/resumen/"+ transId;
+        }
+        return "redirect:" + PATH + "/seleccionar-documentos/" + transId;
     }
 
     /**
@@ -696,7 +697,12 @@ public class TransferenciaArchivoController extends UtilController {
             TransferenciaArchivo ta = transferenciaService.crearEncabezadoTransferenciaGestion(origenUsuario, cargoOrigen, destinoUsuario, justificacion);
             model.addAttribute(AppConstants.FLASH_SUCCESS,"El encabezado de la transferencia del archivo ha sido creada satisfactoriamente.");
             System.err.println("tranns= "+ta);
-            return String.format("redirect:%s/seleccionar-documentos/%s", PATH, ta.getId());
+            
+            List<Expediente>  expedientes = expedienteService.getExpedientesXusuarioCreador(origenUsuario);
+            if (expedientes.isEmpty()) {
+                return String.format("redirect:%s/seleccionar-documentos/%s", PATH, ta.getId());
+            }
+            return String.format("redirect:%s/seleccionar-expediente/%s", PATH, ta.getId());
         } catch (Exception ex) {
             model.addAttribute(AppConstants.FLASH_ERROR,"Error creando la transferencia. Por favor comuniquese con el administrador del sistema.");
             return "transferencia-gestion-crear";
@@ -713,16 +719,19 @@ public class TransferenciaArchivoController extends UtilController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         if (origenUsuario.getId().equals(usuId))
             return new ResponseEntity<>("No puede reenviarse una transferencia a usted mismo.", HttpStatus.BAD_REQUEST);
-        if (usuario.getClasificacion().getOrden() < transferenciaArchivo.getDestinoUsuario().getClasificacion().getOrden()) {
-            return new ResponseEntity<>("El usuario "+usuario.getUsuGrado().getId()+" "+usuario.getNombre()+" tiene una clasificación menor que su clasificación.", HttpStatus.BAD_REQUEST);
-        }
+        if (usuario.getClasificacion().getOrden() < transferenciaArchivo.getDestinoUsuario().getClasificacion().getOrden())
+            return new ResponseEntity<>("La transferencia no se puede efectuar por que el usuario "+usuario.getUsuGrado().getId()+" "+usuario.getNombre()+" tiene una clasificación menor a la suya. </br> Por favor verificar e intentar nuevamente.", HttpStatus.BAD_REQUEST);
+        if (usuario.getDependencia().getJefe() == null)
+            return new ResponseEntity<>("La transferencia no se puede efectuar por que la dependencia del usuario  "+usuario.getUsuGrado().getId()+" "+usuario.getNombre()+" no tiene un jefe de dependencia. </br> Por favor verificar e intentar nuevamente.", HttpStatus.BAD_REQUEST);
+
         final Usuario usuarioDestino = usuarioService.findOne(usuId);
         try {
-            transferenciaService.reenviarTransferencia(transferenciaArchivo, usuarioDestino, justificacion);
+            TransferenciaArchivo trReenviada = transferenciaService.reenviarTransferencia(transferenciaArchivo, usuarioDestino, justificacion);
+            return ResponseEntity.ok(trReenviada.getId());
         } catch (Exception ex) {
             Logger.getLogger(TransferenciaArchivoController.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
     
 }

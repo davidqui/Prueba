@@ -9,6 +9,7 @@ import com.aspose.words.ParagraphAlignment;
 import com.aspose.words.Row;
 import com.aspose.words.Run;
 import com.aspose.words.Table;
+import com.aspose.words.VerticalAlignment;
 import com.itextpdf.text.pdf.PdfReader;
 import com.laamware.ejercito.doc.web.ctrl.DocumentoActaController;
 import com.laamware.ejercito.doc.web.dto.DocumentoActaDTO;
@@ -42,7 +43,6 @@ import com.laamware.ejercito.doc.web.repo.InstanciaRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaTransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.repo.ProcesoEstadoRepository;
 import com.laamware.ejercito.doc.web.repo.ProcesoRepository;
-import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioRepository;
 import com.laamware.ejercito.doc.web.repo.UsuarioXDocumentoActaRepository;
 import com.laamware.ejercito.doc.web.repo.VariableRepository;
@@ -50,19 +50,15 @@ import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.BusinessLogicValidation;
 import com.laamware.ejercito.doc.web.util.DateUtil;
 import com.laamware.ejercito.doc.web.util.Global;
-import com.laamware.ejercito.doc.web.util.NumeroVersionComparator;
 import com.laamware.ejercito.doc.web.util.UsuarioXDocumentoActaComparator;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -73,7 +69,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import net.sourceforge.jbarcodebean.JBarcodeBean;
-import net.sourceforge.jbarcodebean.model.Interleaved25;
+import net.sourceforge.jbarcodebean.model.Code128;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -98,6 +94,10 @@ public class DocumentoActaService {
 
     private static final Logger LOG = Logger.getLogger(DocumentoActaService.class.getName());
 
+    private static final SimpleDateFormat DOCUMENTDATEFORMAT = new SimpleDateFormat(Global.DOCUMENT_DATE_FORMAT_PATTERN, Global.COLOMBIA);
+    private static final SimpleDateFormat STICKERDATEFORMAT = new SimpleDateFormat(Global.STICKER_DATE_FORMAT_PATTERN, Global.COLOMBIA);
+    final SimpleDateFormat DATEFORMAT = new SimpleDateFormat(Global.DATE_FORMAT, Global.COLOMBIA);
+
     private String imagesRoot;
 
     static {
@@ -120,16 +120,12 @@ public class DocumentoActaService {
 
         ESTADO_MODE_MAP_FOR_UI = Collections.unmodifiableMap(forUIMap);
     }
-   
+
     /**
      * Prefijo de línea de mando.
      */
-    private static final String LINEA_MANDO_PREFIX = "MDN-CGFM-COEJC-SECEJ";
-
-    /**
-     * Separador de línea de mando.
-     */
-    private static final String LINEA_MANDO_SEPARATOR = "-";
+    @Value("${com.mil.imi.sicdi.linea.mando.inicio}")
+    private String LINEA_MANDO_PREFIX;
 
     private final Integer serieActasID;
 
@@ -157,9 +153,6 @@ public class DocumentoActaService {
 
     @Autowired
     private RadicadoService radicadoService;
-
-    @Autowired
-    private DependenciaService dependenciaService;
 
     @Autowired
     private OFS ofs;
@@ -203,15 +196,6 @@ public class DocumentoActaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private TransferenciaArchivoDetalleRepository detalleRepository;
-
-    @Autowired
-    private TransferenciaArchivoDetalleService transferenciaArchivoDetalleService;
-
-    @Autowired
-    private TransExpedienteDetalleService transExpedienteDetalleService;
-    
     @Autowired
     private TransferenciaArchivoService transferenciaArchivoService;
 
@@ -276,7 +260,7 @@ public class DocumentoActaService {
 	 * 2018-08-29 edison.gonzalez@controltechcg.com Issue #181 (SICDI-Controltech)
 	 * feature-181: Se adiciona los permisos de acceso de los usuarios de los
          * expedientes y se centraliza un solo metodo para la verificación de acceso.
-        */
+         */
         return usuarioService.verificaAccesoDocumento(usuario.getId(), procesoInstanciaID);
 //        return usuarioService.verificaAccesoDocumentoActa(usuario, procesoInstanciaID);
     }
@@ -362,7 +346,7 @@ public class DocumentoActaService {
                 final Date actaFechaElaboracionLimite = DateUtil.setTime(DateUtil.add(new Date(), Calendar.DATE, -diasLimiteFechaElaboracion), DateUtil.SetTimeType.START_TIME);
                 if (actaFechaElaboracion.before(actaFechaElaboracionLimite)) {
                     validation.addError(documentoActaDTO, campo, "La fecha de elaboración es menor que la fecha límite permitida: "
-                            + new SimpleDateFormat(Global.DATE_FORMAT).format(actaFechaElaboracionLimite));
+                            + DATEFORMAT.format(actaFechaElaboracionLimite));
                 } else {
                     final Date fechaSistema = DateUtil.setTime(new Date(), DateUtil.SetTimeType.END_TIME);
                     if (actaFechaElaboracion.after(fechaSistema)) {
@@ -447,12 +431,12 @@ public class DocumentoActaService {
         return validation;
     }
 
-    public Documento guardarRegistroDatos(final DocumentoActaDTO documentoActaDTO, final Usuario usuario) throws ParseException {
+    public Documento guardarRegistroDatos(DocumentoActaDTO documentoActaDTO, final Usuario usuario) throws ParseException {
         final Date fechaHoraActual = new Date();
 
         Documento documento = documentoService.buscarDocumento(documentoActaDTO.getDocId());
         documento.setAsunto(documentoActaDTO.getAsunto());
-        documento.setClasificacion(new Clasificacion(Integer.parseInt(documentoActaDTO.getClasificacion())));
+        documento.setClasificacion(clasificacionRepository.getOne(Integer.parseInt(documentoActaDTO.getClasificacion())));
         documento.setTrd(new Trd(Integer.parseInt(documentoActaDTO.getTrd())));
         documento.setNumeroFolios(Integer.parseInt(documentoActaDTO.getNumeroFolios()));
         documento.setQuienMod(usuario.getId());
@@ -487,18 +471,33 @@ public class DocumentoActaService {
      * @return Documento actualizado con el número de radicación asignado.
      */
     public Documento asignarNumeroRadicacion(Documento documento, final Usuario usuarioSesion) {
-        final Dependencia dependenciaDestino = documento.getDependenciaDestino();
-        final Dependencia superDependencia = dependenciaService.getSuperDependencia(dependenciaDestino);
-
-        final Proceso proceso = documento.getInstancia().getProceso();
-        final Radicacion radicacion = radicadoService.findByProceso(proceso);
-
-        documento.setRadicado(radicadoService.retornaNumeroRadicado(superDependencia.getId(), radicacion.getRadId()));
+        Integer unidad = dependenciaRepository.findUnidadID(documento.getDependenciaDestino().getId());
+        final Radicacion radicacion = radicadoService.findByProceso(documento.getInstancia().getProceso());
+        documento.setRadicado(radicadoService.retornaNumeroRadicado(unidad, radicacion.getRadId()));
         documento.setSticker(generaSticker(documento));
 
         documento.setQuienMod(usuarioSesion.getId());
         documento.setCuandoMod(new Date());
 
+        return documentoService.actualizar(documento);
+    }
+
+    /**
+     * Genera y asigna el número de radicación para el documento, según el
+     * proceso al que pertenece y la súper dependencia de la dependencia
+     * destino.
+     *
+     * @param documento Documento.
+     * @param usuarioSesion Usuario en sesión.
+     * @return Documento actualizado con el número de radicación asignado.
+     */
+    public Documento asignarNumeroRadicacionActasTransferencia(Documento documento, final Usuario usuarioSesion) {
+        Integer unidad = dependenciaRepository.findUnidadID(documento.getDependenciaDestino().getId());
+        final Radicacion radicacion = radicadoService.findByProceso(documento.getInstancia().getProceso());
+        documento.setRadicado(radicadoService.retornaNumeroRadicado(unidad, radicacion.getRadId()));
+
+        documento.setQuienMod(usuarioSesion.getId());
+        documento.setCuandoMod(new Date());
         return documentoService.actualizar(documento);
     }
 
@@ -510,11 +509,10 @@ public class DocumentoActaService {
      */
     private String generaSticker(Documento doc) {
         try {
-            final SimpleDateFormat sdf = new SimpleDateFormat(Global.STICKER_DATE_FORMAT_PATTERN, Global.COLOMBIA);
             Map<String, Object> params = new HashMap<>();
             params.put("radicado", doc.getRadicado() == null ? "" : doc.getRadicado());
             params.put("asunto", doc.getAsunto() == null ? "" : doc.getAsunto());
-            params.put("cuando", sdf.format(doc.getActaFechaElaboracion()));
+            params.put("cuando", STICKERDATEFORMAT.format(doc.getActaFechaElaboracion()));
             params.put("elabora", doc.getElabora().getNombre());
             params.put("imagesRoot", imagesRoot);
             List<String> listaUnElemento = new ArrayList<>(1);
@@ -761,7 +759,7 @@ public class DocumentoActaService {
      * corresponda al formato esperado.
      */
     private Date buildFechaElaboracion(final String fechaElaboracion) throws ParseException {
-        return DateUtil.setTime(new SimpleDateFormat(Global.DATE_FORMAT).parse(fechaElaboracion), DateUtil.SetTimeType.START_TIME);
+        return DateUtil.setTime(DATEFORMAT.parse(fechaElaboracion), DateUtil.SetTimeType.START_TIME);
     }
 
     /**
@@ -874,9 +872,12 @@ public class DocumentoActaService {
 
     /**
      * Metodo que permite crear el proceso del acta de transferencia.
-     * @param transferenciaArchivo 
+     *
+     * @param transferenciaArchivo
+     * @param detalles
+     * @param transferenciaExpediente
      */
-    public void crearActaDeTransferencia(TransferenciaArchivo transferenciaArchivo) {
+    public void crearActaDeTransferencia(TransferenciaArchivo transferenciaArchivo, final List<TransferenciaArchivoDetalle> detalles, final List<TransExpedienteDetalle> transferenciaExpediente) {
         try {
             final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
             final Usuario usuarioEmisor = transferenciaArchivo.getOrigenUsuario();
@@ -887,71 +888,67 @@ public class DocumentoActaService {
             Instancia procesoInstancia = procesoService.instancia(pinId);
 
             /*Crando el documento*/
-            Documento documento = crearDocumentoDeActaDeTransferencia(pinId, transferenciaArchivo);
+            Documento documento = crearDocumentoDeActaDeTransferencia(pinId, transferenciaArchivo, jefeDependencia, usuarioEmisor, usuarioReceptor);
 
             /*Asignando usuarios transferencia*/
             Estado estado = procesoEstadoRepository.findEstadoInicialByProId(Proceso.ID_TIPO_PROCESO_REGISTRO_ACTAS);
             procesoInstancia.setEstado(estado);
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.SELECCIONAR_USUARIOS.getId());
-            asignarUsuarioActa(documento, jefeDependencia, jefeDependencia.getUsuCargoPrincipalId(), jefeDependencia);
+
             asignarUsuarioActa(documento, usuarioEmisor, transferenciaArchivo.getUsuOrigenCargo(), jefeDependencia);
             asignarUsuarioActa(documento, usuarioReceptor, transferenciaArchivo.getUsuDestinoCargo(), jefeDependencia);
 
             /*Asignando número de radicado*/
-            documento = asignarNumeroRadicacion(documento, jefeDependencia);
+            documento = asignarNumeroRadicacionActasTransferencia(documento, jefeDependencia);
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.GENERAR_NUMERO_RADICADO.getId());
 
             /*Usuario registro*/
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.ENVIAR_REGISTRO.getId());
-            
+
             /*Sticker*/
             procesoInstancia.setCuandoMod(new Date());
             generaVariableSticker(procesoInstancia);
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.GENERAR_STICKER.getId());
-            
+
             /*Validar*/
             procesoInstancia.setCuandoMod(new Date());
             procesoInstancia.forward(DocumentoActaTransicionTransferencia.VALIDAR.getId());
-            
+
             /*Aprobar_archivar*/
             digitalizarYArchivarActa(documento, procesoInstancia, jefeDependencia, DocumentoActaTransicionTransferencia.APROBAR_ARCHIVAR.getId());
 
             /*Creación del documento del acta*/
-            crearActaPdf(transferenciaArchivo, documento);
+            crearActaPdf(transferenciaArchivo, documento, detalles, transferenciaExpediente);
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger.getLogger(DocumentoActaService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public Documento crearDocumentoDeActaDeTransferencia(String pinId, TransferenciaArchivo transferenciaArchivo) {
+    public Documento crearDocumentoDeActaDeTransferencia(String pinId, TransferenciaArchivo transferenciaArchivo, final Usuario jefeDependencia, final Usuario usuarioEmisor, final Usuario usuarioReceptor) {
         try {
             Instancia procesoInstancia = procesoService.instancia(pinId);
-            final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
-            final Usuario usuarioEmisor = transferenciaArchivo.getOrigenUsuario();
-            final Usuario usuarioReceptor = transferenciaArchivo.getDestinoUsuario();
-
             Documento documento = crearDocumento(procesoInstancia, jefeDependencia);
 
             /*Actualizando documento con información del acta*/
             final String asunto = "Transferencia de archivos y expedientes en gestión de " + usuarioEmisor.getLogin() + " a " + usuarioReceptor.getLogin();;
 
             final String actaLugar = usuarioEmisor.getDependencia().getCiudad();
-            final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(Global.DATE_FORMAT, Global.COLOMBIA);
-
             DocumentoActaDTO documentoActaDTO = new DocumentoActaDTO();
             documentoActaDTO.setDocId(documento.getId());
             documentoActaDTO.setAsunto(asunto);
             documentoActaDTO.setActaLugar(actaLugar);
-            documentoActaDTO.setActaFechaElaboracion(documentDateFormatter.format(new Date()));
-            documentoActaDTO.setClasificacion(transferenciaArchivo.getOrigenClasificacion().getId().toString());
+            documentoActaDTO.setActaFechaElaboracion(DATEFORMAT.format(new Date()));
+            String clasificacion = clasificacionRepository.findMinOrderActivo().getId().toString();
+                    
+            documentoActaDTO.setClasificacion(clasificacion);
             documentoActaDTO.setTrd(trdService.findOne(subserieActaTransferencia).getId().toString());
             documentoActaDTO.setNumeroFolios("0");
             documentoActaDTO.setCargoElabora(jefeDependencia.getUsuCargoPrincipalId().getId().toString());
-            documentoActaDTO.setActaDescripcion(asunto);
+            documentoActaDTO.setActaDescripcion(transferenciaArchivo.getJustificacion());
 
             return guardarRegistroDatos(documentoActaDTO, jefeDependencia);
         } catch (Exception e) {
@@ -969,30 +966,19 @@ public class DocumentoActaService {
      * @throws Exception Si ocurre algún error durante la creación del documento
      * Aspose.
      */
-    private void crearActaPdf(final TransferenciaArchivo transferenciaArchivo, final Documento documento) throws Exception {
-
+    private void crearActaPdf(final TransferenciaArchivo transferenciaArchivo, final Documento documento, final List<TransferenciaArchivoDetalle> detalles, final List<TransExpedienteDetalle> transferenciaExpediente) throws Exception {
         final PlantillaTransferenciaArchivo plantilla = plantillaRepository.findByActivoTrue();
-        final KeysValuesAsposeDocxDTO asposeMap = crearMapaAspose(transferenciaArchivo, documento);
         final String plantillaPath = ofs.getPath(plantilla.getCodigoOFS());
+
         final License asposeLicense = new License();
         final Resource resource = new ClassPathResource("Aspose.Words.lic");
         asposeLicense.setLicense(resource.getInputStream());
-        
         final Document asposeDocument = new Document(plantillaPath);
-
-        asposeDocument.getMailMerge().execute(asposeMap.getNombres(), asposeMap.getValues());
-
-        final List<TransferenciaArchivoDetalle> detalles = detalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
-        if (detalles.size() > 0) {
-            ordenarDetalles(detalles);
-        }
 
         final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 2, true);
         if (table != null) {
-            
-            if (detalles.isEmpty()) {
-                table.removeAllChildren();
-            } else {
+
+            if (!detalles.isEmpty()) {
                 int indice = 1;
                 for (TransferenciaArchivoDetalle detalle : detalles) {
                     final String[] cellValues = buildCellValuesDocumento(detalle, indice);
@@ -1001,12 +987,9 @@ public class DocumentoActaService {
                     table.appendChild(row);
                     indice++;
                 }
+            } else {
+                table.removeAllChildren();
             }
-        }
-        
-        final List<TransExpedienteDetalle> transferenciaExpediente = transExpedienteDetalleService.buscarXTransferenciaArchivo(transferenciaArchivo);
-        if (transferenciaExpediente.size() > 0) {
-            ordenarDetallesExpediente(transferenciaExpediente);
         }
 
         final Table tableExpediente = (Table) asposeDocument.getChild(NodeType.TABLE, 3, true);
@@ -1024,22 +1007,23 @@ public class DocumentoActaService {
                 }
             }
         }
+
+        final KeysValuesAsposeDocxDTO asposeMap = crearMapaAsposeActa(transferenciaArchivo, documento, detalles, transferenciaExpediente);
+        asposeDocument.getMailMerge().execute(asposeMap.getNombres(), asposeMap.getValues());
+
         
-        final String siglaDependenciaDestino = Objects.toString(transferenciaArchivo.getDestinoDependencia().getSigla(), "");
+        final String siglaDependenciaDestino = dependenciaRepository.retornaSiglaSuperior(transferenciaArchivo.getDestinoDependencia().getId());
         ofs.insertWatermarkText(asposeDocument, siglaDependenciaDestino);
 
         final File tmpFile = File.createTempFile("_sigdi_temp_", ".pdf");
         asposeDocument.save(tmpFile.getPath());
 
-        int numFolios = 0;
-        try (InputStream iS = new FileInputStream(tmpFile)) {
-            PdfReader pdfReader = new PdfReader(iS);
-            numFolios = pdfReader.getNumberOfPages();
-        }
-
         final OFSEntry ofsEntry = ofs.readPDFAspose(tmpFile);
         final String codigoActaOFS = ofs.save(ofsEntry.getContent(),
                 AppConstants.MIME_TYPE_PDF);
+
+        PdfReader pdfReader = new PdfReader(ofsEntry.getContent());
+        Integer numFolios = pdfReader.getNumberOfPages();
 
         documento.setPdf(codigoActaOFS);
         documento.setNumeroFolios(numFolios);
@@ -1047,7 +1031,7 @@ public class DocumentoActaService {
         documento.setCuandoMod(new Date());
 
         documentoService.actualizar(documento);
-        
+
         transferenciaArchivo.setDocId(documento);
         transferenciaArchivoService.actualizarTransferenciaArchivo(transferenciaArchivo);
 
@@ -1070,14 +1054,12 @@ public class DocumentoActaService {
      * @param transferenciaArchivo Transferencia de archivo.
      * @return Mapa de campos/valor.
      */
-    private KeysValuesAsposeDocxDTO crearMapaAspose(final TransferenciaArchivo transferenciaArchivo, Documento documento) {
-        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(Global.DOCUMENT_DATE_FORMAT_PATTERN, Global.COLOMBIA);
+    private KeysValuesAsposeDocxDTO crearMapaAsposeActa(final TransferenciaArchivo transferenciaArchivo, Documento documento, List<TransferenciaArchivoDetalle> detalle, List<TransExpedienteDetalle> transferenciaExpediente) {
         final Usuario jefeDependencia = transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe();
 
         final KeysValuesAsposeDocxDTO map = new KeysValuesAsposeDocxDTO();
 
-        final Clasificacion minClasificacion = clasificacionRepository.findMinOrderActivo();
-        map.put("N_CLASIFICACION", minClasificacion.getNombre());
+        map.put("N_CLASIFICACION", documento.getClasificacion().getNombre());
 
         final byte[] barcodeBytes = buildBarcodeBytes(documento.getRadicado().replaceAll("-", ""));
         map.put("COD_BARRA", barcodeBytes);
@@ -1086,7 +1068,7 @@ public class DocumentoActaService {
         final Dependencia origenUnidadDependencia = dependenciaRepository.findOne(unidadID);
         map.put("ELABORA_DEP_SPADRE", origenUnidadDependencia.getNombre());
 
-        final String lineaMando = buildLineaMando(transferenciaArchivo);
+        final String lineaMando = LINEA_MANDO_PREFIX + documentoService.retornaLineaMando(jefeDependencia);
         map.put("LINEA_MANDO2", lineaMando);
 
         map.put("N_RADICADO", documento.getRadicado());
@@ -1094,16 +1076,42 @@ public class DocumentoActaService {
         final String elaboraCiudad = transferenciaArchivo.getOrigenDependencia().getCiudad();
         map.put("DEPENDENCIA_CIUDAD_ELABORA", elaboraCiudad == null ? "" : elaboraCiudad);
 
-        final String fechaDocumento = documentDateFormatter.format(new Date());
+        final String fechaDocumento = DOCUMENTDATEFORMAT.format(new Date());
         map.put("FECHA_DOC", fechaDocumento);
+
+        List<UsuarioXDocumentoActa> usuarios = listarRegistrosUsuariosAsignados(documento);
 
         map.put("ORIGEN_DEPENDENCIA_JEFE_GRADO_ID", jefeDependencia.getUsuGrado().getId());
         map.put("ORIGEN_DEPENDENCIA_JEFE_NOMBRE", jefeDependencia.getNombre());
         map.put("ORIGEN_DEPENDENCIA_JEFE_CARGO", jefeDependencia.getUsuCargoPrincipalId().getCarNombre());
 
+        int indice = 1;
+        for (UsuarioXDocumentoActa registro : usuarios) {
+            map.put("USUARIO" + indice + "_GRADO_ID", registro.getUsuario().getUsuGrado().getId());
+            map.put("USUARIO" + indice + "_NOMBRE", registro.getUsuario().getNombre());
+            if (registro.getUsuario().getId().equals(transferenciaArchivo.getOrigenUsuario().getId())) {
+                map.put("USUARIO" + indice + "_CARGO", transferenciaArchivo.getUsuOrigenCargo().getCarNombre());
+            } else {
+                map.put("USUARIO" + indice + "_CARGO", transferenciaArchivo.getUsuDestinoCargo().getCarNombre());
+            }
+            map.put("USUARIO" + indice + "_DEPENDENCIA_NOMBRE", registro.getUsuario().getDependencia().getNombre());
+            map.put("USUARIO" + indice + "_CLASIFICACION", registro.getUsuario().getClasificacion().getNombre());
+
+            final File firmaUsuario = getImagenFirma(registro.getUsuario());
+            if (firmaUsuario != null) {
+                try {
+                    map.put("img_firma_usuario"+indice, FileUtils.readFileToByteArray(firmaUsuario));
+                } catch (IOException ex) {
+                    LOG.log(Level.SEVERE, "img_firma_usuario"+indice, ex);
+                }
+            }
+
+            indice++;
+        }
+
+        map.put("ORIGEN_CARGO", transferenciaArchivo.getUsuOrigenCargo().getCarNombre());
         map.put("ORIGEN_GRADO_ID", transferenciaArchivo.getOrigenGrado().getId());
         map.put("ORIGEN_NOMBRE", transferenciaArchivo.getOrigenUsuario().getNombre());
-        map.put("ORIGEN_CARGO", transferenciaArchivo.getUsuOrigenCargo().getCarNombre());
         map.put("ORIGEN_DEPENDENCIA_NOMBRE", transferenciaArchivo.getOrigenDependencia().getNombre());
         map.put("ORIGEN_CLASIFICACION", transferenciaArchivo.getOrigenClasificacion().getNombre());
 
@@ -1115,33 +1123,12 @@ public class DocumentoActaService {
 
         map.put("JUSTIFICACION", transferenciaArchivo.getJustificacion());
 
-        List<TransferenciaArchivoDetalle> detalle = transferenciaArchivoDetalleService.buscarDocumentosTransferencia(transferenciaArchivo);
         map.put("NUMERO_DOCUMENTOS", detalle.size());
-
-        List<TransExpedienteDetalle> transferenciaExpediente = transExpedienteDetalleService.buscarXTransferenciaArchivo(transferenciaArchivo);
         map.put("NUMERO_EXPEDIENTES", transferenciaExpediente.size());
 
         map.put("elabora_dep_dir", transferenciaArchivo.getOrigenUsuario().getDependencia().getDireccion());
-        map.put("firma_telefono", jefeDependencia.getTelefono());
-        map.put("firma_email", jefeDependencia.getEmail());
-
-        final File creadorFirma = getImagenFirma(transferenciaArchivo.getOrigenUsuario());
-        if (creadorFirma != null) {
-            try {
-                map.put("img_firma_emisor", FileUtils.readFileToByteArray(creadorFirma));
-            } catch (IOException ex) {
-                LOG.log(Level.SEVERE, "img_firma_emisor", ex);
-            }
-        }
-
-        final File destinoFirma = getImagenFirma(transferenciaArchivo.getDestinoUsuario());
-        if (destinoFirma != null) {
-            try {
-                map.put("img_firma_receptor", FileUtils.readFileToByteArray(destinoFirma));
-            } catch (IOException ex) {
-                LOG.log(Level.SEVERE, "img_firma_receptor", ex);
-            }
-        }
+        map.put("firma_telefono", transferenciaArchivo.getOrigenUsuario().getTelefono());
+        map.put("firma_email", transferenciaArchivo.getOrigenUsuario().getEmail());
 
         final File usuarioAutorizador = getImagenFirma(jefeDependencia);
         if (usuarioAutorizador != null) {
@@ -1156,6 +1143,7 @@ public class DocumentoActaService {
 
     /**
      * Retorna el archivo de la firma del usuario
+     *
      * @param usuario
      * @return Archivo de firma
      */
@@ -1166,29 +1154,6 @@ public class DocumentoActaService {
         }
 
         return new File(ofs.getPath(usuario.getImagenFirmaExtension()));
-    }
-
-    /**
-     * Construye la línea de mando de la dependencia origen de la transferencia.
-     *
-     * @param transferenciaArchivo Transferencia de archivo.
-     * @return Línea de mando.
-     */
-    private String buildLineaMando(final TransferenciaArchivo transferenciaArchivo) {
-        String lineaMando = LINEA_MANDO_PREFIX;
-
-        final Dependencia origenDependencia = transferenciaArchivo.getOrigenDependencia();
-        final Integer unidadID = dependenciaRepository.findUnidadID(origenDependencia.getId());
-        final Dependencia origenUnidadDependencia = dependenciaRepository.findOne(unidadID);
-        if (origenUnidadDependencia.getSigla() != null) {
-            lineaMando += LINEA_MANDO_SEPARATOR + origenUnidadDependencia.getSigla();
-        }
-
-        if (origenDependencia.getSigla() != null) {
-            lineaMando += LINEA_MANDO_SEPARATOR + origenDependencia.getSigla();
-        }
-
-        return lineaMando;
     }
 
     /**
@@ -1205,7 +1170,14 @@ public class DocumentoActaService {
 
         JBarcodeBean barcode = new JBarcodeBean();
 
-        barcode.setCodeType(new Interleaved25());
+        /*
+        * nuestro tipo de codigo de barra
+        * 2018-09-24 edison.gonzalez@controltechcg.com Issue #17 (SICDI-Controltech)
+        * hotfix-17: Se realiza el cambio de tipo, para que se genere correctamente
+        * el código de barras. Se aplica el mismo código utilizado en el reporte
+        * de sticker de los procesos de radicación.
+         */
+        barcode.setCodeType(new Code128());
 
         String codigo;
         if (value == null || value.trim().isEmpty()) {
@@ -1249,42 +1221,7 @@ public class DocumentoActaService {
 
     }
 
-    /**
-     * Ordena la lista de detalles según el código de la TRD asociada.
-     *
-     * @param detalles Lista de detalles de transferencia.
-     */
-    private void ordenarDetallesExpediente(List<TransExpedienteDetalle> detalles) {
-        Collections.sort(detalles, new Comparator<TransExpedienteDetalle>() {
-            final NumeroVersionComparator versionComparator = new NumeroVersionComparator();
-
-            @Override
-            public int compare(TransExpedienteDetalle detalle1, TransExpedienteDetalle detalle2) {
-                final String codigo1 = detalle1.getExpId().getTrdIdPrincipal().getCodigo();
-                final String codigo2 = detalle1.getExpId().getTrdIdPrincipal().getCodigo();
-                return versionComparator.compare(codigo1, codigo2);
-            }
-        });
-    }
     
-    /**
-     * Ordena la lista de detalles según el código de la TRD asociada.
-     *
-     * @param detalles Lista de detalles de transferencia.
-     */
-    private void ordenarDetalles(List<TransferenciaArchivoDetalle> detalles) {
-        Collections.sort(detalles, new Comparator<TransferenciaArchivoDetalle>() {
-            final NumeroVersionComparator versionComparator = new NumeroVersionComparator();
-
-            @Override
-            public int compare(TransferenciaArchivoDetalle detalle1, TransferenciaArchivoDetalle detalle2) {
-                final String codigo1 = detalle1.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
-                final String codigo2 = detalle2.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
-                return versionComparator.compare(codigo1, codigo2);
-            }
-        });
-    }
-
     /**
      * Llena la fila de table.
      *
@@ -1301,6 +1238,7 @@ public class DocumentoActaService {
             paragraph.appendChild(new Run(asposeDocument, cellValue));
 
             Cell cell = new Cell(asposeDocument);
+            cell.getCellFormat().setVerticalAlignment(VerticalAlignment.TOP);
             cell.appendChild(paragraph);
             row.appendChild(cell);
         }
@@ -1314,33 +1252,24 @@ public class DocumentoActaService {
      * @return Arreglo de valores del detalle de transferencia.
      */
     private String[] buildCellValuesDocumento(TransferenciaArchivoDetalle detalle, int indice) {
-        final DocumentoDependencia documentoDependencia = detalle.getDocumentoDependencia();
-        final Documento documento = documentoDependencia.getDocumento();
-        final String radicado = documento.getRadicado();
-        final String asunto = documento.getAsunto();
-        final String nivelClasificacion = documento.getClasificacion().getNombre();
-
+        final Documento documento = detalle.getDocumentoDependencia().getDocumento();
         final Integer quien = documento.getQuien();
         final Usuario documentoQuien = usuarioRepository.findOne(quien);
 
         String documentoFirmo = "";
 
         if (documento.getFirma() != null) {
-            documentoFirmo = (Objects.toString(documento.getFirma().getUsuGrado().getId(), "") + " " + documento.getFirma().getNombre()).trim();
+            documentoFirmo = documento.getFirma().toString();
         }
-
-        final String documentoElaboro = (Objects.toString(documentoQuien.getUsuGrado().getId(), "") + " " + documentoQuien.getNombre()).trim();
 
         final Dependencia dependenciaOrigen = documentoQuien.getDependencia();
-        final String siglaUnidadOrigen;
-        if (dependenciaOrigen == null) {
-            siglaUnidadOrigen = "";
-        } else {
+        String siglaUnidadOrigen = "";
+        if (dependenciaOrigen != null) {
             Dependencia unidadOrigen = dependenciaRepository.getOne(dependenciaRepository.findUnidadID(dependenciaOrigen.getId()));
-            siglaUnidadOrigen = Objects.toString(unidadOrigen.getSigla(), "");
+            siglaUnidadOrigen = unidadOrigen.getSigla() != null ? unidadOrigen.getSigla() : "";
         }
 
-        return new String[]{String.valueOf(indice), radicado, asunto, siglaUnidadOrigen, documentoElaboro, documentoFirmo, nivelClasificacion};
+        return new String[]{String.valueOf(indice), documento.getRadicado(), documento.getAsunto(), siglaUnidadOrigen, documentoQuien.toString(), documentoFirmo, documento.getClasificacion().getNombre()};
     }
 
     /**
@@ -1363,11 +1292,10 @@ public class DocumentoActaService {
             siglaUnidadOrigen = Objects.toString(unidadOrigen.getSigla(), "");
         }
 
-        final SimpleDateFormat documentDateFormatter = new SimpleDateFormat(Global.DATE_FORMAT, Global.COLOMBIA);
-        final String fecCreacion = documentDateFormatter.format(detalle.getExpId().getFecCreacion());
+        final String fecCreacion = DATEFORMAT.format(detalle.getExpId().getFecCreacion());
 
         final String tipo = (detalle.getExpId().getExpTipo() == 1) ? "Expediente simple" : "Expediente complejo";
-        
+
         final String estado = detalle.getExpId().getIndCerrado() ? "Cerrado" : "Abierto";
 
         return new String[]{String.valueOf(indice), trdPrincipal, nombreExpediente, siglaUnidadOrigen, fecCreacion, tipo, estado};

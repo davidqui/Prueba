@@ -1,16 +1,18 @@
 <#setting number_format="computer">
 <#assign pageTitle = "Crear Transferencia de archivos y expedientes en gestión" />
 <#import "spring.ftl" as spring />
-<#include "bandeja-header.ftl">
+<#assign deferredJS = "" />
+<#include "header.ftl">
 <#include "lib/transferencia-archivo_functions.ftl" />
 
 <div class="container-fluid">
-    <div>
-        <ol class="breadcrumb">
-            <li><a href="/transferencia-archivo/listar?">Inicio</a></li>
-            <li class="active">Crear Transferencia de archivos y expedientes en gestión</li>
-        </ol>
-    </div>
+<div>
+    <ol class="breadcrumb">
+        <li><a href="/transferencia-archivo/listar?">Inicio</a></li>
+        <li class="active">Crear Transferencia de archivos y expedientes en gestión</li>
+    </ol>
+</div>
+    <h4 style="margin-bottom: 20px;">${pageTitle}</h4>
     
     <#if dependencia?? && dependencia.jefe??>
         <form method="POST">
@@ -58,7 +60,7 @@
                 <div class="col-sm-9">
                     <div class="card-block cus-gray-bg">
                         <fieldset class="form-group">
-                            <textarea class="form-control" rows="5" id="justificacion" name="justificacion" required>${justificacion!""}</textarea>
+                            <textarea class="form-control" rows="5" id="justificacion" name="justificacion">${justificacion!""}</textarea>
                         </fieldset>
                         <div class="row">
                             <div class="col-xs-8">
@@ -100,5 +102,9 @@
 
         $(select).find('option:eq(0)').prop('selected', true);
     }
+        
+    $(document).on('submit','form',function(){
+        loading(event);
+    });
 </script>
 <#include "footer.ftl" />

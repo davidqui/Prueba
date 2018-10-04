@@ -384,14 +384,14 @@ public class DocumentoController extends UtilController {
      */
     @Autowired
     private UsuSelFavoritosService usuSelFavoritosService;
-    
+
     /**
     * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH): parametro que 
     * especifica el inicio de la linea de mando
-    */
+     */
     @Value("${com.mil.imi.sicdi.linea.mando.inicio}")
     private String inicioLineaMando;
-    
+
     /* ---------------------- públicos ------------------------------- */
     /**
      * Muestra la página de acceso denegado
@@ -460,7 +460,7 @@ public class DocumentoController extends UtilController {
         byte[] imageInByteBarCode = null;
 
         JBarcodeBean barcode = new JBarcodeBean();
-
+        
         
         /*
         * nuestro tipo de codigo de barra
@@ -3293,15 +3293,7 @@ public class DocumentoController extends UtilController {
          * se registre el usuario de la última accíón.
          */
         documento.setUsuarioUltimaAccion(usuarioSesion);
-        
-        
-        /**
-        * 2018-08-27 edison.gonzalez@controltechcg.com Issue #4: Variable que permite
-        * centralizar la fecha de radicación de un documento de los procesos internos
-        * y externos.
-        */
-        documento.setDocFecRadicado(new Date());
-        
+
         documentRepository.saveAndFlush(documento);
 
         // EJECUTAMOS LA FUNCION PARA GENERAR LOS DATOS A CARGAR EN EL PDF
@@ -3309,11 +3301,11 @@ public class DocumentoController extends UtilController {
         jdbcTemplate.setResultsMapCaseInsensitive(true);
 
         SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withFunctionName("FN_PDF_RADIOGRAMA_MAIN");
-        
+
         /**
-        * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH): parametro que 
-        * especifica el inicio de la linea de mando
-        */
+         * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH):
+         * parametro que especifica el inicio de la linea de mando
+         */
         SqlParameterSource in = new MapSqlParameterSource()
                 .addValue("P_DOC_ID", documento.getId())
                 .addValue("P_USU_ID_FIRMA", usuarioSesion.getId())
@@ -3324,7 +3316,7 @@ public class DocumentoController extends UtilController {
 
         if (!"OK".equals(plSqlResultado)) {
             // DEJAMOS EL DOC, COMO SU ESTADO ANTERIOR
-            
+
             //2018-02-28 edison.gonzalez@controltechcg.com Issue #151.
             documento.setDocFecRadicado(null);
             documento.setFirma(null);
@@ -3400,6 +3392,13 @@ public class DocumentoController extends UtilController {
                     LOG.error(pinID + "\t" + ex2.getMessage(), ex2);
                 }
             }
+
+            /**
+             * 2018-08-27 edison.gonzalez@controltechcg.com Issue #4: Variable
+             * que permite centralizar la fecha de radicación de un documento de
+             * los procesos internos y externos.
+             */
+            documento.setDocFecRadicado(new Date());
 
             // SE ASIGNA EL USUARIO QUE FIRMA COMO EL ULTIMO
             documento.setUsuarioUltimaAccion(usuarioSesion);
@@ -3633,9 +3632,9 @@ public class DocumentoController extends UtilController {
         SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withFunctionName("FN_PDF_RADIOGRAMA_MAIN");
 
         /**
-        * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH): parametro que 
-        * especifica el inicio de la linea de mando
-        */
+         * feature-gogs-15 samuel.delgado@controltechcg.com (SIGDI-CONTROLTECH):
+         * parametro que especifica el inicio de la linea de mando
+         */
         SqlParameterSource in = new MapSqlParameterSource().addValue("P_DOC_ID", doc.getId())
                 .addValue("P_USU_ID_FIRMA", yo.getId()).addValue("P_DOC_RADICADO", doc.getRadicado()).addValue("P_LINEA_MANDO_INICIO", inicioLineaMando);
 

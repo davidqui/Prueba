@@ -212,7 +212,7 @@
     </div>
     <div class="card">
         <div class="card-header">
-          Transiciones s
+          Transiciones
         </div>
         <#if (transiciones??) && (transiciones?size > 0) >
         <ul class="list-group list-group-flush" style="max-height: 165px;overflow: hidden;overflow-y: auto;">
@@ -238,7 +238,7 @@
         <ul class="list-group list-group-flush" style="max-height: 165px;overflow: hidden;overflow-y: auto;">
             <#list observaciones as observacion>
             <li class="list-group-item">
-                <strong>${(observacion.usuId.usuGrado.id)!""}${(observacion.usuId.nombre)!""}</strong> --
+                <strong>${(observacion.usuId.usuGrado.id)!""} ${(observacion.usuId.nombre)!""}</strong> --
                 <small>${(observacion.fecCreacion?string('dd/MM/yyyy HH:mm'))!""}</small>
                 <br/>
                 <p>${(observacion.traObservacion)!""}</p>
@@ -257,10 +257,10 @@
             </button>
         </#if>
         <#if transferenciaArchivo.usuarioAsignado = 2 && transferenciaArchivo.indAprobado = 1 && transferenciaArchivo.activo = true
-            && ((documentosXTransferenciaArchivo?size != documentosNoPosesionTransferencia?size) ||
-                (expedientesSeleccionados?size != expedientesNoPosesionTransferencia?size))>
+            && ((documentosXTransferenciaArchivo?size != documentosNoPosesionTransferencia?size && documentosXTransferenciaArchivo?size>0) ||
+                (expedientesSeleccionados?size != expedientesNoPosesionTransferencia?size && expedientesSeleccionados?size > 0))>
             <a class="btn btn-warning" data-toggle="modal"  data-target="#modalReenviar" >
-              Devolver Transferencia 
+              Reenviar Transferencia  
             </a>
         </#if>
     </#if>
@@ -292,7 +292,7 @@
         </a>
     </#if>
     <#if transferenciaArchivo.docId??>
-        <a class="btn btn-success" href="/documento?pin=${transferenciaArchivo.docId.instancia.id}" target="_blank">Ver acta</a>
+        <a class="btn btn-success" href="/documento?pin=${transferenciaArchivo.docId.instancia.id}" target="_blank">Ver Acta</a>
     </#if>
 </div>
 

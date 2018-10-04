@@ -65,6 +65,7 @@
                 <th>Fecha</th>
                 <th>Dependencia</th>
                 <th>TRD principal</th>
+                <th>Estado</th>
             </tr>
         </thead>
         <tbody>
@@ -98,6 +99,7 @@
                 <td class="${vclasses}">${exp.fecCreacion?string('yyyy-MM-dd')}</td>
                 <td class="${vclasses}">${exp.depId.nombre!""}</td>
                 <td class="${vclasses}">${exp.trdIdPrincipal.nombre!""}</td>
+                <td class="${vclasses}"><#if exp.indCerrado>Cerrado<#else>Abierto</#if></td>
             </tr>
         </#list>
         </tbody>

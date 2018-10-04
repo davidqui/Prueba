@@ -9,6 +9,7 @@ import com.aspose.words.ParagraphAlignment;
 import com.aspose.words.Row;
 import com.aspose.words.Run;
 import com.aspose.words.Table;
+import com.aspose.words.VerticalAlignment;
 import com.laamware.ejercito.doc.web.dto.KeysValuesAsposeDocxDTO;
 import com.laamware.ejercito.doc.web.entity.AppConstants;
 import com.laamware.ejercito.doc.web.entity.Dependencia;
@@ -22,15 +23,11 @@ import com.laamware.ejercito.doc.web.entity.TransferenciaArchivoDetalle;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import com.laamware.ejercito.doc.web.repo.DependenciaRepository;
 import com.laamware.ejercito.doc.web.repo.PlantillaFuidGestionRepository;
-import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoDetalleRepository;
 import com.laamware.ejercito.doc.web.util.Global;
-import com.laamware.ejercito.doc.web.util.NumeroVersionComparator;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -55,6 +52,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PlantillaFuidGestionService {
 
     private static final Logger LOG = Logger.getLogger(PlantillaFuidGestionService.class.getName());
+    private static final Integer TIPOLOGIA_ANEXO = 3;
 
     /**
      * Repositorio de plantillas.
@@ -72,10 +70,13 @@ public class PlantillaFuidGestionService {
     private ExpDocumentoService expDocumentoService;
 
     @Autowired
-    private TransferenciaArchivoDetalleRepository detalleRepository;
-
-    @Autowired
     private TransferenciaArchivoService transferenciaArchivoService;
+    
+    @Autowired
+    private AdjuntoService adjuntoService;
+    
+    @Autowired
+    TipologiaService tipologiaService;
 
     /**
      * Servicio de OFS.
@@ -122,15 +123,12 @@ public class PlantillaFuidGestionService {
         return nuevaPlantilla;
     }
 
-    public void crearDocumentoFuid(TransferenciaArchivo transferenciaArchivo) throws Exception {
-        final List<TransferenciaArchivoDetalle> detalles = detalleRepository.findAllByTransferenciaArchivoAndActivo(transferenciaArchivo, 1);
+    public void crearDocumentoFuid(TransferenciaArchivo transferenciaArchivo, List<TransferenciaArchivoDetalle> detalles) throws Exception {
 
         if (detalles.size() > 0) {
             final PlantillaFuidGestion plantilla = plantillaRepository.findByActivoTrue();
             final String plantillaPath = ofs.getPath(plantilla.getCodigoOfs());
             final Document asposeDocument = new Document(plantillaPath);
-
-            ordenarDetalles(detalles);
 
             final Table table = (Table) asposeDocument.getChild(NodeType.TABLE, 2, true);
 
@@ -161,7 +159,8 @@ public class PlantillaFuidGestionService {
 
             transferenciaArchivo.setFuid(codigoActaOFS);
             transferenciaArchivoService.actualizarTransferenciaArchivo(transferenciaArchivo);
-
+            adjuntoService.guardarAdjunto(transferenciaArchivo.getDocId(), tipologiaService.find(TIPOLOGIA_ANEXO), transferenciaArchivo.getCreadorUsuario().getDependencia().getJefe(), "FUID.pdf",Global.PDF_FILE_CONTENT_TYPE,codigoActaOFS);
+            
             try {
                 tmpFile.delete();
             } catch (Exception ex) {
@@ -270,48 +269,30 @@ public class PlantillaFuidGestionService {
         final String asunto = documento.getAsunto();
 
         String fecRadicado = documentDateFormatter.format(documento.getDocFecRadicado());
-        final String numCaja    = "-----------";
+        final String numCaja = "-----------";
         final String numCarpeta = "-----------";
-        final String tomo       = "-----------";
+        final String tomo = "----------";
         final String otro = "NAS-IMI";
 
         final int numFolios = documentoService.obtenerNumeroFolios(documento);
         final String numeroFolios = String.valueOf(numFolios);
 
         final String soporte;
-        if(documento.getInstancia().getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)){
+        if (documento.getInstancia().getProceso().getId().equals(Proceso.ID_TIPO_PROCESO_REGISTRAR_Y_CONSULTAR_DOCUMENTOS)) {
             soporte = "DIGITALIZADO";
-        }else{
+        } else {
             soporte = "ELECTRONICO";
         }
-        
+
         final String freConsulta = "BAJA";
         final String notas;
         ExpDocumento expDocumento = expDocumentoService.findByDocumento(documento);
         if (expDocumento != null) {
             notas = expDocumento.getExpId().getExpNombre();
         } else {
-            notas = "EXPEDIENTE ELECTRONICO";
+            notas = "DOCUMENTO ELECTRONICO";
         }
         return new String[]{numOrden, codigo, asunto, fecRadicado, fecRadicado, numCaja, numCarpeta, tomo, otro, numeroFolios, soporte, freConsulta, notas};
-    }
-
-    /**
-     * Ordena la lista de detalles según el código de la TRD asociada.
-     *
-     * @param detalles Lista de detalles de transferencia.
-     */
-    private void ordenarDetalles(List<TransferenciaArchivoDetalle> detalles) {
-        Collections.sort(detalles, new Comparator<TransferenciaArchivoDetalle>() {
-            final NumeroVersionComparator versionComparator = new NumeroVersionComparator();
-
-            @Override
-            public int compare(TransferenciaArchivoDetalle detalle1, TransferenciaArchivoDetalle detalle2) {
-                final String codigo1 = detalle1.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
-                final String codigo2 = detalle2.getDocumentoDependencia().getDocumento().getTrd().getCodigo();
-                return versionComparator.compare(codigo1, codigo2);
-            }
-        });
     }
 
     /**
@@ -330,6 +311,7 @@ public class PlantillaFuidGestionService {
             paragraph.appendChild(new Run(asposeDocument, cellValue));
 
             Cell cell = new Cell(asposeDocument);
+            cell.getCellFormat().setVerticalAlignment(VerticalAlignment.TOP);
             cell.appendChild(paragraph);
             row.appendChild(cell);
         }
