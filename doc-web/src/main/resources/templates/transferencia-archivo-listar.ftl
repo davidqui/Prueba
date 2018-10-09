@@ -51,6 +51,7 @@
                     <th>Numero de documentos</th>
                     <th>Numero de expedientes</th>
                     <#if tipoTransferencia == "PROCESO">
+                        <th>Usuario Asignado</th>
                         <th>Ultimo estado</th>
                     </#if>
                 </tr>
@@ -69,6 +70,7 @@
                         <td>${ta.numDocumentos!"0"}</td>
                         <td>${ta.numExpedientes!"0"}</td>
                         <#if tipoTransferencia == "PROCESO">
+                            <td>${ta.usuAsignado!"0"}</td>
                             <td>${ta.ultEstado!"0"}</td>
                         </#if>
                     </tr>

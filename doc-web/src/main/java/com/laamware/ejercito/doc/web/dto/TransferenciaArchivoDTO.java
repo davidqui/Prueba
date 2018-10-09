@@ -38,6 +38,7 @@ public class TransferenciaArchivoDTO implements Serializable{
     private Boolean esUsuarioOrigen;
     private Boolean esJefe;
     private Boolean esUsuarioDestino;
+    private String usuAsignado;
 
     public Integer getTarId() {
         return tarId;
@@ -223,32 +224,41 @@ public class TransferenciaArchivoDTO implements Serializable{
         this.esUsuarioDestino = esUsuarioDestino;
     }
 
+    public String getUsuAsignado() {
+        return usuAsignado;
+    }
+
+    public void setUsuAsignado(String usuAsignado) {
+        this.usuAsignado = usuAsignado;
+    }
+
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 79 * hash + Objects.hashCode(this.tarId);
-        hash = 79 * hash + Objects.hashCode(this.activo);
-        hash = 79 * hash + Objects.hashCode(this.estado);
-        hash = 79 * hash + Objects.hashCode(this.fechaCreacion);
-        hash = 79 * hash + Objects.hashCode(this.usuIdOrigen);
-        hash = 79 * hash + Objects.hashCode(this.usuNomOrigen);
-        hash = 79 * hash + Objects.hashCode(this.carIdOrigen);
-        hash = 79 * hash + Objects.hashCode(this.carNomOrigen);
-        hash = 79 * hash + Objects.hashCode(this.usuIdDestino);
-        hash = 79 * hash + Objects.hashCode(this.usuNomDestino);
-        hash = 79 * hash + Objects.hashCode(this.carIdDestino);
-        hash = 79 * hash + Objects.hashCode(this.carNomDestino);
-        hash = 79 * hash + Objects.hashCode(this.depId);
-        hash = 79 * hash + Objects.hashCode(this.usuIdJefe);
-        hash = 79 * hash + Objects.hashCode(this.justificacion);
-        hash = 79 * hash + Objects.hashCode(this.usuarioAsignado);
-        hash = 79 * hash + Objects.hashCode(this.indAprobado);
-        hash = 79 * hash + Objects.hashCode(this.numDocumentos);
-        hash = 79 * hash + Objects.hashCode(this.numExpedientes);
-        hash = 79 * hash + Objects.hashCode(this.ultEstado);
-        hash = 79 * hash + Objects.hashCode(this.esUsuarioOrigen);
-        hash = 79 * hash + Objects.hashCode(this.esJefe);
-        hash = 79 * hash + Objects.hashCode(this.esUsuarioDestino);
+        int hash = 3;
+        hash = 53 * hash + Objects.hashCode(this.tarId);
+        hash = 53 * hash + Objects.hashCode(this.activo);
+        hash = 53 * hash + Objects.hashCode(this.estado);
+        hash = 53 * hash + Objects.hashCode(this.fechaCreacion);
+        hash = 53 * hash + Objects.hashCode(this.usuIdOrigen);
+        hash = 53 * hash + Objects.hashCode(this.usuNomOrigen);
+        hash = 53 * hash + Objects.hashCode(this.carIdOrigen);
+        hash = 53 * hash + Objects.hashCode(this.carNomOrigen);
+        hash = 53 * hash + Objects.hashCode(this.usuIdDestino);
+        hash = 53 * hash + Objects.hashCode(this.usuNomDestino);
+        hash = 53 * hash + Objects.hashCode(this.carIdDestino);
+        hash = 53 * hash + Objects.hashCode(this.carNomDestino);
+        hash = 53 * hash + Objects.hashCode(this.depId);
+        hash = 53 * hash + Objects.hashCode(this.usuIdJefe);
+        hash = 53 * hash + Objects.hashCode(this.justificacion);
+        hash = 53 * hash + Objects.hashCode(this.usuarioAsignado);
+        hash = 53 * hash + Objects.hashCode(this.indAprobado);
+        hash = 53 * hash + Objects.hashCode(this.numDocumentos);
+        hash = 53 * hash + Objects.hashCode(this.numExpedientes);
+        hash = 53 * hash + Objects.hashCode(this.ultEstado);
+        hash = 53 * hash + Objects.hashCode(this.esUsuarioOrigen);
+        hash = 53 * hash + Objects.hashCode(this.esJefe);
+        hash = 53 * hash + Objects.hashCode(this.esUsuarioDestino);
+        hash = 53 * hash + Objects.hashCode(this.usuAsignado);
         return hash;
     }
 
@@ -264,9 +274,6 @@ public class TransferenciaArchivoDTO implements Serializable{
             return false;
         }
         final TransferenciaArchivoDTO other = (TransferenciaArchivoDTO) obj;
-        if (!Objects.equals(this.activo, other.activo)) {
-            return false;
-        }
         if (!Objects.equals(this.estado, other.estado)) {
             return false;
         }
@@ -288,7 +295,13 @@ public class TransferenciaArchivoDTO implements Serializable{
         if (!Objects.equals(this.ultEstado, other.ultEstado)) {
             return false;
         }
+        if (!Objects.equals(this.usuAsignado, other.usuAsignado)) {
+            return false;
+        }
         if (!Objects.equals(this.tarId, other.tarId)) {
+            return false;
+        }
+        if (!Objects.equals(this.activo, other.activo)) {
             return false;
         }
         if (!Objects.equals(this.fechaCreacion, other.fechaCreacion)) {
@@ -335,10 +348,6 @@ public class TransferenciaArchivoDTO implements Serializable{
         }
         return true;
     }
-
     
-    @Override
-    public String toString() {
-        return "TransferenciaArchivoDTO{" + "tarId=" + tarId + ", activo=" + activo + ", estado=" + estado + ", fechaCreacion=" + fechaCreacion + ", usuIdOrigen=" + usuIdOrigen + ", usuNomOrigen=" + usuNomOrigen + ", carIdOrigen=" + carIdOrigen + ", carNomOrigen=" + carNomOrigen + ", usuIdDestino=" + usuIdDestino + ", usuNomDestino=" + usuNomDestino + ", carIdDestino=" + carIdDestino + ", carNomDestino=" + carNomDestino + ", depId=" + depId + ", usuIdJefe=" + usuIdJefe + ", justificacion=" + justificacion + ", usuarioAsignado=" + usuarioAsignado + ", indAprobado=" + indAprobado + ", numDocumentos=" + numDocumentos + ", numExpedientes=" + numExpedientes + ", ultEstado=" + ultEstado + ", esUsuarioOrigen=" + esUsuarioOrigen + ", esJefe=" + esJefe + ", esUsuarioDestino=" + esUsuarioDestino + '}';
-    }
+    
 }

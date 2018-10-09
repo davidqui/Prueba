@@ -639,6 +639,7 @@ public class TransferenciaArchivoService {
         dTO.setEsUsuarioOrigen(object[20] != null ? ((BigDecimal) object[20]).equals(BigDecimal.ONE) : false);
         dTO.setEsJefe(object[21] != null ? ((BigDecimal) object[21]).equals(BigDecimal.ONE) : false);
         dTO.setEsUsuarioDestino(object[22] != null ? ((BigDecimal) object[22]).equals(BigDecimal.ONE) : false);
+        dTO.setUsuAsignado(object[23] != null ? ((String) object[23]) : "");
         return dTO;
     }
 
