@@ -204,10 +204,10 @@
                 <li class="nav-item mb-header-sicdi">
                     <!--#181 se agrega loader --> 
                     <a href="/transferencia-archivo/listar" class="btn btn-warning btn-sm" onclick="loading(event);">
-                        <span class="md-down">Transferencia de Archivo</span>
+                        <span class="md-down" badge="${notTransferencia}">Transferencia de Archivo</span>
                         </a>
                     </li>
-
+                
                 <li class="nav-item hidden-xs-down">
                     <form action="/consulta" method="GET" class="form-inline" id="consulta-form">
                         <div class="input-group">

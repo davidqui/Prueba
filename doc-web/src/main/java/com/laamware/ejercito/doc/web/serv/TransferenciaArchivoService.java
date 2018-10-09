@@ -733,4 +733,14 @@ public class TransferenciaArchivoService {
             }
         });
     }
+    
+    /**
+     * Metodo que retorna el numero de notificaciones pendientes de las transferencias
+     * de acuerdo al usuario.
+     * @param usuId
+     * @return Número de registros
+     */
+    public Integer retornaNumeroNotificacionesPendientesTransferenciaArchivo(Integer usuId){
+        return transferenciaRepository.retornaNumeroNotificacionesPendientesTransferenciaArchivo(usuId);
+    }
 }

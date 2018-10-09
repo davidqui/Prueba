@@ -137,8 +137,8 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
     int findCountRealizadasByUsuarioId(@Param("usuId") Integer usuId);
 
     /**
-     * Obtiene los registros dde transferencias realizadas por usuario, de acuerdo
-     * a la fila inicial y final.
+     * Obtiene los registros dde transferencias realizadas por usuario, de
+     * acuerdo a la fila inicial y final.
      *
      * @param usuId Identificador del usuario
      * @param inicio Número de registro inicial
@@ -158,7 +158,7 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
             + ") ta\n"
             + "where ta.num_lineas >= :inicio and ta.num_lineas <= :fin\n", nativeQuery = true)
     List<Object[]> findAllRealizadasByUsuarioId(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin);
-    
+
     /**
      * Obtiene el numero de registros de transferencias recibidas por usuario.
      *
@@ -174,8 +174,8 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
     int findCountRecibidasByUsuarioId(@Param("usuId") Integer usuId);
 
     /**
-     * Obtiene los registros dde transferencias recibidas por usuario, de acuerdo
-     * a la fila inicial y final.
+     * Obtiene los registros dde transferencias recibidas por usuario, de
+     * acuerdo a la fila inicial y final.
      *
      * @param usuId Identificador del usuario
      * @param inicio Número de registro inicial
@@ -195,4 +195,22 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
             + ") ta\n"
             + "where ta.num_lineas >= :inicio and ta.num_lineas <= :fin\n", nativeQuery = true)
     List<Object[]> findAllRecibidasByUsuarioId(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin);
+
+    /**
+     * Metodo que retorna el numero de notificaciones pendientes de las transferencias
+     * de acuerdo al usuario.
+     * @param usuId
+     * @return Número de registros
+     */
+    @Query(value = ""
+            + "select COUNT( UNIQUE TA.TAR_ID)\n"
+            + "from TRANSFERENCIA_ARCHIVO TA\n"
+            + "JOIN USUARIO USUARIO_DES ON (USUARIO_DES.USU_ID = TA.DESTINO_USU_ID)\n"
+            + "JOIN USUARIO USUARIO_ORI ON (USUARIO_ORI.USU_ID = TA.ORIGEN_USU_ID)\n"
+            + "JOIN DEPENDENCIA DEP ON (DEP.DEP_ID = TA.ORIGEN_DEP_ID)\n"
+            + "WHERE TA.NUM_DOCUMENTOS is null\n"
+            + "AND TA.ESTADO != 'C'\n"
+            + "AND TA.IND_APROBADO = 0\n"
+            + "AND ((TA.USUARIO_ASIGNADO = 0 AND ORIGEN_USU_ID = :usuId) OR (TA.USUARIO_ASIGNADO = 1 AND DESTINO_USU_ID = :usuId) OR (DEP.USU_ID_JEFE = :usuId AND TA.USUARIO_ASIGNADO = 2))", nativeQuery = true)
+    Integer retornaNumeroNotificacionesPendientesTransferenciaArchivo(@Param("usuId") Integer usuId);
 }
