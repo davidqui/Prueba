@@ -8,7 +8,7 @@
                 <#list recursos as recurso>
                 <#if recurso.tipo!="application/pdf">
                 <div class="card-header">
-                    <h2>${recurso.tematica.nombre?capitalize}</h2>
+                    <h2><b>${recurso.tematica.nombre?capitalize}</b></h2>
                     <h3 id="titulovideo">${recurso.nombre?capitalize}</h3>
                     </div>
                 <div class="card-body">
@@ -63,7 +63,7 @@
                 <#if recurso.tipo=="application/pdf">    
             <div class="card card-contenido text-center">
                 <div class="card-header  white-space: initial;">
-                    <p>${recurso.nombre?capitalize}</p>
+                    <p style="white-space:Normal; margin-bottom: 0rem;">${recurso.nombre?capitalize}</p>
                     </div>
                 <div class="card-body">
                     <img src="/ofs/download/tmb/${recurso.ubicacion}" alt="${recurso.nombre}" width="204" height="174">

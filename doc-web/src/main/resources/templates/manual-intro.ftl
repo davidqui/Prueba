@@ -87,7 +87,7 @@
             <#if pdf<=5>
             <div class="card card-contenido text-center">
                 <div class="card-header  white-space: initial;">
-                    <p>${recurso.nombre?capitalize}</p>
+                    <p style="white-space:Normal; margin-bottom: 0rem;">${recurso.nombre?capitalize}</p>
                     </div>
                 <div class="card-body">
                     <img src="/ofs/download/tmb/${recurso.ubicacion}" alt="${recurso.nombre}" width="204" height="174">
