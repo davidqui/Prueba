@@ -10,9 +10,6 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/css/bootstrap.css">
     
-    <!-- favicon -->
-    <link rel="icon" type="image/ico" href="/img/favicon.ico" />
-
     <!-- Fonts -->
     <link href='/fonts/roboto.css' rel='stylesheet' type='text/css'>
     <link href='/fonts/lobster.css' rel='stylesheet' type='text/css'>
