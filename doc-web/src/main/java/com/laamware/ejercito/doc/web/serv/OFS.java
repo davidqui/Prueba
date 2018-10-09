@@ -126,18 +126,18 @@ public class OFS {
         File file = null;
         do {
             id = GeneralUtils.newId();
-            file = new File(getPath(id, root));
+            file = new File(getPath(id));
         } while (file.exists());
 
         FileUtils.writeByteArrayToFile(file, bytes);
         convertToPDF(file, contentType);
         file.setLastModified(getRandomTime());
 
-        file = new File(getPath(id, root) + ".cnt");
+        file = new File(getPath(id) + ".cnt");
         FileUtils.write(file, "application/pdf");
         file.setLastModified(getRandomTime());
 
-        makeThumbnail(getPath(id, root));
+        makeThumbnail(getPath(id));
 
         return id;
     }
@@ -157,27 +157,27 @@ public class OFS {
         
         do {
             id = GeneralUtils.newId();
-            file = new File(getPath(id, route));
+            file = new File(getPathMultimedia(id,route));
         } while (file.exists());
 
         FileUtils.writeByteArrayToFile(file, files.getBytes());
         file.setLastModified(getRandomTime());
 
-        file = new File(getPath(id, route) + ".cnt");
+        file = new File(getPathMultimedia(id,route) + ".cnt");
         FileUtils.write(file, files.getContentType());
         file.setLastModified(getRandomTime());
 
-        makeThumbnail(getPath(id, route));
+        makeThumbnail(getPathMultimedia(id, route));
 
         return id;
     }
 
-    public String saveAsIs(byte[] bytes, String contentType, String route) throws IOException {
+    public String saveAsIs(byte[] bytes, String contentType) throws IOException {
         String id = null;
         File file = null;
         do {
             id = GeneralUtils.newId();
-            file = new File(getPath(id, route));
+            file = new File(getPath(id));
         } while (file.exists());
 
         FileUtils.writeByteArrayToFile(file, bytes);
@@ -185,17 +185,17 @@ public class OFS {
 
         if (contentType != null && contentType.toLowerCase().startsWith("image/")) {
             String extesion = contentType.split("/")[1];
-            file = new File(getPath(id, route) + "." + extesion);
+            file = new File(getPath(id) + "." + extesion);
             FileUtils.writeByteArrayToFile(file, bytes);
             file.setLastModified(getRandomTime());
         } else if (contentType != null && contentType
                 .equalsIgnoreCase("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
-            file = new File(getPath(id, route));
+            file = new File(getPath(id));
             FileUtils.writeByteArrayToFile(file, bytes);
             file.setLastModified(getRandomTime());
         }
 
-        file = new File(getPath(id, route) + ".cnt");
+        file = new File(getPath(id) + ".cnt");
         FileUtils.write(file, contentType);
         file.setLastModified(getRandomTime());
 
@@ -306,7 +306,18 @@ public class OFS {
      * @throws IOException
      */
     public byte[] readThumbnail(String id, String route) throws IOException {
-        String path = getPath(id, route);
+        String path = getPath(id);
+        File file = new File(path + ".tmb");
+        if (!file.exists()) {
+            throw new FileNotFoundException("No se encuentra el archivo: " + path + ".tmb");
+        }
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        return bytes;
+    }
+    
+    public byte[] readThumbnail(String id) throws IOException {
+        String path = getPath(id);
         File file = new File(path + ".tmb");
         if (!file.exists()) {
             throw new FileNotFoundException("No se encuentra el archivo: " + path + ".tmb");
@@ -334,8 +345,24 @@ public class OFS {
         return entry;
     }
 
-    public OFSEntry read(String id, String route) throws IOException {
-        String path = getPath(id, route);
+    public OFSEntry read(String id) throws IOException {
+        String path = getPath(id);
+        File file = new File(path);
+        if (!file.exists()) {
+            throw new FileNotFoundException("No se encuentra el archivo: " + path);
+        }
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        file = new File(path + ".cnt");
+        String contentType = FileUtils.readFileToString(file);
+
+        OFSEntry entry = new OFSEntry(contentType, bytes);
+        return entry;
+    }
+    
+    
+    public OFSEntry readMultimedia(String id, String route) throws IOException {
+        String path = getPathMultimedia(id,route);
         File file = new File(path);
         if (!file.exists()) {
             throw new FileNotFoundException("No se encuentra el archivo: " + path);
@@ -358,7 +385,16 @@ public class OFS {
         return time % MAX_TIME;
     }
 
-    public String getPath(String id, String route) {
+    public String getPath(String id) {
+        StringBuilder b = new StringBuilder(root);
+        for (int i = 0; i < DIR_LEVELS; i++) {
+            b.append("/").append(id.charAt(i));
+        }
+        b.append("/").append(id);
+        return b.toString();
+    }
+    
+    public String getPathMultimedia(String id, String route) {
         if (route == null){
             route = root;
         }
@@ -436,16 +472,16 @@ public class OFS {
         StringBuilder cmd = new StringBuilder(Objects.toString(convertHome, ""))
                 .append("convert ");
         for (String x : files) {
-            cmd.append(" png:").append(getPath(x, root));
+            cmd.append(" png:").append(getPath(x));
         }
         String pdfId = GeneralUtils.newId();
-        String pdfPath = getPath(pdfId, root);
+        String pdfPath = getPath(pdfId);
         try {
             FileUtils.forceMkdir(new File(pdfPath).getParentFile());
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        cmd.append(" pdf:").append(getPath(pdfId, root));
+        cmd.append(" pdf:").append(getPath(pdfId));
 
         Process p;
         try {
@@ -480,7 +516,7 @@ public class OFS {
 
     public String html2pdf(String html) throws IOException {
         String id = save(html.getBytes(), "application/pdf");
-        String path = getPath(id, root);
+        String path = getPath(id);
         String tmpHtml = path + ".html";
         String tmpPdf = path + ".pdf";
         File def = new File(path);

@@ -139,12 +139,12 @@ public class RecursoMultimediaService {
     public OFSEntry viewRecursoMultimediaFile(RecursoMultimedia recursoMultimedia) throws IOException{
        
             RecursoMultimedia recurso= recursoMultimediaRepository.findOne(recursoMultimedia.getId());
-            OFSEntry entry=ofs.read(recurso.getUbicacion(), ofs.getMultimediaRoute());
+            OFSEntry entry=ofs.readMultimedia(recurso.getUbicacion(), ofs.getMultimediaRoute());
             return entry;
     }
     
     public OFSEntry viewRecursoMultimediaFile(String ubicacion) throws IOException{
-            OFSEntry entry=ofs.read(ubicacion, ofs.getMultimediaRoute());
+            OFSEntry entry=ofs.readMultimedia(ubicacion, ofs.getMultimediaRoute());
             return entry;
     }
     
