@@ -50,6 +50,12 @@ public class OFS {
     @Autowired
     OFSStageRepository digiR;
 
+    private String plantillasRoute;
+
+    private String multimediaRoute;
+
+
+
     /**
      * Home de la aplicación convert.
      */
@@ -60,6 +66,47 @@ public class OFS {
      */
     @Value("${co.mil.imi.sicdi.ofs.convert.home}")
     private String convertHome;
+
+    private String root;
+
+    public String getRoot() {
+        return root;
+    }
+
+    @Value("${docweb.static.plantillas}")
+    public void setPlantillas(String plantillas) {
+        this.plantillasRoute = plantillas;
+        File plantillasFile = new File(plantillas);
+        if (!plantillasFile.exists()) {
+            try {
+                FileUtils.forceMkdir(plantillasFile);
+            } catch (IOException e) {
+                throw new RuntimeException("Directorio de OFS no se puede crear: " + plantillas);
+            }
+        }
+    }
+
+    @Value("${docweb.static.multimedia}")
+    public void setMultimediaRoute(String multimediaRoute) {
+        this.multimediaRoute = multimediaRoute;
+        File multimediaRouteFile = new File(multimediaRoute);
+        if (!multimediaRouteFile.exists()) {
+            try {
+                FileUtils.forceMkdir(multimediaRouteFile);
+            } catch (IOException e) {
+                throw new RuntimeException("Directorio de OFS no se puede crear: " + multimediaRoute);
+            }
+        }
+    }
+
+    public String getMultimediaRoute() {
+        return multimediaRoute;
+    }
+
+    public String getPlantillasRoute(){
+        return plantillasRoute;
+    }
+
 
     @Value("${docweb.ofs.root}")
     public void setRoot(String root) {
@@ -74,29 +121,23 @@ public class OFS {
         }
     }
 
-    public String getRoot() {
-        return root;
-    }
-
-    private String root;
-
     public String save(byte[] bytes, String contentType) throws IOException {
         String id = null;
         File file = null;
         do {
             id = GeneralUtils.newId();
-            file = new File(getPath(id));
+            file = new File(getPath(id, root));
         } while (file.exists());
 
         FileUtils.writeByteArrayToFile(file, bytes);
         convertToPDF(file, contentType);
         file.setLastModified(getRandomTime());
 
-        file = new File(getPath(id) + ".cnt");
+        file = new File(getPath(id, root) + ".cnt");
         FileUtils.write(file, "application/pdf");
         file.setLastModified(getRandomTime());
 
-        makeThumbnail(getPath(id));
+        makeThumbnail(getPath(id, root));
 
         return id;
     }
@@ -110,33 +151,33 @@ public class OFS {
      * @return Codigo de identificacion asignado al archivo una vez guardado. 
      * @throws IOException 
      */
-    public String saveAllFile(MultipartFile files) throws IOException {
+    public String saveAllFile(MultipartFile files, String route) throws IOException {
         String id = null;
         File file = null;
         
         do {
             id = GeneralUtils.newId();
-            file = new File(getPath(id));
+            file = new File(getPath(id, route));
         } while (file.exists());
 
         FileUtils.writeByteArrayToFile(file, files.getBytes());
         file.setLastModified(getRandomTime());
 
-        file = new File(getPath(id) + ".cnt");
+        file = new File(getPath(id, route) + ".cnt");
         FileUtils.write(file, files.getContentType());
         file.setLastModified(getRandomTime());
 
-        makeThumbnail(getPath(id));
+        makeThumbnail(getPath(id, route));
 
         return id;
     }
 
-    public String saveAsIs(byte[] bytes, String contentType) throws IOException {
+    public String saveAsIs(byte[] bytes, String contentType, String route) throws IOException {
         String id = null;
         File file = null;
         do {
             id = GeneralUtils.newId();
-            file = new File(getPath(id));
+            file = new File(getPath(id, route));
         } while (file.exists());
 
         FileUtils.writeByteArrayToFile(file, bytes);
@@ -144,17 +185,17 @@ public class OFS {
 
         if (contentType != null && contentType.toLowerCase().startsWith("image/")) {
             String extesion = contentType.split("/")[1];
-            file = new File(getPath(id) + "." + extesion);
+            file = new File(getPath(id, route) + "." + extesion);
             FileUtils.writeByteArrayToFile(file, bytes);
             file.setLastModified(getRandomTime());
         } else if (contentType != null && contentType
                 .equalsIgnoreCase("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
-            file = new File(getPath(id));
+            file = new File(getPath(id, route));
             FileUtils.writeByteArrayToFile(file, bytes);
             file.setLastModified(getRandomTime());
         }
 
-        file = new File(getPath(id) + ".cnt");
+        file = new File(getPath(id, route) + ".cnt");
         FileUtils.write(file, contentType);
         file.setLastModified(getRandomTime());
 
@@ -264,8 +305,8 @@ public class OFS {
      * @return
      * @throws IOException
      */
-    public byte[] readThumbnail(String id) throws IOException {
-        String path = getPath(id);
+    public byte[] readThumbnail(String id, String route) throws IOException {
+        String path = getPath(id, route);
         File file = new File(path + ".tmb");
         if (!file.exists()) {
             throw new FileNotFoundException("No se encuentra el archivo: " + path + ".tmb");
@@ -293,8 +334,8 @@ public class OFS {
         return entry;
     }
 
-    public OFSEntry read(String id) throws IOException {
-        String path = getPath(id);
+    public OFSEntry read(String id, String route) throws IOException {
+        String path = getPath(id, route);
         File file = new File(path);
         if (!file.exists()) {
             throw new FileNotFoundException("No se encuentra el archivo: " + path);
@@ -317,8 +358,11 @@ public class OFS {
         return time % MAX_TIME;
     }
 
-    public String getPath(String id) {
-        StringBuilder b = new StringBuilder(root);
+    public String getPath(String id, String route) {
+        if (route == null){
+            route = root;
+        }
+        StringBuilder b = new StringBuilder(route);
         for (int i = 0; i < DIR_LEVELS; i++) {
             b.append("/").append(id.charAt(i));
         }
@@ -392,16 +436,16 @@ public class OFS {
         StringBuilder cmd = new StringBuilder(Objects.toString(convertHome, ""))
                 .append("convert ");
         for (String x : files) {
-            cmd.append(" png:").append(getPath(x));
+            cmd.append(" png:").append(getPath(x, root));
         }
         String pdfId = GeneralUtils.newId();
-        String pdfPath = getPath(pdfId);
+        String pdfPath = getPath(pdfId, root);
         try {
             FileUtils.forceMkdir(new File(pdfPath).getParentFile());
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        cmd.append(" pdf:").append(getPath(pdfId));
+        cmd.append(" pdf:").append(getPath(pdfId, root));
 
         Process p;
         try {
@@ -436,7 +480,7 @@ public class OFS {
 
     public String html2pdf(String html) throws IOException {
         String id = save(html.getBytes(), "application/pdf");
-        String path = getPath(id);
+        String path = getPath(id, root);
         String tmpHtml = path + ".html";
         String tmpPdf = path + ".pdf";
         File def = new File(path);
