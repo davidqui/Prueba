@@ -50,6 +50,12 @@ public class OFS {
     @Autowired
     OFSStageRepository digiR;
 
+    private String plantillasRoute;
+
+    private String multimediaRoute;
+
+
+
     /**
      * Home de la aplicación convert.
      */
@@ -60,6 +66,47 @@ public class OFS {
      */
     @Value("${co.mil.imi.sicdi.ofs.convert.home}")
     private String convertHome;
+
+    private String root;
+
+    public String getRoot() {
+        return root;
+    }
+
+    @Value("${docweb.static.plantillas}")
+    public void setPlantillas(String plantillas) {
+        this.plantillasRoute = plantillas;
+        File plantillasFile = new File(plantillas);
+        if (!plantillasFile.exists()) {
+            try {
+                FileUtils.forceMkdir(plantillasFile);
+            } catch (IOException e) {
+                throw new RuntimeException("Directorio de OFS no se puede crear: " + plantillas);
+            }
+        }
+    }
+
+    @Value("${docweb.static.multimedia}")
+    public void setMultimediaRoute(String multimediaRoute) {
+        this.multimediaRoute = multimediaRoute;
+        File multimediaRouteFile = new File(multimediaRoute);
+        if (!multimediaRouteFile.exists()) {
+            try {
+                FileUtils.forceMkdir(multimediaRouteFile);
+            } catch (IOException e) {
+                throw new RuntimeException("Directorio de OFS no se puede crear: " + multimediaRoute);
+            }
+        }
+    }
+
+    public String getMultimediaRoute() {
+        return multimediaRoute;
+    }
+
+    public String getPlantillasRoute(){
+        return plantillasRoute;
+    }
+
 
     @Value("${docweb.ofs.root}")
     public void setRoot(String root) {
@@ -73,12 +120,6 @@ public class OFS {
             }
         }
     }
-
-    public String getRoot() {
-        return root;
-    }
-
-    private String root;
 
     public String save(byte[] bytes, String contentType) throws IOException {
         String id = null;
@@ -110,23 +151,23 @@ public class OFS {
      * @return Codigo de identificacion asignado al archivo una vez guardado. 
      * @throws IOException 
      */
-    public String saveAllFile(MultipartFile files) throws IOException {
+    public String saveAllFile(MultipartFile files, String route) throws IOException {
         String id = null;
         File file = null;
         
         do {
             id = GeneralUtils.newId();
-            file = new File(getPath(id));
+            file = new File(getPathMultimedia(id,route));
         } while (file.exists());
 
         FileUtils.writeByteArrayToFile(file, files.getBytes());
         file.setLastModified(getRandomTime());
 
-        file = new File(getPath(id) + ".cnt");
+        file = new File(getPathMultimedia(id,route) + ".cnt");
         FileUtils.write(file, files.getContentType());
         file.setLastModified(getRandomTime());
 
-        makeThumbnail(getPath(id));
+        makeThumbnail(getPathMultimedia(id, route));
 
         return id;
     }
@@ -264,6 +305,17 @@ public class OFS {
      * @return
      * @throws IOException
      */
+    public byte[] readThumbnail(String id, String route) throws IOException {
+        String path = getPath(id);
+        File file = new File(path + ".tmb");
+        if (!file.exists()) {
+            throw new FileNotFoundException("No se encuentra el archivo: " + path + ".tmb");
+        }
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        return bytes;
+    }
+    
     public byte[] readThumbnail(String id) throws IOException {
         String path = getPath(id);
         File file = new File(path + ".tmb");
@@ -307,6 +359,22 @@ public class OFS {
         OFSEntry entry = new OFSEntry(contentType, bytes);
         return entry;
     }
+    
+    
+    public OFSEntry readMultimedia(String id, String route) throws IOException {
+        String path = getPathMultimedia(id,route);
+        File file = new File(path);
+        if (!file.exists()) {
+            throw new FileNotFoundException("No se encuentra el archivo: " + path);
+        }
+        byte[] bytes = FileUtils.readFileToByteArray(file);
+
+        file = new File(path + ".cnt");
+        String contentType = FileUtils.readFileToString(file);
+
+        OFSEntry entry = new OFSEntry(contentType, bytes);
+        return entry;
+    }
 
     private long getRandomTime() {
         Random rnd = new Random();
@@ -319,6 +387,18 @@ public class OFS {
 
     public String getPath(String id) {
         StringBuilder b = new StringBuilder(root);
+        for (int i = 0; i < DIR_LEVELS; i++) {
+            b.append("/").append(id.charAt(i));
+        }
+        b.append("/").append(id);
+        return b.toString();
+    }
+    
+    public String getPathMultimedia(String id, String route) {
+        if (route == null){
+            route = root;
+        }
+        StringBuilder b = new StringBuilder(route);
         for (int i = 0; i < DIR_LEVELS; i++) {
             b.append("/").append(id.charAt(i));
         }

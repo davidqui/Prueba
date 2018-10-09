@@ -109,7 +109,7 @@ public class RecursoMultimediaService {
         recursoMultimedia.setNombreArchivoOriginal(files.getOriginalFilename());
         
         try {
-            final String ofsFileID = ofs.saveAllFile(files);
+            final String ofsFileID = ofs.saveAllFile(files, ofs.getMultimediaRoute());
             recursoMultimedia.setUbicacion(ofsFileID);
             recursoMultimedia.setNombreArchivoFinal(files.getOriginalFilename().replace(files.getOriginalFilename(), ofsFileID));
         } catch (IOException ex) {
@@ -136,15 +136,15 @@ public class RecursoMultimediaService {
      * @throws ReflectionException
      * @throws IOException 
      */
-    public OFSEntry viewRecursoMultimediaFile(RecursoMultimedia recursoMultimedia) throws BusinessLogicException, ReflectionException, IOException{
+    public OFSEntry viewRecursoMultimediaFile(RecursoMultimedia recursoMultimedia) throws IOException{
        
             RecursoMultimedia recurso= recursoMultimediaRepository.findOne(recursoMultimedia.getId());
-            OFSEntry entry=ofs.read(recurso.getUbicacion());
+            OFSEntry entry=ofs.readMultimedia(recurso.getUbicacion(), ofs.getMultimediaRoute());
             return entry;
     }
     
-    public OFSEntry viewRecursoMultimediaFile(String ubicacion) throws BusinessLogicException, ReflectionException, IOException{
-            OFSEntry entry=ofs.read(ubicacion);
+    public OFSEntry viewRecursoMultimediaFile(String ubicacion) throws IOException{
+            OFSEntry entry=ofs.readMultimedia(ubicacion, ofs.getMultimediaRoute());
             return entry;
     }
     

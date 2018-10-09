@@ -90,7 +90,7 @@
                     <p style="white-space:Normal; margin-bottom: 0rem;">${recurso.nombre?capitalize}</p>
                     </div>
                 <div class="card-body">
-                    <img src="/ofs/download/tmb/${recurso.ubicacion}" alt="${recurso.nombre}" width="204" height="174">
+                    <img src="/ofs/download/tmb-static/${utilController.encrypt(recurso.ubicacion)}" alt="${recurso.nombre}" width="204" height="174">
                     </div>
                 <div class="card-footer text-muted">
                     <a href="/admin/recursoMultimedia/descargar/${recurso.id}" target="_blank" class="btn btn-primary">Ver</a>
