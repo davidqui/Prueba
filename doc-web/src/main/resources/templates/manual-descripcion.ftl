@@ -22,7 +22,7 @@
                         </video>
                     </div>
                 <div class="card-footer text-muted">
-                    <p id="descripcion" style="text-align: justify;"><b style="margin-right:2px">Descripción:</b> ${recurso.descripcion?capitalize}</p>
+                    <h6><b style="margin-right:2px">Descripción:</b></h6><p id="descripcion" style="text-align: justify;">${recurso.descripcion?capitalize}</p>
                     <#break>
                     </#if>
                     </#list>
