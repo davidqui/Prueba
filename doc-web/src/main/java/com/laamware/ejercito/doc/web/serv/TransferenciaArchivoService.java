@@ -3,8 +3,6 @@ package com.laamware.ejercito.doc.web.serv;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoDTO;
 import com.laamware.ejercito.doc.web.dto.TransferenciaArchivoValidacionDTO;
 import com.laamware.ejercito.doc.web.entity.Cargo;
-import com.laamware.ejercito.doc.web.entity.DocumentoDependencia;
-import com.laamware.ejercito.doc.web.entity.Documento;
 import com.laamware.ejercito.doc.web.entity.PlantillaFuidGestion;
 import com.laamware.ejercito.doc.web.entity.PlantillaTransferenciaArchivo;
 import com.laamware.ejercito.doc.web.entity.TransExpedienteDetalle;
@@ -441,9 +439,11 @@ public class TransferenciaArchivoService {
 
         if (destinoUsuario == null) {
             validacionDTO.addError("Debe seleccionar un usuario destino de la transferencia.");
-        } else if (!destinoUsuario.getActivo()) {
+        } else if (!destinoUsuario.getActivo() ) {
             validacionDTO.addError("El usuario destino " + getUsuarioDescripcion(destinoUsuario, false) + " no se encuentra activo en el sistema.");
-        } else {
+        } else if ( !destinoUsuario.getUsuActivo()) {
+            validacionDTO.addError("El usuario destino " + getUsuarioDescripcion(destinoUsuario, false) + " no se encuentra activo en el sistema por: "+destinoUsuario.getRazonInhabilitar().getTextoRazon());
+        }else {
             if (destinoUsuario.getClasificacion() == null) {
                 validacionDTO.addError("El usuario destino " + getUsuarioDescripcion(destinoUsuario, false) + " no tiene una clasificación configurada en el sistema.");
             } else if (!destinoUsuario.getClasificacion().getActivo()) {

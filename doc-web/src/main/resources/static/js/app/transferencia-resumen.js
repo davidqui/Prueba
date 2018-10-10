@@ -128,3 +128,37 @@ function mostrarFuid(fuid){
     $("#visualizarFuid .modal-body").append("<iframe src=\"/ofs/viewer?file=/ofs/download/"+fuid+"\" width=\"100%\" height=\"700px\"></iframe>");
     $("#visualizarFuid .modal-body").append("</div>");
 }
+
+function enviarTransferencia(idTransferencia) {
+    $(".div-loader").css({ display: "block" });
+    $.ajax({ 
+        method: "GET", 
+        url: "/transferencia-archivo/enviarTransferencia/"+idTransferencia,
+        dataType: 'html'
+    }).then(function() { 
+        $(".div-loader").css({ display: "none" });
+        window.location.replace("/transferencia-archivo/resumen/"+idTransferencia);
+      }, function(message) { 
+        $(".div-loader").css({ display: "none" });
+        $('#title-modal-message').html("Advertencia");
+        $('#modal-body-info-message').html("<h5>"+message.responseText+"</h5>");
+        $('#info-modal').modal('show'); 
+    }); 
+}
+
+function aprobarTransferencia(idTransferencia) {    
+    $(".div-loader").css({ display: "block" });
+    $.ajax({ 
+        method: "GET", 
+        url: "/transferencia-archivo/aprobar/"+idTransferencia,
+        dataType: 'html'
+    }).then(function() { 
+        $(".div-loader").css({ display: "none" });
+        window.location.replace("/transferencia-archivo/resumen/"+idTransferencia);
+      }, function(message) { 
+        $(".div-loader").css({ display: "none" });
+        $('#title-modal-message').html("Advertencia");
+        $('#modal-body-info-message').html("<h5>"+message.responseText+"</h5>");
+        $('#info-modal').modal('show'); 
+    }); 
+}

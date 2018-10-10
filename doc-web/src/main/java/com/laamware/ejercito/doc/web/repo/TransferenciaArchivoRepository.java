@@ -202,8 +202,9 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
     List<Object[]> findAllRecibidasByUsuarioId(@Param("usuId") Integer usuId, @Param("inicio") int inicio, @Param("fin") int fin);
 
     /**
-     * Metodo que retorna el numero de notificaciones pendientes de las transferencias
-     * de acuerdo al usuario.
+     * Metodo que retorna el numero de notificaciones pendientes de las
+     * transferencias de acuerdo al usuario.
+     *
      * @param usuId
      * @return Número de registros
      */
@@ -218,4 +219,20 @@ public interface TransferenciaArchivoRepository extends GenJpaRepository<Transfe
             + "AND TA.IND_APROBADO = 0\n"
             + "AND ((TA.USUARIO_ASIGNADO = 0 AND ORIGEN_USU_ID = :usuId) OR (TA.USUARIO_ASIGNADO = 1 AND DESTINO_USU_ID = :usuId) OR (DEP.USU_ID_JEFE = :usuId AND TA.USUARIO_ASIGNADO = 2))", nativeQuery = true)
     Integer retornaNumeroNotificacionesPendientesTransferenciaArchivo(@Param("usuId") Integer usuId);
+
+    /**
+     * Retorna el numero de transferencias en el que participa un usuario y se
+     * encuentran pendientes.
+     * @param usuId
+     * @return número de transferencias pendientes
+     */
+    @Query(value = ""
+            + "select COUNT(1)\n"
+            + "from TRANSFERENCIA_ARCHIVO TA\n"
+            + "JOIN DEPENDENCIA DEP ON (DEP.DEP_ID = TA.ORIGEN_DEP_ID)\n"
+            + "WHERE TA.NUM_DOCUMENTOS is null\n"
+            + "AND TA.ESTADO != 'C'\n"
+            + "AND TA.IND_APROBADO = 0\n"
+            + "AND ((ORIGEN_USU_ID = :usuId) OR (TA.USUARIO_ASIGNADO = 1 AND DESTINO_USU_ID = :usuId) OR (DEP.USU_ID_JEFE = :usuId AND TA.USUARIO_ASIGNADO = 2))", nativeQuery = true)
+    Integer retornaNumeroTransferenciasPendientesXUsuario(@Param("usuId") Integer usuId);
 }

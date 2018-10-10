@@ -2,8 +2,8 @@ package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.entity.RazonInhabilitar;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.repo.TransferenciaArchivoRepository;
 import com.laamware.ejercito.doc.web.serv.DependenciaService;
-import com.laamware.ejercito.doc.web.serv.NotificacionService;
 import com.laamware.ejercito.doc.web.serv.RazonInhabilitarService;
 import com.laamware.ejercito.doc.web.serv.UsuarioService;
 import java.security.Principal;
@@ -34,6 +34,9 @@ public class HomeController extends UtilController {
         */
         @Autowired 
         private RazonInhabilitarService razonInhabilitarService;
+        
+        @Autowired
+        private TransferenciaArchivoRepository transferenciaArchivoRepository;
 
 	@RequestMapping(value = { "", "/" })
 	public String index(RedirectAttributes redirect, Model model) {
@@ -69,12 +72,15 @@ public class HomeController extends UtilController {
         @RequestMapping(value = "/inhabilitar-usuario", method = { RequestMethod.POST })
         public ResponseEntity<?> inhabilitarUsuario(@RequestParam(value = "razon", required = true) Integer razon, Principal principal, HttpServletRequest req){
             final Usuario usuarioSesion = getUsuario(principal);
+            Integer pendientes = transferenciaArchivoRepository.retornaNumeroTransferenciasPendientesXUsuario(usuarioSesion.getId());
             
             if (usuarioSesion.getDependencia().getJefe() != null &&
                     usuarioSesion.getDependencia().getJefe().getId().equals(usuarioSesion.getId()))
                 return new ResponseEntity<>("Usted es jefe de dependencia mientras lo sea no puede Inactivarse.", HttpStatus.BAD_REQUEST);
             if(!dependenciaService.dependenciasUsuarioRegistro(usuarioSesion).isEmpty())
                 return new ResponseEntity<>("Usted es usuario registro de dependencia mientras lo sea no puede Inactivarse.", HttpStatus.BAD_REQUEST);
+            if(pendientes > 0)
+                return new ResponseEntity<>("Usted tiene transferencias que se encuentran en proceso. No puede inactivarse mientras no se terminen.", HttpStatus.BAD_REQUEST);
             
             usuarioService.inhabilitarUsuario(usuarioSesion, razon);
             return new ResponseEntity<>(HttpStatus.OK);

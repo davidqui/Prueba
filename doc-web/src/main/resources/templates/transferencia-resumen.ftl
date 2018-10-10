@@ -265,13 +265,13 @@
         </#if>
     </#if>
     <#if transferenciaArchivo.usuarioAsignado = 2  && transferenciaArchivo.origenUsuario.dependencia.jefe.id == usuario.id && transferenciaArchivo.indAprobado = 0>
-        <a href="/transferencia-archivo/aprobar/${(transferenciaArchivo.id)!""}" class="btn btn-primary" onclick="loading(event);">
+        <a onclick="aprobarTransferencia(${(transferenciaArchivo.id)!""})" class="btn btn-primary">
           Aprobar
         </a>
     </#if>
     <#if transferenciaArchivo.usuarioAsignado = 0 && transferenciaArchivo.origenUsuario.id == usuario.id>
         <#if (documentosXTransferenciaArchivo?size > 0 || expedientesSeleccionados?size > 0) >
-            <a href="/transferencia-archivo/enviar/${(transferenciaArchivo.id)!""}" class="btn btn-primary">
+            <a class="btn btn-primary" onclick="enviarTransferencia(${(transferenciaArchivo.id)!""})">
               Transferir <span class="span-badge" id="counterExp">${(documentosXTransferenciaArchivo?size)?string} Documentos</span> <span class="span-badge" id="counterExp">${(expedientesSeleccionados?size)?string} expedientes</span>
             </a>
         </#if>
