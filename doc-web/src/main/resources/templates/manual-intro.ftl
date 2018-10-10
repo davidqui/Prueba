@@ -15,7 +15,7 @@
                   <a href="/manual/multimedia/${tematica.id}" class="nav-link" ><img src="/img/book-open.svg" style="height: 14px; margin-right:2px;"> ${tematica.nombre?capitalize}</a>
                 </li>
                 </#list>
-				</#if>
+                    </#if>
               </ul>
             </div>
           </div>
@@ -24,9 +24,6 @@
         
 <div class="container-fluid">
     <h1 class="cus-h1-page-title">${pageTitle}</h1>
-    
-    
-    
     
     <p>Bienvenido señor usuario, al <ins>Manual de Usuario Final</ins> del <b>Sistema Clasificado de documentos de Inteligencia Militar - SICDI</b>, 
         esta es una herramienta de autoaprendizaje en la que usted podrá validar la correcta utilización de todas 
@@ -49,13 +46,23 @@
          <div class="card-body">
              
         <div class="row">
-        <div class="col-sm-9">
+            <div class="col-sm-9">
+        <#if !recursos?? || recursos?size == 0>
+                <div class="alert alert-warning" role="alert">
+                    <strong>Disculpanos!</strong> Estamos trabajando para ofrecerte el mejor contenido. 
+                  </div>
+            <#else>
+            
             <div class="alert alert-success" role="alert">
   		<strong>¡Enterate de los mas reciente que SICDI tiene para ti!</strong> 
-	</div>
+                </div>
+                
+       
+            
             <div class="card text-center">
                
                 <#list recursos as recurso>
+                
                 <#if recurso.tipo!="application/pdf">
                 <div class="card-header">
                     <h2 id="tematica"><b>${recurso.tematica.nombre?capitalize}</b></h2>
@@ -149,16 +156,14 @@
     </div>
     <!--Fin fila 2-->
     </div>
-             
-             
-             
-             
+  
              </div>
              <!--Fin card body principal-->
         
         </div>
         <!--Fin card principal-->
-   
+   </#if>
+    <!--Fin if principal para cuando aun no hay contenido tematico-->
     
   
 </div>

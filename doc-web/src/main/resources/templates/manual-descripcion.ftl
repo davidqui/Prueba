@@ -4,6 +4,11 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-9">
+            <#if !recursos?? || recursos?size == 0>
+                <div class="alert alert-warning" role="alert">
+                    <strong>Disculpanos!</strong> Estamos trabajando para ofrecerte el mejor contenido. 
+                  </div>
+            <#else>
             <div class="card text-center">
                 <#list recursos as recurso>
                 <#if recurso.tipo!="application/pdf">
@@ -87,8 +92,8 @@
     <!--Fin fila 2-->
     </div>
 <!--Fin container-fluid-->
-
-
+</#if>
+<!--Fin if principal para cuando aun no hay contenido tematico-->
     <script> 
     function myFunction(url,nombreRecurso,nombreDescripcion) {
         $("#titulovideo").text(nombreRecurso);
