@@ -306,7 +306,7 @@ public class OFS {
      * @throws IOException
      */
     public byte[] readThumbnail(String id, String route) throws IOException {
-        String path = getPath(id);
+        String path = getPathMultimedia(id, route);
         File file = new File(path + ".tmb");
         if (!file.exists()) {
             throw new FileNotFoundException("No se encuentra el archivo: " + path + ".tmb");
@@ -360,7 +360,16 @@ public class OFS {
         return entry;
     }
     
-    
+    /**
+     * Permite realizar la lectura de los recursos multimedia teniendo en cuenta su directorio raiz.
+     * 
+     * 2018-10-10 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param id Codigo de ubicacion del archivo
+     * @param route Ruta predeterminada de almacenamiento de Recursos Multimedia
+     * @return Archivo
+     * @throws IOException 
+     */
     public OFSEntry readMultimedia(String id, String route) throws IOException {
         String path = getPathMultimedia(id,route);
         File file = new File(path);

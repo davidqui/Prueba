@@ -201,7 +201,7 @@ public class OFSController extends UtilController {
             LOG.error("Error metodo downloadAsIs: ", e);
         }
     }
-
+       
     @RequestMapping(value = "/download/tmb/{id}", method = RequestMethod.GET)
     public void downloadTmb(@PathVariable("id") String id, HttpServletResponse resp) {
 
@@ -209,6 +209,38 @@ public class OFSController extends UtilController {
         ByteArrayInputStream is = null;
         try {
             byte[] content = ofs.readThumbnail(id);
+            resp.setContentLength((int) content.length);
+            resp.setContentType("image/gif");
+            String headerKey = "Content-Disposition";
+            String headerValue = String.format("attachment; filename=\"%s.gif\"", id);
+            resp.setHeader(headerKey, headerValue);
+
+            // Write response
+            os = resp.getOutputStream();
+            is = new ByteArrayInputStream(content);
+            IOUtils.copy(is, os);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error("Error metodo downloadTmb: ", e);
+        }
+    }
+    
+    /**
+     * Permite visualizar la vista previa de un archivo pdf
+     * 
+     * 2018-10-10 Issue #9 SICDI-GETDE feature-9 aherreram@imi.mil.co
+     * 
+     * @param id Codigo de ubicación del Archivo
+     * @param resp 
+     */
+    @RequestMapping(value = "/download/tmb-static/{id}", method = RequestMethod.GET)
+    public void downloadTmbStatic(@PathVariable("id") String id, HttpServletResponse resp) {
+
+        ServletOutputStream os = null;
+        ByteArrayInputStream is = null;
+        try {
+            byte[] content = ofs.readThumbnail(id,ofs.getMultimediaRoute());
             resp.setContentLength((int) content.length);
             resp.setContentType("image/gif");
             String headerKey = "Content-Disposition";
