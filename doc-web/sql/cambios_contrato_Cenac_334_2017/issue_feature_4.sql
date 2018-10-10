@@ -471,3 +471,248 @@ begin
     commit;
 end;
 /
+
+-- -----------------------------------------------------------------------------
+-- DATOS DE PLANTILLAS DE NUEVAS NOTIFICACIONES
+-- -----------------------------------------------------------------------------
+DECLARE
+    CURSOR C_NOT IS
+    select '400' TNF_ID,
+           '3' CLA_ID,
+           '<!-- NOTIFICACION NUEVA TRANSFERENCIA EN PROCESO--> 
+									<br>
+                                    <p style="margin-top: 20px;">Cordial Saludo,</p>
+                                    <p style="margin:0; text-transform: uppercase;"><b>${(usuario.usuGrado.id)!""}. ${(usuario.nombre)!""}</b></p>
+                                    <br>
+                                    <p style="text-align: justify;">Le informamos que el señor(a) ${(usuOrigen.usuGrado.id)!""}. ${(usuOrigen.nombre)!""} ha generado en el sistema SICDI una nueva transferencia por motivo de <font style="text-transform: lowercase;">${(transferencia.justificacion)!""}</font>, dicha transferencia requiere de su intervención.
+                                    </p>
+                                    <p style="text-align: justify;">Por favor ingrese a SICDI opción <b>Transferencia de Archivo</b> para validar la información.
+                                    </p>
+									
+                                    <br>
+                                                                       
+                                    <table border=''1'' id="t01" cellspacing=''0''>
+                                        <thead>
+                                        <tr>
+                                            <td colspan="4" style="background-color: #d5d5d5; text-align:  center;"><h3><b>Información de la Transferencia</b></h3></td>
+                                        </tr>    
+                                        </thead>
+                                        
+                                        <tr>
+                                            <th>Funcionario Emisor</th>
+                                            <th>Funcionario Receptor</th>
+											<th>Justificación</th>
+                                        </tr>
+                                        <tr>
+                                            <td>${(usuOrigen.usuGrado.id)!""}. ${(usuOrigen.nombre)!""}</td>
+                                            <td>${(usuDestino.usuGrado.id)!""}. ${(usuDestino.nombre)!""}</td>
+                                            <td>${(transferencia.justificacion)!""}</td>
+                                        </tr>
+                                    </table>
+                                    <br/>
+                                    <br>
+                                    <div>
+                                    <p>En caso de haber recibido este mensaje por error, le solicitamos comunicarse con el equipo de soporte <b>SICDI</b> a la linea (057)350 653 14 74
+                                    o al correo electronico soporte.sicdi@imi.mil.co</p>
+                                    
+                                    <p>La Información contenida en este correo es para uso exclusivo del destinatario y puede ser confidencial. En caso de recibir este correo por error, 
+                                        por favor no imprima, copie, reenvie o divulgue de manera total o parcial este mensaje. Borre este correo y todas las copias y avise al remitente. Gracias.</p>
+                                    
+                                    <p>Atentamente,</p>
+                                    <br>Equipo de Soporte
+                                    <p><b>Sistema Clasificado de Documentos de Inteligencia Militar</b></p>
+                                </td>
+                            </tr>
+                        </table>
+                </td>
+                <td></td>
+            </tr>
+            <!-- END MAIN CONTENT AREA -->
+        </table>' CUERPO,
+            'Notificación SICDI - Nueva Transferencia en Proceso' ASUNTO
+    from dual
+    union
+    select '402' TNF_ID,
+           '3' CLA_ID,
+           '<!-- NOTIFICACION TRANSFERENCIA RECHAZADA--> 
+									<br>
+                                    <p style="margin-top: 20px;">Cordial Saludo,</p>
+                                    <p style="margin:0; text-transform: uppercase;"><b>${(usuOrigen.usuGrado.id)!""}. ${(usuOrigen.nombre)!""}</b></p>
+                                    <br>
+                                    <p style="text-align: justify;">Le informamos que el señor(a) ${(usuRechaza.usuGrado.id)!""}. ${(usuRechaza.nombre)!""} ha <b>Rechazado</b> su transferencia, en razón a: ${(motRechazo)!""}. Ahora usted puede anular o modificar la transferencia e iniciar nuevamente el proceso.   
+                                    </p>
+                                    <p style="text-align: justify;">Por favor ingrese a SICDI opción <b>Transferencia de Archivo</b> para validar la información.
+                                    </p>
+									
+                                    <br>
+                                                                       
+                                    <table border=''1'' id="t01" cellspacing=''0''>
+                                        <thead>
+                                        <tr>
+                                            <td colspan="4" style="background-color: #d5d5d5; text-align:  center;"><h3><b>Información de la Transferencia</b></h3></td>
+                                        </tr>    
+                                        </thead>
+                                        
+                                        <tr>
+                                            <th>Funcionario Emisor</th>
+                                            <th>Funcionario Receptor</th>
+											<th>Justificación</th>
+											<th>Estado</th>
+                                        </tr>
+                                        <tr>
+                                            <td>${(usuOrigen.usuGrado.id)!""}. ${(usuOrigen.nombre)!""}</td>
+                                            <td>${(usuDestino.usuGrado.id)!""}. ${(usuDestino.nombre)!""}</td>
+                                            <td>${(transferencia.justificacion)!""}</td>
+											<td>Rechazada</td>
+                                        </tr>
+                                    </table>
+                                    <br/>
+                                    <br>
+                                    <div>
+                                    <p>En caso de haber recibido este mensaje por error, le solicitamos comunicarse con el equipo de soporte <b>SICDI</b> a la linea (057)350 653 14 74
+                                    o al correo electronico soporte.sicdi@imi.mil.co</p>
+                                    
+                                    <p>La Información contenida en este correo es para uso exclusivo del destinatario y puede ser confidencial. En caso de recibir este correo por error, 
+                                        por favor no imprima, copie, reenvie o divulgue de manera total o parcial este mensaje. Borre este correo y todas las copias y avise al remitente. Gracias.</p>
+                                    
+                                    <p>Atentamente,</p>
+                                    <br>Equipo de Soporte
+                                    <p><b>Sistema Clasificado de Documentos de Inteligencia Militar</b></p>
+                                </td>
+                            </tr>
+                        </table>
+                </td>
+                <td></td>
+            </tr>
+            <!-- END MAIN CONTENT AREA -->
+        </table>' CUERPO,
+            'Notificación SICDI - Transferencia Rechazada' ASUNTO
+    from dual
+    union
+    select '401' TNF_ID,
+           '3' CLA_ID,
+           '<!-- NOTIFICACION TRANSFERENCIA RECIBIDA--> 
+									<br>
+                                    <p style="margin-top: 20px;">Cordial Saludo,</p>
+                                    <p style="margin:0; text-transform: uppercase;"><b>${(usuOrigen.usuGrado.id)!""}. ${(usuOrigen.nombre)!""}</b></p>
+                                    <br>
+                                    <p style="text-align: justify;">Le informamos que el señor(a) ${(usuDestino.usuGrado.id)!""}. ${(usuDestino.nombre)!""} ha aceptado recibir su transferencia. Recuerde que ahora debe esperar que sea autorizada por el señor ${(jefeOrigen.usuGrado.id)!""}. ${(jefeOrigen.nombre)!""} jefe de su dependencia. 
+                                    </p>
+                                    <p style="text-align: justify;">Para ver el estado de la transferencia ingrese a SICDI opción <b>Transferencia de Archivo</b>.
+                                    </p>
+									
+                                    <br>
+                                                                       
+                                    <table border=''1'' id="t01" cellspacing=''0''>
+                                        <thead>
+                                        <tr>
+                                            <td colspan="4" style="background-color: #d5d5d5; text-align:  center;"><h3><b>Información de la Transferencia</b></h3></td>
+                                        </tr>    
+                                        </thead>
+                                        
+                                        <tr>
+                                            <th>Funcionario Emisor</th>
+                                            <th>Funcionario Receptor</th>
+											<th>Justificación</th>
+                                        </tr>
+                                        <tr>
+                                            <td>${(usuOrigen.usuGrado.id)!""}. ${(usuOrigen.nombre)!""}</td>
+                                            <td>${(usuDestino.usuGrado.id)!""}. ${(usuDestino.nombre)!""}</td>
+                                            <td>${(transferencia.justificacion)!""}</td>
+                                        </tr>
+                                    </table>
+                                    <br/>
+                                    <br>
+                                    <div>
+                                    <p>En caso de haber recibido este mensaje por error, le solicitamos comunicarse con el equipo de soporte <b>SICDI</b> a la linea (057)350 653 14 74
+                                    o al correo electronico soporte.sicdi@imi.mil.co</p>
+                                    
+                                    <p>La Información contenida en este correo es para uso exclusivo del destinatario y puede ser confidencial. En caso de recibir este correo por error, 
+                                        por favor no imprima, copie, reenvie o divulgue de manera total o parcial este mensaje. Borre este correo y todas las copias y avise al remitente. Gracias.</p>
+                                    
+                                    <p>Atentamente,</p>
+                                    <br>Equipo de Soporte
+                                    <p><b>Sistema Clasificado de Documentos de Inteligencia Militar</b></p>
+                                </td>
+                            </tr>
+                        </table>
+                </td>
+                <td></td>
+            </tr>
+            <!-- END MAIN CONTENT AREA -->
+        </table>' CUERPO,
+            'Notificación SICDI - Transferencia Recibida' ASUNTO
+    from dual
+    union
+    select '403' TNF_ID,
+           '3' CLA_ID,
+           '<!-- NOTIFICACION TRANSFERENCIA AUTORIZADA--> 
+									<br>
+                                    <p style="margin-top: 20px;">Cordial Saludo,</p>
+                                    <p style="margin:0; text-transform: uppercase;">Señor Usuario</b></p>
+                                    <br>
+                                    <p style="text-align: justify;">Le informamos que el señor(a) ${(jefeOrigen.usuGrado.id)!""}. ${(jefeOrigen.nombre)!""} ha <b>Autorizado</b> una transferencia en la que usted participó, desde ahora puede consultar la respectiva <b>Acta de Entrega</b> y el <b>Formato Único de Inventario Documental-FUID</b> debidamente diligenciados.     
+                                    </p>
+									
+									Si participo en la transferencia como <b>"Emisor"</b>, a partir del momento el conjunto de documentos y/o expedientes transferidos ya no estarán disponibles para usted, sin embargo podrá consultar documentos en los que usted haya participado desde la opción de <b>búsqueda avanzada</b>.
+									
+									Si participo en la transferencia como <b>"Receptor"</b>, a partir del momento el conjunto de documentos y/o expedientes transferidos estarán disponibles para su cunsulta. 
+									
+                                    <p style="text-align: justify;">Por favor ingrese a SICDI opción <b>Transferencia de Archivo</b> para validar la información.
+                                    </p>
+									
+                                    <br>
+                                                                       
+                                    <table border=''1'' id="t01" cellspacing=''0''>
+                                        <thead>
+                                        <tr>
+                                            <td colspan="4" style="background-color: #d5d5d5; text-align:  center;"><h3><b>Información de la Transferencia</b></h3></td>
+                                        </tr>    
+                                        </thead>
+                                        
+                                        <tr>
+                                            <th>Funcionario Emisor</th>
+                                            <th>Funcionario Receptor</th>
+											<th>Justificación</th>
+											<th>Estado</th>
+                                        </tr>
+                                        <tr>
+                                            <td>${(usuOrigen.usuGrado.id)!""}. ${(usuOrigen.nombre)!""}</td>
+                                            <td>${(usuDestino.usuGrado.id)!""}. ${(usuDestino.nombre)!""}</td>
+                                            <td>${(transferencia.justificacion)!""}</td>
+											<td>Transferencia Finalizada</td>
+                                        </tr>
+                                    </table>
+                                    <br/>
+                                    <br>
+                                    <div>
+                                    <p>En caso de haber recibido este mensaje por error, le solicitamos comunicarse con el equipo de soporte <b>SICDI</b> a la linea (057)350 653 14 74
+                                    o al correo electronico soporte.sicdi@imi.mil.co</p>
+                                    
+                                    <p>La Información contenida en este correo es para uso exclusivo del destinatario y puede ser confidencial. En caso de recibir este correo por error, 
+                                        por favor no imprima, copie, reenvie o divulgue de manera total o parcial este mensaje. Borre este correo y todas las copias y avise al remitente. Gracias.</p>
+                                    
+                                    <p>Atentamente,</p>
+                                    <br>Equipo de Soporte
+                                    <p><b>Sistema Clasificado de Documentos de Inteligencia Militar</b></p>
+                                </td>
+                            </tr>
+                        </table>
+                </td>
+                <td></td>
+            </tr>
+            <!-- END MAIN CONTENT AREA -->
+        </table>' CUERPO,
+            'Notificación SICDI - Transferencia Autorizada' ASUNTO
+    from dual;
+    aux_count   NUMBER;
+BEGIN
+    FOR AUX_C_NOT IN C_NOT LOOP
+        SELECT COUNT(1) INTO aux_count FROM DOC.NOTIFICACION WHERE TNF_ID = AUX_C_NOT.TNF_ID AND ACTIVO = 1;
+        IF aux_count = 0 THEN
+            Insert into DOC.NOTIFICACION (NTF_ID, TNF_ID, CLA_ID, CUERPO, ASUNTO, ACTIVO, QUIEN, CUANDO) VALUES
+            (DOC.NOTIFICACION_SEQ.NEXTVAL, AUX_C_NOT.TNF_ID, AUX_C_NOT.CLA_ID, AUX_C_NOT.CUERPO, AUX_C_NOT.ASUNTO, 1, 3390, SYSDATE);
+        END IF;
+    END LOOP;
+END;
+/
