@@ -79,7 +79,7 @@
                                 <#else>
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}">H</a>
                             </#if>
-                                <a href="/admin/recursoMultimedia/list/${x.id}" class="btn btn-sm btn-warning title="Ver Recuros Multimedia">Ver Recurso</a>
+                                <a href="/admin/recursoMultimedia/list/${x.id}" class="btn btn-sm btn-warning title="Ver Recuros Multimedia">Ver Recursos</a>
                         </#if>
                                </td>
                 </tr>

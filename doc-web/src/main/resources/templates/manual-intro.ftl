@@ -30,7 +30,6 @@
         las funcionalidades del sistema, esto le facilitará su interacción con el aplicativo, haciendo más eficiente su utilización. 
     </p>
     <div class="alert alert-info" role="alert">
-<!--  		<strong>Para iniciar, seleccione un tema de su interes del menú izquierdo...</strong> -->
         <form class="form-search content-search navbar-form" action="/manual/busqueda" method="GET">
             <div class="input-group">
                 <input placeholder="Buscar Recurso Multimedia" name="findTokens" id="findTokens" class="form-control form-text" type="search" size="15" maxlength="128" />
@@ -57,8 +56,6 @@
   		<strong>¡Enterate de los mas reciente que SICDI tiene para ti!</strong> 
                 </div>
                 
-       
-            
             <div class="card text-center">
                
                 <#list recursos as recurso>
@@ -69,7 +66,7 @@
                     <h3 id="titulovideo">${recurso.nombre?capitalize}</h3>
                     </div>
                 <div class="card-body">
-                    <video id="myVideo" name="videoprincipal" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="592"  controls>
+                    <video id="myVideo" name="videoprincipal" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="592" controls>
                         Tu navegador no implementa el elemento <code>video</code>.
                         </video>
                     </div>
@@ -82,7 +79,6 @@
                     </div>
                     <!--Fin card footer-->
                 </div>
-            
             
             <div class="cards-split-container cards-split-container2">
         
@@ -112,8 +108,6 @@
        </div>
     <!--Fin container card-->
             
-            
-            
             </div>
         <!--Fin columna 1 Video Principal-->
         <div class="col-sm-3">
@@ -131,7 +125,7 @@
                 
                 <div id="videominiatura">
                     
-                    <video id="${recurso.id}" name="listavideos" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="100%" preload="preload">
+                    <video id="${recurso.id}" name="listavideos" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="100%">
                         Tu navegador no implementa el elemento <code>video</code>
                         </video>
                     </div>

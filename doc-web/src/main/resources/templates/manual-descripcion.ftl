@@ -44,7 +44,7 @@
                 
                 <div id="videominiatura">
                     
-                    <video id="minvideo" name="listavideos" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="100%" preload="preload">
+                    <video id="minvideo" name="listavideos" src="/admin/recursoMultimedia/descargar/${recurso.id}" width="100%" height="100%">
                         Tu navegador no implementa el elemento <code>video</code>
                         </video>
                     </div>
