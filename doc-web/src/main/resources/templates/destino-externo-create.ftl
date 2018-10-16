@@ -11,7 +11,7 @@
         <h1 class="cus-h1-page-title">${pageTitle}</h1>
         <form action="/admin/destino-externo/crear" method="POST" enctype="multipart/form-data" >
             <fieldset class="form-group">
-                <label for="textoObservacion">Texto</label>
+                <label for="textoObservacion">Nombre Destino Externo</label>
                 <input type="text" class="form-control" id="nombre" name="nombre" value="${(destinoExterno.nombre)!""}" style="text-transform: uppercase;"/>
             </fieldset>
             <fieldset class="form-group">
