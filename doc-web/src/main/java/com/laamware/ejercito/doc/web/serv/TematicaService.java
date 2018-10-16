@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.entity.RecursoMultimedia;
 import com.laamware.ejercito.doc.web.entity.Tematica;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class TematicaService {
     @Autowired
     private TematicaRepository tematicaRepository;
 
+    @Autowired
+    private RecursoMultimediaService recursoMultimediaService;
+    
     /**
      * Lista todos las tematicas educativas disponibles.
      * 
@@ -129,16 +133,21 @@ public class TematicaService {
     }
 
     /**
-     * Permite eliminar logicamente un registro de recursos multimedia. 
+     * Permite eliminar logicamente un registro de Tematica y sus Recursos Multimedia. 
      * 
      * @param tematica
      * @param usuario id del usuario en sesión
      */
     public void eliminarTematica(Tematica tematica,Usuario usuario) {
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         tematica.setQuienMod(usuario);
         tematica.setCuandoMod(new Date());
         tematica.setActivo(Boolean.FALSE);
         tematicaRepository.saveAndFlush(tematica);
+        List<RecursoMultimedia> recurso=recursoMultimediaService.findActiveAndTematica(sort, tematica.getId());
+        for (int i = 0; i < recurso.size(); i++) {
+            recursoMultimediaService.eliminarRecursoMultimedia(recurso.get(i), usuario);
+        }
     }
 
     /**
