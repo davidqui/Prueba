@@ -212,6 +212,11 @@ public class AppConstants {
      */
     public static final String ADMIN_TEMATICA = "ADMIN_TEMATICA";
     public static final String PATH_ADMIN_TEMATICA = "/admin/tematica";
+    /**
+     * Rol Administración Tema de Capacitacion
+     */
+    public static final String ADMIN_TEMA_CAPACITACION = "ADMIN_TEMA_CAPACITACION";
+    public static final String PATH_ADMIN_TEMA_CAPACITACION = "/admin/temaCapacitacion";
     
     /**
      * Rol para búsqueda de documentos por firma/envío UUID.

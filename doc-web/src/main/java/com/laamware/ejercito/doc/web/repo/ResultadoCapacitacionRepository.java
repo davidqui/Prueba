@@ -1,7 +1,6 @@
 package com.laamware.ejercito.doc.web.repo;
 
 import com.laamware.ejercito.doc.web.entity.ResultadoCapacitacion;
-import com.laamware.ejercito.doc.web.entity.ResultadoCapacitacion;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
