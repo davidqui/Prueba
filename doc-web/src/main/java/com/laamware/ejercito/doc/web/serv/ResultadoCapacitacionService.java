@@ -1,18 +1,12 @@
 package com.laamware.ejercito.doc.web.serv;
 
-import com.laamware.ejercito.doc.web.entity.Pregunta;
-import com.laamware.ejercito.doc.web.entity.ResultadoCapacitacion;
 import com.laamware.ejercito.doc.web.entity.ResultadoCapacitacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
-import com.laamware.ejercito.doc.web.repo.CapacitacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.ResultadoCapacitacionRepository;
-import com.laamware.ejercito.doc.web.repo.ResultadoCapacitacionRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.ReflectionException;
-import com.laamware.ejercito.doc.web.util.ReflectionUtil;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.data.domain.Page;

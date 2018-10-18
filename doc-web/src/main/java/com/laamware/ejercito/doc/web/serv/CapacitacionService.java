@@ -1,9 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.Capacitacion;
-import com.laamware.ejercito.doc.web.entity.Tematica;
 import com.laamware.ejercito.doc.web.entity.Usuario;
-import com.laamware.ejercito.doc.web.repo.CapacitacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.CapacitacionRepository;
