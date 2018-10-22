@@ -1,13 +1,16 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.entity.AppConstants;
+import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
 import com.laamware.ejercito.doc.web.entity.TemaCapacitacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
+import com.laamware.ejercito.doc.web.serv.ClasificacionService;
 import com.laamware.ejercito.doc.web.serv.TemaCapacitacionService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.ReflectionException;
 import java.security.Principal;
+import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -55,6 +58,9 @@ public class TemaCapacitacionController extends UtilController {
 
     @Autowired
     private TemaCapacitacionService temaCapacitacionService;
+    
+    @Autowired
+    private ClasificacionService clasificacionService;
 
     /**
      *  Permite listar todos los temas disponibles del modulo Capacitacion  
@@ -103,6 +109,11 @@ public class TemaCapacitacionController extends UtilController {
     @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
     public String create(Model model) {
         TemaCapacitacion temaCapacitacion = new TemaCapacitacion();
+        
+        List<Clasificacion> clasificacions = clasificacionService.findAllActivoOrderByOrden();
+        System.out.println("clasificacions = " + clasificacions+"<<<<<<<<<<<<<<<<<<<<<<<<<<<< >>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        model.addAttribute("clasificacions", clasificacions);
+        
         model.addAttribute(NOMBRE_DEFECTO_FTL, temaCapacitacion);
         return CREATE_TEMPLATE;
     }
