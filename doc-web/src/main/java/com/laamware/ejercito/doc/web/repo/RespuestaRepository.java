@@ -10,17 +10,19 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface RespuestaRepository extends PagingAndSortingRepository<Respuesta, Integer>, JpaRepository<Respuesta, Integer> {
     
-    Respuesta findOneByTextoRespuesta(String nombre);
+    Respuesta findOneByTextoRespuesta(String textoRespuesta);
 
     public List<Respuesta> getByActivoTrue(Sort sort);
     public Page<Respuesta> getByActivoTrue(Pageable pageable);
 
-    Respuesta findOneByTextoRespuestaAndActivoTrue(String nombre);
-    public Page<Respuesta> findByTextoRespuestaIgnoreCaseContaining(Pageable pageable, String nombre);
-    public Page<Respuesta> findByTextoRespuestaIgnoreCaseContainingAndActivoTrue(Pageable pageable, String nombre);
+    Respuesta findOneByTextoRespuestaAndActivoTrue(String textoRespuesta);
+    
+    public Page<Respuesta> findByTextoRespuestaIgnoreCaseContaining(Pageable pageable, String textoRespuesta);
+    
+    public Page<Respuesta> findByTextoRespuestaIgnoreCaseContainingAndActivoTrue(Pageable pageable, String textoRespuesta);
 
-    public List<Respuesta> getByActivoTrueAndTemaCapacitacionId(Sort sort, Integer Id);
-    public Page<Respuesta> getByActivoTrueAndTemaCapacitacionId(Pageable pageable,Integer Id);
+//    public List<Respuesta> getByActivoTrueAndTemaCapacitacionId(Sort sort, Integer Id);
+//    public Page<Respuesta> getByActivoTrueAndTemaCapacitacionId(Pageable pageable,Integer Id);
     
     /**
      * Busca todos los registros de las  Respuestas por el Id.
@@ -29,7 +31,7 @@ public interface RespuestaRepository extends PagingAndSortingRepository<Respuest
      * @return 
      */
      
-    public List<Respuesta> findAllByRespuestaId(Integer Id);
+    public List<Respuesta> findAllByPreguntaId(Integer Id);
     
     /**
      * * Busca todos los registros de las preguntas en el Tema de Respuesta por el Id, para paginar.
@@ -38,6 +40,6 @@ public interface RespuestaRepository extends PagingAndSortingRepository<Respuest
      * @param Id id de la Respuesta a buscar
      * @return 
      */
-    public Page<Respuesta> findAllByRespuestaId(Pageable pageable,Integer Id);
+    public Page<Respuesta> findAllByPreguntaId(Pageable pageable,Integer Id);
     
 }

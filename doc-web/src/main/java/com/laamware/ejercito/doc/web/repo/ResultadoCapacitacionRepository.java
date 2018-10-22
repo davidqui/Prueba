@@ -11,14 +11,16 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface ResultadoCapacitacionRepository extends PagingAndSortingRepository<ResultadoCapacitacion, Integer>, JpaRepository<ResultadoCapacitacion, Integer> {
     
 
-    public List<ResultadoCapacitacion> getByActivoTrue(Sort sort);
-    public Page<ResultadoCapacitacion> getByActivoTrue(Pageable pageable);
-
-    public Page<ResultadoCapacitacion> findByTextoResultadoCapacitacionIgnoreCaseContaining(Pageable pageable, String nombre);
-    public Page<ResultadoCapacitacion> findByTextoResultadoCapacitacionIgnoreCaseContainingAndActivoTrue(Pageable pageable, String nombre);
-
-    public List<ResultadoCapacitacion> getByActivoTrueAndTemaCapacitacionId(Sort sort, Integer Id);
-    public Page<ResultadoCapacitacion> getByActivoTrueAndTemaCapacitacionId(Pageable pageable,Integer Id);
+//    public List<ResultadoCapacitacion> getByActivoTrue(Sort sort);
+//    public Page<ResultadoCapacitacion> getByActivoTrue(Pageable pageable);
+//
+//    public Page<ResultadoCapacitacion> findByTextoResultadoCapacitacionIgnoreCaseContaining(Pageable pageable, String nombre);
+//    
+//    public Page<ResultadoCapacitacion> findByTextoResultadoCapacitacionIgnoreCaseContainingAndActivoTrue(Pageable pageable, String nombre);
+//
+//    public List<ResultadoCapacitacion> getByActivoTrueAndTemaCapacitacionId(Sort sort, Integer Id);
+//    
+//    public Page<ResultadoCapacitacion> getByActivoTrueAndTemaCapacitacionId(Pageable pageable,Integer Id);
     
     /**
      * * Busca todos los registros de los Resultados de la Capaciracion por el Id.
@@ -26,7 +28,7 @@ public interface ResultadoCapacitacionRepository extends PagingAndSortingReposit
      * @param Id id del Resultado de la capacitacion a buscar
      * @return 
      */
-    public List<ResultadoCapacitacion> findAllByResultadoCapacitacionId(Integer Id);
+//    public List<ResultadoCapacitacion> findAllByCapacitacionId(Integer Id);
     
     /**
      * * Busca todos los registros de los Resultados de la Capaciracion por el Id, para paginar.
@@ -35,6 +37,6 @@ public interface ResultadoCapacitacionRepository extends PagingAndSortingReposit
      * @param Id id de la ResultadoCapacitacion a buscar
      * @return 
      */
-    public Page<ResultadoCapacitacion> findAllByResultadoCapacitacionId(Pageable pageable,Integer Id);
+//    public Page<ResultadoCapacitacion> findAllByCapacitacionId(Pageable pageable,Integer Id);
     
 }

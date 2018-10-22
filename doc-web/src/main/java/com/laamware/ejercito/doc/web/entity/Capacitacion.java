@@ -29,7 +29,7 @@ import org.hibernate.annotations.Parameter;
 
 public class Capacitacion implements Serializable {
 
-    private static final long serialVersionUID = -152418114514515L;
+    private static final long serialVersionUID = -152418114214515L;
     @Id
     @GenericGenerator(name = "SQ_CAPACITACION", strategy = "sequence",
             parameters = {@Parameter(name = "sequence", value = "SQ_CAPACITACION"),@Parameter(name = "allocationSize", value = "1")})
@@ -41,14 +41,11 @@ public class Capacitacion implements Serializable {
     @Basic(optional = false)
     @NotNull
     @LaamLabel("Tema Capacitacion")
-    @LaamListColumn(order = 10)
-    @LaamCreate(order = 10)
     @Column(name = "TEMA_CAPACITACION")
     private int temaCapacitacion;
     @Size(max = 255)
     @Column(name = "NOTA_OBTENIDA")
-    private String notaObtenida;
-    @Size(max = 255)
+    private Integer notaObtenida;
     @Column(name = "RESULTADO")
     private String resultado;
     @Column(name = "NUMERO_CERTIFICADO")
@@ -83,7 +80,7 @@ public class Capacitacion implements Serializable {
         this.id = id;
     }
 
-    public int getTemaCapacitacion() {
+    public Integer getTemaCapacitacion() {
         return temaCapacitacion;
     }
 
@@ -91,11 +88,11 @@ public class Capacitacion implements Serializable {
         this.temaCapacitacion = temaCapacitacion;
     }
 
-    public String getNotaObtenida() {
+    public Integer getNotaObtenida() {
         return notaObtenida;
     }
 
-    public void setNotaObtenida(String notaObtenida) {
+    public void setNotaObtenida(Integer notaObtenida) {
         this.notaObtenida = notaObtenida;
     }
 

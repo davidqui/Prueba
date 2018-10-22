@@ -10,14 +10,14 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface PreguntaRepository extends PagingAndSortingRepository<Pregunta, Integer>, JpaRepository<Pregunta, Integer> {
     
-    Pregunta findOneByPregunta(String nombre);
+    Pregunta findOneByPregunta(String pregunta);
 
     public List<Pregunta> getByActivoTrue(Sort sort);
     public Page<Pregunta> getByActivoTrue(Pageable pageable);
 
-    Pregunta findOneByPreguntaAndActivoTrue(String nombre);
-    public Page<Pregunta> findByPreguntaIgnoreCaseContaining(Pageable pageable, String nombre);
-    public Page<Pregunta> findByPreguntaIgnoreCaseContainingAndActivoTrue(Pageable pageable, String nombre);
+    Pregunta findOneByPreguntaAndActivoTrue(String pregunta);
+    public Page<Pregunta> findByPreguntaIgnoreCaseContaining(Pageable pageable, String pregunta);
+    public Page<Pregunta> findByPreguntaIgnoreCaseContainingAndActivoTrue(Pageable pageable, String pregunta);
 
     public List<Pregunta> getByActivoTrueAndTemaCapacitacionId(Sort sort, Integer Id);
     public Page<Pregunta> getByActivoTrueAndTemaCapacitacionId(Pageable pageable,Integer Id);
@@ -28,7 +28,7 @@ public interface PreguntaRepository extends PagingAndSortingRepository<Pregunta,
      * @return 
      */
     
-    public List<Pregunta> findAllByPreguntaId(Integer Id);
+    public List<Pregunta> findAllByTemaCapacitacionId(Integer Id);
     
     /**
      * Busca todos los registros de las preguntas en el Tema de Capacitacion por el Id, para paginar.
@@ -38,6 +38,6 @@ public interface PreguntaRepository extends PagingAndSortingRepository<Pregunta,
      * @return 
      */
      
-    public Page<Pregunta> findAllByPreguntaId(Pageable pageable,Integer Id);
+    public Page<Pregunta> findAllByTemaCapacitacionId(Pageable pageable,Integer Id);
     
 }

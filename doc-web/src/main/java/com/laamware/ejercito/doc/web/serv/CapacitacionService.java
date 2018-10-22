@@ -67,8 +67,8 @@ public class CapacitacionService {
     */
      
     public void crearCapacitacion(Capacitacion capacitacion, Usuario usuario, MultipartFile files) throws BusinessLogicException, ReflectionException{
-        final int temaCapacitacion = capacitacion.getTemaCapacitacion();
-        final String notaObtenida = capacitacion.getNotaObtenida();
+//        final Integer temaCapacitacion = capacitacion.getTemaCapacitacion();
+        final Integer notaObtenida = capacitacion.getNotaObtenida();
         final String resultado = capacitacion.getResultado();
         final String ubicacion = capacitacion.getUbicacionCertificado();
         final BigInteger numCertificado = capacitacion.getNumeroCertificado();
@@ -76,7 +76,7 @@ public class CapacitacionService {
         if (resultado == null || resultado.trim().length() == 0) {
             throw new BusinessLogicException("El texto del resultado es obligatorio.");
         }
-        if (notaObtenida == null || notaObtenida.trim().length() == 0) {
+        if (notaObtenida == null || notaObtenida == 0) {
             throw new BusinessLogicException("El texto de la notaObtenida es obligatorio.");
         }
         if (ubicacion == null || ubicacion.trim().length() == 0) {
@@ -88,20 +88,18 @@ public class CapacitacionService {
             throw new BusinessLogicException("El texto del resultado permite máximo " + textoResultadoColumnLength + " caracteres.");
         }
         final int textoNotaObtenidaColumnLength = ReflectionUtil.getColumnLength(Capacitacion.class, "notaObtenida");
-        if (notaObtenida.trim().length() > textoNotaObtenidaColumnLength) {
-            throw new BusinessLogicException("El texto de la notaObtenida permite máximo " + textoNotaObtenidaColumnLength + " caracteres.");
-        }
         
-        Capacitacion nombreCapacitacion = capacitacionRepository.findOneByCapacitacionAndActivoTrue(resultado);
-        if (nombreCapacitacion != null) {
-            throw new BusinessLogicException("El resultado de la capacitación que desea crear ya existe.");
-        }
+        
+//        Capacitacion nombreCapacitacion = capacitacionRepository.findOneByResultadoAndActivoTrue(resultado);
+//        if (nombreCapacitacion != null) {
+//            throw new BusinessLogicException("El resultado de la capacitación que desea crear ya existe.");
+//        }
         if (!isValidoContentType(files)|| files.getSize()>100000000) {
              throw new BusinessLogicException("Señor usuario solo se permite la carga de archivos en formato PDF, AVI, MP4 y MPEG o de maximo 100MB");
         }
         
-        capacitacion.setTemaCapacitacion(temaCapacitacion);
-        capacitacion.setNotaObtenida(notaObtenida.toUpperCase());
+//        capacitacion.setTemaCapacitacion(temaCapacitacion);
+        capacitacion.setNotaObtenida(notaObtenida);
         capacitacion.setResultado(resultado.toUpperCase());
         capacitacion.setNumeroCertificado(numCertificado);
         capacitacion.setUbicacionCertificado(ubicacion);
@@ -165,8 +163,8 @@ public class CapacitacionService {
         if (resultado == null || resultado.trim().length() == 0) {
             throw new BusinessLogicException("El texto del resultado es obligatorio.");
         }
-        final String nota = capacitacion.getNotaObtenida();
-        if (nota == null || nota.trim().length() == 0) {
+        final Integer nota = capacitacion.getNotaObtenida();
+        if (nota == null || nota == 0) {
             throw new BusinessLogicException("El texto de la nota es obligatorio.");
         }
         final String ubicaion = capacitacion.getUbicacionCertificado();
@@ -183,15 +181,14 @@ public class CapacitacionService {
             throw new BusinessLogicException("El texto de la nota permite máximo " + textoNotaColumnLength + " caracteres.");
         }
         
-        Capacitacion NombreCapacitacion = capacitacionRepository.findOneByCapacitacionAndActivoTrue(resultado);
-        if (NombreCapacitacion != null && !NombreCapacitacion.getId().equals(capacitacion.getId())&& NombreCapacitacion != null) {
-            throw new BusinessLogicException("Este resultado ya existe.");
-        }
+//        Capacitacion NombreCapacitacion = capacitacionRepository.findOneByResultadoAndActivoTrue(resultado);
+//        if (NombreCapacitacion != null && !NombreCapacitacion.getId().equals(capacitacion.getId())&& NombreCapacitacion != null) {
+//            throw new BusinessLogicException("Este resultado ya existe.");
+//        }
         capacitacion.setResultado(resultado.toUpperCase());
-        capacitacion.setNotaObtenida(nota.toUpperCase());
+        capacitacion.setNotaObtenida(nota);
         capacitacion.setUbicacionCertificado(ubicaion);
         Capacitacion nombreCapacitacionAnterior = findOne(capacitacion.getId());
-//        capacitacion.setPesoOrden(pesoOrden);
         capacitacion.setTemaCapacitacion(nombreCapacitacionAnterior.getTemaCapacitacion());
         capacitacion.setUbicacionCertificado(nombreCapacitacionAnterior.getUbicacionCertificado());
         capacitacion.setCuando(nombreCapacitacionAnterior.getCuando());
@@ -265,9 +262,9 @@ public class CapacitacionService {
      * @param sort
      * @return Lista de Vapacitación Activo = 1
      */
-    public List<Capacitacion> findActive(Sort sort) {
-        return capacitacionRepository.getByActivoTrue(sort);
-    }
+//    public List<Capacitacion> findActive(Sort sort) {
+//        return capacitacionRepository.getByActivoTrue(sort);
+//    }
     
     /**
      * Lista todas las capacitaciones activas y que pertenezcan a un unico tema de capacitacion. 
@@ -276,9 +273,9 @@ public class CapacitacionService {
      * @param id Id de la Tematica por la cual se filtran los datos de registro multimedia.
      * @return Lista de capacitación Activas y que pertenecen a una unico tema de capacitación. 
      */
-    public List<Capacitacion> findActiveAndTematica(Sort sort, Integer id) {
-        return capacitacionRepository.getByActivoTrueAndCapacitacionId(sort, id);
-    }
+//    public List<Capacitacion> findActiveAndTemaCapacitacion(Sort sort, Integer id) {
+//        return capacitacionRepository.getByActivoTrueAndTemaCapacitacionId(sort, id);
+//    }
     
     /**
      * Lista todos las capacitaciónes
@@ -296,51 +293,51 @@ public class CapacitacionService {
      * @param capacitacion Id de la capacitacion por la cual se filtran los datos de una capacitacion.
      * @return Lista de Recursos Multimedia de una unica Tematica.
      */
-    public List<Capacitacion> findAllByTematica(final Capacitacion capacitacion) {
-        return capacitacionRepository.findAllByCapacitacionId(capacitacion.getId());
-    }
+//    public List<Capacitacion> findAllByTemaCapacitacion(final Capacitacion capacitacion) {
+//        return capacitacionRepository.findAllByTemaCapacitacionId(capacitacion.getId());
+//    }
     
-    /**
-     * Lista todas las cpacitaciones activas y que pertenezcan a un unico tema de capacitacion permitiendo su paginación.
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * @param pageable
-     * @param id
-     * @return 
-     */
-    public Page<Capacitacion> findActiveAndTematicaPage(Pageable pageable, Integer id) {
-        return capacitacionRepository.getByActivoTrueAndCapacitacionId(pageable,id);
-    }
-    
-    /**
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * @param pageable
-     * @param nombre
-     * @return 
-     */
-    public Page<Capacitacion> findAllActiveTema(Pageable pageable, String tema) {
-        return capacitacionRepository.findByCapacitacionIgnoreCaseContainingAndActivoTrue(pageable, tema);
-    }
-    
-    /**
-     * Lista todos las Capacitaciones
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * @param pageable
-     * @param nombre
-     * @return 
-     */
-    public Page<Capacitacion> findAllTemaCapacitacion(Pageable pageable, String tema) {
-        return capacitacionRepository.findByCapacitacionIgnoreCaseContaining(pageable, tema);
-    }
-    
+//    /**
+//     * Lista todas las cpacitaciones activas y que pertenezcan a un unico tema de capacitacion permitiendo su paginación.
+//     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+//     * @param pageable
+//     * @param id
+//     * @return 
+//     */
+//    public Page<Capacitacion> findActiveAndTemaCapacitacionPage(Pageable pageable, Integer id) {
+//        return capacitacionRepository.getByActivoTrueAndTemaCapacitacionId(pageable,id);
+//    }
+//    
+//    /**
+//     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+//     * @param pageable
+//     * @param nombre
+//     * @return 
+//     */
+//    public Page<Capacitacion> findAllActiveTemaCapacitacion(Pageable pageable, String tema) {
+//        return capacitacionRepository.findByResultadoIgnoreCaseContaining(pageable, tema);
+//    }
+//    
+//    /**
+//     * Lista todos las Capacitaciones
+//     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+//     * @param pageable
+//     * @param nombre
+//     * @return 
+//     */
+//    public Page<Capacitacion> findAllTemaCapacitacion(Pageable pageable, String tema) {
+//        return capacitacionRepository.findByResultadoIgnoreCaseContaining(pageable, tema);
+//    }
+//    
     /**
      * Lista todos las Capacitación para paginación.
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
      * @param pageable
      * @return Objetos Page con la información de las Capacitación.
      */
-    public Page<Capacitacion> findAllByTemaCapacitacionPage(Pageable pageable, final Capacitacion tema) {
-        return capacitacionRepository.findAllByCapacitacionId(pageable, tema.getId());
-    }
+//    public Page<Capacitacion> findAllByTemaCapacitacionPage(Pageable pageable, final Capacitacion capacitacion) {
+//        return capacitacionRepository.findAllByTemaCapacitacionId(pageable, capacitacion.getId());
+//    }
     
    
 }

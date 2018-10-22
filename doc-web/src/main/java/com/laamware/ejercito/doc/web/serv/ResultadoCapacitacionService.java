@@ -60,12 +60,12 @@ public class ResultadoCapacitacionService {
      * @throws ReflectionException 
      */
     public void crearResultadoCapacitacion(ResultadoCapacitacion resultadoCapacitacion, Usuario usuario) throws BusinessLogicException, ReflectionException {
-        final int capacitacion = resultadoCapacitacion.getCapacitacion();
+//        final Integer capacitacion = resultadoCapacitacion.getCapacitacion();
         final Integer pregunta = resultadoCapacitacion.getPregunta();
         final Boolean correcta = resultadoCapacitacion.getCorrecta();
         
         
-        resultadoCapacitacion.setCapacitacion(capacitacion);
+//        resultadoCapacitacion.setCapacitacion(capacitacion);
         resultadoCapacitacion.setPregunta(pregunta);
         resultadoCapacitacion.setCorrecta(Boolean.TRUE);
         
@@ -82,7 +82,7 @@ public class ResultadoCapacitacionService {
      */
     public void editarResultadoCapacitacion(ResultadoCapacitacion resultadoCapacitacion, Usuario usuario) throws BusinessLogicException, ReflectionException {
 
-        final int capacitacion = resultadoCapacitacion.getCapacitacion();
+//        final Integer capacitacion = resultadoCapacitacion.getCapacitacion();
         final Integer pregunta = resultadoCapacitacion.getPregunta();
         final Boolean correcta = resultadoCapacitacion.getCorrecta();
         
@@ -110,9 +110,9 @@ public class ResultadoCapacitacionService {
      * @param pageable
      * @return Objeto Pageable con información de ResultadoCapacitacions activas.
      */
-    public Page<ResultadoCapacitacion> findActive(Pageable pageable) {
-        return resultadoCapacitacionRepository.getByActivoTrue(pageable);
-    }
+//    public Page<ResultadoCapacitacion> findActive(Pageable pageable) {
+//        return resultadoCapacitacionRepository.getByActivoTrue(pageable);
+//    }
     
     /**
      * Lista todas las ResultadoCapacitacions activas
@@ -120,9 +120,9 @@ public class ResultadoCapacitacionService {
      * @param sort
      * @return Listado de ResultadoCapacitacions activas
      */
-    public List<ResultadoCapacitacion> findActive(Sort sort) {
-        return resultadoCapacitacionRepository.getByActivoTrue(sort);
-    }
+//    public List<ResultadoCapacitacion> findActive(Sort sort) {
+//        return resultadoCapacitacionRepository.getByActivoTrue(sort);
+//    }
     
     /**
      * Lista todos las preguntas

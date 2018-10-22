@@ -1,7 +1,6 @@
 package com.laamware.ejercito.doc.web.repo;
 
 import com.laamware.ejercito.doc.web.entity.TemaCapacitacion;
-import com.laamware.ejercito.doc.web.entity.TemaCapacitacion;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,12 +15,12 @@ public interface TemaCapacitacionRepository extends PagingAndSortingRepository<T
     public List<TemaCapacitacion> getByActivoTrue(Sort sort);
     public Page<TemaCapacitacion> getByActivoTrue(Pageable pageable);
 
-    TemaCapacitacion findOneByTextoTemaCapacitacionAndActivoTrue(String nombre);
-    public Page<TemaCapacitacion> findByTemaIgnoreCaseContaining(Pageable pageable, String nombre);
-    public Page<TemaCapacitacion> findByTemaIgnoreCaseContainingAndActivoTrue(Pageable pageable, String nombre);
+//    TemaCapacitacion findOneByTextoTemaCapacitacionAndActivoTrue(String tema);
+//    public Page<TemaCapacitacion> findByTemaIgnoreCaseContaining(Pageable pageable, String tema);
+//    public Page<TemaCapacitacion> findByTemaIgnoreCaseContainingAndActivoTrue(Pageable pageable, String tema);
 
-    public List<TemaCapacitacion> getByActivoTrueAndTemaCapacitacionId(Sort sort, Integer Id);
-    public Page<TemaCapacitacion> getByActivoTrueAndTemaCapacitacionId(Pageable pageable,Integer Id);
+//    public List<TemaCapacitacion> getByActivoTrueAndTemaCapacitacionId(Sort sort, Integer Id);
+//    public Page<TemaCapacitacion> getByActivoTrueAndTemaCapacitacionId(Pageable pageable,Integer Id);
     
     /**
      * * Busca todos los Temas de Capacitacion por el Id.
@@ -29,7 +28,7 @@ public interface TemaCapacitacionRepository extends PagingAndSortingRepository<T
      * @param Id
      * @return 
      */
-    public List<TemaCapacitacion> findAllByTemaCapacitacionId(Integer Id);
+//    public List<TemaCapacitacion> findAllByTemaCapacitacionId(Integer Id);
     
     /**
      **      * * Busca todos los Temas de Capacitacion por el Id, para paginar.
@@ -38,6 +37,6 @@ public interface TemaCapacitacionRepository extends PagingAndSortingRepository<T
      * @param Id id de la TemaCapacitacion a buscar
      * @return 
      */
-    public Page<TemaCapacitacion> findAllByTemaCapacitacionId(Pageable pageable,Integer Id);
+//    public Page<TemaCapacitacion> findAllByTemaCapacitacionId(Pageable pageable,Integer Id);
     
 }
