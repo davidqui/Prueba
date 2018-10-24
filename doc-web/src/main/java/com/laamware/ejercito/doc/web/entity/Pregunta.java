@@ -28,9 +28,8 @@ import org.hibernate.annotations.Parameter;
  */
 @Entity
 @Table(name = "PREGUNTA")
-@SuppressWarnings("PersistenceUnitPresent")
+//@SuppressWarnings("PersistenceUnitPresent")
 @LaamLabel("Pregunta")
-
 public class Pregunta implements Serializable {
 
     private static final long serialVersionUID = -4336628253635398664L;
@@ -69,8 +68,8 @@ public class Pregunta implements Serializable {
     @JoinColumn(name = "TEMA_CAPACITACION", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private TemaCapacitacion temaCapacitacion;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pregunta")
-    private List<Respuesta> respuestaList;
+//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pregunta")
+//    private List<Respuesta> respuestaList;
 
     public Pregunta() {
     }
@@ -79,11 +78,18 @@ public class Pregunta implements Serializable {
         this.id = id;
     }
 
-    public Pregunta(Integer id, String pregunta, Date cuando) {
+    public Pregunta(Integer id, String pregunta, Boolean activo, Date cuando, Date cuandoMod, Usuario quien, Usuario quienMod, TemaCapacitacion temaCapacitacion) {
         this.id = id;
         this.pregunta = pregunta;
+        this.activo = activo;
         this.cuando = cuando;
+        this.cuandoMod = cuandoMod;
+        this.quien = quien;
+        this.quienMod = quienMod;
+        this.temaCapacitacion = temaCapacitacion;
     }
+
+    
 
     public Integer getId() {
         return id;
@@ -151,13 +157,13 @@ public class Pregunta implements Serializable {
         this.temaCapacitacion = temaCapacitacion;
     }
 
-    public List<Respuesta> getRespuestaList() {
-        return respuestaList;
-    }
-
-    public void setRespuestaList(List<Respuesta> respuestaList) {
-        this.respuestaList = respuestaList;
-    }
+//    public List<Respuesta> getRespuestaList() {
+//        return respuestaList;
+//    }
+//
+//    public void setRespuestaList(List<Respuesta> respuestaList) {
+//        this.respuestaList = respuestaList;
+//    }
 
     @Override
     public int hashCode() {
@@ -206,7 +212,7 @@ public class Pregunta implements Serializable {
 
     @Override
     public String toString() {
-        return "Pregunta{" + "id=" + id + ", pregunta=" + pregunta + ", activo=" + activo + ", cuando=" + cuando + ", cuandoMod=" + cuandoMod + ", temaCapacitacion=" + temaCapacitacion + '}';
+        return "Pregunta{" + "id=" + id + ", pregunta=" + pregunta + ", activo=" + activo + ", cuando=" + cuando + ", cuandoMod=" + cuandoMod + '}';
     }
 
     

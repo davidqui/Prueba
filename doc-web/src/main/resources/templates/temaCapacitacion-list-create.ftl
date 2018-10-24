@@ -13,10 +13,6 @@
             <fieldset class="form-group">
                 <label for="tema">Tema(*)</label>
                 <input type="text" class="form-control" id="tema" name="tema" value="${(temaCapacitacion.tema)!""}" style="text-transform:uppercase"/>
-
-                <!--<label for="clasificacion">Clasificacion(*)</label>-->
-<!--<textarea type="text" class="form-control" id="descripcion" name="descripcion" value="${(temaCapacitacion.descripcion)!""}" style="text-transform:uppercase"/></textarea>-->
-
                 <div class="col-sm-6">
                     <label for="fuente">Clasificación (*)</label>
                 <select type="text" class="form-control" id="clasificacion" name="clasificacion" value="${(temaCapacitacion.clasificacion)!"-- Seleccione una Clasificación --"}"/>

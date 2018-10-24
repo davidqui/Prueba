@@ -9,13 +9,14 @@
 </#if>
 
 <div class="container-fluid">
-    <h1 class="cus-h1-page-title">${pageTitle}</h1>
+    <h1 class="cus-h1-page-title">${pageTitle} -> <b>${preguntaView.tema?capitalize}</b></h1>
     <#if descriptor.description??>
         <p class="lead">${descriptor.description}</p>
     </#if>
     <p>
         <#if returnUrl??><a href="${returnUrl}" class="btn btn-secondary btn-sm">Regresar</a></#if>
-        <a href="/admin/temaCapacitacion/create" class="btn btn-success btn-sm">Crear</a>
+         <a href="/admin/pregunta/create/${preguntaView.id}" class="btn btn-success btn-sm">Crear</a>
+         <a href="/admin/temaCapacitacion" class="btn btn-success btn-sm">Regresar</a>
     </p>
 
     Total ${list?size}
@@ -38,6 +39,7 @@
                 <#list descriptor.listProperties() as p>
                     <th>${p.label}</th>
                 </#list>
+                    <th>Archivo</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -67,27 +69,31 @@
                         <#assign first = false />
                     </td>
                 </#list>
-                               <td nowrap="nowrap">
+                        <td nowrap="nowrap"><a href="/admin/pregunta/descargar/${x.id}" target="_blank" data-toggle="popover" data-trigger="hover" data-placement="left" title="Tipo de Archivo" data-content="${x.tipo}" ><#if x.tipo=="application/pdf"><img src="/img/file-text.svg"><#else><img src="/img/video.svg"></#if></a>
+                            </td>
+                	<td nowrap="nowrap">
                             <#if x.activo?? && x.activo == true >
-                                <a href=${"/admin/temaCapacitacion/edit?id="+x.id} class="btn btn-sm btn-warning title="Modificar">M</a>
-                                <a href=${"/admin/temaCapacitacion/delete?id="+x.id} class="btn btn-sm btn-danger title="Eliminar" onclick="return confirm('¿Está seguro que desea eliminar el registro?');">E</a>
-                                
-                            </#if>
+                                <a href="/admin/pregunta/edit?id=${+x.id}" class="btn btn-sm btn-warning" title="Modificar">M</a>
+                                <a href="/admin/pregunta/delete?id=${+x.id}" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro que desea eliminar el registro?');">E</a>
+                            <#else>
+                                <a href="/admin/pregunta/recuperar?id=${+x.id}" class="btn btn-sm btn-warning" title="Modificar">Recuperar</a>  
+                                </#if>
                         <#if x.cuando?? >
                             <#if x.cuandoMod?? >
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien!"Sistema"} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}, Modificado por: ${x.quienMod!"Nadie"} el día ${x.cuandoMod?string('dd.MM.yyyy HH:mm:ss')!"Ninguno"}">H</a>
-                                <#else>
+                            <#else>
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}">H</a>
+                                
                             </#if>
-                                <a href="/admin/pregunta/list/${x.id}" class="btn btn-sm btn-warning title="Ver Recuros Multimedia">Ver Pregunta</a>
+                                
                         </#if>
-                               </td>
+                	</td>
                 </tr>
             </#list>
             </tbody>
         </table>
         <#if totalPages gt 0>
-            <@printBar url="/admin/temaCapacitacion" params={"filtro": filtro!"", "all": all?string("true", "false")} metodo="get"/>
+            <@printBar url="/admin/pregunta/list/${preguntaView.id}" params={"filtro": filtro!"", "all": all?string("true", "false")} metodo="get"/>
         </#if>
     </#if>
 

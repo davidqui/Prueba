@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.Pregunta;
+import com.laamware.ejercito.doc.web.entity.TemaCapacitacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,12 +15,13 @@ import java.util.logging.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Servicio para las operaciones para Pregunta.
  * @author jcespedeso@imi.mil.co 
  * @author dquijanor@imi.mil.co 
- * @author aherreram@imi.mil.co 
+ * @author dquijanor@imi.mil.co 
  * @since Septiembre 3, 2018 _feature_9 (SICDI-GETDE)
  */
 @Service
@@ -73,12 +75,13 @@ public class PreguntaService {
             throw new BusinessLogicException("El texto de la pregunta permite máximo " + textoPreguntaColumnLength + " caracteres.");
         }
         
-        Pregunta nombrePregunta = preguntaRepository.findOneByPregunta(textoPregunta);
+        Pregunta nombrePregunta = preguntaRepository.findOneByPregunta(textoPregunta.toUpperCase());
         if (nombrePregunta != null) {
             throw new BusinessLogicException("Esta Pregunta ya existe.");
         }
         
         pregunta.setPregunta(textoPregunta.toUpperCase());
+//        pregunta.setTemaCapacitacion(pregunta.getTemaCapacitacion());
         pregunta.setActivo(Boolean.TRUE);
         pregunta.setCuando(new Date());
         pregunta.setCuandoMod(new Date());
@@ -136,6 +139,20 @@ public class PreguntaService {
         pregunta.setActivo(Boolean.FALSE);
         preguntaRepository.saveAndFlush(pregunta);
     }
+    /**
+     * Permite reactivar un registro de recurso multimedia.
+     * 
+     * 2018-10-24 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * 
+     * @param pregunta Data de un recurso multimedia especifico.
+     * @param usuario id del usuario en sesión
+     */
+    public void recuperarPregunta(Pregunta pregunta,Usuario usuario) {
+        pregunta.setQuienMod(usuario);
+        pregunta.setCuandoMod(new Date());
+        pregunta.setActivo(Boolean.TRUE);
+        preguntaRepository.saveAndFlush(pregunta);
+    }
 
     /**
      * Lista todas las Preguntas activos para paginación.
@@ -176,4 +193,32 @@ public class PreguntaService {
     public Page<Pregunta> findAll(Pageable pageable) {
         return preguntaRepository.findAll(pageable);
     }
+    /**
+     * Lista todos los recursos multimedia activos y que pertenezcan a una unica tematica permitiendo su paginación. 
+     * 
+     * 2018-10-01 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * 
+     * @param pageable
+     * @param id Id de la Tematica por la cual se filtran los datos de registro multimedia.
+     * @return Lista de Recursos multimedia Activos y que pertenecen a una unica tematica. 
+     */
+    public Page<Pregunta> findActiveAndTemaCapacitacionPage(Pageable pageable, Integer id) {
+        return preguntaRepository.getByActivoTrueAndTemaCapacitacionId(pageable,id);
+    }
+    
+    /**
+     * Lista todos los Recursos Multimedia de una Tematica para su paginación.
+     * 
+     * 2018-10-01 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * 
+     * @param pageable
+     * @param tematica Id de la tematica por la cual se filtran los datos de recurso multimedia activo.
+     * @return Lista de Recursos Multimedia de una unica Tematica.
+     */
+    public Page<Pregunta> findAllByTemaCapacitacionPage(Pageable pageable, final TemaCapacitacion temaCapacitacion) {
+        return preguntaRepository.findAllByTemaCapacitacionId(pageable, temaCapacitacion.getId());
+    }
+    
+    
+    
 }
