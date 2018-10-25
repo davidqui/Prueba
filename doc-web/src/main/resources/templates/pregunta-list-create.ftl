@@ -1,5 +1,5 @@
 <#setting number_format="computer">
-<#assign pageTitle = "Recurso Pregunta" />
+<#assign pageTitle = "Pregunta" />
 <#assign deferredJS = "" />
 <#import "spring.ftl" as spring />
 <#include "admin-header.ftl">

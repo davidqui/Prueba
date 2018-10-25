@@ -63,9 +63,9 @@ public class PreguntaService {
      * @throws BusinessLogicException
      * @throws ReflectionException 
      */
-    public void crearPregunta(Pregunta pregunta, Usuario usuario) throws BusinessLogicException, ReflectionException {
-        final String textoPregunta = pregunta.getPregunta();
-        final boolean activo = pregunta.getActivo();
+    public void crearPregunta(String textPregunta, TemaCapacitacion temaCapacitacion, Usuario usuario) throws BusinessLogicException, ReflectionException {
+        Pregunta pregunta = new Pregunta();
+        final String textoPregunta = textPregunta;
         if (textoPregunta == null || textoPregunta.trim().length() == 0) {
             throw new BusinessLogicException("El texto de la pregunta es obligatorio.");
         }
@@ -80,13 +80,14 @@ public class PreguntaService {
             throw new BusinessLogicException("Esta Pregunta ya existe.");
         }
         
-        pregunta.setPregunta(textoPregunta.toUpperCase());
+        pregunta.setPregunta(textPregunta.toUpperCase());
 //        pregunta.setTemaCapacitacion(pregunta.getTemaCapacitacion());
         pregunta.setActivo(Boolean.TRUE);
         pregunta.setCuando(new Date());
         pregunta.setCuandoMod(new Date());
         pregunta.setQuien(usuario);
         pregunta.setQuienMod(usuario);
+        pregunta.setTemaCapacitacion(temaCapacitacion);
         
         preguntaRepository.saveAndFlush(pregunta);
     }
@@ -100,7 +101,7 @@ public class PreguntaService {
      * @throws ReflectionException 
      */
     public void editarPregunta(Pregunta pregunta, Usuario usuario) throws BusinessLogicException, ReflectionException {
-
+//        Pregunta pregunta = new Pregunta();
         final String textoPregunta = pregunta.getPregunta();
         if (textoPregunta == null || textoPregunta.trim().length() == 0) {
             throw new BusinessLogicException("El texto de la pregunta es obligatorio.");
@@ -115,7 +116,7 @@ public class PreguntaService {
         if (nombrePregunta != null && !nombrePregunta.getId().equals(pregunta.getId())&& nombrePregunta != null) {
             throw new BusinessLogicException("Esta pregunta ya existe.");
         }
-        pregunta.setPregunta(textoPregunta.toUpperCase());
+        pregunta.setPregunta(pregunta.getPregunta().toUpperCase());
         Pregunta nombrePreguntaAnterior = findOne(pregunta.getId());
         pregunta.setActivo(nombrePreguntaAnterior.getActivo());
         pregunta.setCuando(nombrePreguntaAnterior.getCuando());

@@ -141,6 +141,18 @@ public class TemaCapacitacionService {
         temaCapacitacion.setActivo(Boolean.FALSE);
         temaCapacitacionRepository.saveAndFlush(temaCapacitacion);
     }
+    /**
+     * Metodo para recuperar un Tema de Capacitación el cual fue eliminado.
+     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * @param temaCapacitacion
+     * @param usuario 
+     */
+     public void recuperarPregunta(TemaCapacitacion temaCapacitacion,Usuario usuario) {
+        temaCapacitacion.setQuienMod(usuario);
+        temaCapacitacion.setCuandoMod(new Date());
+        temaCapacitacion.setActivo(Boolean.TRUE);
+        temaCapacitacionRepository.saveAndFlush(temaCapacitacion);
+    }
 
     /**
      * Lista todas las TemaCapacitacions activos para paginación.

@@ -143,6 +143,22 @@ public class RespuestaService {
         respuesta.setActivo(Boolean.FALSE);
         respuestaRepository.saveAndFlush(respuesta);
     }
+    
+    
+    /**
+     * Permite reactivar un registro de recurso multimedia.
+     * 
+     * 2018-10-24 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * 
+     * @param pregunta Data de un recurso multimedia especifico.
+     * @param usuario id del usuario en sesión
+     */
+    public void recuperarRespuesta(Respuesta respuesta,Usuario usuario) {
+        respuesta.setQuienMod(usuario);
+        respuesta.setCuandoMod(new Date());
+        respuesta.setActivo(Boolean.TRUE);
+        respuestaRepository.saveAndFlush(respuesta);
+    }
 
     /**
      * Lista todas las Respuestas activos para paginación.

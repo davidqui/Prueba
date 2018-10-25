@@ -49,6 +49,8 @@ public class Respuesta implements Serializable {
     private String textoRespuesta;
     @Basic(optional = false)
     @NotNull
+    @LaamLabel("Respuesta Correcta")
+    @LaamWidget("checkbox")
     @Column(name = "CORRECTA")
     private Boolean correcta;
     @Column(name = "ACTIVO")

@@ -9,19 +9,19 @@
     <div class="row">
         <h1 class="cus-h1-page-title">${pageTitle}</h1>
         <form action="/admin/temaCapacitacion/actualizar" method="POST" enctype="multipart/form-data" >
-            <input type="hidden" id="id" name="id" value="${tematica.id}" />
+            <input type="hidden" id="id" name="id" value="${temaCapacitacion.id}" />
             <fieldset class="form-group">
                 <label for="nombre">Tema (*)</label>
                 <input type="text" class="form-control" id="tema" name="tema" value="${(temaCapacitacion.tema)!""}" />
                 </fieldset>
             <div class="row">
                 <div class="col-xs-8">
-                    <select id="doc-obs-defecto-select" name="doc-obs-defecto-select" class="form-control input-sm" onchange="setObservacionDefecto(this, 'justificacion')">
-                        <option value="">Clasificación (*)</option>
-                        <#list clasificacions as clasificacion >
-                        <option value="${clasificacion.Id}">${clasificacion.nombre}</option>
-                        </#list>
-                        </select>
+                    <select type="text" class="form-control" id="clasificacion" name="clasificacion" value="${(temaCapacitacion.clasificacion)!"-- Seleccione una Clasificación --"}"/>
+                 <option value="">-- Seleccione una Clasificación --</option>
+                    <#list clasificacions as clasificacion>
+                    <option value="${clasificacion.id}">${clasificacion.nombre}</option>
+                    </#list>
+                    </select>
                     </div>
                 </div>
             <div class="m-y">

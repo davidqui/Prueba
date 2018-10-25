@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -141,10 +140,10 @@ public class PreguntaController extends UtilController {
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
         Integer id = Integer.parseInt(req.getParameter("id"));
-        Pregunta pregunta = preguntaService.findOne(id);
-        model.addAttribute(NOMBRE_DEFECTO_FTL, pregunta);
-        TemaCapacitacion listTemaCap = temaCapacitacionService.findOne(pregunta.getTemaCapacitacion().getId());
-        model.addAttribute("temaCapacitacionEditar", listTemaCap);
+        Pregunta laPregunta = preguntaService.findOne(id);
+        model.addAttribute(NOMBRE_DEFECTO_FTL, laPregunta);
+        TemaCapacitacion TemaCap = temaCapacitacionService.findOne(laPregunta.getTemaCapacitacion().getId());
+        model.addAttribute("temaCapacitacionEditar", TemaCap);
         return EDIT_TEMPLATE;
     }
 
@@ -161,25 +160,31 @@ public class PreguntaController extends UtilController {
      * @param redirect Parametro requerido por clase de spring
      * @param archivo
      * @param principal Id del Usuario en sesión.
+     * @param temaCapacitacionId
      * @return Según corresponda pagina con el listado de los recursos Pregunta Activos incluyendo el recien creado 
      * o a la misma vista de creacion en el caso de que se presente una Exception.
+     
      */
 
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
-    public String crear(Pregunta pregunta, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
+    public String crear(@RequestParam(value = "temaCapacitacion", required = true) Integer temaCapacitacionId, 
+            @RequestParam(value = "pregunta", required = true) String pregunta, HttpServletRequest req, Model model,
+            RedirectAttributes redirect,
          Principal principal) {
+        System.out.println("LOLO NO PASA "+temaCapacitacionId+" - "+pregunta);
         model.addAttribute(NOMBRE_DEFECTO_FTL, pregunta);
         final Usuario usuarioSesion = getUsuario(principal);
-
+        TemaCapacitacion temaCapacitacion = temaCapacitacionService.findOne(temaCapacitacionId);
         try {
-            preguntaService.crearPregunta(pregunta, usuarioSesion);
+            preguntaService.crearPregunta(pregunta, temaCapacitacion,  usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
-            return "redirect:" + PATH + "?" + model.asMap().get("queryString");
+            
+            return "redirect:" + PATH + "/list/"+temaCapacitacionId;
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
-            return CREATE_TEMPLATE;
         }
+            return CREATE_TEMPLATE;
     }
         
     /**
@@ -189,27 +194,28 @@ public class PreguntaController extends UtilController {
      * 
      * @param pregunta
      * @param req Conjunto de data recibida por intermedio del request a traves del formulario.
-     * @param eResult Parametro requerido por clase de spring
      * @param model Parametro requerido por clase de spring
      * @param redirect Parametro requerido por clase de spring 
      * @param principal Usuarion en la sesión activa. 
      * @return Segun corresponda redirige al listado de Recursos Multimedia Activos incluyendo el recien modificado
      * o a la misma vista de edición en el caso de que se presente una Exception.
      */
-    @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
-    public String actualizar(Pregunta pregunta, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
+    @RequestMapping(value = {"/actualizar/{id}"}, method = RequestMethod.POST)
+    public String actualizar(@RequestParam(value = "id", required = true) Integer id, 
+            @RequestParam(value = "pregunta", required = true) String pregunta, HttpServletRequest req,  Model model, RedirectAttributes redirect,
             Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
         model.addAttribute(NOMBRE_DEFECTO_FTL, pregunta);
+        Pregunta pregunta1 = preguntaService.findOne(id);
 
         try {
-            preguntaService.editarPregunta(pregunta, usuarioSesion);
+            preguntaService.editarPregunta(pregunta1, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
-            return "redirect:" +PATH+"/list/"+pregunta.getTemaCapacitacion().getId();
+            return "redirect:" +PATH+"/list/"+id;
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
-            TemaCapacitacion listPregunta = temaCapacitacionService.findOne(pregunta.getTemaCapacitacion().getId());
+            TemaCapacitacion listPregunta = temaCapacitacionService.findOne(id);
             model.addAttribute("temasEditar", listPregunta);
             return EDIT_TEMPLATE;
         }
@@ -272,38 +278,6 @@ public class PreguntaController extends UtilController {
         }
     }
     
-//    /**
-//     * Metodo para visualizar en una nueva ventana los recursos Pregunta.
-//     * 
-//     * 2018-10-24 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-//     * 
-//     * @param response
-//     * @param key Id del Recurso Multimedia
-//     * @throws IOException 
-//     */
-//    @RequestMapping(value = "/descargar/{key}", method = RequestMethod.GET)
-//    public void descargarArchivo(HttpServletResponse response,@PathVariable("key") Integer key) throws IOException {
-//        Pregunta archivoData=preguntaService.findOne(key);
-//        ServletOutputStream os = null;
-//        ByteArrayInputStream is = null;
-//        try {
-//            OFSEntry entry=preguntaService.viewPreguntaFile(archivoData);
-//            byte[] bytes =entry.getContent();
-//
-//            response.reset();
-//            response.setContentLength((int) bytes.length);
-//            response.setContentType(entry.getContentType());
-//            response.setBufferSize((int) bytes.length);
-//
-//            os = response.getOutputStream();
-//            is = new ByteArrayInputStream(bytes);
-//            IOUtils.copy(is, os);
-//            
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
     
     @ModelAttribute("descriptor")
     GenDescriptor getDescriptor() {

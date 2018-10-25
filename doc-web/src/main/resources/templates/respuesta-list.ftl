@@ -9,13 +9,15 @@
 </#if>
 
 <div class="container-fluid">
-    <h1 class="cus-h1-page-title">${pageTitle}</h1>
+    <h1 class="cus-h1-page-title">${pageTitle} -> <b>${respuestaView.pregunta?capitalize}</b></h1>
+    <h1 class="cus-h1-page-title">${pageTitle} -> <b>${temaView.tema?capitalize}</b></h1>
     <#if descriptor.description??>
         <p class="lead">${descriptor.description}</p>
     </#if>
     <p>
-        <#if returnUrl??><a href="${returnUrl}" class="btn btn-secondary btn-sm">Regresar</a></#if>
-        <a href="/admin/temaCapacitacion/create" class="btn btn-success btn-sm">Crear</a>
+         <a href="/admin/respuesta/create/${respuestaView.id}" class="btn btn-success btn-sm">Crear</a>
+         
+         <a href="/admin/pregunta/list/${temaView.id}" class="btn btn-success btn-sm">Regresar</a>
     </p>
 
     Total ${list?size}
@@ -38,6 +40,8 @@
                 <#list descriptor.listProperties() as p>
                     <th>${p.label}</th>
                 </#list>
+                    <th>Pregunta</th>
+                    <th>Correcta</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -67,28 +71,35 @@
                         <#assign first = false />
                     </td>
                 </#list>
-                               <td nowrap="nowrap">
+                        <td>
+                            ${x.pregunta.pregunta}
+                        </td>
+                        <td>
+                            ${x.respuesta.correcta}
+                        </td>
+                	<td nowrap="nowrap">
                             <#if x.activo?? && x.activo == true >
-                                <a href=${"/admin/temaCapacitacion/edit?id="+x.id} class="btn btn-sm btn-warning title="Modificar">M</a>
-                                <a href=${"/admin/temaCapacitacion/delete?id="+x.id} class="btn btn-sm btn-danger title="Eliminar" onclick="return confirm('¿Está seguro que desea eliminar el registro?');">E</a>
-                                <#else>
-                                <a href="/admin/temaCapacitacion/recuperar?id=${x.id}" class="btn btn-sm btn-warning" title="Modificar">Recuperar</a> 
-                            </#if>
+                                <a href="/admin/respuesta/edit?id=${x.id}" class="btn btn-sm btn-warning" title="Modificar">M</a>
+                                <a href="/admin/respuesta/delete?id=${x.id}" class="btn btn-sm btn-danger" title="Eliminar" onclick="return confirm('¿Está seguro que desea eliminar el registro?');">E</a>
+                            <#else>
+                                <a href="/admin/respuesta/recuperar?id=${x.id}" class="btn btn-sm btn-warning" title="Modificar">Recuperar</a>  
+                                </#if>
                         <#if x.cuando?? >
                             <#if x.cuandoMod?? >
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien!"Sistema"} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}, Modificado por: ${x.quienMod!"Nadie"} el día ${x.cuandoMod?string('dd.MM.yyyy HH:mm:ss')!"Ninguno"}">H</a>
-                                <#else>
+                            <#else>
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}">H</a>
+                                
                             </#if>
-                                <a href="/admin/pregunta/list/${x.id}" class="btn btn-sm btn-success title="Ver Recuros Multimedia">Ver Pregunta</a>
+                               <a href="/admin/respuesta/list/${x.id}" class="btn btn-sm btn-success title="Ver Recuros Multimedia">Ver Respuestas</a> 
                         </#if>
-                               </td>
+                	</td>
                 </tr>
             </#list>
             </tbody>
         </table>
         <#if totalPages gt 0>
-            <@printBar url="/admin/temaCapacitacion" params={"filtro": filtro!"", "all": all?string("true", "false")} metodo="get"/>
+            <@printBar url="/admin/respuesta/list/${respuestaView.id}" params={"filtro": filtro!"", "all": all?string("true", "false")} metodo="get"/>
         </#if>
     </#if>
 

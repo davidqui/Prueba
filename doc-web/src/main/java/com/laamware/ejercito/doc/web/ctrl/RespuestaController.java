@@ -1,16 +1,17 @@
 package com.laamware.ejercito.doc.web.ctrl;
 
 import com.laamware.ejercito.doc.web.entity.AppConstants;
-import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.GenDescriptor;
+import com.laamware.ejercito.doc.web.entity.Pregunta;
+import com.laamware.ejercito.doc.web.entity.Respuesta;
 import com.laamware.ejercito.doc.web.entity.TemaCapacitacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
-import com.laamware.ejercito.doc.web.serv.ClasificacionService;
+import com.laamware.ejercito.doc.web.serv.PreguntaService;
+import com.laamware.ejercito.doc.web.serv.RespuestaService;
 import com.laamware.ejercito.doc.web.serv.TemaCapacitacionService;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.ReflectionException;
 import java.security.Principal;
-import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * Controlador para {@link TemaCapacitacion}.
+ * Controlador para {@link Respuesta}.
  *
  * @author jcespedeso@imi.mil.co 
  * @author dquijanor@imi.mil.co 
@@ -41,26 +43,29 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @PreAuthorize(value = "hasRole('ADMIN_TEMA_CAPACITACION')")
-@RequestMapping(TemaCapacitacionController.PATH)
-public class TemaCapacitacionController extends UtilController {
+@RequestMapping(RespuestaController.PATH)
+public class RespuestaController extends UtilController {
 
-    private static final Logger LOG = Logger.getLogger(TemaCapacitacionController.class.getName());
+    private static final Logger LOG = Logger.getLogger(RespuestaController.class.getName());
 
-    static final String PATH = "/admin/temaCapacitacion";
+    static final String PATH = "/admin/respuesta";
 
-    private static final String LIST_TEMPLATE = "temaCapacitacion-list";
+    private static final String LIST_TEMPLATE = "respuesta-list";
 
-    private static final String CREATE_TEMPLATE = "temaCapacitacion-list-create";
+    private static final String CREATE_TEMPLATE = "respuesta-list-create";
 
-    private static final String EDIT_TEMPLATE = "temaCapacitacion-list-edit";
+    private static final String EDIT_TEMPLATE = "respuesta-list-edit";
 
-    private static final String NOMBRE_DEFECTO_FTL = "temaCapacitacion";
+    private static final String NOMBRE_DEFECTO_FTL = "respuesta";
 
     @Autowired
-    private TemaCapacitacionService temaCapacitacionService;
+    private RespuestaService respuestaService;
     
     @Autowired
-    private ClasificacionService clasificacionService;
+    private PreguntaService preguntaService;
+    
+    @Autowired
+    private TemaCapacitacionService temaCapacitacionService;
 
     /**
      *  Permite listar todos los temas disponibles del modulo Capacitacion  
@@ -69,12 +74,19 @@ public class TemaCapacitacionController extends UtilController {
      * @param page
      * @param pageSize
      * @param model
-     * @return Lista de todos las TemaCapacitacions segun corresponda activas o activas y eliminadas.
+     * @return Lista de todos las Respuestas segun corresponda activas o activas y eliminadas.
      */
-    @RequestMapping(value = {" "}, method = RequestMethod.GET)
-    public String list(@RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
+    @RequestMapping(value = {"/list/{key}"}, method = RequestMethod.GET)
+    public String list(@PathVariable(value = "key") Integer key, 
+            @RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
                        @RequestParam(value = "pageIndex", required = false) Integer page,
                        @RequestParam(value = "pageSize", required = false) Integer pageSize, Model model) {
+        
+        Pregunta seleccionPregunta = preguntaService.findOne(key);
+        model.addAttribute("respuestaView", seleccionPregunta);
+        
+        TemaCapacitacion seleccionTema = temaCapacitacionService.findOne(seleccionPregunta.getTemaCapacitacion().getId());
+        model.addAttribute("temaView", seleccionTema);
         
         if (page == null || page < 0)
             page = 1;
@@ -86,11 +98,11 @@ public class TemaCapacitacionController extends UtilController {
         
         Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.DESC, "cuando");
         
-        Page<TemaCapacitacion> list;
+        Page<Respuesta> list;
         if (!all) {
-            list = temaCapacitacionService.findActive(pageable);
+            list = respuestaService.findActive(pageable);
         } else {
-            list = temaCapacitacionService.findAll(pageable);
+            list = respuestaService.findAll(pageable);
         }
         
         count = list.getTotalElements();
@@ -106,14 +118,16 @@ public class TemaCapacitacionController extends UtilController {
      * @param model
      * @return Vista de creación de una nueva tematica.
      */
-    @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
-    public String create(Model model) {
-        TemaCapacitacion temaCapacitacion = new TemaCapacitacion();
+    
+    @RequestMapping(value = {"/create/{key}"}, method = RequestMethod.GET)
+    public String create(@PathVariable(value = "key") Integer key, Model model) {
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         
-        List<Clasificacion> clasificacions = clasificacionService.findAllActivoOrderByOrden();
-        model.addAttribute("clasificacions", clasificacions);
-        
-        model.addAttribute(NOMBRE_DEFECTO_FTL, temaCapacitacion);
+        Respuesta respuesta = new Respuesta();
+        model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
+        model.addAttribute("preguntas", preguntaService.findActive(sort));
+        Pregunta listRespuestas = preguntaService.findOne(key);
+        model.addAttribute("preguntasCrear", listRespuestas);
         return CREATE_TEMPLATE;
     }
 
@@ -128,19 +142,18 @@ public class TemaCapacitacionController extends UtilController {
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
         Integer id = Integer.parseInt(req.getParameter("id"));
-        TemaCapacitacion temaCapacitacion = temaCapacitacionService.findOne(id);
+        Respuesta laRespuesta = respuestaService.findOne(id);
+        model.addAttribute(NOMBRE_DEFECTO_FTL, laRespuesta);
         
-        List<Clasificacion> clasificacions = clasificacionService.findAllActivoOrderByOrden();
-        
-        model.addAttribute("clasificacions", clasificacions);
-        model.addAttribute(NOMBRE_DEFECTO_FTL, temaCapacitacion);
+        Pregunta pregunta = preguntaService.findOne(laRespuesta.getPregunta().getId());
+        model.addAttribute("preguntasEditar", pregunta);
         return EDIT_TEMPLATE;
     }
 
     /**
      * Permite crear un nombre de tema de Capacitación
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * @param temaCapacitacion
+     * @param respuesta
      * @param req
      * @param eResult
      * @param model
@@ -150,13 +163,13 @@ public class TemaCapacitacionController extends UtilController {
      * @return Pagina para crear un nombre de tematica.
      */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
-    public String crear(TemaCapacitacion temaCapacitacion, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
+    public String crear(Respuesta respuesta, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
         MultipartFile archivo, Principal principal) {
-        model.addAttribute(NOMBRE_DEFECTO_FTL, temaCapacitacion);
+        model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
         final Usuario usuarioSesion = getUsuario(principal);
 
         try {
-            temaCapacitacionService.crearTemaCapacitacion(temaCapacitacion, usuarioSesion);
+            respuestaService.crearRespuesta(respuesta, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
         } catch (BusinessLogicException | ReflectionException ex) {
@@ -169,7 +182,7 @@ public class TemaCapacitacionController extends UtilController {
     /**
      * Permite actualizar una tema de capacitación.
      *2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * @param temaCapacitacion
+     * @param respuesta
      * @param req
      * @param eResult
      * @param model
@@ -179,13 +192,13 @@ public class TemaCapacitacionController extends UtilController {
      * @return Pagina que edita un Tema de Capacitación.
      */
     @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
-    public String actualizar(TemaCapacitacion temaCapacitacion, HttpServletRequest req,  Model model, RedirectAttributes redirect,
+    public String actualizar(Respuesta respuesta, HttpServletRequest req,  Model model, RedirectAttributes redirect,
             MultipartFile archivo, Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
-        model.addAttribute(NOMBRE_DEFECTO_FTL, temaCapacitacion);
+        model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
 
         try {
-            temaCapacitacionService.editarTemaCapacitacion(temaCapacitacion, usuarioSesion);
+            respuestaService.editarRespuesta(respuesta, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro modificado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
         } catch (BusinessLogicException | ReflectionException ex) {
@@ -196,7 +209,7 @@ public class TemaCapacitacionController extends UtilController {
     }
     
     /**
-     * Permite eliminar logicamente una TemaCapacitacion especifica.
+     * Permite eliminar logicamente una Respuesta especifica.
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
      * @param model
      * @param req
@@ -209,8 +222,8 @@ public class TemaCapacitacionController extends UtilController {
         try {
             final Integer id = Integer.parseInt(req.getParameter("id"));
             final Usuario usuarioSesion = getUsuario(principal);
-            TemaCapacitacion temaCapacitacion = temaCapacitacionService.findOne(id);
-            temaCapacitacionService.eliminarTemaCapacitacion(temaCapacitacion, usuarioSesion);
+            Respuesta respuesta = respuestaService.findOne(id);
+            respuestaService.eliminarRespuesta(respuesta, usuarioSesion);
             model.addAttribute(AppConstants.FLASH_SUCCESS, "Tema de Capacitacion eliminada con éxito");
         } catch (NumberFormatException ex) {
             LOG.log(Level.SEVERE, req.getParameter("id"), ex);
@@ -225,8 +238,8 @@ public class TemaCapacitacionController extends UtilController {
         try {
             final Integer id = Integer.parseInt(req.getParameter("id"));
             final Usuario usuarioSesion = getUsuario(principal);
-            TemaCapacitacion temaCapacitacion = temaCapacitacionService.findOne(id);
-            temaCapacitacionService.recuperarPregunta(temaCapacitacion, usuarioSesion);
+            Respuesta respuesta = respuestaService.findOne(id);
+            respuestaService.recuperarRespuesta(respuesta, usuarioSesion);
             model.addAttribute(AppConstants.FLASH_SUCCESS, "Recurso recuperado con éxito");
             return "redirect:" + PATH;
         } catch (NumberFormatException ex) {
@@ -238,7 +251,7 @@ public class TemaCapacitacionController extends UtilController {
     
     @ModelAttribute("descriptor")
     GenDescriptor getDescriptor() {
-        return GenDescriptor.find(TemaCapacitacion.class);
+        return GenDescriptor.find(Respuesta.class);
     }
 
     @ModelAttribute("activePill")
@@ -257,7 +270,7 @@ public class TemaCapacitacionController extends UtilController {
      * @return controlador
      */
     @ModelAttribute("controller")
-    public TemaCapacitacionController controller() {
+    public RespuestaController controller() {
         return this;
     }
 }
