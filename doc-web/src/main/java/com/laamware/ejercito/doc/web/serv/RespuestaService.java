@@ -64,9 +64,9 @@ public class RespuestaService {
      */
     public void crearRespuesta(Respuesta respuesta, Usuario usuario) throws BusinessLogicException, ReflectionException {
         final String textoRespuesta = respuesta.getTextoRespuesta();
-        final Pregunta pregunta = respuesta.getPregunta();
         final boolean activo = respuesta.getActivo();
         final boolean correcta = respuesta.getCorrecta();
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<pasando por el Metodo del Servicio Crear>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> = " + correcta);
         if (textoRespuesta == null || textoRespuesta.trim().length() == 0) {
             throw new BusinessLogicException("El texto de la respuesta es obligatorio.");
         }
@@ -81,10 +81,11 @@ public class RespuestaService {
             throw new BusinessLogicException("Esta Respuesta ya existe.");
         }
         
-        respuesta.setPregunta(pregunta);
+//        respuesta.setPregunta(pregunta);
         respuesta.setTextoRespuesta(textoRespuesta.toUpperCase());
-        respuesta.setCorrecta(Boolean.TRUE);
+        respuesta.setCorrecta(Boolean.FALSE);
         respuesta.setActivo(Boolean.TRUE);
+        
         respuesta.setCuando(new Date());
         respuesta.setCuandoMod(new Date());
         respuesta.setQuien(usuario);

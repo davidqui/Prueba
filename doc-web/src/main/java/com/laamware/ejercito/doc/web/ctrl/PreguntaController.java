@@ -176,6 +176,7 @@ public class PreguntaController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
         TemaCapacitacion temaCapacitacion = temaCapacitacionService.findOne(temaCapacitacionId);
         try {
+            
             preguntaService.crearPregunta(pregunta, temaCapacitacion,  usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             

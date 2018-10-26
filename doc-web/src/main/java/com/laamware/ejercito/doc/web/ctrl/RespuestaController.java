@@ -23,13 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -124,6 +122,8 @@ public class RespuestaController extends UtilController {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         
         Respuesta respuesta = new Respuesta();
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<pasando por Metodo create>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> = " + respuesta);
+
         model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
         model.addAttribute("preguntas", preguntaService.findActive(sort));
         Pregunta listRespuestas = preguntaService.findOne(key);
@@ -155,20 +155,19 @@ public class RespuestaController extends UtilController {
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
      * @param respuesta
      * @param req
-     * @param eResult
      * @param model
      * @param redirect
-     * @param archivo
      * @param principal
      * @return Pagina para crear un nombre de tematica.
      */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
-    public String crear(Respuesta respuesta, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
-        MultipartFile archivo, Principal principal) {
+    public String crear(Respuesta respuesta, HttpServletRequest req,  Model model, RedirectAttributes redirect, Principal principal) {
         model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
         final Usuario usuarioSesion = getUsuario(principal);
 
         try {
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<pasando por Metodo Crear>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> = " + respuesta);
+
             respuestaService.crearRespuesta(respuesta, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
@@ -184,16 +183,14 @@ public class RespuestaController extends UtilController {
      *2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
      * @param respuesta
      * @param req
-     * @param eResult
      * @param model
      * @param redirect
-     * @param archivo
      * @param principal
      * @return Pagina que edita un Tema de Capacitación.
      */
     @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
     public String actualizar(Respuesta respuesta, HttpServletRequest req,  Model model, RedirectAttributes redirect,
-            MultipartFile archivo, Principal principal) {
+             Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
         model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
 
@@ -256,7 +253,7 @@ public class RespuestaController extends UtilController {
 
     @ModelAttribute("activePill")
     public String getActivePill() {
-        return "tematica";
+        return "respuesta";
     }
 
     @ModelAttribute("templatePrefix")

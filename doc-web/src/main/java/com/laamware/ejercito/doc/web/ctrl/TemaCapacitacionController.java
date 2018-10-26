@@ -156,6 +156,7 @@ public class TemaCapacitacionController extends UtilController {
         final Usuario usuarioSesion = getUsuario(principal);
 
         try {
+             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<pasando por Metodo Crear>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> = " + temaCapacitacion);
             temaCapacitacionService.crearTemaCapacitacion(temaCapacitacion, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
@@ -243,7 +244,7 @@ public class TemaCapacitacionController extends UtilController {
 
     @ModelAttribute("activePill")
     public String getActivePill() {
-        return "tematica";
+        return "temaCapacitacion";
     }
 
     @ModelAttribute("templatePrefix")

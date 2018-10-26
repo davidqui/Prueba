@@ -35,40 +35,43 @@ public class Respuesta implements Serializable {
     @GenericGenerator(name = "SQ_RESPUESTA", strategy = "sequence",
             parameters = {@Parameter(name = "sequence", value = "SQ_RESPUESTA"),@Parameter(name = "allocationSize", value = "1")})
     @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "SQ_RESPUESTA")
-    @Basic(optional = false)
-    @NotNull
+    
     @Column(name = "ID")
     private Integer id;
-    @Basic(optional = false)
-    @NotNull
+    
     @Size(min = 1, max = 1000)
     @LaamLabel("Texto Respuesta")
     @LaamListColumn(order = 10)
     @LaamCreate(order = 10)
+    @LaamWidget("textarea")
     @Column(name = "TEXTO_RESPUESTA")
     private String textoRespuesta;
-    @Basic(optional = false)
-    @NotNull
+    
     @LaamLabel("Respuesta Correcta")
-    @LaamWidget("checkbox")
+    @LaamCreate(order = 60)
+    @LaamWidget(value = "checkbox")
     @Column(name = "CORRECTA")
     private Boolean correcta;
+    
     @Column(name = "ACTIVO")
     private Boolean activo;
-    @Basic(optional = false)
-    @NotNull
+    
     @Column(name = "CUANDO")
     @Temporal(TemporalType.TIMESTAMP)
     private Date cuando;
+    
     @Column(name = "CUANDO_MOD")
     @Temporal(TemporalType.TIMESTAMP)
     private Date cuandoMod;
+    
     @JoinColumn(name = "QUIEN", referencedColumnName = "USU_ID")
     @ManyToOne(optional = false)
     private Usuario quien;
+    
     @JoinColumn(name = "QUIEN_MOD", referencedColumnName = "USU_ID")
     @ManyToOne
     private Usuario quienMod;
+    
     @JoinColumn(name = "PREGUNTA", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private Pregunta pregunta;
@@ -80,11 +83,16 @@ public class Respuesta implements Serializable {
         this.id = id;
     }
 
-    public Respuesta(Integer id, String textoRespuesta, Boolean correcta, Date cuando) {
+    public Respuesta(Integer id, String textoRespuesta, Boolean correcta, Boolean activo, Date cuando, Date cuandoMod, Usuario quien, Usuario quienMod, Pregunta pregunta) {
         this.id = id;
         this.textoRespuesta = textoRespuesta;
         this.correcta = correcta;
+        this.activo = activo;
         this.cuando = cuando;
+        this.cuandoMod = cuandoMod;
+        this.quien = quien;
+        this.quienMod = quienMod;
+        this.pregunta = pregunta;
     }
 
     public Integer getId() {
@@ -150,8 +158,7 @@ public class Respuesta implements Serializable {
     public void setQuienMod(Usuario quienMod) {
         this.quienMod = quienMod;
     }
-    
-    
+
     public Pregunta getPregunta() {
         return pregunta;
     }
@@ -162,16 +169,16 @@ public class Respuesta implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 53 * hash + Objects.hashCode(this.id);
-        hash = 53 * hash + Objects.hashCode(this.textoRespuesta);
-        hash = 53 * hash + Objects.hashCode(this.correcta);
-        hash = 53 * hash + Objects.hashCode(this.activo);
-        hash = 53 * hash + Objects.hashCode(this.cuando);
-        hash = 53 * hash + Objects.hashCode(this.cuandoMod);
-        hash = 53 * hash + Objects.hashCode(this.quien);
-        hash = 53 * hash + Objects.hashCode(this.quienMod);
-        hash = 53 * hash + Objects.hashCode(this.pregunta);
+        int hash = 7;
+        hash = 71 * hash + Objects.hashCode(this.id);
+        hash = 71 * hash + Objects.hashCode(this.textoRespuesta);
+        hash = 71 * hash + Objects.hashCode(this.correcta);
+        hash = 71 * hash + Objects.hashCode(this.activo);
+        hash = 71 * hash + Objects.hashCode(this.cuando);
+        hash = 71 * hash + Objects.hashCode(this.cuandoMod);
+        hash = 71 * hash + Objects.hashCode(this.quien);
+        hash = 71 * hash + Objects.hashCode(this.quienMod);
+        hash = 71 * hash + Objects.hashCode(this.pregunta);
         return hash;
     }
 
@@ -217,13 +224,12 @@ public class Respuesta implements Serializable {
         return true;
     }
 
-    
-
     @Override
     public String toString() {
         return "Respuesta{" + "id=" + id + ", textoRespuesta=" + textoRespuesta + ", correcta=" + correcta + ", activo=" + activo + ", cuando=" + cuando + ", cuandoMod=" + cuandoMod + ", quien=" + quien + ", quienMod=" + quienMod + ", pregunta=" + pregunta + '}';
     }
 
+    
    
 
     

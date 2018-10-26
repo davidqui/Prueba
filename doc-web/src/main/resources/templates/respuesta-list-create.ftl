@@ -4,25 +4,56 @@
 <#import "spring.ftl" as spring />
 <#include "admin-header.ftl">
 <#include "util-macros.ftl" />
+<#include "gen-macros.ftl" />
 
 <div class="container">
     <div class="row">
         <h1 class="cus-h1-page-title">Crear ${pageTitle} -> <b>${preguntasCrear.pregunta?capitalize}</b></h1>
+        <#if descriptor.description?? >
+        <p class="lead">${descriptor.description}</p>
+        </#if>
+	<@flash/>
         <form action="/admin/respuesta/crear" method="POST" >
-            <fieldset class="form-group">
-                <label for="nombre">Texto Respuesta(*)</label>
-                <input type="text" class="form-control" id="textoRespuesta" name="textoRespuesta" value="${(respuesta.textoRespuesta)!""}" style="text-transform:uppercase"/>
-                <label for="temaCapacitacion">Correcta(*)</label>
-                <input type="checkbox" class="form-control" id="correcta" name="correcta" value="${(respuesta.correcta)!""}"/>
-                <label for="temaCapacitacion">Pregunta(*)</label>
-                <input type="hidden" class="form-control" id="pregunta" name="pregunta" value="${(pregunta.id)!""}"/>
-                </fieldset>
+            <#list descriptor.createProperties() as p>
 
+        <#if p.name == 'textoRespuesta' >
+            <fieldset class="form-group">
+                <label for="${p.name}">Texto Respuesta</label>
+                <@input p />
+                </fieldset>
+        <#else>
+            <fieldset class="form-group">
+                <label for="${p.name}">${p.label}</label>
+               <@input p />
+                </fieldset>
+        </#if>
+        </#list>
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
                 <a href="/admin/respuesta/list/${preguntasCrear.id}" class="btn btn-secondary">Cancelar</a>
                 </div>
             </form>
+
         </div>
-    </div>
-<#include "footer.ftl">
+
+    <script type="text/javascript">
+        
+    function validacion(){
+            
+        var textoRespuesta = $.trim( $("#textoRespuesta").val() );
+        if( textoRespuesta.length <= 0 ){
+            
+            alert("Debe ingresar el Texto  de la Pregunta");
+            return false;
+        }
+            
+            
+        return true;
+    }
+        </script>
+
+<#if templatePrefix??>
+    <#include templatePrefix + "-footer.ftl">
+<#else>
+    <#include "footer.ftl">
+</#if>
