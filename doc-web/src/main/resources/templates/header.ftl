@@ -84,8 +84,8 @@
           	</#if>
           </#if>
                 <!--#181 se agrega loader --> 
-                <a href="/capacitacion-juego/intro" onclick="loading(event);">Capacitación</a>
-                <a href="/manual/intro" target="_blank">Manual</a>
+                <a href="/capacitacion-juego/intro" onclick="loading(event);" target="_blank">Capacitación</a>
+                <a href="/manual/intro" onclick="loading(event);" target="_blank">Manual</a>
 
                     <#--
                         2018-05-02 jgarcia@controltechcg.com Issue #159 (SICDI-Controltech)

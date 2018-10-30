@@ -1,5 +1,6 @@
 package com.laamware.ejercito.doc.web.serv;
 
+import com.laamware.ejercito.doc.web.entity.Clasificacion;
 import com.laamware.ejercito.doc.web.entity.TemaCapacitacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,7 @@ public class TemaCapacitacionService {
      */
     public void crearTemaCapacitacion(TemaCapacitacion temaCapacitacion, Usuario usuario) throws BusinessLogicException, ReflectionException {
         final String tema = temaCapacitacion.getTema();
-        final Integer clasificacion = temaCapacitacion.getClasificacion();
+        final Clasificacion clasificacion = temaCapacitacion.getClasificacion();
         if (tema == null || tema.trim().length() == 0) {
             throw new BusinessLogicException("El texto del tema es obligatorio.");
         }
@@ -103,10 +104,6 @@ public class TemaCapacitacionService {
         if (tema == null || tema.trim().length() == 0) {
             throw new BusinessLogicException("El texto del tema es obligatorio.");
         }
-        final Integer clasificacion = temaCapacitacion.getClasificacion();
-        if (clasificacion == null || clasificacion == 0) {
-            throw new BusinessLogicException("El texto de clasificacion es obligatorio.");
-        }
 
         final int textoTemaColumnLength = ReflectionUtil.getColumnLength(TemaCapacitacion.class, "tema");
         if (tema.trim().length() > textoTemaColumnLength) {
@@ -118,7 +115,7 @@ public class TemaCapacitacionService {
             throw new BusinessLogicException("Este tema de Capacitacion ya existe.");
         }
         temaCapacitacion.setTema(tema.toUpperCase());
-        temaCapacitacion.setClasificacion(clasificacion);
+        temaCapacitacion.setClasificacion(temaCapacitacion.getClasificacion());
         TemaCapacitacion nombreTemaCapacitacionAnterior = findOne(temaCapacitacion.getId());
         temaCapacitacion.setQuien(nombreTemaCapacitacionAnterior.getQuien());
         temaCapacitacion.setCuando(nombreTemaCapacitacionAnterior.getCuando());

@@ -41,11 +41,11 @@ public class TemaCapacitacion implements Serializable {
     @NotNull
     @Column(name = "ID")
     private Integer id;
-    @LaamLabel("Clasificación")
-    @LaamListColumn(order = 10)
-    @LaamCreate(order = 10)
-    @Column(name = "CLASIFICACION")
-    private Integer clasificacion;
+//    @LaamLabel("Clasificación")
+//    @LaamListColumn(order = 10)
+//    @LaamCreate(order = 10)
+//    @Column(name = "CLASIFICACION")
+//    private Integer clasificacion;
     @Basic(optional = false)
     @NotNull
     @LaamLabel("Téma")
@@ -72,6 +72,9 @@ public class TemaCapacitacion implements Serializable {
     @JoinColumn(name = "QUIEN_MOD", referencedColumnName = "USU_ID")
     @ManyToOne
     private Usuario quienMod;
+    @JoinColumn(name = "CLASIFICACION", referencedColumnName = "CLA_ID")
+    @ManyToOne
+    private Clasificacion clasificacion;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "temaCapacitacion")
     private List<Pregunta> preguntaList;
 
@@ -82,11 +85,15 @@ public class TemaCapacitacion implements Serializable {
         this.id = id;
     }
 
-    public TemaCapacitacion(Integer id, String tema, boolean activo, Date cuando) {
+    public TemaCapacitacion(Integer id, String tema, Boolean activo, Date cuando, Date cuandoMod, Usuario quien, Usuario quienMod, Clasificacion clasificacion) {
         this.id = id;
         this.tema = tema;
         this.activo = activo;
         this.cuando = cuando;
+        this.cuandoMod = cuandoMod;
+        this.quien = quien;
+        this.quienMod = quienMod;
+        this.clasificacion = clasificacion;
     }
 
     public Integer getId() {
@@ -97,11 +104,11 @@ public class TemaCapacitacion implements Serializable {
         this.id = id;
     }
 
-    public Integer getClasificacion() {
+    public Clasificacion getClasificacion() {
         return clasificacion;
     }
 
-    public void setClasificacion(Integer clasificacion) {
+    public void setClasificacion(Clasificacion clasificacion) {
         this.clasificacion = clasificacion;
     }
 
@@ -163,15 +170,16 @@ public class TemaCapacitacion implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.id);
-        hash = 97 * hash + Objects.hashCode(this.clasificacion);
-        hash = 97 * hash + Objects.hashCode(this.tema);
-        hash = 97 * hash + Objects.hashCode(this.activo);
-        hash = 97 * hash + Objects.hashCode(this.cuando);
-        hash = 97 * hash + Objects.hashCode(this.cuandoMod);
-        hash = 97 * hash + Objects.hashCode(this.quien);
-        hash = 97 * hash + Objects.hashCode(this.quienMod);
+        int hash = 5;
+        hash = 29 * hash + Objects.hashCode(this.id);
+        hash = 29 * hash + Objects.hashCode(this.tema);
+        hash = 29 * hash + Objects.hashCode(this.activo);
+        hash = 29 * hash + Objects.hashCode(this.cuando);
+        hash = 29 * hash + Objects.hashCode(this.cuandoMod);
+        hash = 29 * hash + Objects.hashCode(this.quien);
+        hash = 29 * hash + Objects.hashCode(this.quienMod);
+        hash = 29 * hash + Objects.hashCode(this.clasificacion);
+        hash = 29 * hash + Objects.hashCode(this.preguntaList);
         return hash;
     }
 
@@ -193,9 +201,6 @@ public class TemaCapacitacion implements Serializable {
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
-        if (!Objects.equals(this.clasificacion, other.clasificacion)) {
-            return false;
-        }
         if (!Objects.equals(this.activo, other.activo)) {
             return false;
         }
@@ -211,15 +216,18 @@ public class TemaCapacitacion implements Serializable {
         if (!Objects.equals(this.quienMod, other.quienMod)) {
             return false;
         }
+        if (!Objects.equals(this.clasificacion, other.clasificacion)) {
+            return false;
+        }
+        if (!Objects.equals(this.preguntaList, other.preguntaList)) {
+            return false;
+        }
         return true;
     }
 
-    
-
     @Override
     public String toString() {
-        return "TemaCapacitacion{" + "id=" + id + ", clasificacion=" + clasificacion + ", tema=" + tema + ", activo=" + activo + ", cuando=" + cuando + ", cuandoMod=" + cuandoMod + '}';
+        return "TemaCapacitacion{" + "id=" + id + ", tema=" + tema + ", activo=" + activo + ", cuando=" + cuando + ", cuandoMod=" + cuandoMod + ", quien=" + quien + ", quienMod=" + quienMod + '}';
     }
 
-    
 }
