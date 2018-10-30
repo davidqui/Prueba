@@ -1,5 +1,5 @@
 <#setting number_format="computer">
-<#assign pageTitle = "Pregunta" />
+<#assign pageTitle = "Respuesta" />
 <#assign deferredJS = "" />
 <#import "spring.ftl" as spring />
 <#include "admin-header.ftl">
@@ -28,10 +28,13 @@
                 </fieldset>
         </#if>
         </#list>
+            <input type="hidden" class="form-control" id="pregunta" name="pregunta" value="${(preguntasCrear.id)!""}"/>
+            
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
                 <a href="/admin/respuesta/list/${preguntasCrear.id}" class="btn btn-secondary">Cancelar</a>
                 </div>
+            
             </form>
 
         </div>

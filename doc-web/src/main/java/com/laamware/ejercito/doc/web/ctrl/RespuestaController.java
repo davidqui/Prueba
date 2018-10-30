@@ -33,12 +33,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * Controlador para {@link Respuesta}.
  *
- * @author jcespedeso@imi.mil.co 
- * @author dquijanor@imi.mil.co 
+ * @author jcespedeso@imi.mil.co
+ * @author dquijanor@imi.mil.co
  * @author aherreram@imi.mil.co
  * @since Septiembre 3, 2018 _feature_9 (SICDI-GETDE)
  */
-
 @Controller
 @PreAuthorize(value = "hasRole('ADMIN_TEMA_CAPACITACION')")
 @RequestMapping(RespuestaController.PATH)
@@ -58,51 +57,55 @@ public class RespuestaController extends UtilController {
 
     @Autowired
     private RespuestaService respuestaService;
-    
+
     @Autowired
     private PreguntaService preguntaService;
-    
+
     @Autowired
     private TemaCapacitacionService temaCapacitacionService;
 
     /**
-     *  Permite listar todos los temas disponibles del modulo Capacitacion  
+     * Permite listar todos los temas disponibles del modulo Capacitacion
      * 2018-10-18 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param all
      * @param page
      * @param pageSize
      * @param model
-     * @return Lista de todos las Respuestas segun corresponda activas o activas y eliminadas.
+     * @return Lista de todos las Respuestas segun corresponda activas o activas
+     * y eliminadas.
      */
     @RequestMapping(value = {"/list/{key}"}, method = RequestMethod.GET)
-    public String list(@PathVariable(value = "key") Integer key, 
+    public String list(@PathVariable(value = "key") Integer key,
             @RequestParam(value = "all", required = false, defaultValue = "false") Boolean all,
-                       @RequestParam(value = "pageIndex", required = false) Integer page,
-                       @RequestParam(value = "pageSize", required = false) Integer pageSize, Model model) {
-        
+            @RequestParam(value = "pageIndex", required = false) Integer page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize, Model model) {
+
         Pregunta seleccionPregunta = preguntaService.findOne(key);
         model.addAttribute("respuestaView", seleccionPregunta);
-        
+
         TemaCapacitacion seleccionTema = temaCapacitacionService.findOne(seleccionPregunta.getTemaCapacitacion().getId());
         model.addAttribute("temaView", seleccionTema);
-        
-        if (page == null || page < 0)
+
+        if (page == null || page < 0) {
             page = 1;
-        
-        if (pageSize == null || pageSize < 0)
+        }
+
+        if (pageSize == null || pageSize < 0) {
             pageSize = ADMIN_PAGE_SIZE;
-        
+        }
+
         Long count;
-        
-        Pageable pageable = new PageRequest(page-1, pageSize, Sort.Direction.DESC, "cuando");
-        
+
+        Pageable pageable = new PageRequest(page - 1, pageSize, Sort.Direction.DESC, "cuando");
+
         Page<Respuesta> list;
         if (!all) {
-            list = respuestaService.findActive(pageable);
+            list = respuestaService.findActiveAndPreguntaPage(pageable, key);
         } else {
-            list = respuestaService.findAll(pageable);
+            list = respuestaService.findAllByPreguntaPage(pageable, seleccionPregunta);
         }
-        
+
         count = list.getTotalElements();
         adminPageable(count, model, page, pageSize);
         model.addAttribute("list", list.getContent());
@@ -111,48 +114,53 @@ public class RespuestaController extends UtilController {
     }
 
     /**
-     * Crea una nueva instancia de Tema de Capacitacion para la creación de un nuevo registro.
-     * 2018-10-18 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Crea una nueva instancia de Tema de Capacitacion para la creación de un
+     * nuevo registro. 2018-10-18 Issue #25 SICDI-GETDE feature-25
+     * dquijanor@imi.mil.co
+     *
      * @param model
      * @return Vista de creación de una nueva tematica.
      */
-    
     @RequestMapping(value = {"/create/{key}"}, method = RequestMethod.GET)
     public String create(@PathVariable(value = "key") Integer key, Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
-        
+
         Respuesta respuesta = new Respuesta();
-        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<pasando por Metodo create>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> = " + respuesta);
 
         model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
-        model.addAttribute("preguntas", preguntaService.findActive(sort));
-        Pregunta listRespuestas = preguntaService.findOne(key);
-        model.addAttribute("preguntasCrear", listRespuestas);
+//        model.addAttribute("respuesta", preguntaService.findActive(sort));
+        Pregunta dataPregunta = preguntaService.findOne(key);
+        model.addAttribute("preguntasCrear", dataPregunta);
         return CREATE_TEMPLATE;
     }
 
     /**
-     * Permite visualizar el formulario de edición de un tema de capacitación en especifico
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Permite visualizar el formulario de edición de un tema de capacitación en
+     * especifico 2018-10-17 Issue #25 SICDI-GETDE feature-25
+     * dquijanor@imi.mil.co
+     *
      * @param model
-     * @param req  conjunto de data recibida por intermedio del request a traves del formulario 
+     * @param req conjunto de data recibida por intermedio del request a traves
+     * del formulario
      * @return Pagina que edita un nombre de tematica.
      */
-    
     @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
     public String edit(Model model, HttpServletRequest req) {
         Integer id = Integer.parseInt(req.getParameter("id"));
+        System.out.println("entrando al metodo editar del controlador");
+
         Respuesta laRespuesta = respuestaService.findOne(id);
         model.addAttribute(NOMBRE_DEFECTO_FTL, laRespuesta);
-        
+
         Pregunta pregunta = preguntaService.findOne(laRespuesta.getPregunta().getId());
         model.addAttribute("preguntasEditar", pregunta);
         return EDIT_TEMPLATE;
     }
 
     /**
-     * Permite crear un nombre de tema de Capacitación
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Permite crear un nombre de tema de Capacitación 2018-10-17 Issue #25
+     * SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param respuesta
      * @param req
      * @param model
@@ -161,16 +169,17 @@ public class RespuestaController extends UtilController {
      * @return Pagina para crear un nombre de tematica.
      */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
-    public String crear(Respuesta respuesta, HttpServletRequest req,  Model model, RedirectAttributes redirect, Principal principal) {
+    public String crear(Respuesta respuesta, HttpServletRequest req, Model model, RedirectAttributes redirect, Principal principal) {
         model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
         final Usuario usuarioSesion = getUsuario(principal);
+//        Pregunta preguntar = preguntaService.findOne(pregunta.getId());
 
         try {
-            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<pasando por Metodo Crear>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> = " + respuesta);
 
             respuestaService.crearRespuesta(respuesta, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
-            return "redirect:" + PATH + "?" + model.asMap().get("queryString");
+            return "redirect:" + PATH + "/list/" + respuesta.getPregunta().getId();
+//            return "redirect:" + PATH + "/list/"+pregunta.getId();
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
@@ -179,8 +188,9 @@ public class RespuestaController extends UtilController {
     }
 
     /**
-     * Permite actualizar una tema de capacitación.
-     *2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Permite actualizar una tema de capacitación. 2018-10-17 Issue #25
+     * SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param respuesta
      * @param req
      * @param model
@@ -189,25 +199,28 @@ public class RespuestaController extends UtilController {
      * @return Pagina que edita un Tema de Capacitación.
      */
     @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
-    public String actualizar(Respuesta respuesta, HttpServletRequest req,  Model model, RedirectAttributes redirect,
-             Principal principal) {
-        final Usuario usuarioSesion = getUsuario(principal);
+    public String actualizar(Respuesta respuesta, HttpServletRequest req, Model model, RedirectAttributes redirect,
+            Principal principal) {
+        System.out.println("entrando al metodo actualizar del controlador");
+        
         model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
-
+        final Usuario usuarioSesion = getUsuario(principal);
         try {
             respuestaService.editarRespuesta(respuesta, usuarioSesion);
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<Prueba editar = " + respuesta);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro modificado con éxito");
-            return "redirect:" + PATH + "?" + model.asMap().get("queryString");
+            return "redirect:" + PATH + "/list/" + respuesta.getPregunta().getId();
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
             return EDIT_TEMPLATE;
         }
     }
-    
+
     /**
-     * Permite eliminar logicamente una Respuesta especifica.
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Permite eliminar logicamente una Respuesta especifica. 2018-10-17 Issue
+     * #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param model
      * @param req
      * @param redirect
@@ -222,14 +235,19 @@ public class RespuestaController extends UtilController {
             Respuesta respuesta = respuestaService.findOne(id);
             respuestaService.eliminarRespuesta(respuesta, usuarioSesion);
             model.addAttribute(AppConstants.FLASH_SUCCESS, "Tema de Capacitacion eliminada con éxito");
+            Pregunta pregunta = preguntaService.findOne(respuesta.getPregunta().getId());
+            model.addAttribute("pregunta", pregunta);
+
+            return "redirect:" + PATH + "/list/" + respuesta.getPregunta().getId();
         } catch (NumberFormatException ex) {
             LOG.log(Level.SEVERE, req.getParameter("id"), ex);
+            Respuesta respuesta = respuestaService.findOne(Integer.parseInt(req.getParameter("id")));
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            return "redirect:" + PATH + "/list/" + respuesta.getPregunta().getId();
         }
 
-        return "redirect:" + PATH;
     }
-    
+
     @RequestMapping(value = {"/recuperar"}, method = RequestMethod.GET)
     public String recuperar(Model model, HttpServletRequest req, RedirectAttributes redirect, Principal principal) {
         try {
@@ -245,7 +263,7 @@ public class RespuestaController extends UtilController {
             return "redirect:" + PATH;
         }
     }
-    
+
     @ModelAttribute("descriptor")
     GenDescriptor getDescriptor() {
         return GenDescriptor.find(Respuesta.class);

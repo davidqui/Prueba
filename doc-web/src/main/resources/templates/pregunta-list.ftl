@@ -1,4 +1,4 @@
-<#setting number_format="computer">
+    <#setting number_format="computer">
 <#assign pageTitle = descriptor.label />
 <#include "gen-macros.ftl">
 <#include "gen-paginacion.ftl">

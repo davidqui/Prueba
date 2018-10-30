@@ -9,8 +9,8 @@
 </#if>
 
 <div class="container-fluid">
-    <h1 class="cus-h1-page-title">${pageTitle} -> <b>${respuestaView.pregunta?capitalize}</b></h1>
-    <h1 class="cus-h1-page-title">${pageTitle} -> <b>${temaView.tema?capitalize}</b></h1>
+    <h1 class="cus-h1-page-title">${pageTitle} -> de la Pregunta : <b>${respuestaView.pregunta?capitalize}</b></h1>
+    <h1 class="cus-h1-page-title">${pageTitle} -> del Tema de Capacitación : <b>${temaView.tema?capitalize}</b></h1>
     <#if descriptor.description??>
         <p class="lead">${descriptor.description}</p>
     </#if>
@@ -70,13 +70,20 @@
                         </#if>
                         <#assign first = false />
                     </td>
-                </#list>
-                        <td>
+                    <td>
                             ${x.pregunta.pregunta}
                         </td>
                         <td>
-                            ${x.respuesta.correcta}
+                           <#if x.correcta == false>
+                            Incorrecta
+                            <#else>
+                            Correcta
+                            </#if>
+
+                            
                         </td>
+                </#list>
+                       
                 	<td nowrap="nowrap">
                             <#if x.activo?? && x.activo == true >
                                 <a href="/admin/respuesta/edit?id=${x.id}" class="btn btn-sm btn-warning" title="Modificar">M</a>
@@ -91,7 +98,7 @@
                                 <a tabindex="0" class="btn btn-sm btn-primary bd-popover" role="button" data-toggle="popover" data-trigger="hover" data-placement="left" title="Historial" data-content="Creado por: ${x.quien} el día ${x.cuando?string('dd.MM.yyyy HH:mm:ss')}">H</a>
                                 
                             </#if>
-                               <a href="/admin/respuesta/list/${x.id}" class="btn btn-sm btn-success title="Ver Recuros Multimedia">Ver Respuestas</a> 
+                               <!--<a href="/admin/respuesta/list/${x.id}" class="btn btn-sm btn-success title="Ver Recuros Multimedia">Ver Respuestas</a>--> 
                         </#if>
                 	</td>
                 </tr>

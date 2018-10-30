@@ -62,16 +62,21 @@ public class RespuestaService {
      * @throws BusinessLogicException
      * @throws ReflectionException 
      */
-    public void crearRespuesta(Respuesta respuesta, Usuario usuario) throws BusinessLogicException, ReflectionException {
+    public void crearRespuesta(Respuesta respuesta,  Usuario usuario) throws BusinessLogicException, ReflectionException {
         final String textoRespuesta = respuesta.getTextoRespuesta();
-        final boolean activo = respuesta.getActivo();
-        final boolean correcta = respuesta.getCorrecta();
-        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<pasando por el Metodo del Servicio Crear>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> = " + correcta);
+        final Boolean correcta = respuesta.getCorrecta();
+//        final Pregunta preguntaId = respuesta.getPregunta();
+        if (respuesta.getCorrecta() == null) {
+            respuesta.setCorrecta(Boolean.FALSE);
+        }else{
+        respuesta.setCorrecta(correcta);
+        }
+
         if (textoRespuesta == null || textoRespuesta.trim().length() == 0) {
             throw new BusinessLogicException("El texto de la respuesta es obligatorio.");
         }
 
-        final int textoRespuestaColumnLength = ReflectionUtil.getColumnLength(Respuesta.class, "respuesta");
+        final int textoRespuestaColumnLength = ReflectionUtil.getColumnLength(Respuesta.class,"textoRespuesta");
         if (textoRespuesta.trim().length() > textoRespuestaColumnLength) {
             throw new BusinessLogicException("El texto de la respuesta permite máximo " + textoRespuestaColumnLength + " caracteres.");
         }
@@ -81,16 +86,16 @@ public class RespuestaService {
             throw new BusinessLogicException("Esta Respuesta ya existe.");
         }
         
-//        respuesta.setPregunta(pregunta);
         respuesta.setTextoRespuesta(textoRespuesta.toUpperCase());
-        respuesta.setCorrecta(Boolean.FALSE);
-        respuesta.setActivo(Boolean.TRUE);
         
+        respuesta.setActivo(Boolean.TRUE);
+//        respuesta.setPregunta(preguntaId);
         respuesta.setCuando(new Date());
         respuesta.setCuandoMod(new Date());
         respuesta.setQuien(usuario);
         respuesta.setQuienMod(usuario);
-        
+        respuesta.setPregunta(respuesta.getPregunta());
+        System.out.println("nombreRespuesta = " + respuesta);
         respuestaRepository.saveAndFlush(respuesta);
     }
     
@@ -105,24 +110,32 @@ public class RespuestaService {
     public void editarRespuesta(Respuesta respuesta, Usuario usuario) throws BusinessLogicException, ReflectionException {
 
         final String textoRespuesta = respuesta.getTextoRespuesta();
-        final Pregunta pregunta = respuesta.getPregunta();
+        final Boolean correcta = respuesta.getCorrecta();
+        
+        
+        
         if (textoRespuesta == null || textoRespuesta.trim().length() == 0) {
             throw new BusinessLogicException("El texto de la respuesta es obligatorio.");
         }
 
-        final int textoRespuestaColumnLength = ReflectionUtil.getColumnLength(Respuesta.class, "respuesta");
+        final int textoRespuestaColumnLength = ReflectionUtil.getColumnLength(Respuesta.class, "textoRespuesta");
         if (textoRespuesta.trim().length() > textoRespuestaColumnLength) {
             throw new BusinessLogicException("El texto de la respuesta permite máximo " + textoRespuestaColumnLength + " caracteres.");
         }
         
-        Respuesta nombreRespuesta = respuestaRepository.findOneByTextoRespuesta(textoRespuesta);
-        if (nombreRespuesta != null && !nombreRespuesta.getId().equals(respuesta.getId())&& nombreRespuesta != null) {
-            throw new BusinessLogicException("Esta pregunta ya existe.");
-        }
-        respuesta.setPregunta(pregunta);
+//        Respuesta nombreRespuesta = respuestaRepository.findOneByTextoRespuesta(textoRespuesta);
+//        if (nombreRespuesta != null && !nombreRespuesta.getId().equals(respuesta.getId())&& nombreRespuesta != null) {
+//            throw new BusinessLogicException("Esta Respuesta ya existe.");
+//        }
         respuesta.setTextoRespuesta(textoRespuesta.toUpperCase());
         Respuesta nombreRespuestaAnterior = findOne(respuesta.getId());
+        
+        if (respuesta.getCorrecta()!= nombreRespuestaAnterior.getCorrecta()) {
+            respuesta.setCorrecta(correcta);
+        }else{
         respuesta.setCorrecta(nombreRespuestaAnterior.getCorrecta());
+        }
+        
         respuesta.setActivo(nombreRespuestaAnterior.getActivo());
         respuesta.setCuando(nombreRespuestaAnterior.getCuando());
         respuesta.setCuandoMod(new Date());
@@ -199,5 +212,31 @@ public class RespuestaService {
      */
     public Page<Respuesta> findAll(Pageable pageable) {
         return respuestaRepository.findAll(pageable);
+    }
+    
+    /**
+     * Lista todos los recursos multimedia activos y que pertenezcan a una unica tematica permitiendo su paginación. 
+     * 
+     * 2018-10-01 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * 
+     * @param pageable
+     * @param id Id de la pregunta por la cual se filtran los datos de respuesta.
+     * @return Lista de Recursos multimedia Activos y que pertenecen a una unica tematica. 
+     */
+    public Page<Respuesta> findActiveAndPreguntaPage(Pageable pageable, Integer id) {
+        return respuestaRepository.getByActivoTrueAndPreguntaId(pageable,id);
+    }
+    
+    /**
+     * Lista todos los Recursos Multimedia de una Tematica para su paginación.
+     * 
+     * 2018-10-01 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * 
+     * @param pageable
+     * @param pregunta Id de la pregunta por la cual se filtran los datos de la respuesta.
+     * @return Lista de Recursos Multimedia de una unica Tematica.
+     */
+    public Page<Respuesta> findAllByPreguntaPage(Pageable pageable, final Pregunta pregunta) {
+        return respuestaRepository.findAllByPreguntaId(pageable, pregunta.getId());
     }
 }

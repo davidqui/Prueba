@@ -1,5 +1,5 @@
 <#setting number_format="computer">
-<#assign pageTitle = "Editar Pregunta" />
+<#assign pageTitle = "Editar Respuesta" />
 <#-- <#assign mode = nombreExpediente.mode!"" /> -->
 <#assign deferredJS = "" />
 <#import "spring.ftl" as spring />
@@ -8,16 +8,20 @@
 
 <div class="container">
     <div class="row">
-        <h1 class="cus-h1-page-title">Editar ${pageTitle} -> ${(temaCapacitacionCrear.tema?capitalize)!""}</h1>
-        <form action="/admin/pregunta/actualizar" method="POST"  >
-            <input type="hidden" id="id" name="id" value="${pregunta.id}" />
+        <h1 class="cus-h1-page-title">Editar ${pageTitle} -> ${(preguntasEditar.pregunta?capitalize)!""}</h1>
+        <form action="/admin/respuesta/actualizar" method="POST"  >
+            <input type="hidden" id="pregunta" name="pregunta" value="${preguntasEditar.id}" />
             <fieldset class="form-group">
-                <label for="nombre">Pregunta(*)</label>
-                <input type="text" class="form-control" id="pregunta" name="pregunta" value="${(pregunta.pregunta)!""}" style="text-transform:uppercase"/>
+                <label for="nombre">Texto Respuesta(*)</label>
+                <input type="text" class="form-control" id="textoRespuesta" name="textoRespuesta" value="${(respuesta.textoRespuesta)!""}" style="text-transform:uppercase"/>
+            </fieldset>
+            <fieldset class="form-group">
+                <label for="nombre">Correcta(*)</label>
+                <input type="checkbox" class="form-control" id="correcta" name="correcta" value="${(respuesta.correcta?c)!""}" style="text-transform:uppercase"/>
             </fieldset>
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
-                <a href="/admin/pregunta/list/${temaCapacitacionEditar.id}" class="btn btn-secondary">Cancelar</a>
+                <a href="/admin/respuesta/list/${preguntasEditar.id}" class="btn btn-secondary">Cancelar</a>
                 </div>
             </form>
         </div>

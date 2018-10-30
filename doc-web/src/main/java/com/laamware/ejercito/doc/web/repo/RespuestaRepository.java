@@ -21,8 +21,8 @@ public interface RespuestaRepository extends PagingAndSortingRepository<Respuest
     
     public Page<Respuesta> findByTextoRespuestaIgnoreCaseContainingAndActivoTrue(Pageable pageable, String textoRespuesta);
 
-//    public List<Respuesta> getByActivoTrueAndTemaCapacitacionId(Sort sort, Integer Id);
-//    public Page<Respuesta> getByActivoTrueAndTemaCapacitacionId(Pageable pageable,Integer Id);
+    public List<Respuesta> getByActivoTrueAndPreguntaId(Sort sort, Integer Id);
+    public Page<Respuesta> getByActivoTrueAndPreguntaId(Pageable pageable,Integer Id);
     
     /**
      * Busca todos los registros de las  Respuestas por el Id.
@@ -41,5 +41,7 @@ public interface RespuestaRepository extends PagingAndSortingRepository<Respuest
      * @return 
      */
     public Page<Respuesta> findAllByPreguntaId(Pageable pageable,Integer Id);
+    
+    
     
 }

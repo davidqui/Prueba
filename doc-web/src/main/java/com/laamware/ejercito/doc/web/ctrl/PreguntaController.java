@@ -155,10 +155,8 @@ public class PreguntaController extends UtilController {
      * 
      * @param pregunta Datos del Objeto Recursos Multimedia tomados desde el formulario de creación.
      * @param req Conjunto de data recibida por intermedio del request a traves del formulario.
-     * @param eResult Parametro requerido por clase de spring
      * @param model Parametro requerido por clase de spring
      * @param redirect Parametro requerido por clase de spring
-     * @param archivo
      * @param principal Id del Usuario en sesión.
      * @param temaCapacitacionId
      * @return Según corresponda pagina con el listado de los recursos Pregunta Activos incluyendo el recien creado 
@@ -171,7 +169,6 @@ public class PreguntaController extends UtilController {
             @RequestParam(value = "pregunta", required = true) String pregunta, HttpServletRequest req, Model model,
             RedirectAttributes redirect,
          Principal principal) {
-        System.out.println("LOLO NO PASA "+temaCapacitacionId+" - "+pregunta);
         model.addAttribute(NOMBRE_DEFECTO_FTL, pregunta);
         final Usuario usuarioSesion = getUsuario(principal);
         TemaCapacitacion temaCapacitacion = temaCapacitacionService.findOne(temaCapacitacionId);
