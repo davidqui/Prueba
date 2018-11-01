@@ -1,6 +1,7 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.Clasificacion;
+import com.laamware.ejercito.doc.web.entity.Pregunta;
 import com.laamware.ejercito.doc.web.entity.TemaCapacitacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,10 @@ import org.springframework.data.domain.Sort;
 
 /**
  * Servicio para las operaciones para Tema de Capacitación.
- * @author jcespedeso@imi.mil.co 
- * @author dquijanor@imi.mil.co 
- * @author aherreram@imi.mil.co 
+ *
+ * @author jcespedeso@imi.mil.co
+ * @author dquijanor@imi.mil.co
+ * @author aherreram@imi.mil.co
  * @since Septiembre 3, 2018 _feature_9 (SICDI-GETDE)
  */
 @Service
@@ -29,16 +31,23 @@ public class TemaCapacitacionService {
     private static final Logger LOG = Logger.getLogger(TemaCapacitacionService.class.getName());
 
     /**
-     * Repositorio de Tema de Capacitación educativas SICDI.
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Repositorio de Tema de Capacitación educativas SICDI. 2018-10-17 Issue
+     * #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
      */
     @Autowired
     private TemaCapacitacionRepository temaCapacitacionRepository;
+    /**
+     * Repositorio de Pregunta de Capacitación educativas SICDI. 2018-10-17 Issue
+     * #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     */
+    @Autowired
+    private PreguntaService preguntaService;
 
     /**
-     * Lista todos las Tema de Capacitación educativas disponibles.
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * @return 
+     * Lista todos las Tema de Capacitación educativas disponibles. 2018-10-17
+     * Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
+     * @return
      */
     public List<TemaCapacitacion> findAllFull() {
         return temaCapacitacionRepository.findAll();
@@ -46,23 +55,65 @@ public class TemaCapacitacionService {
 
     /**
      * Busca un registro de Tema de Capacitación especifico por su Id.
-     *2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param id identificador del registro.
      * @return
      */
     public TemaCapacitacion findOne(Integer id) {
         return temaCapacitacionRepository.getOne(id);
     }
-    
+
     /**
-     * Metodo para crear un Tema de Capacitación
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Metodo para crear un Tema de Capacitación 2018-10-17 Issue #25
+     * SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param temaCapacitacion
      * @param usuario
      * @throws BusinessLogicException
-     * @throws ReflectionException 
+     * @throws ReflectionException
      */
     public void crearTemaCapacitacion(TemaCapacitacion temaCapacitacion, Usuario usuario) throws BusinessLogicException, ReflectionException {
+        final String tema = temaCapacitacion.getTema();
+        final Clasificacion clasificacion = temaCapacitacion.getClasificacion();
+        
+        if (tema == null || tema.trim().length() == 0) {
+            throw new BusinessLogicException("El texto del tema es obligatorio.");
+            
+        }
+
+        final int textoTemaColumnLength = ReflectionUtil.getColumnLength(TemaCapacitacion.class, "tema");
+        if (tema.trim().length() > textoTemaColumnLength) {
+            throw new BusinessLogicException("El texto del tema permite máximo " + textoTemaColumnLength + " caracteres.");
+        }
+
+        TemaCapacitacion nombreTema = temaCapacitacionRepository.findOneByTema(tema);
+        if (nombreTema != null) {
+            throw new BusinessLogicException("Este Tema de Capacitacion ya existe.");
+        }
+
+        temaCapacitacion.setTema(tema.toUpperCase());
+        temaCapacitacion.setClasificacion(clasificacion);
+        temaCapacitacion.setActivo(Boolean.TRUE);
+        temaCapacitacion.setCuando(new Date());
+        temaCapacitacion.setCuandoMod(new Date());
+        temaCapacitacion.setQuien(usuario);
+        temaCapacitacion.setQuienMod(usuario);
+
+        temaCapacitacionRepository.saveAndFlush(temaCapacitacion);
+    }
+
+    /**
+     * Metodo para Editar un Tema de Capacitacion. 2018-10-17 Issue #25
+     * SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
+     * @param temaCapacitacion variable del objeto Tema de capacitacion
+     * @param usuario variable del objeto Usuario en sesión
+     * @throws BusinessLogicException
+     * @throws ReflectionException
+     */
+    public void editarTemaCapacitacion(TemaCapacitacion temaCapacitacion, Usuario usuario) throws BusinessLogicException, ReflectionException {
+
         final String tema = temaCapacitacion.getTema();
         final Clasificacion clasificacion = temaCapacitacion.getClasificacion();
         if (tema == null || tema.trim().length() == 0) {
@@ -73,50 +124,15 @@ public class TemaCapacitacionService {
         if (tema.trim().length() > textoTemaColumnLength) {
             throw new BusinessLogicException("El texto del tema permite máximo " + textoTemaColumnLength + " caracteres.");
         }
-        
-        TemaCapacitacion nombreTema = temaCapacitacionRepository.findOneByTema(tema);
-        if (nombreTema != null) {
-            throw new BusinessLogicException("Este Tema de Capacitacion ya existe.");
-        }
-        
+
+//        TemaCapacitacion nombreTema = temaCapacitacionRepository.findOneByTema(tema);
+//        if (nombreTema != null && nombreTema.getClasificacion().getId().equals(nombreTema.getClasificacion().getId())) {
+//            throw new BusinessLogicException("Este tema de Capacitacion ya existe.");
+//        }
         temaCapacitacion.setTema(tema.toUpperCase());
         temaCapacitacion.setClasificacion(clasificacion);
-        temaCapacitacion.setActivo(Boolean.TRUE);
-        temaCapacitacion.setCuando(new Date());
-        temaCapacitacion.setCuandoMod(new Date());
-        temaCapacitacion.setQuien(usuario);
-        temaCapacitacion.setQuienMod(usuario);
-        
-        temaCapacitacionRepository.saveAndFlush(temaCapacitacion);
-    }
-    
-    /**
-     * Metodo para Editar un Tema de Capacitacion.
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * @param temaCapacitacion variable del objeto Tema de capacitacion
-     * @param usuario variable del objeto Usuario en sesión
-     * @throws BusinessLogicException
-     * @throws ReflectionException 
-     */
-    public void editarTemaCapacitacion(TemaCapacitacion temaCapacitacion, Usuario usuario) throws BusinessLogicException, ReflectionException {
-
-        final String tema = temaCapacitacion.getTema();
-        if (tema == null || tema.trim().length() == 0) {
-            throw new BusinessLogicException("El texto del tema es obligatorio.");
-        }
-
-        final int textoTemaColumnLength = ReflectionUtil.getColumnLength(TemaCapacitacion.class, "tema");
-        if (tema.trim().length() > textoTemaColumnLength) {
-            throw new BusinessLogicException("El texto del tema permite máximo " + textoTemaColumnLength + " caracteres.");
-        }
-        
-        TemaCapacitacion nombreTema = temaCapacitacionRepository.findOneByTema(tema);
-        if (nombreTema != null && !nombreTema.getId().equals(temaCapacitacion.getId())&& nombreTema != null) {
-            throw new BusinessLogicException("Este tema de Capacitacion ya existe.");
-        }
-        temaCapacitacion.setTema(tema.toUpperCase());
-        temaCapacitacion.setClasificacion(temaCapacitacion.getClasificacion());
         TemaCapacitacion nombreTemaCapacitacionAnterior = findOne(temaCapacitacion.getId());
+
         temaCapacitacion.setQuien(nombreTemaCapacitacionAnterior.getQuien());
         temaCapacitacion.setCuando(nombreTemaCapacitacionAnterior.getCuando());
         temaCapacitacion.setQuienMod(usuario);
@@ -127,24 +143,33 @@ public class TemaCapacitacionService {
     }
 
     /**
-     * Metodo para eliminar un Tema de Capacitación
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Metodo para eliminar un Tema de Capacitación 2018-10-17 Issue #25
+     * SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param temaCapacitacion
-     * @param usuario 
+     * @param usuario
      */
-    public void eliminarTemaCapacitacion(TemaCapacitacion  temaCapacitacion,Usuario usuario) {
+    public void eliminarTemaCapacitacion(TemaCapacitacion temaCapacitacion, Usuario usuario) {
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
         temaCapacitacion.setQuienMod(usuario);
         temaCapacitacion.setCuandoMod(new Date());
         temaCapacitacion.setActivo(Boolean.FALSE);
         temaCapacitacionRepository.saveAndFlush(temaCapacitacion);
+        List<Pregunta> preguntas = preguntaService.findActiveAndTemaCapacitacion(sort, temaCapacitacion.getId());
+        for (int i = 0; i < preguntas.size(); i++) {
+            preguntaService.eliminarPregunta(preguntas.get(i), usuario);
+        }
     }
-    /**
-     * Metodo para recuperar un Tema de Capacitación el cual fue eliminado.
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * @param temaCapacitacion
-     * @param usuario 
-     */
-     public void recuperarPregunta(TemaCapacitacion temaCapacitacion,Usuario usuario) {
+
+
+/**
+ * Metodo para recuperar un Tema de Capacitación el cual fue eliminado.
+ * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+ *
+ * @param temaCapacitacion
+ * @param usuario
+ */
+public void recuperarPregunta(TemaCapacitacion temaCapacitacion,Usuario usuario) {
         temaCapacitacion.setQuienMod(usuario);
         temaCapacitacion.setCuandoMod(new Date());
         temaCapacitacion.setActivo(Boolean.TRUE);

@@ -81,8 +81,8 @@ public class RespuestaService {
             throw new BusinessLogicException("El texto de la respuesta permite máximo " + textoRespuestaColumnLength + " caracteres.");
         }
         
-        Respuesta nombreRespuesta = respuestaRepository.findOneByTextoRespuesta(textoRespuesta);
-        if (nombreRespuesta != null) {
+        Respuesta nombreRespuesta = respuestaRepository.findOneByTextoRespuestaAndActivoTrue(textoRespuesta);
+        if (nombreRespuesta != null&& !nombreRespuesta.getId().equals(nombreRespuesta.getId())&& nombreRespuesta != null) {
             throw new BusinessLogicException("Esta Respuesta ya existe.");
         }
         
@@ -113,7 +113,6 @@ public class RespuestaService {
         final Boolean correcta = respuesta.getCorrecta();
         
         
-        
         if (textoRespuesta == null || textoRespuesta.trim().length() == 0) {
             throw new BusinessLogicException("El texto de la respuesta es obligatorio.");
         }
@@ -123,17 +122,17 @@ public class RespuestaService {
             throw new BusinessLogicException("El texto de la respuesta permite máximo " + textoRespuestaColumnLength + " caracteres.");
         }
         
-//        Respuesta nombreRespuesta = respuestaRepository.findOneByTextoRespuesta(textoRespuesta);
-//        if (nombreRespuesta != null && !nombreRespuesta.getId().equals(respuesta.getId())&& nombreRespuesta != null) {
-//            throw new BusinessLogicException("Esta Respuesta ya existe.");
-//        }
+        Respuesta nombreRespuesta = respuestaRepository.findOneByTextoRespuesta(textoRespuesta);
+        if (nombreRespuesta != null && !nombreRespuesta.getId().equals(respuesta.getId())&& nombreRespuesta != null) {
+            throw new BusinessLogicException("Esta Respuesta ya existe.");
+        }
         respuesta.setTextoRespuesta(textoRespuesta.toUpperCase());
         Respuesta nombreRespuestaAnterior = findOne(respuesta.getId());
         
-        if (respuesta.getCorrecta()!= nombreRespuestaAnterior.getCorrecta()) {
-            respuesta.setCorrecta(correcta);
+        if (respuesta.getCorrecta()== null& nombreRespuestaAnterior.getCorrecta()) {
+            respuesta.setCorrecta(Boolean.FALSE);
         }else{
-        respuesta.setCorrecta(nombreRespuestaAnterior.getCorrecta());
+        respuesta.setCorrecta(Boolean.TRUE);
         }
         
         respuesta.setActivo(nombreRespuestaAnterior.getActivo());
@@ -238,5 +237,16 @@ public class RespuestaService {
      */
     public Page<Respuesta> findAllByPreguntaPage(Pageable pageable, final Pregunta pregunta) {
         return respuestaRepository.findAllByPreguntaId(pageable, pregunta.getId());
+    }
+    
+    /**
+     * Lista todos las Respuestas de una Pregunta para su paginación.
+     * 2018-10-01 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * @param sort Parametro de ordenamiento de los datos.
+     * @param id Id del Tema de Capacitación por la cual se filtran los datos de registro de Pregunta.
+     * @return 
+     */
+    public List<Respuesta> findActiveAndPregunta(Sort sort, Integer id) {
+        return respuestaRepository.getByActivoTrueAndPreguntaId(sort, id);
     }
 }

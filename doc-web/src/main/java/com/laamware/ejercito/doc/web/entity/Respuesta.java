@@ -25,7 +25,7 @@ import org.hibernate.annotations.Parameter;
  */
 @Entity
 @Table(name = "RESPUESTA")
-@SuppressWarnings("PersistenceUnitPresent")
+//@SuppressWarnings("PersistenceUnitPresent")
 @LaamLabel("Respuesta")
 
 public class Respuesta implements Serializable {

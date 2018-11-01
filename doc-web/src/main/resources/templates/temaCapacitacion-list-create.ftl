@@ -13,7 +13,6 @@
             <fieldset class="form-group">
                 <label for="tema">Tema(*)</label>
                 <input type="text" class="form-control" id="tema" name="tema" value="${(temaCapacitacion.tema)!""}" style="text-transform:uppercase"/>
-                <div class="col-sm-6">
                     <label for="fuente">Clasificación (*)</label>
                 <select type="text" class="form-control" id="clasificacion" name="clasificacion" value="${(temaCapacitacion.clasificacion)!"-- Seleccione una Clasificación --"}"/>
                  <option value="">-- Seleccione una Clasificación --</option>
@@ -21,7 +20,6 @@
                     <option value="${clasificacion.id}">${clasificacion.nombre}</option>
                     </#list>
                     </select>
-                    </div>
                 </fieldset>
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>

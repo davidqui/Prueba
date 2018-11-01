@@ -14,16 +14,19 @@
                 <label for="nombre">Tema (*)</label>
                 <input type="text" class="form-control" id="tema" name="tema" value="${(temaCapacitacion.tema)!""}" />
                 </fieldset>
-            <div class="row">
-                <div class="col-xs-8">
-                    <select type="text" class="form-control" id="clasificacion" name="clasificacion" value="${(temaCapacitacion.clasificacion)!"-- Seleccione una Clasificación --"}"/>
-                 <option value="">-- Seleccione una Clasificación --</option>
-                    <#list clasificacions as clasificacion>
-                    <option value="${clasificacion.id}">${clasificacion.nombre}</option>
+                    <fieldset class="form-group">
+                <label for="clasificacion">Clasificación</label>
+                <select id="clas-notificacion-form" name="clasificacion" class="form-control input-sm">
+                    <option value="">--------</option>
+                    <#list clasificacions as cla>
+                    <#if cla.id?string == ((temaCapacitacion.clasificacion.id)!"")?string >
+                        <option value="${cla.id}" selected="selected">${cla.nombre}</option>
+                    <#else>
+                        <option value="${cla.id}">${cla.nombre}</option>
+                    </#if>
                     </#list>
-                    </select>
-                    </div>
-                </div>
+                </select>
+            </fieldset>
             <div class="m-y">
                 <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
                 <a href="/admin/temaCapacitacion" class="btn btn-secondary">Cancelar</a>

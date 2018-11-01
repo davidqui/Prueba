@@ -119,7 +119,7 @@ public class RespuestaController extends UtilController {
      * dquijanor@imi.mil.co
      *
      * @param model
-     * @return Vista de creación de una nueva tematica.
+     * @return Vista de creación de una nueva pregunta.
      */
     @RequestMapping(value = {"/create/{key}"}, method = RequestMethod.GET)
     public String create(@PathVariable(value = "key") Integer key, Model model) {
@@ -135,29 +135,6 @@ public class RespuestaController extends UtilController {
     }
 
     /**
-     * Permite visualizar el formulario de edición de un tema de capacitación en
-     * especifico 2018-10-17 Issue #25 SICDI-GETDE feature-25
-     * dquijanor@imi.mil.co
-     *
-     * @param model
-     * @param req conjunto de data recibida por intermedio del request a traves
-     * del formulario
-     * @return Pagina que edita un nombre de tematica.
-     */
-    @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
-    public String edit(Model model, HttpServletRequest req) {
-        Integer id = Integer.parseInt(req.getParameter("id"));
-        System.out.println("entrando al metodo editar del controlador");
-
-        Respuesta laRespuesta = respuestaService.findOne(id);
-        model.addAttribute(NOMBRE_DEFECTO_FTL, laRespuesta);
-
-        Pregunta pregunta = preguntaService.findOne(laRespuesta.getPregunta().getId());
-        model.addAttribute("preguntasEditar", pregunta);
-        return EDIT_TEMPLATE;
-    }
-
-    /**
      * Permite crear un nombre de tema de Capacitación 2018-10-17 Issue #25
      * SICDI-GETDE feature-25 dquijanor@imi.mil.co
      *
@@ -166,13 +143,13 @@ public class RespuestaController extends UtilController {
      * @param model
      * @param redirect
      * @param principal
-     * @return Pagina para crear un nombre de tematica.
+     * @return Pagina para crear un nombre de pregunta.
      */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
     public String crear(Respuesta respuesta, HttpServletRequest req, Model model, RedirectAttributes redirect, Principal principal) {
         model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
         final Usuario usuarioSesion = getUsuario(principal);
-//        Pregunta preguntar = preguntaService.findOne(pregunta.getId());
+        Pregunta pregunta = preguntaService.findOne(respuesta.getPregunta().getId());
 
         try {
 
@@ -183,8 +160,34 @@ public class RespuestaController extends UtilController {
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+            
+            model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
+            model.addAttribute("preguntasCrear", pregunta);
             return CREATE_TEMPLATE;
         }
+    }
+
+    /**
+     * Permite visualizar el formulario de edición de un tema de capacitación en
+     * especifico 2018-10-17 Issue #25 SICDI-GETDE feature-25
+     * dquijanor@imi.mil.co
+     *
+     * @param model
+     * @param req conjunto de data recibida por intermedio del request a traves
+     * del formulario
+     * @return Pagina que edita un nombre de pregunta.
+     */
+    @RequestMapping(value = {"/edit"}, method = RequestMethod.GET)
+    public String edit(Model model, HttpServletRequest req) {
+        Integer id = Integer.parseInt(req.getParameter("id"));
+        System.out.println("entrando al metodo editar del controlador");
+
+        Respuesta laRespuesta = respuestaService.findOne(id);
+        model.addAttribute(NOMBRE_DEFECTO_FTL, laRespuesta);
+
+        Pregunta laPregunta = preguntaService.findOne(laRespuesta.getPregunta().getId());
+        model.addAttribute("preguntasEditar", laPregunta);
+        return EDIT_TEMPLATE;
     }
 
     /**
@@ -196,16 +199,16 @@ public class RespuestaController extends UtilController {
      * @param model
      * @param redirect
      * @param principal
-     * @return Pagina que edita un Tema de Capacitación.
+     * @return Pagina que edita una Respuesta de un Tema de Capacitación.
      */
     @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
-    public String actualizar(Respuesta respuesta, HttpServletRequest req, Model model, RedirectAttributes redirect,
-            Principal principal) {
+    public String actualizar(Respuesta respuesta, HttpServletRequest req, Model model, RedirectAttributes redirect, Principal principal) {
         System.out.println("entrando al metodo actualizar del controlador");
-        
+
         model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
         final Usuario usuarioSesion = getUsuario(principal);
         try {
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<Entrando al try = " + respuesta);
             respuestaService.editarRespuesta(respuesta, usuarioSesion);
             System.out.println("<<<<<<<<<<<<<<<<<<<<<<Prueba editar = " + respuesta);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro modificado con éxito");

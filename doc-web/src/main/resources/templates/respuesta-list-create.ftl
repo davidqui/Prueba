@@ -8,7 +8,7 @@
 
 <div class="container">
     <div class="row">
-        <h1 class="cus-h1-page-title">Crear ${pageTitle} -> <b>${preguntasCrear.pregunta?capitalize}</b></h1>
+        <h1 class="cus-h1-page-title">Crear ${pageTitle} para :  <b>${preguntasCrear.pregunta?capitalize}</b></h1>
         <#if descriptor.description?? >
         <p class="lead">${descriptor.description}</p>
         </#if>
@@ -39,7 +39,7 @@
 
         </div>
 
-    <script type="text/javascript">
+<!--    <script type="text/javascript">
         
     function validacion(){
             
@@ -53,7 +53,7 @@
             
         return true;
     }
-        </script>
+        </script>-->
 
 <#if templatePrefix??>
     <#include templatePrefix + "-footer.ftl">

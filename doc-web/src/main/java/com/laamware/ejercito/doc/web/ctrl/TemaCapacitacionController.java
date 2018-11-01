@@ -145,24 +145,23 @@ public class TemaCapacitacionController extends UtilController {
      * @param eResult
      * @param model
      * @param redirect
-     * @param archivo
      * @param principal
      * @return Pagina para crear un nombre de tematica.
      */
     @RequestMapping(value = {"/crear"}, method = RequestMethod.POST)
     public String crear(TemaCapacitacion temaCapacitacion, HttpServletRequest req, BindingResult eResult, Model model, RedirectAttributes redirect,
-        MultipartFile archivo, Principal principal) {
+        Principal principal) {
         model.addAttribute(NOMBRE_DEFECTO_FTL, temaCapacitacion);
         final Usuario usuarioSesion = getUsuario(principal);
-
+        List<Clasificacion> clasificacions = clasificacionService.findAllActivoOrderByOrden();
         try {
-             System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<pasando por Metodo Crear>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> = " + temaCapacitacion);
             temaCapacitacionService.crearTemaCapacitacion(temaCapacitacion, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
             return "redirect:" + PATH + "?" + model.asMap().get("queryString");
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
+             model.addAttribute("clasificacions", clasificacions);
             return CREATE_TEMPLATE;
         }
     }
@@ -172,16 +171,14 @@ public class TemaCapacitacionController extends UtilController {
      *2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
      * @param temaCapacitacion
      * @param req
-     * @param eResult
      * @param model
      * @param redirect
-     * @param archivo
      * @param principal
      * @return Pagina que edita un Tema de Capacitación.
      */
     @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
     public String actualizar(TemaCapacitacion temaCapacitacion, HttpServletRequest req,  Model model, RedirectAttributes redirect,
-            MultipartFile archivo, Principal principal) {
+             Principal principal) {
         final Usuario usuarioSesion = getUsuario(principal);
         model.addAttribute(NOMBRE_DEFECTO_FTL, temaCapacitacion);
 

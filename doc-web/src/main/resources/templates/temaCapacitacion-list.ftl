@@ -38,6 +38,7 @@
                 <#list descriptor.listProperties() as p>
                     <th>${p.label}</th>
                 </#list>
+                    <th>Clasificación</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -66,6 +67,15 @@
                         </#if>
                         <#assign first = false />
                     </td>
+                       <td>
+                        <#if !x.clasificacion??> 
+                        <em>---</em>
+                        <#else>
+                        <em>${x.clasificacion.nombre}</em>
+                        </#if>
+                        
+                        </td>
+
                 </#list>
                                <td nowrap="nowrap">
                             <#if x.activo?? && x.activo == true >

@@ -54,6 +54,7 @@ public class TemaCapacitacion implements Serializable {
     @Size(min = 1, max = 255)
     @Column(name = "TEMA")
     private String tema;
+    
     @Basic(optional = false)
     @NotNull
     @Column(name = "ACTIVO")

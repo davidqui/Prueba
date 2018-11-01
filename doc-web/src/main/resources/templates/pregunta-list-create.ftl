@@ -7,13 +7,12 @@
 
 <div class="container">
     <div class="row">
-        <h1 class="cus-h1-page-title">Crear ${pageTitle} -> <b>${temaCapacitacionCrear.tema?capitalize}</b></h1>
+        <h1 class="cus-h1-page-title">Crear ${pageTitle} de:  <b>${temaCapacitacionCrear.tema?capitalize}</b></h1>
         <form action="/admin/pregunta/crear" method="POST" >
             <fieldset class="form-group">
-                <label for="nombre">Pregunta(*)</label>
+                <label for="pregunta">Pregunta(*)</label>
                 <input type="text" class="form-control" id="pregunta" name="pregunta" value="${(pregunta.pregunta)!""}" style="text-transform:uppercase"/>
-                <label for="temaCapacitacion">Tema Capacitacion(*)</label>
-                <input type="hidden" class="form-control" id="temaCapacitacion" name="temaCapacitacion" value="${(temaCapacitacionCrear.id)!""}"/>
+                <input type="hidden" class="form-control" id="temaCapacitacion" name="temaCapacitacion" value="30"/>
                 </fieldset>
 
             <div class="m-y">
