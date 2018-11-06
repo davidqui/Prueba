@@ -15,7 +15,7 @@
                 <input type="text" class="form-control" id="tema" name="tema" value="${(temaCapacitacion.tema)!""}" />
                 </fieldset>
                     <fieldset class="form-group">
-                <label for="clasificacion">Clasificación</label>
+                <label for="clasificacion">Clasificación (*)</label>
                 <select id="clas-notificacion-form" name="clasificacion" class="form-control input-sm">
                     <option value="">--------</option>
                     <#list clasificacions as cla>

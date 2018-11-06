@@ -7,7 +7,7 @@
 
 <div class="container">
     <div class="row">
-        <h1 class="cus-h1-page-title">Crear ${pageTitle} de:  <b>${temaCapacitacionCrear.tema?capitalize}</b></h1>
+        <h1 class="cus-h1-page-title">Crear ${pageTitle} de:  <em><b>${temaCapacitacionCrear.tema?capitalize}</b></ em></h1>
         <form action="/admin/pregunta/crear" method="POST" >
             <fieldset class="form-group">
                 <label for="pregunta">Pregunta(*)</label>

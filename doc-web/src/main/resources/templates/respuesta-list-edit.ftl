@@ -8,7 +8,7 @@
 
 <div class="container">
     <div class="row">
-        <h1 class="cus-h1-page-title"><b>Editar ${pageTitle}</b> de:   <b> ${(preguntasEditar.pregunta?capitalize)!""}</b></h1>
+        <h1 class="cus-h1-page-title">Editar ${pageTitle} de:   <em><b>${(preguntasEditar.pregunta?capitalize)!""}</b></em></h1>
         <form action="/admin/respuesta/actualizar" method="POST"  >
             <input type="hidden" id="pregunta" name="pregunta" value="${preguntasEditar.id}" />
             <input type="hidden" id="id" name="id" value="${respuesta.id}" />

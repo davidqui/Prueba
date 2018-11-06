@@ -9,8 +9,8 @@
 </#if>
 
 <div class="container-fluid">
-    <h1 class="cus-h1-page-title">${pageTitle}  de la Pregunta : <b>${respuestaView.pregunta?capitalize}</b></h1>
-    <h1 class="cus-h1-page-title">${pageTitle}  del Tema de Capacitación : <b>${temaView.tema?capitalize}</b></h1>
+    <h1 class="cus-h1-page-title">${pageTitle}  de la Pregunta : <em><b>${respuestaView.pregunta?capitalize}</b></em></h1>
+    <h1 class="cus-h1-page-title">${pageTitle}  del Tema de Capacitación : <em><b>${temaView.tema?capitalize}</b></em></h1>
     <#if descriptor.description??>
         <p class="lead">${descriptor.description}</p>
     </#if>
@@ -71,13 +71,13 @@
                         <#assign first = false />
                     </td>
                     <td>
-                            ${x.pregunta.pregunta}
+                            <em>${x.pregunta.pregunta}</em>
                         </td>
                         <td>
                            <#if x.correcta == false>
-                            Incorrecta
+                            <em>Incorrecta</em>
                             <#else>
-                            Correcta
+                            <em>Correcta</em>
                             </#if>
 
                             
