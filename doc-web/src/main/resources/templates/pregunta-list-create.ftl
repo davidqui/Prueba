@@ -11,8 +11,8 @@
         <form action="/admin/pregunta/crear" method="POST" >
             <fieldset class="form-group">
                 <label for="pregunta">Pregunta(*)</label>
-                <input type="text" class="form-control" id="pregunta" name="pregunta" value="${(pregunta.pregunta)!""}" style="text-transform:uppercase"/>
-                <input type="hidden" class="form-control" id="temaCapacitacion" name="temaCapacitacion" value="30"/>
+                <input type="pregunta" class="form-control" id="pregunta" name="pregunta" value="${(pregunta.pregunta)!""}" style="text-transform:uppercase"/>
+                <input type="hidden" class="form-control" id="temaCapacitacion" name="temaCapacitacion" value="${(temaCapacitacionCrear.id)!""}"/>
                 </fieldset>
 
             <div class="m-y">

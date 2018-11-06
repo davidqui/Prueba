@@ -87,9 +87,12 @@ public class TemaCapacitacionService {
             throw new BusinessLogicException("El texto del tema permite máximo " + textoTemaColumnLength + " caracteres.");
         }
 
-        TemaCapacitacion nombreTema = temaCapacitacionRepository.findOneByTema(tema);
-        if (nombreTema != null) {
+        List<TemaCapacitacion> nombreTema = temaCapacitacionRepository.findAllByTemaAndActivoTrue(tema);
+        
+        for (int i = 0; i < nombreTema.size() ; i++) {
+           if (nombreTema != null &&nombreTema.get(i).getClasificacion().equals(clasificacion)) {
             throw new BusinessLogicException("Este Tema de Capacitacion ya existe.");
+        } 
         }
 
         temaCapacitacion.setTema(tema.toUpperCase());

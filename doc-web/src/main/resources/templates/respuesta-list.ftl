@@ -9,8 +9,8 @@
 </#if>
 
 <div class="container-fluid">
-    <h1 class="cus-h1-page-title">${pageTitle} -> de la Pregunta : <b>${respuestaView.pregunta?capitalize}</b></h1>
-    <h1 class="cus-h1-page-title">${pageTitle} -> del Tema de Capacitación : <b>${temaView.tema?capitalize}</b></h1>
+    <h1 class="cus-h1-page-title">${pageTitle}  de la Pregunta : <b>${respuestaView.pregunta?capitalize}</b></h1>
+    <h1 class="cus-h1-page-title">${pageTitle}  del Tema de Capacitación : <b>${temaView.tema?capitalize}</b></h1>
     <#if descriptor.description??>
         <p class="lead">${descriptor.description}</p>
     </#if>

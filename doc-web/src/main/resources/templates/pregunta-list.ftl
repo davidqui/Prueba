@@ -9,7 +9,7 @@
 </#if>
 
 <div class="container-fluid">
-    <h1 class="cus-h1-page-title">${pageTitle} -> <b>${preguntaView.tema?capitalize}</b></h1>
+    <h1 class="cus-h1-page-title">${pageTitle}s de:   <b>${preguntaView.tema?capitalize}</b></h1>
     <#if descriptor.description??>
         <p class="lead">${descriptor.description}</p>
     </#if>

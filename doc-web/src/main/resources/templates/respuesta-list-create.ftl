@@ -38,25 +38,4 @@
             </form>
 
         </div>
-
-<!--    <script type="text/javascript">
-        
-    function validacion(){
-            
-        var textoRespuesta = $.trim( $("#textoRespuesta").val() );
-        if( textoRespuesta.length <= 0 ){
-            
-            alert("Debe ingresar el Texto  de la Pregunta");
-            return false;
-        }
-            
-            
-        return true;
-    }
-        </script>-->
-
-<#if templatePrefix??>
-    <#include templatePrefix + "-footer.ftl">
-<#else>
     <#include "footer.ftl">
-</#if>

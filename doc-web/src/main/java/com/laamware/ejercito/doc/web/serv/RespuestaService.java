@@ -81,15 +81,14 @@ public class RespuestaService {
             throw new BusinessLogicException("El texto de la respuesta permite máximo " + textoRespuestaColumnLength + " caracteres.");
         }
         
-        Respuesta nombreRespuesta = respuestaRepository.findOneByTextoRespuestaAndActivoTrue(textoRespuesta);
-        if (nombreRespuesta != null&& !nombreRespuesta.getId().equals(nombreRespuesta.getId())&& nombreRespuesta != null) {
+        Respuesta nombreRespuesta = respuestaRepository.findOneByTextoRespuestaAndActivoTrue(textoRespuesta.toUpperCase());
+        if (nombreRespuesta != null&& !nombreRespuesta.getId().equals(respuesta.getId())&& nombreRespuesta != null) {
             throw new BusinessLogicException("Esta Respuesta ya existe.");
         }
         
         respuesta.setTextoRespuesta(textoRespuesta.toUpperCase());
         
         respuesta.setActivo(Boolean.TRUE);
-//        respuesta.setPregunta(preguntaId);
         respuesta.setCuando(new Date());
         respuesta.setCuandoMod(new Date());
         respuesta.setQuien(usuario);
@@ -160,10 +159,8 @@ public class RespuestaService {
     
     /**
      * Permite reactivar un registro de recurso multimedia.
-     * 
      * 2018-10-24 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * 
-     * @param pregunta Data de un recurso multimedia especifico.
+     * @param respuesta
      * @param usuario id del usuario en sesión
      */
     public void recuperarRespuesta(Respuesta respuesta,Usuario usuario) {
@@ -215,9 +212,7 @@ public class RespuestaService {
     
     /**
      * Lista todos los recursos multimedia activos y que pertenezcan a una unica tematica permitiendo su paginación. 
-     * 
      * 2018-10-01 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * 
      * @param pageable
      * @param id Id de la pregunta por la cual se filtran los datos de respuesta.
      * @return Lista de Recursos multimedia Activos y que pertenecen a una unica tematica. 
@@ -228,9 +223,7 @@ public class RespuestaService {
     
     /**
      * Lista todos los Recursos Multimedia de una Tematica para su paginación.
-     * 
      * 2018-10-01 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * 
      * @param pageable
      * @param pregunta Id de la pregunta por la cual se filtran los datos de la respuesta.
      * @return Lista de Recursos Multimedia de una unica Tematica.

@@ -21,7 +21,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +30,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Controlador para {@link Pregunta}.
- *
  * @author jcespedeso@imi.mil.co
  * @author dquijanor@imi.mil.co
  * @author dquijanor@imi.mil.co
@@ -61,18 +59,16 @@ public class PreguntaController extends UtilController {
     private TemaCapacitacionService temaCapacitacionService;
 
     /**
-     * Lista los Recursos Multimedia Activos por Pregunta
-     *
+     * Lista los Pregunta Activos por Pregunta
      * 2018-10-24 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     *
      * @param key Id de una Pregunta.
      * @param all
      * @param page
      * @param pageSize
      * @param model Parametro requerido por clase de spring
      * @param redirect Parametro requerido por clase de spring
-     * @return Según corresponda genera un Lista de Recursos Multimedia Activos
-     * y por Pregunta o los Recursos Multimedia de una Pregunta.
+     * @return Según corresponda genera un Lista de Pregunta Activos
+     * y por Pregunta o los Pregunta de una Pregunta.
      */
     @RequestMapping(value = {"/list/{key}"}, method = RequestMethod.GET)
     public String listByPregunta(@PathVariable(value = "key") Integer key,
@@ -112,7 +108,6 @@ public class PreguntaController extends UtilController {
 
     /**
      * Carga los datos necesarios al formulario para crear un recurso Pregunta.
-     *
      * @param key
      * @param model Parametro requerido por clase de spring
      * @return Template de creacion.
@@ -120,7 +115,6 @@ public class PreguntaController extends UtilController {
     @RequestMapping(value = {"/create/{key}"}, method = RequestMethod.GET)
     public String create(@PathVariable(value = "key") Integer key, Model model) {
         Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
-
         Pregunta pregunta = new Pregunta();
         model.addAttribute(NOMBRE_DEFECTO_FTL, pregunta);
         model.addAttribute("temaCapacitacion", temaCapacitacionService.findActive(sort));
@@ -131,9 +125,7 @@ public class PreguntaController extends UtilController {
 
     /**
      * Permite visualizar el formulario de edición de un recurso Pregunta.
-     *
      * 2018-10-24 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     *
      * @param model Parametro requerido por clase de spring
      * @param req Conjunto de data recibida por intermedio del request a traves
      * del formulario.
@@ -151,17 +143,13 @@ public class PreguntaController extends UtilController {
 
     /**
      * Modela en la vista los datos necesarios para crear un recurso Pregunta.
-     *
      * 2018-10-24 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     *
-     * @param pregunta Datos del Objeto Recursos Multimedia tomados desde el
-     * formulario de creación.
-     * @param req Conjunto de data recibida por intermedio del request a traves
-     * del formulario.
-     * @param model Parametro requerido por clase de spring
-     * @param redirect Parametro requerido por clase de spring
+     * @param pregunta Datos del Objeto Pregunta tomados desde el formulario de creación.
+     * @param req Conjunto de data recibida por intermedio del request a traves del formulario.
+     * @param model Parametro requerido por clase de spring.
+     * @param redirect Parametro requerido por clase de spring.
      * @param principal Id del Usuario en sesión.
-     * @param temaCapacitacionId
+     * @param temaCapacitacionId ID del Tema de Capacitacion.
      * @return Según corresponda pagina con el listado de los recursos Pregunta
      * Activos incluyendo el recien creado o a la misma vista de creacion en el
      * caso de que se presente una Exception.
@@ -193,51 +181,46 @@ public class PreguntaController extends UtilController {
 
     /**
      * Permite actualizar un recurso Pregunta.
-     *
      * 2018-10-24 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     *
-     * @param pregunta
-     * @param req Conjunto de data recibida por intermedio del request a traves
-     * del formulario.
+     * @param temaCapacitacionId Id del Tema de capacitaión.
+     * @param pregunta Parametro del Objeto Pregunta
+     * @param req Conjunto de data recibida por intermedio del request a traves del formulario
      * @param model Parametro requerido por clase de spring
      * @param redirect Parametro requerido por clase de spring
      * @param principal Usuarion en la sesión activa.
-     * @return Segun corresponda redirige al listado de Recursos Multimedia
+     * @return Segun corresponda redirige al listado de Pregunta
      * Activos incluyendo el recien modificado o a la misma vista de edición en
      * el caso de que se presente una Exception.
      */
-    @RequestMapping(value = {"/actualizar/{id}"}, method = RequestMethod.POST)
-    public String actualizar(@RequestParam(value = "id", required = true) Integer id,
-            @RequestParam(value = "pregunta", required = true) String pregunta, HttpServletRequest req, Model model, RedirectAttributes redirect,
-            Principal principal) {
+    @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
+    public String actualizar(@RequestParam(value = "temaCapacitacion", required = true) Integer temaCapacitacionId,
+            @RequestParam(value = "pregunta", required = true) String pregunta,@RequestParam(value = "id", required = true) Integer id,
+            HttpServletRequest req, Model model, RedirectAttributes redirect, Principal principal) {
+       
+        
         final Usuario usuarioSesion = getUsuario(principal);
         model.addAttribute(NOMBRE_DEFECTO_FTL, pregunta);
-        Pregunta pregunta1 = preguntaService.findOne(id);
-
+         TemaCapacitacion temaCapacitacion = temaCapacitacionService.findOne(temaCapacitacionId);
         try {
-            preguntaService.editarPregunta(pregunta1, usuarioSesion);
+            preguntaService.editarPregunta(id, pregunta, usuarioSesion);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro guardado con éxito");
-            return "redirect:" + PATH + "/list/" + id;
+            return "redirect:" + PATH + "/list/" + temaCapacitacionId;
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());
-            TemaCapacitacion listPregunta = temaCapacitacionService.findOne(id);
-            model.addAttribute("temasEditar", listPregunta);
+            model.addAttribute("temasEditar", temaCapacitacion);
             return EDIT_TEMPLATE;
         }
     }
 
     /**
      * Permite eliminar logicamente un registro de recurso Pregunta.
-     *
      * 2018-10-24 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     *
      * @param model Parametro requerido por clase de spring
-     * @param req Conjunto de data recibida por intermedio del request a traves
-     * del formulario.
+     * @param req Conjunto de data recibida por intermedio del request a traves del formulario.
      * @param redirect Parametro requerido por clase de spring
      * @param principal Id del usuario en la Sesión activa.
-     * @return Según corresponda redirige al listado de Recursos Multimedia
+     * @return Según corresponda redirige al listado de Pregunta
      * Activos y sin el registro eliminado o presente una Exception.
      */
     @RequestMapping(value = {"/delete"}, method = RequestMethod.GET)
@@ -259,15 +242,12 @@ public class PreguntaController extends UtilController {
 
     /**
      * Cambia el estado de un Recurso Multimedia de eliminado a Activo.
-     *
      * 2018-10-24 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     *
      * @param model Parametro requerido por clase de spring.
-     * @param req Conjunto de data recibida por intermedio del request a traves
-     * del formulario.
+     * @param req Conjunto de data recibida por intermedio del request a traves del formulario.
      * @param redirect Parametro requerido por clase de spring.
      * @param principal Id del usuario activo en sesión.
-     * @return Según corresponda redirige al listado de Recursos Multimedia
+     * @return Según corresponda redirige al listado de Pregunta
      * Activos o presente una Exception.
      */
     @RequestMapping(value = {"/recuperar"}, method = RequestMethod.GET)
@@ -285,16 +265,28 @@ public class PreguntaController extends UtilController {
             return "redirect:" + PATH;
         }
     }
+    
+    /**
+     * Metodo del Desciptor
+     * @return 
+     */
 
     @ModelAttribute("descriptor")
     GenDescriptor getDescriptor() {
         return GenDescriptor.find(Pregunta.class);
     }
-
+    /**
+     * 
+     * @return 
+     */
     @ModelAttribute("activePill")
     public String getActivePill() {
         return "pregunta";
     }
+    /**
+     * Metodo que permite prefijar las plantillas
+     * @return 
+     */
 
     @ModelAttribute("templatePrefix")
     protected String getTemplatePrefix() {

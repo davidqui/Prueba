@@ -41,11 +41,6 @@ public class TemaCapacitacion implements Serializable {
     @NotNull
     @Column(name = "ID")
     private Integer id;
-//    @LaamLabel("Clasificación")
-//    @LaamListColumn(order = 10)
-//    @LaamCreate(order = 10)
-//    @Column(name = "CLASIFICACION")
-//    private Integer clasificacion;
     @Basic(optional = false)
     @NotNull
     @LaamLabel("Téma")

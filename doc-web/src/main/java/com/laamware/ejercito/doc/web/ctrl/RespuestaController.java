@@ -203,15 +203,12 @@ public class RespuestaController extends UtilController {
      */
     @RequestMapping(value = {"/actualizar"}, method = RequestMethod.POST)
     public String actualizar(Respuesta respuesta, HttpServletRequest req, Model model, RedirectAttributes redirect, Principal principal) {
-        System.out.println("entrando al metodo actualizar del controlador");
-
         model.addAttribute(NOMBRE_DEFECTO_FTL, respuesta);
         final Usuario usuarioSesion = getUsuario(principal);
         try {
-            System.out.println("<<<<<<<<<<<<<<<<<<<<<<Entrando al try = " + respuesta);
             respuestaService.editarRespuesta(respuesta, usuarioSesion);
-            System.out.println("<<<<<<<<<<<<<<<<<<<<<<Prueba editar = " + respuesta);
             redirect.addFlashAttribute(AppConstants.FLASH_SUCCESS, "Registro modificado con éxito");
+            
             return "redirect:" + PATH + "/list/" + respuesta.getPregunta().getId();
         } catch (BusinessLogicException | ReflectionException ex) {
             LOG.log(Level.SEVERE, null, ex);
@@ -259,7 +256,7 @@ public class RespuestaController extends UtilController {
             Respuesta respuesta = respuestaService.findOne(id);
             respuestaService.recuperarRespuesta(respuesta, usuarioSesion);
             model.addAttribute(AppConstants.FLASH_SUCCESS, "Recurso recuperado con éxito");
-            return "redirect:" + PATH;
+            return "redirect:" + PATH + "/list/" + respuesta.getPregunta().getId();
         } catch (NumberFormatException ex) {
             LOG.log(Level.SEVERE, req.getParameter("id"), ex);
             model.addAttribute(AppConstants.FLASH_ERROR, ex.getMessage());

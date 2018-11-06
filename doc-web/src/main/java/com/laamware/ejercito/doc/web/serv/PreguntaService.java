@@ -102,14 +102,15 @@ public class PreguntaService {
     /**
      * Metodo para Editar una Pregunta de un Tema de Capacitacion.
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * @param pregunta variable del objeto Tema de capacitacion
+     * @param id
+     * @param textPregunta
      * @param usuario variable del objeto Usuario en sesión
      * @throws BusinessLogicException
      * @throws ReflectionException 
      */
-    public void editarPregunta(Pregunta pregunta, Usuario usuario) throws BusinessLogicException, ReflectionException {
-//        Pregunta pregunta = new Pregunta();
-        final String textoPregunta = pregunta.getPregunta();
+    public void editarPregunta(Integer id, String textPregunta, Usuario usuario) throws BusinessLogicException, ReflectionException {
+        Pregunta pregunta = new Pregunta();
+        final String textoPregunta = textPregunta;
         if (textoPregunta == null || textoPregunta.trim().length() == 0) {
             throw new BusinessLogicException("El texto de la pregunta es obligatorio.");
         }
@@ -123,12 +124,16 @@ public class PreguntaService {
         if (nombrePregunta != null && !nombrePregunta.getId().equals(pregunta.getId())&& nombrePregunta != null) {
             throw new BusinessLogicException("Esta pregunta ya existe.");
         }
-        pregunta.setPregunta(pregunta.getPregunta().toUpperCase());
-        Pregunta nombrePreguntaAnterior = findOne(pregunta.getId());
-        pregunta.setActivo(nombrePreguntaAnterior.getActivo());
-        pregunta.setCuando(nombrePreguntaAnterior.getCuando());
+        pregunta.setPregunta(textPregunta.toUpperCase());
+        
+        Pregunta datosPreguntaAnterior = findOne(id);
+        
+        pregunta.setTemaCapacitacion(datosPreguntaAnterior.getTemaCapacitacion());
+        pregunta.setId(datosPreguntaAnterior.getId());
+        pregunta.setActivo(datosPreguntaAnterior.getActivo());
+        pregunta.setCuando(datosPreguntaAnterior.getCuando());
         pregunta.setCuandoMod(new Date());
-        pregunta.setQuien(nombrePreguntaAnterior.getQuien());
+        pregunta.setQuien(datosPreguntaAnterior.getQuien());
         pregunta.setQuienMod(usuario);
         
 
@@ -209,13 +214,11 @@ public class PreguntaService {
         return preguntaRepository.findAll(pageable);
     }
     /**
-     * Lista todos los recursos multimedia activos y que pertenezcan a una unica tematica permitiendo su paginación. 
-     * 
-     * 2018-10-01 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-     * 
+     * Lista todos las Preguntas activas y que pertenezcan a un unico tema de Capacitacion permitiendo su paginación. 
+     * 2018-10-17 Issue 25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
      * @param pageable
-     * @param id Id de la Tematica por la cual se filtran los datos de registro multimedia.
-     * @return Lista de Recursos multimedia Activos y que pertenecen a una unica tematica. 
+     * @param id Id del Tema de Capacitacion por la cual se filtran los datos de registro pregunta.
+     * @return Lista de Preguntas Activas y que pertenecen a un unico Tema  de Capacitación. 
      */
     public Page<Pregunta> findActiveAndTemaCapacitacionPage(Pageable pageable, Integer id) {
         return preguntaRepository.getByActivoTrueAndTemaCapacitacionId(pageable,id);
@@ -241,6 +244,8 @@ public class PreguntaService {
     public List<Pregunta> findActiveAndTemaCapacitacion(Sort sort, Integer id) {
         return preguntaRepository.getByActivoTrueAndTemaCapacitacionId(sort, id);
     }
+
+   
     
     
     
