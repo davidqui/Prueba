@@ -84,7 +84,7 @@
           	</#if>
           </#if>
                 <!--#181 se agrega loader --> 
-                <a href="/capacitacion-juego/intro" onclick="loading(event);" target="_blank">Capacitación</a>
+                <a href="/capacitacion/intro" onclick="loading(event);" target="_blank">Capacitación</a>
                 <a href="/manual/intro" onclick="loading(event);" target="_blank">Manual</a>
 
                     <#--

@@ -12,18 +12,19 @@ public interface CapacitacionRepository extends  JpaRepository<Capacitacion, Int
     Capacitacion findOneByResultado(String resultado);
 
 //    public List<Capacitacion> getByActivoTrue(Sort sort);
+//    
 //    public Page<Capacitacion> getByActivoTrue(Pageable pageable);
 //
 //    Capacitacion findOneByResultadoAndActivoTrue(String resultado);
     
    
-//    public Page<Capacitacion> findByResultadoIgnoreCaseContaining(Pageable pageable, String resultado);
-//    
+    public Page<Capacitacion> findByResultadoIgnoreCaseContaining(Pageable pageable, String resultado);
+    
 //    public Page<Capacitacion> findByResultadoIgnoreCaseContainingAndActivoTrue(Pageable pageable, String resultado);
-//
+
 //    public List<Capacitacion> getByActivoTrueAndTemaCapacitacionId(Sort sort, Integer Id);
-//    
-//    public Page<Capacitacion> getByActivoTrueAndTemaCapacitacionId(Pageable pageable,Integer Id);
+    
+//    public Page<Capacitacion> getByActivoTrueAndCapacitacionId(Pageable pageable,Integer Id);
     
     /**
      * Busca todos los registros de las  Capacitaciones por el Id.
@@ -31,16 +32,16 @@ public interface CapacitacionRepository extends  JpaRepository<Capacitacion, Int
      * @param Id id de la capaciracion a buscar
      * @return 
      */
-//    public List<Capacitacion> findAllByTemaCapacitacionId(Integer Id);
-//    
-//    /**
-//     * Busca todos los registros de las  Capacitaciones por el Id.
-//     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
-//     * @param Id id de la capacitacion a buscar
-//     * @param pageable  Clase de springframework para la realizacion de paginacion
-//     * @return 
-//     */
-//     
-//    public Page<Capacitacion> findAllByTemaCapacitacionId(Pageable pageable,Integer Id);
+//    public List<Capacitacion> findAllByCapacitacionId(Integer Id);
+    
+    /**
+     * Busca todos los registros de las  Capacitaciones por el Id.
+     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * @param Id id de la capacitacion a buscar
+     * @param pageable  Clase de springframework para la realizacion de paginacion
+     * @return 
+     */
+     
+//    public Page<Capacitacion> findAllByCapacitacionId(Pageable pageable,Integer Id);
     
 }

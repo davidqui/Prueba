@@ -60,6 +60,15 @@ public class PreguntaService {
     public Pregunta findOne(Integer id) {
         return preguntaRepository.getOne(id);
     }
+    /**
+     * Busca un registro de Pregunta especifico por su Id.
+     *2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * @param id identificador del registro.
+     * @return
+     */
+    public Pregunta buscarPreguntaActiva(String pregunta) {
+        return preguntaRepository.findOneByPreguntaAndActivoTrue(pregunta);
+    }
     
     /**
      * Metodo para crear una Pregunta

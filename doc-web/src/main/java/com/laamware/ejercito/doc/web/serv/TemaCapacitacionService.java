@@ -208,6 +208,15 @@ public void recuperarPregunta(TemaCapacitacion temaCapacitacion,Usuario usuario)
     public List<TemaCapacitacion> findAll(Sort sort) {
         return temaCapacitacionRepository.findAll(sort);
     }
+    /**
+     * Lista todos los temaCapacitacions
+     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * @param sort
+     * @return 
+     */
+    public List<TemaCapacitacion> findAllList(Sort sort) {
+        return temaCapacitacionRepository.getByActivoTrue(sort);
+    }
     
     /**
      * Lista todos las temaCapacitacions para paginación.

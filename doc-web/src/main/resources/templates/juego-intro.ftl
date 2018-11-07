@@ -8,10 +8,10 @@
             </div>
             <div class="card-block">
               <ul class="nav nav-pills nav-stacked">
-              	<#if juegos?? >
-                <#list juegos as j>
+              	<#if temas?? >
+                <#list temas as tema>
                 <li class="nav-item">
-                  <a href="/capacitacion-juego/juego?jid=${j.id}" class="nav-link <#if juego?? &&j.id == juego.id>active</#if>">${j.nombre}</a>
+                  <a href="/capacitacion/juego${tema.id}" class="nav-link">${tema.tema?capitalize}</a>
                 </li>
                 </#list>
 				</#if>

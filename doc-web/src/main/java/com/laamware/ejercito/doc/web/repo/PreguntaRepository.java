@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface PreguntaRepository extends PagingAndSortingRepository<Pregunta, Integer>, JpaRepository<Pregunta, Integer> {
+
+    public  Pregunta findOne(Integer Id);
     
     Pregunta findOneByPregunta(String pregunta);
 
@@ -16,6 +18,7 @@ public interface PreguntaRepository extends PagingAndSortingRepository<Pregunta,
     public Page<Pregunta> getByActivoTrue(Pageable pageable);
 
     Pregunta findOneByPreguntaAndActivoTrue(String pregunta);
+    
     public Page<Pregunta> findByPreguntaIgnoreCaseContaining(Pageable pageable, String pregunta);
     public Page<Pregunta> findByPreguntaIgnoreCaseContainingAndActivoTrue(Pageable pageable, String pregunta);
 
