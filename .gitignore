@@ -1,1 +1,4 @@
 /doc-web/nbactions.xml
+\.idea/
+
+doc-web/doc-web\.iml
