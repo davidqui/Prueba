@@ -1,10 +1,8 @@
 package com.laamware.ejercito.doc.web.repo;
 
 import com.laamware.ejercito.doc.web.entity.Capacitacion;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CapacitacionRepository extends  JpaRepository<Capacitacion, Integer> {

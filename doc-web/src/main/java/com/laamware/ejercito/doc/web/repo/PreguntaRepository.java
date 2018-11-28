@@ -6,14 +6,29 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface PreguntaRepository extends PagingAndSortingRepository<Pregunta, Integer>, JpaRepository<Pregunta, Integer> {
 
+    @Override
     public  Pregunta findOne(Integer Id);
     
     Pregunta findOneByPregunta(String pregunta);
+    
+    @Query(nativeQuery = true, value = ""
+            + " SELECT                                                                           "
+            + " PREGUNTA                                                                         "
+            + " FROM                                                                             "
+            + "(SELECT PREGUNTA FROM PREGUNTA where pregunta.tema_capacitacion = :idTema     "
+            + " ORDER BY                                                                         "
+            + " dbms_random.value)                                                               "
+            + " WHERE                                                                            "
+            + " rownum = 1                                                                       ")
+    Pregunta findOneByTemaCapacitacionAndActivoTrue(@Param("idTema") Integer idTema);
 
+    
     public List<Pregunta> getByActivoTrue(Sort sort);
     public Page<Pregunta> getByActivoTrue(Pageable pageable);
 

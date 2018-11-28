@@ -70,6 +70,7 @@ public class PreguntaService {
         return preguntaRepository.findOneByPreguntaAndActivoTrue(pregunta);
     }
     
+    
     /**
      * Metodo para crear una Pregunta
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
@@ -148,6 +149,7 @@ public class PreguntaService {
 
         preguntaRepository.saveAndFlush(pregunta);
     }
+    
 
     /**
      * Metodo para eliminar un Pregunta
@@ -253,6 +255,9 @@ public class PreguntaService {
     public List<Pregunta> findActiveAndTemaCapacitacion(Sort sort, Integer id) {
         return preguntaRepository.getByActivoTrueAndTemaCapacitacionId(sort, id);
     }
+    
+    
+    
 
    
     

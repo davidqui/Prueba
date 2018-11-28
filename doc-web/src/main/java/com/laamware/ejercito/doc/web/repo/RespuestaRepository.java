@@ -1,16 +1,38 @@
 package com.laamware.ejercito.doc.web.repo;
 
+import com.laamware.ejercito.doc.web.entity.Pregunta;
 import com.laamware.ejercito.doc.web.entity.Respuesta;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface RespuestaRepository extends PagingAndSortingRepository<Respuesta, Integer>, JpaRepository<Respuesta, Integer> {
     
     Respuesta findOneByTextoRespuesta(String textoRespuesta);
+    
+    @Query(nativeQuery = true, value = ""
+            + " SELECT                                                                           "
+            + " *                                                                                "
+            + " FROM(                                                                            "
+            + " SELECT                                                                           "
+            + " TEXTO_RESPUESTA , rownum num_lineas                                              "
+            + " FROM                                                                             "
+            + "(SELECT                                                                           "
+            + "TEXTO_RESPUESTA                                                                   "
+            + " FROM                                                                             "
+            + " respuesta                                                                        "
+            + " WHERE                                                                            " 
+            + " PREGUNTA = :id                                                                   "
+            + " ORDER BY                                                                         "
+            + " dbms_random.value)                                                               "
+            + " )WHERE                                                                           "
+            + " num_lineas >= 0 and num_lineas <= 4                                              ")
+    public List<Respuesta> findOneByPreguntaAndActivoTrue(@Param("id") Integer id);
 
     public List<Respuesta> getByActivoTrue(Sort sort);
     public Page<Respuesta> getByActivoTrue(Pageable pageable);

@@ -114,9 +114,14 @@
                 <@link_admin  "ADMIN_TEMATICA" "/admin/tematica" 'tematica' 'Administración Manual Usuario'/>
                 <#--
                     2018-10-18 @author jcespedeso@imi.mil.co @author dquijanor@imi.mil.co @author aherreram@imi.mil.co feature_9 (SICDI-GETDE)
-                    Issue #25 (SICDI-Controltech) feature-gogs-25: Enlace para la opción de Tema de Capacitación.
+                    Issue #25 (SICDI-GETDE) feature-gogs-25: Enlace para la opción de Tema de Capacitación.
                 -->
                 <@link_admin  "ADMIN_TEMA_CAPACITACION" "/admin/temaCapacitacion" 'temaCapacitacion' 'Administración Capacitación'/>
+                <#--
+                    2018-11-09 @author dquijanor@imi.mil.co  feature-25 (SICDI-GETDE)
+                    Issue #25 (SICDI-GETDE) feature-gogs-25: Enlace para la opción de Capacitación.
+                -->
+                
               
                 </ul>
             </div>

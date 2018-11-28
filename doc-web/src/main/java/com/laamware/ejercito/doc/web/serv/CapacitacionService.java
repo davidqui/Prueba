@@ -1,19 +1,25 @@
 package com.laamware.ejercito.doc.web.serv;
 
 import com.laamware.ejercito.doc.web.entity.Capacitacion;
+import com.laamware.ejercito.doc.web.entity.Pregunta;
+import com.laamware.ejercito.doc.web.entity.TemaCapacitacion;
 import com.laamware.ejercito.doc.web.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.laamware.ejercito.doc.web.repo.CapacitacionRepository;
+import com.laamware.ejercito.doc.web.repo.PreguntaRepository;
 import com.laamware.ejercito.doc.web.util.BusinessLogicException;
 import com.laamware.ejercito.doc.web.util.ReflectionException;
 import com.laamware.ejercito.doc.web.util.ReflectionUtil;
 import java.io.IOException;
 import java.math.BigInteger;
+import static java.util.Arrays.sort;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.data.domain.Page;
@@ -42,6 +48,13 @@ public class CapacitacionService {
     private CapacitacionRepository capacitacionRepository;
 
     /**
+     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Repositorio de Pregunta.
+     */
+    @Autowired
+    private PreguntaRepository preguntaRepository;
+
+    /**
      * Repositorio del Sevicio de indexación de archivos de SICDI.
      */
     @Autowired
@@ -56,6 +69,37 @@ public class CapacitacionService {
     public Capacitacion findOne(Integer id) {
         return capacitacionRepository.getOne(id);
     }
+
+    public Pregunta generarPregunta(Pregunta pregunta, TemaCapacitacion temaCapacitacion, Usuario usuario) throws BusinessLogicException, ReflectionException {
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<Entrando a l servicio>>>>>>>>>>>>>>>>>>>>>>>  = " + usuario+temaCapacitacion + pregunta);
+        
+         final Integer idTema = temaCapacitacion.getId();
+        
+         pregunta = preguntaRepository.findOneByTemaCapacitacionAndActivoTrue(idTema);
+        
+        return pregunta;
+    }
+    
+    
+    
+    
+//    public void generarPregunta(Pregunta pregunta, TemaCapacitacion temaCapacitacion, Usuario usuario) throws BusinessLogicException, ReflectionException {
+//        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "cuando"));
+//        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<entrando al Servicio generarPregunta >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//        List<Pregunta> preguntas = preguntaRepository.findAllByTemaCapacitacionId(temaCapacitacion.getId());
+//          for (Pregunta pregunta1 : preguntas) {
+//             System.out.println("<<<<<<<<<<<<<<<<<<preguntas>>>>>>>>>>>>>>>>>>> = " + pregunta1.getPregunta());
+////             System.out.println("<<<<<<<<<<<<<<<<<<preguntas>>>>>>>>>>>>>>>>>>> = " + preguntas.get(0).getPregunta());
+//        }
+//        // Selecciona un indice al azar de la lista de preguntas
+////        int random = new Random().nextInt(preguntas.size());
+//////         int random = ThreadLocalRandom.current().nextInt(0, preguntas.size());
+////        Pregunta laPregunta = preguntas.get(random);
+//////        System.out.println("laPregunta = " + laPregunta);
+////        preguntaRepository.findOneByPreguntaAndActivoTrue(laPregunta.getPregunta());
+//
+////        capacitacionRepository.saveAndFlush(laPregunta);
+//    }
 
     /**
      * Método que crea una CApacitación 2018-10-17 Issue #25 SICDI-GETDE
@@ -197,7 +241,7 @@ public class CapacitacionService {
     }
 
     /**
-     * 
+     *
      */
     public void recuperarCapacitacion(Capacitacion capacitacion, Usuario usuario) {
 
@@ -209,16 +253,16 @@ public class CapacitacionService {
     /**
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 aherreram@imi.mil.co
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @return
      */
     public Map<String, String> extencionesPermitidas() {
         Map<String, String> listContentType = new HashMap<>();
         listContentType.put("application/pdf", "pdf");
-        
+
 //        listContentType.put("video/x-msvideo", "avi");
 //        listContentType.put("video/mpeg", "mpeg");
 //        listContentType.put("video/mp4", "mp4");
-
         return listContentType;
     }
 
@@ -226,6 +270,7 @@ public class CapacitacionService {
      * Metodo que identifica la metadata de la extension de un archivo.
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 aherreram@imi.mil.co
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param file Archivo a evaluar.
      * @return Valor que identifica la extencion del archivo que recibio por
      * parametro.
@@ -235,9 +280,10 @@ public class CapacitacionService {
     }
 
     /**
-     * Permite validar el formato del archivo que se esta cargando. 
-     * 2018-10-17  * Issue #25 SICDI-GETDE feature-25 aherreram@imi.mil.co 
-     * 2018-10-17 Issue #25 * SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Permite validar el formato del archivo que se esta cargando. 2018-10-17 *
+     * Issue #25 SICDI-GETDE feature-25 aherreram@imi.mil.co 2018-10-17 Issue
+     * #25 * SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param contentType Tipo de contenido.
      * @return {@code true} Si el tipo de contenido es válido (PDF, AVI, JPEG,
      * JPG4); de lo contrario {@code false}.
@@ -247,8 +293,9 @@ public class CapacitacionService {
     }
 
     /**
-     * Lista todos las capacitaciónes 
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co 
+     * Lista todos las capacitaciónes 2018-10-17 Issue #25 SICDI-GETDE
+     * feature-25 dquijanor@imi.mil.co
+     *
      * @param sort
      * @return Lista de capacitaciones sin importar su estado.
      */
@@ -256,29 +303,27 @@ public class CapacitacionService {
         return capacitacionRepository.findAll(sort);
     }
 
- 
-
-    
     /**
      * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     *
      * @param pageable
      * @param tema
-     * @return 
+     * @return
      */
     public Page<Capacitacion> findAllActiveCapacitacion(Pageable pageable, String tema) {
         return capacitacionRepository.findByResultadoIgnoreCaseContaining(pageable, tema);
     }
-    
+
     /**
-     * Lista todos las Capacitaciones
-     * 2018-10-17 Issue #25 SICDI-GETDE feature-25 dquijanor@imi.mil.co
+     * Lista todos las Capacitaciones 2018-10-17 Issue #25 SICDI-GETDE
+     * feature-25 dquijanor@imi.mil.co
+     *
      * @param pageable
      * @param tema
-     * @return 
+     * @return
      */
     public Page<Capacitacion> findAllTemaCapacitacion(Pageable pageable, String tema) {
         return capacitacionRepository.findByResultadoIgnoreCaseContaining(pageable, tema);
     }
-    
-    
+
 }

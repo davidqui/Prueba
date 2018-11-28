@@ -19,6 +19,8 @@
         <link href='/css/custom.css' rel='stylesheet' type='text/css'>
         <link href='/css/juego.css' rel='stylesheet' type='text/css'>
         <link href='/css/vis.min.css' rel='stylesheet' type='text/css'>
+        <!--juego quien quiere ser Millonario-->
+        <!--<link rel="stylesheet" href="/css/qqss.css" type="text/css" />-->
 
         <link rel="stylesheet" href="/css/cdnjscloudfire.style.min.css" />
         

@@ -6,11 +6,14 @@
             </div>
             <div class="card-block">
               <ul class="nav nav-pills nav-stacked">
-              	<#if juegos?? >
-                <#list juegos as j>
-                <li class="nav-item">
-                  <a href="/capacitacion-juego/juego?jid=${j.id}" class="nav-link <#if j.id == juego.id>active</#if>">${j.nombre}</a>
+              	<#if temas?? >
+                <#list temas as tema>
+
+                <li class="nav-item" >
+                  <a href="/capacitacion/juego/" style="white-space: initial; justific" class="nav-link"><b>${tema.tema?capitalize} &nbsp;&nbsp;<#if !tema.clasificacion??><em>&nbsp;&nbsp; SIN CLASIFICACION </em><#else><em>${tema.clasificacion}</em></b></#if></a>
+
                 </li>
+
                 </#list>
 				</#if>
               </ul>
